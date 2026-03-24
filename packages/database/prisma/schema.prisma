@@ -1,64 +1,23 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
+// SQLiteデータベースの設定
 datasource db {
   provider = "sqlite"
+  url      = env("DATABASE_URL")
 }
 
+// ユーザー情報を管理するモデル
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
   passwordHash String   @map("password_hash")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
-  notes        Note[]
-  tags         Tag[]
 
   @@map("users")
-}
-
-model Note {
-  id        String   @id @default(cuid())
-  content   String
-  isPinned  Boolean  @default(false) @map("is_pinned")
-  isTrashed Boolean  @default(false) @map("is_trashed")
-  authorId  String   @map("author_id")
-  author    User     @relation(fields: [authorId], references: [id])
-  tags      Tag[]
-  assets    Asset[]
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@map("notes")
-}
-
-model Tag {
-  id     String @id @default(cuid())
-  name   String
-  userId String @map("user_id")
-  user   User   @relation(fields: [userId], references: [id])
-  notes  Note[]
-
-  @@unique([name, userId])
-  @@map("tags")
-}
-
-model Asset {
-  id          String   @id @default(cuid())
-  key         String   @unique
-  contentType String   @map("content_type")
-  size        Int
-  noteId      String   @map("note_id")
-  note        Note     @relation(fields: [noteId], references: [id])
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
-  @@map("assets")
 }
