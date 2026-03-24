@@ -1,0 +1,16 @@
+{
+  "name": "simplenote-clone",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SimpleNote Clone - A robust, local-first note-taking app",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "docker-compose up"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
