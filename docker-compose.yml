@@ -1,0 +1,53 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: docker/api.Dockerfile
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - ./storage:/app/storage
+    environment:
+      - DATABASE_URL=file:/app/storage/dev.db
+      - JWT_SECRET=dev-secret
+    ports:
+      - "3000:3000"
+    depends_on:
+      - minio
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/web.Dockerfile
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:3000
+
+  minio:
+    image: minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - ./storage/minio:/data
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+
+  prisma-studio:
+    build:
+      context: .
+      dockerfile: docker/api.Dockerfile
+    command: npx prisma studio
+    volumes:
+      - .:/app
+      - ./storage:/app/storage
+    ports:
+      - "5555:5555"
+    depends_on:
+      - api
