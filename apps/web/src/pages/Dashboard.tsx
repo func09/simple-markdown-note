@@ -4,6 +4,7 @@ import { NoteList, Editor, SidebarTagList, useNotes, useCreateNote, useDeleteNot
 import { logout } from '../features/auth';
 import { useNavigate } from 'react-router-dom';
 import { StickyNote, Settings, User, LogOut } from 'lucide-react';
+import { cn } from '../lib/utils';
 
 /**
  * メインのダッシュボードページ
@@ -23,7 +24,9 @@ const Dashboard: React.FC = () => {
     let result = [...notes];
     
     // タグフィルタリング
-    if (selectedTag) {
+    if (selectedTag === '__untagged__') {
+      result = result.filter(note => !note.tags || note.tags.length === 0);
+    } else if (selectedTag) {
       result = result.filter(note => 
         note.tags?.some(tag => tag.name === selectedTag)
       );
@@ -42,6 +45,13 @@ const Dashboard: React.FC = () => {
 
   const selectedNote = notes.find(n => n.id === selectedNoteId) || null;
 
+  const { setSelectedTag, setSearchQuery } = useNoteStore();
+
+  const handleAllNotes = () => {
+    setSelectedTag(null);
+    setSearchQuery('');
+  };
+
   const handleLogout = () => {
     logout();
     navigate('/login');
@@ -51,7 +61,7 @@ const Dashboard: React.FC = () => {
     try {
       const newNote: any = await createNoteMutation.mutateAsync({
         content: '',
-        tags: selectedTag ? [selectedTag] : [] // 選択中のタグがあれば自動付与
+        tags: (selectedTag && selectedTag !== '__untagged__') ? [selectedTag] : [] // 選択中のタグがあれば自動付与
       });
       setSelectedNoteId(newNote.id);
     } catch (err) {
@@ -88,9 +98,18 @@ const Dashboard: React.FC = () => {
   const navigationContent = (
     <div className="flex flex-col h-full overflow-y-auto custom-scrollbar">
       <div className="flex flex-col gap-6 items-center flex-shrink-0">
-        <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+        <button 
+          onClick={handleAllNotes}
+          className={cn(
+            "w-10 h-10 rounded-xl flex items-center justify-center transition-all active:scale-95",
+            (selectedTag === null && searchQuery === '') 
+              ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20" 
+              : "bg-slate-800 text-slate-400 hover:text-blue-400"
+          )}
+          title="All Notes"
+        >
           <StickyNote size={24} />
-        </div>
+        </button>
         <div className="flex flex-col gap-4 mt-4">
           <button className="p-2 text-slate-500 hover:text-blue-400 transition-colors">
             <User size={24} />
