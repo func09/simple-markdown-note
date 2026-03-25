@@ -52,13 +52,8 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags }) => {
   };
 
   const handleBodyChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newBody = e.target.value;
-    const newContent = title + '\n' + newBody;
-    updateLocalContent(newContent);
+    updateLocalContent(title + '\n' + e.target.value);
   };
-
-  const titleRef = useRef<HTMLTextAreaElement>(null);
-  const bodyRef = useRef<HTMLTextAreaElement>(null);
 
   // タイトル入力でのキー操作
   const handleTitleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
