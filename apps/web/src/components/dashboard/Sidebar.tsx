@@ -2,6 +2,7 @@ import React from 'react';
 import type { Note } from 'openapi';
 import { Plus, Trash2, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '../ui/button';
 
 interface SidebarProps {
   notes: Note[];
@@ -23,12 +24,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Header */}
       <div className="p-4 border-b border-slate-800 flex items-center justify-between">
         <h2 className="text-xl font-bold font-outfit text-white">All Notes</h2>
-        <button 
+        <Button 
+          variant="ghost"
+          size="icon"
           onClick={onCreateNote}
-          className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors text-blue-400"
+          className="h-9 w-9 text-blue-400 hover:text-blue-300 hover:bg-slate-800"
         >
           <Plus size={20} />
-        </button>
+        </Button>
       </div>
 
       {/* Search Bar Stub */}
