@@ -1,7 +1,6 @@
 import React from 'react';
 import type { Note } from 'openapi';
 import { Trash2 } from 'lucide-react';
-import { motion } from 'framer-motion';
 
 interface NoteItemProps {
   note: Note;
@@ -11,19 +10,16 @@ interface NoteItemProps {
 }
 
 /**
- * リスト内の各ノート要素 (デザイン調整版)
+ * リスト内の各ノート要素 (デザイン調整版) - 高速化のためアニメーションを削除しメモ化
  */
-export const NoteItem: React.FC<NoteItemProps> = ({
+export const NoteItem = React.memo<NoteItemProps>(({
   note,
   isSelected,
   onSelect,
   onDelete,
 }) => {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 5 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95 }}
+    <div
       onClick={() => onSelect(note.id)}
       className={`group relative mx-2 mb-1 p-4 rounded-xl cursor-pointer transition-all duration-200 ${
         isSelected 
@@ -32,7 +28,6 @@ export const NoteItem: React.FC<NoteItemProps> = ({
       }`}
     >
       <div className="flex gap-3 h-full">
-        
         <div className="flex-1 min-w-0 flex flex-col justify-center">
           <div className="flex justify-between items-start">
             <h3 className={`font-semibold line-clamp-1 mb-0.5 text-sm ${
@@ -61,11 +56,12 @@ export const NoteItem: React.FC<NoteItemProps> = ({
 
       {/* Selected Indicator */}
       {isSelected && (
-        <motion.div 
-          layoutId="selection-indicator"
+        <div 
           className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-blue-500 rounded-full" 
         />
       )}
-    </motion.div>
+    </div>
   );
-};
+});
+
+NoteItem.displayName = 'NoteItem';
