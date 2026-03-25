@@ -2,7 +2,7 @@ import React from 'react';
 import { useTags } from '../hooks/useNotesQuery';
 import { useNoteStore } from '../store';
 import { Tag as TagIcon, ChevronRight } from 'lucide-react';
-import { cn } from '../../../lib/utils';
+import { cn } from '@/lib/utils';
 
 /**
  * サイドバーに表示するタグ一覧コンポーネップ
