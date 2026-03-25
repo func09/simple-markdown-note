@@ -87,6 +87,7 @@ export const NoteList: React.FC<NoteListProps> = ({
 
       {/* Note List with ScrollArea */}
       <div 
+        id="note-list-container"
         className="flex-1 min-h-0 focus:outline-none"
         tabIndex={0}
         onKeyDown={(e) => {
@@ -100,6 +101,12 @@ export const NoteList: React.FC<NoteListProps> = ({
             const currentIndex = notes.findIndex(n => n.id === selectedNoteId);
             const prevIndex = Math.max(currentIndex - 1, 0);
             if (prevIndex >= 0) setSelectedNoteId(notes[prevIndex].id);
+          } else if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            document.getElementById('nav-container')?.focus();
+          } else if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            document.getElementById('editor-title')?.focus();
           }
         }}
       >
