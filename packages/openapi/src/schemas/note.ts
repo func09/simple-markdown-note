@@ -6,6 +6,7 @@ import { NoteSchema } from '../models/note';
  */
 export const CreateNoteRequestSchema = z.object({
   content: z.string().openapi({ example: 'New note content' }),
+  tags: z.array(z.string()).optional().openapi({ example: ['Work', 'Important'] }),
 }).openapi('CreateNoteRequest');
 
 /**
@@ -13,6 +14,7 @@ export const CreateNoteRequestSchema = z.object({
  */
 export const UpdateNoteRequestSchema = z.object({
   content: z.string().optional().openapi({ example: 'Updated content' }),
+  tags: z.array(z.string()).optional().openapi({ example: ['Work', 'Done'] }),
 }).openapi('UpdateNoteRequest');
 
 /**
