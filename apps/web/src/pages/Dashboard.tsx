@@ -166,9 +166,11 @@ const Dashboard: React.FC = () => {
   const handleNavKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'ArrowDown') {
       e.preventDefault();
-      const currentIndex = navItems.findIndex(item => 
-        item.type === 'trash' ? isTrashSelected : item.value === selectedTag
-      );
+      const currentIndex = navItems.findIndex(item => {
+        if (isTrashSelected) return item.type === 'trash';
+        if (selectedTag === null) return item.type === 'all';
+        return item.value === selectedTag;
+      });
       const nextIndex = Math.min(currentIndex + 1, navItems.length - 1);
       
       const nextItem = navItems[nextIndex];
@@ -185,9 +187,11 @@ const Dashboard: React.FC = () => {
       }
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      const currentIndex = navItems.findIndex(item => 
-        item.type === 'trash' ? isTrashSelected : item.value === selectedTag
-      );
+      const currentIndex = navItems.findIndex(item => {
+        if (isTrashSelected) return item.type === 'trash';
+        if (selectedTag === null) return item.type === 'all';
+        return item.value === selectedTag;
+      });
       const prevIndex = Math.max(currentIndex - 1, 0);
       
       const prevItem = navItems[prevIndex];
@@ -202,7 +206,8 @@ const Dashboard: React.FC = () => {
         setIsTrashSelected(false);
         setSelectedTag(prevItem.value as any);
       }
-    } else if (e.key === 'ArrowRight') {
+    }
+ else if (e.key === 'ArrowRight') {
       e.preventDefault();
       document.getElementById('note-list-container')?.focus();
     }
