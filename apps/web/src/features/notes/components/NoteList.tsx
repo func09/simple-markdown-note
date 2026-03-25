@@ -51,7 +51,7 @@ export const NoteList: React.FC<NoteListProps> = ({
       </div>
 
       {/* Note List with ScrollArea */}
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 min-h-0">
         <div className="px-3 pb-8">
           <AnimatePresence initial={false}>
             {notes.map((note) => (
