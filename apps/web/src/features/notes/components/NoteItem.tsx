@@ -35,14 +35,14 @@ export const NoteItem: React.FC<NoteItemProps> = ({
         
         <div className="flex-1 min-w-0 flex flex-col justify-center">
           <div className="flex justify-between items-start">
-            <h3 className={`font-semibold truncate mb-0.5 text-sm ${
+            <h3 className={`font-semibold line-clamp-1 mb-0.5 text-sm ${
               isSelected ? 'text-white' : 'text-slate-200'
             }`}>
               {note.content.split('\n')[0] || 'Untitled'}
             </h3>
           </div>
-          <p className="text-slate-500 text-xs truncate leading-relaxed">
-            {note.content || 'No content yet...'}
+          <p className="text-slate-500 text-xs line-clamp-2 leading-relaxed">
+            {note.content.split('\n').slice(1).join(' ') || 'No additional content'}
           </p>
         </div>
       </div>
