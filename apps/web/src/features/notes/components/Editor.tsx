@@ -3,19 +3,20 @@ import type { Note } from 'openapi';
 import { Textarea } from '../../../components/ui/textarea';
 import { Separator } from '../../../components/ui/separator';
 import { ScrollArea } from '../../../components/ui/scroll-area';
-import { Clock, Hash } from 'lucide-react';
+import { Clock, Hash, Loader2 } from 'lucide-react';
+import { useUpdateNote } from '../hooks/useNotesQuery';
 
 interface EditorProps {
   note: Note | null;
-  onUpdateNote: (id: string, content: string, title: string) => void;
 }
 
 /**
- * ノート編集用コンポーネント (shadcn/ui 使用版)
+ * ノート編集用コンポーネント (TanStack Query 使用版)
  */
-export const Editor: React.FC<EditorProps> = ({ note, onUpdateNote }) => {
+export const Editor: React.FC<EditorProps> = ({ note }) => {
   const [content, setContent] = useState('');
   const timeoutRef = useRef<any>(null);
+  const updateNoteMutation = useUpdateNote();
 
   useEffect(() => {
     if (note) {
@@ -36,7 +37,10 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateNote }) => {
 
     if (note) {
       timeoutRef.current = setTimeout(() => {
-        onUpdateNote(note.id, newContent, newTitle);
+        updateNoteMutation.mutate({ 
+          id: note.id, 
+          data: { content: newContent, title: newTitle } 
+        });
       }, 1000);
     }
   };
@@ -76,7 +80,16 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateNote }) => {
           </div>
           <div className="flex items-center gap-1.5">
             <Clock size={12} className="text-slate-600" />
-            <span>Last saved {new Date(note.updatedAt).toLocaleTimeString()}</span>
+            <span>
+              {updateNoteMutation.isPending ? (
+                <span className="flex items-center gap-1">
+                  <Loader2 size={10} className="animate-spin" />
+                  Saving...
+                </span>
+              ) : (
+                `Last saved ${new Date(note.updatedAt).toLocaleTimeString()}`
+              )}
+            </span>
           </div>
         </div>
         <div className="text-blue-500/50 font-outfit font-bold">SimpleNote Clone</div>
