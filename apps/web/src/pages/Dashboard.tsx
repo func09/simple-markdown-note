@@ -3,7 +3,7 @@ import { AppLayout } from '../components/layout/AppLayout';
 import { NoteList, Editor, SidebarTagList, useNotes, useCreateNote, useDeleteNote, useNoteStore, useUpdateNote } from '../features/notes';
 import { logout } from '../features/auth';
 import { useNavigate } from 'react-router-dom';
-import { StickyNote, Settings, User, LogOut } from 'lucide-react';
+import { StickyNote, Settings, User, LogOut, Columns3, Columns2, Maximize2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { 
@@ -60,7 +60,7 @@ const Dashboard: React.FC = () => {
 
   const selectedNote = notes.find(n => n.id === selectedNoteId) || null;
 
-  const { setSelectedTag, setSearchQuery } = useNoteStore();
+  const { setSelectedTag, setSearchQuery, layoutMode, toggleLayoutMode } = useNoteStore();
 
   const handleAllNotes = () => {
     setSelectedTag(null);
@@ -145,6 +145,20 @@ const Dashboard: React.FC = () => {
         </Tooltip>
 
         <div className="flex flex-col gap-4 mt-4">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button 
+                onClick={toggleLayoutMode}
+                className="p-2 text-slate-500 hover:text-blue-400 transition-colors"
+              >
+                {layoutMode === 'all' && <Columns3 size={24} />}
+                {layoutMode === 'split' && <Columns2 size={24} />}
+                {layoutMode === 'focus' && <Maximize2 size={24} />}
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="right">Toggle Layout</TooltipContent>
+          </Tooltip>
+
           <Tooltip>
             <TooltipTrigger asChild>
               <button className="p-2 text-slate-500 hover:text-blue-400 transition-colors">
