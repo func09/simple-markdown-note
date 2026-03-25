@@ -6,8 +6,9 @@ import { execSync } from 'child_process'
 describe('Auth API', () => {
   beforeAll(async () => {
     // テストデータベースの初期化
-    execSync('npx prisma db push --force-reset --schema=../../packages/database/prisma/schema.prisma', {
-      env: { ...process.env }
+    const dbUrl = process.env.DATABASE_URL || 'file:./test.db';
+    execSync(`npx prisma db push --force-reset --schema=../../packages/database/prisma/schema.prisma --config=../../packages/database/prisma.config.ts`, {
+      env: { ...process.env, DATABASE_URL: dbUrl }
     })
   })
 
