@@ -167,7 +167,7 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags }) => {
             onChange={handleBodyChange}
             onKeyDown={handleBodyKeyDown}
             placeholder="Start writing..."
-            className="w-full flex-1 bg-transparent border-none focus-visible:ring-0 p-0 text-slate-400 text-3xl leading-relaxed resize-none font-inter placeholder:text-slate-800 shadow-none border-0 min-h-[calc(100vh-400px)] [field-sizing:fixed!important]"
+            className="w-full flex-1 bg-transparent border-none focus-visible:ring-0 p-0 text-slate-200 text-2xl md:text-3xl lg:text-3xl font-medium leading-relaxed resize-none font-inter placeholder:text-slate-800 shadow-none border-0 min-h-[calc(100vh-400px)] [field-sizing:fixed!important]"
           />
         </div>
       </div>
