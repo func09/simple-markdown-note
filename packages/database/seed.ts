@@ -1,11 +1,30 @@
 import { PrismaClient } from '@prisma/client'
 import { PrismaLibSql } from '@prisma/adapter-libsql'
+import { fakerJA as faker } from '@faker-js/faker'
+import { generateMock } from '@anatine/zod-mock'
+import bcrypt from 'bcryptjs'
+import { z } from 'zod'
+import path from 'path'
+import { fileURLToPath } from 'url'
 
-// データベース URL の特定
-// コンテナ内の絶対パスを優先
-const url = process.env.DATABASE_URL || 'file:/app/storage/dev.db'
+// ESM でのパス解決
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
-// PrismaLibSql アダプターの初期化 (src/index.ts の実装に合わせる)
+// ノートスキーマの定義
+const NoteSchemaMock = z.object({
+  title: z.string().nullable(),
+  content: z.string(),
+})
+
+// 絶対パスでデータベース URL を構築
+const absoluteDbPath = path.resolve(__dirname, '../../storage/dev.db')
+const url = `file:${absoluteDbPath}`
+
+console.log('--- Seed Debug ---')
+console.log('DB URL:', url)
+
+// PrismaLibSql アダプターの初期化
 const adapter = new PrismaLibSql({
   // @ts-ignore
   url: url,
@@ -14,30 +33,46 @@ const adapter = new PrismaLibSql({
 const prisma = new PrismaClient({ adapter })
 
 async function main() {
-  console.log('Start seeding...')
+  console.log('--- Start Seeding (JA) ---')
 
-  // 既存データの削除
+  // 1. 既存データのクリーンアップ
+  console.log('Cleaning up existing data...')
   await prisma.note.deleteMany()
   await prisma.user.deleteMany()
 
-  // 初期ユーザーの作成
-  const user = await prisma.user.create({
+  // 2. テストユーザーの作成
+  console.log('Creating test user "user@example.com" with password "password"...')
+  const passwordHash = await bcrypt.hash('password', 10)
+
+  const testUser = await prisma.user.create({
     data: {
-      email: 'seed-test@example.com',
-      passwordHash: 'password_hash_placeholder',
+      email: 'user@example.com',
+      passwordHash: passwordHash,
     }
   })
 
-  // 初期ノートの投入
-  await prisma.note.create({
-    data: {
-      title: 'Seed Note',
-      content: 'This note was created by the seed script.',
-      userId: user.id
-    }
+  // 3. 大量ノートの生成 (100件)
+  console.log('Generating 100 notes...')
+  
+  const notesData = []
+  for (let i = 0; i < 100; i++) {
+    const mock = generateMock(NoteSchemaMock, { seed: i, faker })
+    notesData.push({
+      title: (mock.title || faker.lorem.sentence()).substring(0, 50),
+      content: mock.content || faker.lorem.paragraphs(3),
+      userId: testUser.id,
+      createdAt: faker.date.past(),
+      updatedAt: new Date(),
+    })
+  }
+
+  // まとめて作成 (100件ずつに分けるなどの配慮も検討可能ですが、SQLite なら100件はいけます)
+  await prisma.note.createMany({
+    data: notesData,
   })
 
-  console.log('Seed data inserted successfully');
+  console.log(`Successfully seeded ${notesData.length} notes.`)
+  console.log('--- Seeding Completed ---')
 }
 
 main()
