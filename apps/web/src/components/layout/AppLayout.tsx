@@ -43,8 +43,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ nav, list, main }) => {
           {/* Column 1: Navigation */}
           {layoutMode === 'all' && (
             <ResizablePanel 
+              id="navigation"
               defaultSize={20} 
-              minSize={minNavSize}
+              minSize={20}
               className="bg-slate-950/50 border-r border-slate-800/10"
             >
               <aside className="w-full h-full py-4 overflow-hidden">
@@ -59,8 +60,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ nav, list, main }) => {
           {/* Column 2: Note List */}
           {(layoutMode === 'all' || layoutMode === 'split') && (
             <ResizablePanel 
+              id="note-list"
               defaultSize={layoutMode === 'all' ? 25 : 35} 
-              minSize={minListSize}
+              minSize={25}
               className="bg-slate-900/40 border-r border-slate-800/10"
             >
               <aside className="w-full h-full flex flex-col overflow-hidden">
@@ -74,8 +76,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ nav, list, main }) => {
 
           {/* Column 3: Main Editor */}
           <ResizablePanel 
+            id="editor"
             defaultSize={layoutMode === 'focus' ? 100 : (layoutMode === 'split' ? 65 : 55)}
-            minSize={minEditorSize}
+            minSize={35}
           >
             <main className="flex-1 h-full flex flex-col min-w-0 bg-[#0f172a]">
               {main}
