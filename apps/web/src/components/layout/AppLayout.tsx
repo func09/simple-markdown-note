@@ -34,7 +34,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ nav, list, main }) => {
               defaultSize={20} 
               minSize={15}
               className="bg-slate-950/50 border-r border-slate-800/10"
-              style={{ minWidth: '200px' }}
             >
               <aside className="w-full h-full py-4 overflow-hidden">
                 {nav}
@@ -51,7 +50,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ nav, list, main }) => {
               defaultSize={layoutMode === 'all' ? 25 : 35} 
               minSize={20}
               className="bg-slate-900/40 border-r border-slate-800/10"
-              style={{ minWidth: '280px' }}
             >
               <aside className="w-full h-full flex flex-col overflow-hidden">
                 {list}
@@ -66,7 +64,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ nav, list, main }) => {
           <ResizablePanel 
             defaultSize={layoutMode === 'focus' ? 100 : (layoutMode === 'split' ? 65 : 55)}
             minSize={30}
-            style={{ minWidth: '400px' }}
           >
             <main className="flex-1 h-full flex flex-col min-w-0 bg-[#0f172a]">
               {main}
