@@ -5,6 +5,7 @@ import {
   CreateNoteRequestSchema, 
   UpdateNoteRequestSchema
 } from 'openapi';
+import { TagService } from '../services/tags';
 
 type Env = {
   Variables: {
@@ -23,9 +24,28 @@ notesRouter.get('/', async (c) => {
   const userId = c.get('jwtPayload').userId;
   const notes = await prisma.note.findMany({
     where: { userId },
+    include: { tags: true },
     orderBy: { updatedAt: 'desc' },
   });
   return c.json(notes);
+});
+
+/**
+ * ノートの個別取得 (GET /notes/:id)
+ */
+notesRouter.get('/:id', async (c) => {
+  const userId = c.get('jwtPayload').userId;
+  const id = c.req.param('id');
+  const note = await prisma.note.findUnique({
+    where: { id },
+    include: { tags: true },
+  });
+
+  if (!note || note.userId !== userId) {
+    return c.json({ error: 'Note not found' }, 404);
+  }
+
+  return c.json(note);
 });
 
 /**
@@ -33,14 +53,25 @@ notesRouter.get('/', async (c) => {
  */
 notesRouter.post('/', zValidator('json', CreateNoteRequestSchema) as any, async (c: any) => {
   const userId = c.get('jwtPayload').userId;
-  const { content } = c.req.valid('json');
+  const { content, tags } = c.req.valid('json');
 
   const note = await prisma.note.create({
     data: {
       content: content || '',
       userId,
     },
+    include: { tags: true },
   });
+
+  if (tags && Array.isArray(tags)) {
+    await TagService.syncTags(userId, note.id, tags);
+    // 更新後のノートを再取得
+    const updatedNote = await prisma.note.findUnique({
+      where: { id: note.id },
+      include: { tags: true },
+    });
+    return c.json(updatedNote);
+  }
 
   return c.json(note);
 });
@@ -51,7 +82,7 @@ notesRouter.post('/', zValidator('json', CreateNoteRequestSchema) as any, async 
 notesRouter.patch('/:id', zValidator('json', UpdateNoteRequestSchema) as any, async (c: any) => {
   const userId = c.get('jwtPayload').userId;
   const id = c.req.param('id');
-  const { content } = c.req.valid('json');
+  const { content, tags } = c.req.valid('json');
 
   // 所有権の確認
   const existingNote = await prisma.note.findUnique({
@@ -67,7 +98,18 @@ notesRouter.patch('/:id', zValidator('json', UpdateNoteRequestSchema) as any, as
     data: {
       content: content ?? existingNote.content,
     },
+    include: { tags: true },
   });
+
+  if (tags !== undefined && Array.isArray(tags)) {
+    await TagService.syncTags(userId, id, tags);
+    // 更新後のノートを再取得
+    const finalNote = await prisma.note.findUnique({
+      where: { id },
+      include: { tags: true },
+    });
+    return c.json(finalNote);
+  }
 
   return c.json(updatedNote);
 });
