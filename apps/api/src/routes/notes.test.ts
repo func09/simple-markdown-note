@@ -34,12 +34,11 @@ describe('Notes API', () => {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify({ title: 'Test Note', content: 'Test Content' }),
+      body: JSON.stringify({ content: 'Test Content' }),
     })
 
     expect(res.status).toBe(200)
     const body = await res.json()
-    expect(body.title).toBe('Test Note')
     expect(body.content).toBe('Test Content')
   })
 
@@ -70,13 +69,12 @@ describe('Notes API', () => {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify({ title: 'Updated Title' }),
+      body: JSON.stringify({ content: 'Updated Content' }),
     })
 
     expect(res.status).toBe(200)
     const body = await res.json()
-    expect(body.title).toBe('Updated Title')
-    expect(body.content).toBe('Test Content') // 以前の内容が維持されていること
+    expect(body.content).toBe('Updated Content')
   })
 
   it('should delete a note', async () => {
@@ -124,7 +122,7 @@ describe('Notes API', () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${otherToken}`
         },
-        body: JSON.stringify({ title: 'Other User Note', content: 'Private Content' }),
+        body: JSON.stringify({ content: 'Private Content' }),
       })
       const note = await createRes.json()
       otherNoteId = note.id
@@ -149,7 +147,7 @@ describe('Notes API', () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}` // 元のユーザーのトークン
         },
-        body: JSON.stringify({ title: 'Hacked Title' }),
+        body: JSON.stringify({ content: 'Hacked Content' }),
       })
 
       expect(res.status).toBe(404) // 所有権がない場合は 404 を返す仕様

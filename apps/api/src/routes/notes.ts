@@ -33,11 +33,10 @@ notesRouter.get('/', async (c) => {
  */
 notesRouter.post('/', zValidator('json', CreateNoteRequestSchema) as any, async (c: any) => {
   const userId = c.get('jwtPayload').userId;
-  const { title, content } = c.req.valid('json');
+  const { content } = c.req.valid('json');
 
   const note = await prisma.note.create({
     data: {
-      title: title || '',
       content: content || '',
       userId,
     },
@@ -52,7 +51,7 @@ notesRouter.post('/', zValidator('json', CreateNoteRequestSchema) as any, async 
 notesRouter.patch('/:id', zValidator('json', UpdateNoteRequestSchema) as any, async (c: any) => {
   const userId = c.get('jwtPayload').userId;
   const id = c.req.param('id');
-  const { title, content } = c.req.valid('json');
+  const { content } = c.req.valid('json');
 
   // 所有権の確認
   const existingNote = await prisma.note.findUnique({
@@ -66,7 +65,6 @@ notesRouter.patch('/:id', zValidator('json', UpdateNoteRequestSchema) as any, as
   const updatedNote = await prisma.note.update({
     where: { id },
     data: {
-      title: title ?? existingNote.title,
       content: content ?? existingNote.content,
     },
   });

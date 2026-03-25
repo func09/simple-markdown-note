@@ -5,7 +5,6 @@ import { NoteSchema } from '../models/note';
  * ノート作成リクエストのスキーマ
  */
 export const CreateNoteRequestSchema = z.object({
-  title: z.string().optional().openapi({ example: 'Optional Title' }),
   content: z.string().openapi({ example: 'New note content' }),
 }).openapi('CreateNoteRequest');
 
@@ -13,7 +12,6 @@ export const CreateNoteRequestSchema = z.object({
  * ノート更新リクエストのスキーマ
  */
 export const UpdateNoteRequestSchema = z.object({
-  title: z.string().optional().openapi({ example: 'Updated Title' }),
   content: z.string().optional().openapi({ example: 'Updated content' }),
 }).openapi('UpdateNoteRequest');
 
