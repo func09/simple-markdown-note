@@ -1,12 +1,12 @@
 import React from 'react';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { Toaster } from '@/components/ui/sonner';
+import { Toaster } from 'sonner';
+import { useNoteStore } from '../../features/notes/store';
 import { 
   ResizableHandle, 
   ResizablePanel, 
   ResizablePanelGroup 
 } from '@/components/ui/resizable';
-import { useNoteStore } from '../../features/notes/store';
 
 interface AppLayoutProps {
   nav: React.ReactNode;
@@ -23,44 +23,51 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ nav, list, main }) => {
 
   return (
     <TooltipProvider>
-      <div className="flex h-screen w-full overflow-hidden bg-[#0f172a] text-slate-200 selection:bg-blue-500/30">
-        <ResizablePanelGroup direction="horizontal" className="w-full h-full">
-          {/* Column 1: Navigation (Fixed Narrow -> Resizable Sidebar) */}
-          {(layoutMode === 'all') && (
-            <>
-              <ResizablePanel 
-                defaultSize={15} 
-                minSize={10} 
-                maxSize={25}
-                className="bg-slate-950/50 border-r border-slate-800/20"
-              >
-                <aside className="w-full h-full py-4 overflow-hidden">
-                  {nav}
-                </aside>
-              </ResizablePanel>
-              <ResizableHandle withHandle className="bg-slate-800/50 w-[1px] hover:w-[4px] hover:bg-blue-500/50 transition-all" />
-            </>
+      <div className="flex h-screen w-full overflow-hidden bg-[#0f172a] text-slate-200">
+        <ResizablePanelGroup 
+          direction="horizontal" 
+          className="w-full h-full"
+        >
+          {/* Column 1: Navigation */}
+          {layoutMode === 'all' && (
+            <ResizablePanel 
+              defaultSize={20} 
+              minSize={15}
+              className="bg-slate-950/50 border-r border-slate-800/10"
+              style={{ minWidth: '200px' }}
+            >
+              <aside className="w-full h-full py-4 overflow-hidden">
+                {nav}
+              </aside>
+            </ResizablePanel>
           )}
-    
-          {/* Column 2: List (Medium) */}
+          {layoutMode === 'all' && (
+            <ResizableHandle withHandle className="bg-slate-800/30 w-[2px] hover:w-[4px] transition-all" />
+          )}
+
+          {/* Column 2: Note List */}
           {(layoutMode === 'all' || layoutMode === 'split') && (
-            <>
-              <ResizablePanel 
-                defaultSize={layoutMode === 'all' ? 25 : 30} 
-                minSize={20} 
-                maxSize={40}
-                className="bg-slate-900/40 border-r border-slate-800/20"
-              >
-                <aside className="w-full h-full flex flex-col overflow-hidden">
-                  {list}
-                </aside>
-              </ResizablePanel>
-              <ResizableHandle withHandle className="bg-slate-800/50 w-[1px] hover:w-[4px] hover:bg-blue-500/50 transition-all" />
-            </>
+            <ResizablePanel 
+              defaultSize={layoutMode === 'all' ? 25 : 35} 
+              minSize={20}
+              className="bg-slate-900/40 border-r border-slate-800/10"
+              style={{ minWidth: '280px' }}
+            >
+              <aside className="w-full h-full flex flex-col overflow-hidden">
+                {list}
+              </aside>
+            </ResizablePanel>
           )}
-    
-          {/* Column 3: Main Editor (Flexible Wide) */}
-          <ResizablePanel defaultSize={layoutMode === 'focus' ? 100 : 60} minSize={30}>
+          {(layoutMode === 'all' || layoutMode === 'split') && (
+            <ResizableHandle withHandle className="bg-slate-800/30 w-[2px] hover:w-[4px] transition-all" />
+          )}
+
+          {/* Column 3: Main Editor */}
+          <ResizablePanel 
+            defaultSize={layoutMode === 'focus' ? 100 : (layoutMode === 'split' ? 65 : 55)}
+            minSize={30}
+            style={{ minWidth: '400px' }}
+          >
             <main className="flex-1 h-full flex flex-col min-w-0 bg-[#0f172a]">
               {main}
             </main>

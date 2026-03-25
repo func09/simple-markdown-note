@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { Note } from 'openapi';
 import { Textarea } from '@/components/ui/textarea';
-import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Clock, Loader2, Info } from 'lucide-react';
+import { Clock, Loader2, Info, Columns3 } from 'lucide-react';
 import { useUpdateNote } from '../hooks/useNotesQuery';
 import { TagInput } from './TagInput';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
+import { useNoteStore } from '../store';
 
 interface EditorProps {
   note: Note | null;
@@ -21,6 +20,7 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags }) => {
   const [content, setContent] = useState('');
   const timeoutRef = useRef<any>(null);
   const updateNoteMutation = useUpdateNote();
+  const { toggleLayoutMode } = useNoteStore();
 
   useEffect(() => {
     if (note) {
@@ -80,24 +80,60 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags }) => {
 
   return (
     <div className="flex-1 flex flex-col bg-[#0f172a] h-screen overflow-hidden">
+      {/* Editor Header */}
+      <div className="h-14 px-6 flex items-center justify-between border-b border-slate-800/30 bg-[#0f172a]/50 backdrop-blur-md z-10">
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={toggleLayoutMode}
+            className="p-2 text-slate-500 hover:text-blue-400 transition-colors bg-slate-800/20 rounded-lg"
+            title="Toggle Layout"
+          >
+            <Columns3 size={20} />
+          </button>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          {updateNoteMutation.isPending && (
+            <div className="flex items-center gap-1.5 text-[10px] text-slate-500 uppercase tracking-widest font-bold">
+              <Loader2 size={12} className="animate-spin text-blue-500" />
+              <span>Saving</span>
+            </div>
+          )}
+        </div>
+      </div>
+
       <ScrollArea className="flex-1 w-full">
-        <div className="max-w-4xl mx-auto w-full p-8 md:p-12 pb-32 flex flex-col">
-          {/* Title Area */}
-          <div className="relative mb-12 group">
-            <input
-              type="text"
-              value={title}
-              onChange={handleTitleChange}
-              placeholder="Title"
+        <div className="w-full px-8 md:px-16 py-10 pb-32 flex flex-col">
+          {/* Title Area - contentEditable for perfect wrapping */}
+          <div className="relative mb-6 group w-full">
+            <div
+              contentEditable
+              suppressContentEditableWarning
+              onInput={(e) => {
+                const newTitle = e.currentTarget.textContent || '';
+                handleTitleChange({ target: { value: newTitle } } as any);
+              }}
+              onBlur={(e) => {
+                const newTitle = e.currentTarget.textContent || '';
+                if (newTitle !== title) {
+                  handleTitleChange({ target: { value: newTitle } } as any);
+                }
+              }}
               className={cn(
-                "w-full bg-transparent border-none focus:ring-0 p-0 text-slate-100 font-bold tracking-tight outline-none placeholder:text-slate-800",
-                "text-4xl md:text-5xl lg:text-6xl",
-                "transition-all duration-300",
-                // 最初の1文字目を大きく（Drop Cap的スタイル）
-                "first-letter:text-blue-500 first-letter:mr-1 first-letter:font-outfit"
+                "w-full bg-transparent border-none focus:outline-none p-0 text-slate-100 font-bold tracking-tight placeholder:text-slate-800",
+                "text-2xl md:text-3xl lg:text-3xl leading-tight whitespace-pre-wrap break-words min-h-[1.2em]",
+                "transition-all duration-300"
               )}
-            />
-            <div className="absolute -bottom-4 left-0 w-12 h-1 bg-blue-600/30 rounded-full group-focus-within:w-24 group-focus-within:bg-blue-500 transition-all duration-500" />
+              data-placeholder="Title"
+            >
+              {title}
+            </div>
+            {!title && (
+              <div className="absolute top-0 left-0 text-slate-800 font-bold text-2xl md:text-3xl lg:text-3xl pointer-events-none">
+                Title
+              </div>
+            )}
+            <div className="absolute -bottom-2 left-0 w-12 h-0.5 bg-blue-600/20 rounded-full group-focus-within:w-20 group-focus-within:bg-blue-500/50 transition-all duration-500" />
           </div>
 
           {/* Body Area */}
@@ -105,53 +141,33 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags }) => {
             value={body}
             onChange={handleBodyChange}
             placeholder="Start writing..."
-            className="w-full min-h-[500px] bg-transparent border-none focus-visible:ring-0 p-0 text-slate-400 text-lg leading-relaxed resize-none font-inter placeholder:text-slate-800 shadow-none border-0"
+            className="w-full min-h-[600px] bg-transparent border-none focus-visible:ring-0 p-0 text-slate-400 text-lg leading-relaxed resize-none font-inter placeholder:text-slate-800 shadow-none border-0"
           />
         </div>
       </ScrollArea>
       
       {/* タグ入力エリア */}
-      <div className="px-8 md:px-12 bg-[#0f172a]/80 backdrop-blur-md">
+      <div className="px-8 md:px-12 py-2 bg-[#0f172a]/80 backdrop-blur-md border-t border-slate-800/30">
         <TagInput 
           tags={note.tags?.map(t => t.name) || []} 
           onChange={handleTagsChange} 
         />
       </div>
 
-      <Separator className="bg-slate-800" />
-      
-      <div className="px-6 py-3 bg-[#0f172a]/80 backdrop-blur-md text-slate-500 text-[11px] uppercase tracking-wider font-medium flex justify-between items-center">
+      <div className="px-6 py-2 bg-[#0f172a] text-slate-600 text-[10px] uppercase tracking-wider font-medium flex justify-between items-center border-t border-slate-800/10">
         <div className="flex items-center gap-4">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="flex items-center gap-1.5 cursor-help">
-                <Info size={12} className="text-slate-600" />
-                <span>{content.length} characters</span>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent side="top">Total characters in this note</TooltipContent>
-          </Tooltip>
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="flex items-center gap-1.5 cursor-help">
-                <Clock size={12} className="text-slate-600" />
-                <span>
-                  {updateNoteMutation.isPending ? (
-                    <span className="flex items-center gap-1">
-                      <Loader2 size={10} className="animate-spin" />
-                      Saving...
-                    </span>
-                  ) : (
-                    `Last saved ${new Date(note.updatedAt).toLocaleTimeString()}`
-                  )}
-                </span>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent side="top">Sync status with server</TooltipContent>
-          </Tooltip>
+          <div className="flex items-center gap-1.5">
+            <Info size={10} className="text-slate-700" />
+            <span>{content.length} characters</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Clock size={10} className="text-slate-700" />
+            <span>
+              {updateNoteMutation.isPending ? 'Syncing...' : `Saved ${new Date(note.updatedAt).toLocaleTimeString()}`}
+            </span>
+          </div>
         </div>
-        <div className="text-blue-500/50 font-outfit font-bold">SimpleNote Clone</div>
+        <div className="text-slate-800 font-outfit font-bold">SN CLONE</div>
       </div>
     </div>
   );
