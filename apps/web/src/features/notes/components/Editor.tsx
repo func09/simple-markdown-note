@@ -47,6 +47,40 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags }) => {
     updateLocalContent(newContent);
   };
 
+  const titleRef = useRef<HTMLTextAreaElement>(null);
+  const bodyRef = useRef<HTMLTextAreaElement>(null);
+
+  // タイトル入力でのキー操作
+  const handleTitleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      bodyRef.current?.focus();
+      // 本文の先頭にカーソルを移動
+      bodyRef.current?.setSelectionRange(0, 0);
+    } else if (e.key === 'ArrowDown') {
+      const { selectionStart, value } = e.currentTarget;
+      // 最後の行にいるかチェック（簡易的に最後の文字付近なら次へ）
+      if (selectionStart >= value.length) {
+        bodyRef.current?.focus();
+        bodyRef.current?.setSelectionRange(0, 0);
+      }
+    }
+  };
+
+  // 本文入力でのキー操作
+  const handleBodyKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'ArrowUp') {
+      const { selectionStart } = e.currentTarget;
+      if (selectionStart === 0) {
+        e.preventDefault();
+        titleRef.current?.focus();
+        // タイトルの末尾にカーソルを移動
+        const titleLen = titleRef.current?.value.length || 0;
+        titleRef.current?.setSelectionRange(titleLen, titleLen);
+      }
+    }
+  };
+
   const updateLocalContent = (newContent: string) => {
     setContent(newContent);
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -104,42 +138,35 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags }) => {
 
       <ScrollArea className="flex-1 w-full">
         <div className="w-full px-8 md:px-16 py-10 pb-32 flex flex-col">
-          {/* Title Area - contentEditable for perfect wrapping */}
+          {/* Title Area */}
           <div className="relative mb-6 group w-full">
-            <div
-              contentEditable
-              suppressContentEditableWarning
-              onInput={(e) => {
-                const newTitle = e.currentTarget.textContent || '';
-                handleTitleChange({ target: { value: newTitle } } as any);
+            <textarea
+              ref={titleRef}
+              rows={1}
+              value={title}
+              onChange={(e) => {
+                handleTitleChange(e as any);
+                e.target.style.height = 'auto';
+                e.target.style.height = e.target.scrollHeight + 'px';
               }}
-              onBlur={(e) => {
-                const newTitle = e.currentTarget.textContent || '';
-                if (newTitle !== title) {
-                  handleTitleChange({ target: { value: newTitle } } as any);
-                }
-              }}
+              onKeyDown={handleTitleKeyDown}
+              placeholder="Title"
               className={cn(
-                "w-full bg-transparent border-none focus:outline-none p-0 text-slate-100 font-bold tracking-tight placeholder:text-slate-800",
-                "text-2xl md:text-3xl lg:text-3xl leading-tight whitespace-pre-wrap break-words min-h-[1.2em]",
+                "w-full bg-transparent border-none focus:ring-0 p-0 text-slate-100 font-bold tracking-tight outline-none placeholder:text-slate-800",
+                "text-2xl md:text-3xl lg:text-3xl leading-tight resize-none overflow-hidden whitespace-pre-wrap break-words",
                 "transition-all duration-300"
               )}
-              data-placeholder="Title"
-            >
-              {title}
-            </div>
-            {!title && (
-              <div className="absolute top-0 left-0 text-slate-800 font-bold text-2xl md:text-3xl lg:text-3xl pointer-events-none">
-                Title
-              </div>
-            )}
+              style={{ height: 'auto' }}
+            />
             <div className="absolute -bottom-2 left-0 w-12 h-0.5 bg-blue-600/20 rounded-full group-focus-within:w-20 group-focus-within:bg-blue-500/50 transition-all duration-500" />
           </div>
 
           {/* Body Area */}
           <Textarea
+            ref={bodyRef as any}
             value={body}
             onChange={handleBodyChange}
+            onKeyDown={handleBodyKeyDown}
             placeholder="Start writing..."
             className="w-full min-h-[600px] bg-transparent border-none focus-visible:ring-0 p-0 text-slate-400 text-lg leading-relaxed resize-none font-inter placeholder:text-slate-800 shadow-none border-0"
           />
