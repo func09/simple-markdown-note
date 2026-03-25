@@ -4,7 +4,7 @@ import { NoteList, Editor, SidebarTagList, useNotes, useTags, useCreateNote, use
 import type { Tag } from 'openapi';
 import { logout } from '../features/auth';
 import { useNavigate } from 'react-router-dom';
-import { StickyNote, Settings, User, LogOut } from 'lucide-react';
+import { StickyNote, Trash2, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { 
@@ -143,6 +143,7 @@ const Dashboard: React.FC = () => {
 
   const { data: tags = [] } = useTags();
   const [isNavFocused, setIsNavFocused] = useState(false);
+  const [isTrashSelected, setIsTrashSelected] = useState(false);
 
   // 初回レンダリング時にナビゲーションにフォーカス
   React.useEffect(() => {
@@ -155,28 +156,51 @@ const Dashboard: React.FC = () => {
   // ナビゲーションの移動順序を定義
   const navItems = useMemo(() => {
     return [
-      { id: 'all', value: null },
-      { id: 'untagged', value: '__untagged__' },
-      ...tags.map((tag: Tag) => ({ id: tag.id, value: tag.name }))
+      { id: 'all', value: null, type: 'all' },
+      { id: 'trash', value: '__trash__', type: 'trash' },
+      { id: 'untagged', value: '__untagged__', type: 'tag' },
+      ...tags.map((tag: Tag) => ({ id: tag.id, value: tag.name, type: 'tag' }))
     ];
   }, [tags]);
 
   const handleNavKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'ArrowDown') {
       e.preventDefault();
-      const currentIndex = navItems.findIndex(item => item.value === selectedTag);
+      const currentIndex = navItems.findIndex(item => 
+        item.type === 'trash' ? isTrashSelected : item.value === selectedTag
+      );
       const nextIndex = Math.min(currentIndex + 1, navItems.length - 1);
-      if (nextIndex >= 0) {
-        setSelectedTag(navItems[nextIndex].value as any);
-        if (navItems[nextIndex].value === null) setSearchQuery('');
+      
+      const nextItem = navItems[nextIndex];
+      if (nextItem.type === 'all') {
+        setIsTrashSelected(false);
+        setSelectedTag(null);
+        setSearchQuery('');
+      } else if (nextItem.type === 'trash') {
+        setIsTrashSelected(true);
+        setSelectedTag(null);
+      } else {
+        setIsTrashSelected(false);
+        setSelectedTag(nextItem.value as any);
       }
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      const currentIndex = navItems.findIndex(item => item.value === selectedTag);
+      const currentIndex = navItems.findIndex(item => 
+        item.type === 'trash' ? isTrashSelected : item.value === selectedTag
+      );
       const prevIndex = Math.max(currentIndex - 1, 0);
-      if (prevIndex >= 0) {
-        setSelectedTag(navItems[prevIndex].value as any);
-        if (navItems[prevIndex].value === null) setSearchQuery('');
+      
+      const prevItem = navItems[prevIndex];
+      if (prevItem.type === 'all') {
+        setIsTrashSelected(false);
+        setSelectedTag(null);
+        setSearchQuery('');
+      } else if (prevItem.type === 'trash') {
+        setIsTrashSelected(true);
+        setSelectedTag(null);
+      } else {
+        setIsTrashSelected(false);
+        setSelectedTag(prevItem.value as any);
       }
     } else if (e.key === 'ArrowRight') {
       e.preventDefault();
@@ -202,10 +226,13 @@ const Dashboard: React.FC = () => {
       <div className="flex flex-col gap-1 flex-shrink-0 py-4">
         {/* All Notes */}
         <button
-          onClick={handleAllNotes}
+          onClick={() => {
+            setIsTrashSelected(false);
+            handleAllNotes();
+          }}
           className={cn(
             "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl active:scale-95 group",
-            (selectedTag === null && searchQuery === '')
+            (selectedTag === null && searchQuery === '' && !isTrashSelected)
               ? isNavFocused 
                 ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20 font-medium" 
                 : "bg-blue-600/15 text-blue-400 border border-blue-500/20"
@@ -214,26 +241,39 @@ const Dashboard: React.FC = () => {
         >
           <StickyNote size={20} className={cn(
             "transition-colors",
-            (selectedTag === null && searchQuery === '') 
+            (selectedTag === null && searchQuery === '' && !isTrashSelected) 
               ? isNavFocused ? "text-white" : "text-blue-500"
               : "text-slate-500 group-hover:text-blue-400"
           )} />
           <span className="font-medium text-sm">All Notes</span>
         </button>
 
-        <div className="h-px bg-slate-800/50 my-2 mx-2" />
+        {/* Trash */}
+        <button
+          onClick={() => {
+            setIsTrashSelected(true);
+            setSelectedTag(null);
+            setSearchQuery('');
+          }}
+          className={cn(
+            "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl active:scale-95 group",
+            isTrashSelected
+              ? isNavFocused 
+                ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20 font-medium" 
+                : "bg-blue-600/15 text-blue-400 border border-blue-500/20"
+              : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
+          )}
+        >
+          <Trash2 size={20} className={cn(
+            "transition-colors",
+            isTrashSelected 
+              ? isNavFocused ? "text-white" : "text-blue-500"
+              : "text-slate-500 group-hover:text-blue-400"
+          )} />
+          <span className="font-medium text-sm">Trash</span>
+        </button>
 
-        {/* Profile */}
-        <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-all group">
-          <User size={20} className="text-slate-500 group-hover:text-blue-400 transition-colors" />
-          <span className="font-medium text-sm">Profile</span>
-        </button>
-        
-        {/* Settings */}
-        <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-all group">
-          <Settings size={20} className="text-slate-500 group-hover:text-blue-400 transition-colors" />
-          <span className="font-medium text-sm">Settings</span>
-        </button>
+        <div className="h-px bg-slate-800/50 my-2 mx-2" />
       </div>
       
       {/* タグリストを表示 */}
@@ -266,7 +306,7 @@ const Dashboard: React.FC = () => {
         nav={navigationContent}
         list={
           <NoteList 
-            notes={filteredNotes} 
+            notes={isTrashSelected ? [] : filteredNotes} 
             onCreateNote={handleCreateNote}
             onDeleteNote={handleDeleteClick}
             isLoading={notesLoading}
