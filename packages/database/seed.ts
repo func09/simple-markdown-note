@@ -11,15 +11,15 @@ import { fileURLToPath } from 'url'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-// ノートスキーマの定義
+// ノートスキーマの定義 (Zod)
 const NoteSchemaMock = z.object({
   title: z.string().nullable(),
   content: z.string(),
 })
 
-// 絶対パスでデータベース URL を構築
+// 絶対パスでデータベース URL を構築 (コンテナとホスト両対応)
 const absoluteDbPath = path.resolve(__dirname, '../../storage/dev.db')
-const url = `file:${absoluteDbPath}`
+const url = process.env.DATABASE_URL || `file:${absoluteDbPath}`
 
 console.log('--- Seed Debug ---')
 console.log('DB URL:', url)
@@ -33,7 +33,7 @@ const adapter = new PrismaLibSql({
 const prisma = new PrismaClient({ adapter })
 
 async function main() {
-  console.log('--- Start Seeding (JA) ---')
+  console.log('--- Start Intensive Seeding (JA) ---')
 
   // 1. 既存データのクリーンアップ
   console.log('Cleaning up existing data...')
@@ -51,22 +51,36 @@ async function main() {
     }
   })
 
-  // 3. 大量ノートの生成 (100件)
-  console.log('Generating 100 notes...')
+  // 3. 大量ノートの生成 (200件)
+  console.log('Generating 200 notes using Faker & Zod Mock...')
   
   const notesData = []
-  for (let i = 0; i < 100; i++) {
-    const mock = generateMock(NoteSchemaMock, { seed: i, faker })
+  for (let i = 0; i < 200; i++) {
+    let title = ''
+    let content = ''
+
+    try {
+      // @anatine/zod-mock を使用
+      const mock = generateMock(NoteSchemaMock, { seed: i, faker })
+      title = mock?.title || faker.lorem.sentence()
+      content = mock?.content || faker.lorem.paragraphs(3)
+    } catch (err) {
+      // フォールバック: 直接 Faker を使用
+      title = faker.lorem.sentence()
+      content = faker.lorem.paragraphs(3)
+    }
+
     notesData.push({
-      title: (mock.title || faker.lorem.sentence()).substring(0, 50),
-      content: mock.content || faker.lorem.paragraphs(3),
+      title: title.substring(0, 100), // 長すぎないように
+      content: content,
       userId: testUser.id,
       createdAt: faker.date.past(),
       updatedAt: new Date(),
     })
   }
 
-  // まとめて作成 (100件ずつに分けるなどの配慮も検討可能ですが、SQLite なら100件はいけます)
+  // まとめて作成
+  console.log(`Inserting ${notesData.length} notes into database...`)
   await prisma.note.createMany({
     data: notesData,
   })
