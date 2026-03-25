@@ -11,6 +11,10 @@ interface NoteState {
   layoutMode: 'all' | 'split' | 'focus';
   setLayoutMode: (mode: 'all' | 'split' | 'focus') => void;
   toggleLayoutMode: () => void;
+  layoutAllSizes: number[];
+  setLayoutAllSizes: (sizes: number[]) => void;
+  layoutSplitSizes: number[];
+  setLayoutSplitSizes: (sizes: number[]) => void;
 }
 
 /**
@@ -30,4 +34,8 @@ export const useNoteStore = create<NoteState>((set) => ({
     if (state.layoutMode === 'split') return { layoutMode: 'focus' };
     return { layoutMode: 'all' };
   }),
+  layoutAllSizes: [20, 25, 55],
+  setLayoutAllSizes: (sizes) => set({ layoutAllSizes: sizes }),
+  layoutSplitSizes: [35, 65],
+  setLayoutSplitSizes: (sizes) => set({ layoutSplitSizes: sizes }),
 }));
