@@ -20,6 +20,7 @@ app.use('*', logger())
 app.use('*', cors())
 
 // JWT秘密鍵（auth.tsと共有）
+// @ts-ignore
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret'
 
 // ヘルスチェック用エンドポイント
@@ -34,6 +35,7 @@ app.route('/auth', authRouter)
 
 const port = 3000
 
+// @ts-ignore
 if (process.env.NODE_ENV !== 'test') {
   console.log(`Server is running on port ${port}`)
   serve({
@@ -41,3 +43,5 @@ if (process.env.NODE_ENV !== 'test') {
     port
   })
 }
+
+export type AppType = typeof app;
