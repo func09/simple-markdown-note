@@ -58,6 +58,7 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags }) => {
   // タイトル入力でのキー操作
   const handleTitleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter') {
+      if (e.nativeEvent.isComposing) return;
       e.preventDefault();
       const cursorPosition = e.currentTarget.selectionStart;
       const beforeCursor = title.substring(0, cursorPosition);
