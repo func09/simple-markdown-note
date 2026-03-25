@@ -74,13 +74,11 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags }) => {
         bodyRef.current?.setSelectionRange(0, 0);
       }, 0);
     } else if (e.key === 'ArrowDown') {
-      const { selectionStart, value } = e.currentTarget;
-      // 最後の文字付近なら次へ
-      if (selectionStart >= value.length) {
-        e.preventDefault();
-        bodyRef.current?.focus();
-        bodyRef.current?.setSelectionRange(0, 0);
-      }
+      // 1行のタイトル（または最終行）のため、常に本文へ移動
+      e.preventDefault();
+      bodyRef.current?.focus();
+      // 本文の先頭にカーソルを置く
+      bodyRef.current?.setSelectionRange(0, 0);
     }
   };
 
