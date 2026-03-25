@@ -25,6 +25,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ nav, list, main }) => {
     <TooltipProvider>
       <div className="flex h-screen w-full overflow-hidden bg-[#0f172a] text-slate-200">
         <ResizablePanelGroup 
+          key={layoutMode}
           direction="horizontal" 
           className="w-full h-full"
         >
@@ -33,7 +34,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ nav, list, main }) => {
             <ResizablePanel 
               id="navigation"
               defaultSize={20} 
-              minSize={20}
+              minSize={200}
               className="bg-slate-950/50 border-r border-slate-800/10"
             >
               <aside className="w-full h-full py-4 overflow-hidden">
@@ -50,7 +51,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ nav, list, main }) => {
             <ResizablePanel 
               id="note-list"
               defaultSize={layoutMode === 'all' ? 25 : 35} 
-              minSize={25}
+              minSize={280}
               className="bg-slate-900/40 border-r border-slate-800/10"
             >
               <aside className="w-full h-full flex flex-col overflow-hidden">
@@ -66,9 +67,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ nav, list, main }) => {
           <ResizablePanel 
             id="editor"
             defaultSize={layoutMode === 'focus' ? 100 : (layoutMode === 'split' ? 65 : 55)}
-            minSize={35}
+            minSize={350}
           >
-            <main className="flex-1 h-full flex flex-col min-w-0 bg-[#0f172a]">
+            <main className="flex-1 h-full flex flex-col bg-[#0f172a] min-w-0">
               {main}
             </main>
           </ResizablePanel>
