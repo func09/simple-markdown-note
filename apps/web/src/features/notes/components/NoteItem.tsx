@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Note } from 'openapi';
-import { Trash2 } from 'lucide-react';
+import { Trash2, FileText } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface NoteItemProps {
@@ -11,7 +11,7 @@ interface NoteItemProps {
 }
 
 /**
- * リスト内の各ノート要素 (旧 NoteListItem)
+ * リスト内の各ノート要素 (デザイン調整版)
  */
 export const NoteItem: React.FC<NoteItemProps> = ({
   note,
@@ -21,34 +21,56 @@ export const NoteItem: React.FC<NoteItemProps> = ({
 }) => {
   return (
     <motion.div
-      initial={{ opacity: 0, x: -10 }}
-      animate={{ opacity: 1, x: 0 }}
+      initial={{ opacity: 0, y: 5 }}
+      animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
       onClick={() => onSelect(note.id)}
-      className={`p-4 cursor-pointer relative group border-b border-slate-800/50 transition-colors ${
-        isSelected ? 'bg-slate-800 border-l-4 border-l-blue-500' : 'hover:bg-slate-800/50'
+      className={`group relative mx-2 mb-1 p-4 rounded-xl cursor-pointer transition-all duration-200 ${
+        isSelected 
+          ? 'bg-blue-600/10 border border-blue-500/30' 
+          : 'hover:bg-slate-800/50 border border-transparent hover:border-slate-700/50'
       }`}
     >
-      <div className="flex justify-between items-start pr-8">
-        <div className="flex-1 min-w-0">
-          <h3 className="text-slate-200 font-medium truncate mb-1">
-            {note.title || 'Untitled'}
-          </h3>
-          <p className="text-slate-500 text-xs truncate">
-            {note.content || 'Empty note'}
+      <div className="flex gap-3 h-full">
+        <div className={`mt-1 h-8 w-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+          isSelected ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-500 group-hover:bg-slate-700 group-hover:text-slate-400'
+        }`}>
+          <FileText size={16} />
+        </div>
+        
+        <div className="flex-1 min-w-0 flex flex-col justify-center">
+          <div className="flex justify-between items-start">
+            <h3 className={`font-semibold truncate mb-0.5 text-sm ${
+              isSelected ? 'text-white' : 'text-slate-200'
+            }`}>
+              {note.title || 'Untitled'}
+            </h3>
+          </div>
+          <p className="text-slate-500 text-xs truncate leading-relaxed">
+            {note.content || 'No content yet...'}
           </p>
         </div>
       </div>
       
+      {/* Delete Button (Hover) */}
       <button 
         onClick={(e) => {
           e.stopPropagation();
           onDelete(note.id);
         }}
-        className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 p-1.5 text-slate-500 hover:text-red-400 transition-all"
+        className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 p-2 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-400/10 transition-all z-10"
+        title="Delete note"
       >
-        <Trash2 size={16} />
+        <Trash2 size={14} />
       </button>
+
+      {/* Selected Indicator */}
+      {isSelected && (
+        <motion.div 
+          layoutId="selection-indicator"
+          className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-blue-500 rounded-full" 
+        />
+      )}
     </motion.div>
   );
 };
