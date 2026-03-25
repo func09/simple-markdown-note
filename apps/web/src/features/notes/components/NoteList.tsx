@@ -86,39 +86,57 @@ export const NoteList: React.FC<NoteListProps> = ({
       </div>
 
       {/* Note List with ScrollArea */}
-      <ScrollArea className="flex-1 min-h-0">
-        <div className="px-3 pb-8">
-          {isLoading ? (
-            <div className="space-y-3 px-3">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="flex flex-col gap-2 p-4 border border-slate-800/50 rounded-xl">
-                  <Skeleton className="h-4 w-3/4 bg-slate-800" />
-                  <Skeleton className="h-3 w-1/2 bg-slate-800/50" />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <>
-              {notes.map((note) => (
-                <NoteItem
-                  key={note.id}
-                  note={note}
-                  isSelected={selectedNoteId === note.id}
-                  onSelect={setSelectedNoteId}
-                  onDelete={onDeleteNote}
-                />
-              ))}
-              {notes.length === 0 && (
-                <div className="mt-20 text-center px-4">
-                  <p className="text-slate-600 text-sm font-outfit">
-                    {searchQuery || selectedTag ? 'No matching notes' : 'No notes found'}
-                  </p>
-                </div>
-              )}
-            </>
-          )}
-        </div>
-      </ScrollArea>
+      <div 
+        className="flex-1 min-h-0 focus:outline-none"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            const currentIndex = notes.findIndex(n => n.id === selectedNoteId);
+            const nextIndex = Math.min(currentIndex + 1, notes.length - 1);
+            if (nextIndex >= 0) setSelectedNoteId(notes[nextIndex].id);
+          } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            const currentIndex = notes.findIndex(n => n.id === selectedNoteId);
+            const prevIndex = Math.max(currentIndex - 1, 0);
+            if (prevIndex >= 0) setSelectedNoteId(notes[prevIndex].id);
+          }
+        }}
+      >
+        <ScrollArea className="h-full">
+          <div className="px-3 pb-8">
+            {isLoading ? (
+              <div className="space-y-3 px-3">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className="flex flex-col gap-2 p-4 border border-slate-800/50 rounded-xl">
+                    <Skeleton className="h-4 w-3/4 bg-slate-800" />
+                    <Skeleton className="h-3 w-1/2 bg-slate-800/50" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <>
+                {notes.map((note) => (
+                  <NoteItem
+                    key={note.id}
+                    note={note}
+                    isSelected={selectedNoteId === note.id}
+                    onSelect={setSelectedNoteId}
+                    onDelete={onDeleteNote}
+                  />
+                ))}
+                {notes.length === 0 && (
+                  <div className="mt-20 text-center px-4">
+                    <p className="text-slate-600 text-sm font-outfit">
+                      {searchQuery || selectedTag ? 'No matching notes' : 'No notes found'}
+                    </p>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </ScrollArea>
+      </div>
     </div>
   );
 };
