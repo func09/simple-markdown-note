@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { Note } from 'openapi';
-import { Textarea } from '../../../components/ui/textarea';
-import { Separator } from '../../../components/ui/separator';
-import { ScrollArea } from '../../../components/ui/scroll-area';
-import { Clock, Loader2 } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Separator } from '@/components/ui/separator';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Clock, Loader2, Info } from 'lucide-react';
 import { useUpdateNote } from '../hooks/useNotesQuery';
 import { TagInput } from './TagInput';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface EditorProps {
   note: Note | null;
@@ -87,22 +88,34 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags }) => {
       
       <div className="px-6 py-3 bg-[#0f172a]/80 backdrop-blur-md text-slate-500 text-[11px] uppercase tracking-wider font-medium flex justify-between items-center">
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1.5">
-            <span>{content.length} characters</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <Clock size={12} className="text-slate-600" />
-            <span>
-              {updateNoteMutation.isPending ? (
-                <span className="flex items-center gap-1">
-                  <Loader2 size={10} className="animate-spin" />
-                  Saving...
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center gap-1.5 cursor-help">
+                <Info size={12} className="text-slate-600" />
+                <span>{content.length} characters</span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="top">Total characters in this note</TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center gap-1.5 cursor-help">
+                <Clock size={12} className="text-slate-600" />
+                <span>
+                  {updateNoteMutation.isPending ? (
+                    <span className="flex items-center gap-1">
+                      <Loader2 size={10} className="animate-spin" />
+                      Saving...
+                    </span>
+                  ) : (
+                    `Last saved ${new Date(note.updatedAt).toLocaleTimeString()}`
+                  )}
                 </span>
-              ) : (
-                `Last saved ${new Date(note.updatedAt).toLocaleTimeString()}`
-              )}
-            </span>
-          </div>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="top">Sync status with server</TooltipContent>
+          </Tooltip>
         </div>
         <div className="text-blue-500/50 font-outfit font-bold">SimpleNote Clone</div>
       </div>

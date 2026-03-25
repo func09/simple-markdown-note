@@ -3,6 +3,7 @@ import { useTags } from '../hooks/useNotesQuery';
 import { useNoteStore } from '../store';
 import { Tag as TagIcon, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton';
 
 /**
  * サイドバーに表示するタグ一覧コンポーネップ
@@ -14,10 +15,13 @@ export const SidebarTagList: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="px-4 py-2 space-y-2">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="h-6 bg-slate-800/50 animate-pulse rounded" />
-        ))}
+      <div className="mt-8 px-4 space-y-3">
+        <Skeleton className="h-3 w-16 bg-slate-800" />
+        <div className="space-y-2 mt-4">
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} className="h-8 w-full bg-slate-800/50" />
+          ))}
+        </div>
       </div>
     );
   }
