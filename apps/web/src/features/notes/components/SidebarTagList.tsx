@@ -41,17 +41,13 @@ export const SidebarTagList: React.FC = () => {
         <button
           onClick={() => setSelectedTag('__untagged__')}
           className={cn(
-            "w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 group text-sm",
+            "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all active:scale-95 group text-sm",
             selectedTag === '__untagged__' 
-              ? "bg-blue-600/10 text-blue-400 font-medium" 
+              ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20" 
               : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
           )}
         >
-          <div className={cn(
-            "w-1.5 h-1.5 rounded-full",
-            selectedTag === '__untagged__' ? "bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.5)]" : "bg-slate-700"
-          )} />
-          <span className="flex-1 text-left">Untagged</span>
+          <span className="flex-1 text-left font-medium">Untagged</span>
         </button>
 
         {tags.map((tag) => (
@@ -59,20 +55,13 @@ export const SidebarTagList: React.FC = () => {
             key={tag.id}
             onClick={() => setSelectedTag(tag.name)}
             className={cn(
-              "w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 group text-sm",
+              "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all active:scale-95 group text-sm",
               selectedTag === tag.name 
-                ? "bg-blue-600/10 text-blue-400 font-medium" 
+                ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20" 
                 : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
             )}
           >
-            <ChevronRight 
-              size={12} 
-              className={cn(
-                "transition-transform",
-                selectedTag === tag.name ? "rotate-90 text-blue-400" : "text-slate-600 group-hover:text-slate-400"
-              )}
-            />
-            <span className="flex-1 text-left truncate">{tag.name}</span>
+            <span className="flex-1 text-left truncate font-medium">{tag.name}</span>
           </button>
         ))}
       </div>
