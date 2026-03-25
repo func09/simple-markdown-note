@@ -43,7 +43,7 @@ export const NoteItem: React.FC<NoteItemProps> = ({
             <h3 className={`font-semibold truncate mb-0.5 text-sm ${
               isSelected ? 'text-white' : 'text-slate-200'
             }`}>
-              {note.title || 'Untitled'}
+              {note.content.split('\n')[0] || 'Untitled'}
             </h3>
           </div>
           <p className="text-slate-500 text-xs truncate leading-relaxed">

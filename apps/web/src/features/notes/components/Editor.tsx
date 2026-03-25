@@ -39,7 +39,7 @@ export const Editor: React.FC<EditorProps> = ({ note }) => {
       timeoutRef.current = setTimeout(() => {
         updateNoteMutation.mutate({ 
           id: note.id, 
-          data: { content: newContent, title: newTitle } 
+          data: { content: newContent } 
         });
       }, 1000);
     }
