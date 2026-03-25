@@ -29,7 +29,8 @@ const Dashboard: React.FC = () => {
     selectedNoteId, 
     setSelectedNoteId, 
     searchQuery, 
-    selectedTag 
+    selectedTag,
+    isTrashSelected
   } = useNoteStore();
   
   const { data: notes = [], isLoading: notesLoading } = useNotes();
@@ -40,7 +41,6 @@ const Dashboard: React.FC = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [noteToDelete, setNoteToDelete] = useState<string | null>(null);
   const [isNavFocused, setIsNavFocused] = useState(false);
-  const [isTrashSelected, setIsTrashSelected] = useState(false);
 
   // 現在のノート一覧をフィルタリングする共通関数
   const getFilteredNotes = React.useCallback((allNotes: any[], tag: string | null, query: string, isTrash: boolean) => {
@@ -90,13 +90,13 @@ const Dashboard: React.FC = () => {
   const updateSelection = React.useCallback((tag: string | null, isTrash: boolean, query: string = searchQuery) => {
     const nextFiltered = getFilteredNotes(notes, tag, query, isTrash);
     
-    // Zustand の一括更新 (set({ ... }) はバッチ処理される)
+    // Zustand の一括更新
     useNoteStore.setState({
       selectedTag: tag,
       searchQuery: query,
+      isTrashSelected: isTrash,
       selectedNoteId: nextFiltered.length > 0 ? nextFiltered[0].id : null
     });
-    setIsTrashSelected(isTrash);
   }, [notes, searchQuery, getFilteredNotes]);
 
   const handleAllNotes = React.useCallback(() => {
@@ -239,10 +239,7 @@ const Dashboard: React.FC = () => {
       <div className="flex flex-col gap-1 flex-shrink-0 py-4">
         {/* All Notes */}
         <button
-          onClick={() => {
-            setIsTrashSelected(false);
-            handleAllNotes();
-          }}
+          onClick={handleAllNotes}
           className={cn(
             "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl group",
             (selectedTag === null && searchQuery === '' && !isTrashSelected)
@@ -286,7 +283,7 @@ const Dashboard: React.FC = () => {
       </div>
       
       {/* タグリストを表示 */}
-      <SidebarTagList isPanelFocused={isNavFocused} />
+      <SidebarTagList isPanelFocused={isNavFocused} onSelectTag={(tag) => updateSelection(tag, false)} />
 
       {/* Sign Out at bottom */}
       <div className="mt-auto pt-6 pb-4 flex flex-col gap-1 flex-shrink-0">

@@ -8,6 +8,8 @@ interface NoteState {
   setSearchQuery: (query: string) => void;
   selectedTag: string | null;
   setSelectedTag: (tag: string | null) => void;
+  isTrashSelected: boolean;
+  setIsTrashSelected: (isTrash: boolean) => void;
   layoutMode: 'all' | 'split' | 'focus';
   setLayoutMode: (mode: 'all' | 'split' | 'focus') => void;
   toggleLayoutMode: () => void;
@@ -27,6 +29,8 @@ export const useNoteStore = create<NoteState>((set) => ({
   setSearchQuery: (query) => set({ searchQuery: query }),
   selectedTag: null,
   setSelectedTag: (tag) => set({ selectedTag: tag }),
+  isTrashSelected: false,
+  setIsTrashSelected: (isTrash) => set({ isTrashSelected: isTrash }),
   layoutMode: 'all',
   setLayoutMode: (mode) => set({ layoutMode: mode }),
   toggleLayoutMode: () => set((state) => {

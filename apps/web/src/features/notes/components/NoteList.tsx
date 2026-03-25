@@ -25,7 +25,12 @@ export const NoteList: React.FC<NoteListProps> = ({
   onDeleteNote,
   isLoading = false
 }) => {
-  const { selectedNoteId, setSelectedNoteId, searchQuery, setSearchQuery, selectedTag, setSelectedTag } = useNoteStore();
+  const selectedNoteId = useNoteStore(state => state.selectedNoteId);
+  const setSelectedNoteId = useNoteStore(state => state.setSelectedNoteId);
+  const searchQuery = useNoteStore(state => state.searchQuery);
+  const setSearchQuery = useNoteStore(state => state.setSearchQuery);
+  const selectedTag = useNoteStore(state => state.selectedTag);
+  const setSelectedTag = useNoteStore(state => state.setSelectedTag);
   const [isFocused, setIsFocused] = React.useState(false);
 
   return (
