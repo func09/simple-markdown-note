@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { Note } from 'openapi';
 import { Textarea } from '@/components/ui/textarea';
-import { Separator } from '@/components/ui/separator';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Clock, Loader2, Info } from 'lucide-react';
+import { Clock, Loader2, Info, Columns3 } from 'lucide-react';
 import { useUpdateNote } from '../hooks/useNotesQuery';
 import { TagInput } from './TagInput';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
+import { useNoteStore } from '../store';
 
 interface EditorProps {
   note: Note | null;
@@ -20,6 +19,7 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags }) => {
   const [content, setContent] = useState('');
   const timeoutRef = useRef<any>(null);
   const updateNoteMutation = useUpdateNote();
+  const { toggleLayoutMode } = useNoteStore();
 
   useEffect(() => {
     if (note) {
@@ -28,11 +28,83 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags }) => {
       setContent('');
     }
   }, [note?.id]);
+  
+  const titleRef = useRef<HTMLTextAreaElement>(null);
+  const bodyRef = useRef<HTMLTextAreaElement>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newContent = e.target.value;
+  // タイトルの高さを自動調整する副作用
+  useEffect(() => {
+    if (titleRef.current) {
+      titleRef.current.style.height = 'auto';
+      titleRef.current.style.height = titleRef.current.scrollHeight + 'px';
+    }
+  }, [content, note?.id]);
+
+  // content をタイトル（1行目）と本文（2行目以降）に分割
+  const lines = content.split('\n');
+  const title = lines[0] || '';
+  const body = lines.slice(1).join('\n');
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTitle = e.target.value;
+    const newContent = [newTitle, ...lines.slice(1)].join('\n');
+    updateLocalContent(newContent);
+  };
+
+  const handleBodyChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    updateLocalContent(title + '\n' + e.target.value);
+  };
+
+  // タイトル入力でのキー操作
+  const handleTitleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter') {
+      if (e.nativeEvent.isComposing) return;
+      e.preventDefault();
+      const cursorPosition = e.currentTarget.selectionStart;
+      const beforeCursor = title.substring(0, cursorPosition);
+      const afterCursor = title.substring(cursorPosition);
+      
+      // タイトルの後半を本文の先頭に、それ以降に既存の本文を結合
+      const newContent = beforeCursor + '\n' + afterCursor + (body ? '\n' + body : '');
+      updateLocalContent(newContent);
+      
+      // 本文へフォーカスし、カーソルを移動（スクロールジャンプを抑制）
+      setTimeout(() => {
+        bodyRef.current?.focus({ preventScroll: true });
+        // 本文の先頭（分割されて移動してきたテキストの開始位置）にカーソルを置く
+        bodyRef.current?.setSelectionRange(0, 0);
+      }, 0);
+    } else if (e.key === 'ArrowDown') {
+      // 1行のタイトル（または最終行）のため、常に本文へ移動
+      e.preventDefault();
+      bodyRef.current?.focus();
+      // 本文の先頭にカーソルを置く
+      bodyRef.current?.setSelectionRange(0, 0);
+    } else if (e.key === 'ArrowLeft') {
+      const { selectionStart } = e.currentTarget;
+      if (selectionStart === 0) {
+        e.preventDefault();
+        document.getElementById('note-list-container')?.focus();
+      }
+    }
+  };
+
+  // 本文入力でのキー操作
+  const handleBodyKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'ArrowUp') {
+      const { selectionStart } = e.currentTarget;
+      if (selectionStart === 0) {
+        e.preventDefault();
+        titleRef.current?.focus();
+        // タイトルの末尾にカーソルを移動
+        const titleLen = titleRef.current?.value.length || 0;
+        titleRef.current?.setSelectionRange(titleLen, titleLen);
+      }
+    }
+  };
+
+  const updateLocalContent = (newContent: string) => {
     setContent(newContent);
-
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
     if (note) {
@@ -64,60 +136,85 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags }) => {
 
   return (
     <div className="flex-1 flex flex-col bg-[#0f172a] h-screen overflow-hidden">
-      <ScrollArea className="flex-1 w-full">
-        <div className="max-w-4xl mx-auto w-full p-8 md:p-12 pb-32">
+      {/* Editor Header */}
+      <div className="h-14 px-6 flex items-center justify-between border-b border-slate-800/30 bg-[#0f172a]/50 backdrop-blur-md z-10">
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={toggleLayoutMode}
+            className="p-2 text-slate-500 hover:text-blue-400 transition-colors bg-slate-800/20 rounded-lg"
+            title="Toggle Layout"
+          >
+            <Columns3 size={20} />
+          </button>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          {updateNoteMutation.isPending && (
+            <div className="flex items-center gap-1.5 text-[10px] text-slate-500 uppercase tracking-widest font-bold">
+              <Loader2 size={12} className="animate-spin text-blue-500" />
+              <span>Saving</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="flex-1 w-full overflow-y-auto bg-[#0f172a] custom-scrollbar flex flex-col">
+        <div className="flex-1 w-full px-8 md:px-16 py-8 pb-32 flex flex-col min-h-full">
+          {/* Title Area */}
+          <div className="mb-1 w-full flex-shrink-0">
+            <textarea
+              ref={titleRef}
+              id="editor-title"
+              rows={1}
+              value={title}
+              onChange={(e) => {
+                handleTitleChange(e as any);
+              }}
+              onKeyDown={handleTitleKeyDown}
+              placeholder="Title"
+              className={cn(
+                "w-full bg-transparent border-none focus:ring-0 p-0 text-slate-100 font-bold tracking-tight outline-none placeholder:text-slate-800",
+                "text-lg md:text-lg lg:text-lg leading-tight resize-none overflow-hidden whitespace-pre-wrap break-words",
+                "transition-all duration-300"
+              )}
+              style={{ height: 'auto' }}
+            />
+          </div>
+
+          {/* Body Area */}
           <Textarea
-            value={content}
-            onChange={handleChange}
+            ref={bodyRef as any}
+            value={body}
+            onChange={handleBodyChange}
+            onKeyDown={handleBodyKeyDown}
             placeholder="Start writing..."
-            className="w-full min-h-[calc(100vh-250px)] bg-transparent border-none focus-visible:ring-0 p-0 text-slate-200 text-xl leading-relaxed resize-none font-inter placeholder:text-slate-700 shadow-none border-0"
-            autoFocus
+            className="w-full flex-1 bg-transparent border-none focus-visible:ring-0 p-0 text-slate-400 text-sm md:text-sm lg:text-sm leading-relaxed resize-none font-inter placeholder:text-slate-800 shadow-none border-0 min-h-[calc(100vh-150px)] [field-sizing:content!important] overflow-hidden"
           />
         </div>
-      </ScrollArea>
+      </div>
       
       {/* タグ入力エリア */}
-      <div className="px-8 md:px-12 bg-[#0f172a]/80 backdrop-blur-md">
+      <div className="px-8 md:px-12 py-2 bg-[#0f172a]/80 backdrop-blur-md border-t border-slate-800/30">
         <TagInput 
           tags={note.tags?.map(t => t.name) || []} 
           onChange={handleTagsChange} 
         />
       </div>
 
-      <Separator className="bg-slate-800" />
-      
-      <div className="px-6 py-3 bg-[#0f172a]/80 backdrop-blur-md text-slate-500 text-[11px] uppercase tracking-wider font-medium flex justify-between items-center">
+      <div className="px-6 py-2 bg-[#0f172a] text-slate-600 text-[10px] uppercase tracking-wider font-medium flex justify-between items-center border-t border-slate-800/10">
         <div className="flex items-center gap-4">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="flex items-center gap-1.5 cursor-help">
-                <Info size={12} className="text-slate-600" />
-                <span>{content.length} characters</span>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent side="top">Total characters in this note</TooltipContent>
-          </Tooltip>
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="flex items-center gap-1.5 cursor-help">
-                <Clock size={12} className="text-slate-600" />
-                <span>
-                  {updateNoteMutation.isPending ? (
-                    <span className="flex items-center gap-1">
-                      <Loader2 size={10} className="animate-spin" />
-                      Saving...
-                    </span>
-                  ) : (
-                    `Last saved ${new Date(note.updatedAt).toLocaleTimeString()}`
-                  )}
-                </span>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent side="top">Sync status with server</TooltipContent>
-          </Tooltip>
+          <div className="flex items-center gap-1.5">
+            <Info size={10} className="text-slate-700" />
+            <span>{content.length} characters</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Clock size={10} className="text-slate-700" />
+            <span>
+              {updateNoteMutation.isPending ? 'Syncing...' : `Saved ${new Date(note.updatedAt).toLocaleTimeString()}`}
+            </span>
+          </div>
         </div>
-        <div className="text-blue-500/50 font-outfit font-bold">SimpleNote Clone</div>
+        <div className="text-slate-800 font-outfit font-bold">SN CLONE</div>
       </div>
     </div>
   );
