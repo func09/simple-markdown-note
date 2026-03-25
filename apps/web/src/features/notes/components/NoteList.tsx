@@ -5,26 +5,25 @@ import { AnimatePresence } from 'framer-motion';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
 import { ScrollArea } from '../../../components/ui/scroll-area';
+import { useNoteStore } from '../store';
 import { NoteItem } from './NoteItem';
 
 interface NoteListProps {
   notes: Note[];
-  selectedNoteId: string | null;
-  onSelectNote: (id: string) => void;
   onCreateNote: () => void;
   onDeleteNote: (id: string) => void;
 }
 
 /**
- * ノート一覧を表示するコンポーネント (shadcn/ui + ScrollArea 使用版)
+ * ノート一覧を表示するコンポーネント (Zustand 直接参照版)
  */
 export const NoteList: React.FC<NoteListProps> = ({ 
   notes, 
-  selectedNoteId, 
-  onSelectNote, 
   onCreateNote,
   onDeleteNote
 }) => {
+  const { selectedNoteId, setSelectedNoteId } = useNoteStore();
+
   return (
     <div className="flex flex-col h-full bg-[#0f172a]/50">
       {/* Header */}
@@ -60,7 +59,7 @@ export const NoteList: React.FC<NoteListProps> = ({
                 key={note.id}
                 note={note}
                 isSelected={selectedNoteId === note.id}
-                onSelect={onSelectNote}
+                onSelect={setSelectedNoteId}
                 onDelete={onDeleteNote}
               />
             ))}
