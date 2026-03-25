@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { Note } from 'openapi';
 import { Textarea } from '@/components/ui/textarea';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Clock, Loader2, Info, Columns3 } from 'lucide-react';
 import { useUpdateNote } from '../hooks/useNotesQuery';
 import { TagInput } from './TagInput';
@@ -136,8 +135,8 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags }) => {
         </div>
       </div>
 
-      <ScrollArea className="flex-1 w-full bg-[#0f172a]">
-        <div className="w-full min-h-full px-8 md:px-16 py-10 pb-32 flex flex-col">
+      <div className="flex-1 w-full overflow-y-auto bg-[#0f172a] custom-scrollbar flex flex-col">
+        <div className="flex-1 w-full px-8 md:px-16 py-10 pb-32 flex flex-col min-h-full">
           {/* Title Area */}
           <div className="relative mb-6 group w-full flex-shrink-0">
             <textarea
@@ -168,10 +167,10 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags }) => {
             onChange={handleBodyChange}
             onKeyDown={handleBodyKeyDown}
             placeholder="Start writing..."
-            className="w-full flex-1 bg-transparent border-none focus-visible:ring-0 p-0 text-slate-400 text-lg leading-relaxed resize-none font-inter placeholder:text-slate-800 shadow-none border-0 min-h-[500px]"
+            className="w-full flex-1 bg-transparent border-none focus-visible:ring-0 p-0 text-slate-400 text-lg leading-relaxed resize-none font-inter placeholder:text-slate-800 shadow-none border-0 min-h-[50vh]"
           />
         </div>
-      </ScrollArea>
+      </div>
       
       {/* タグ入力エリア */}
       <div className="px-8 md:px-12 py-2 bg-[#0f172a]/80 backdrop-blur-md border-t border-slate-800/30">
