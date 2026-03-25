@@ -20,14 +20,12 @@ interface AppLayoutProps {
  * Navigation (Narrow) | Note List (Medium) | Editor (Wide)
  * 折りたたみ機能（Collapse）を使用して状態を維持しながら表示を切り替えます。
  */
-export const AppLayout: React.FC<AppLayoutProps> = ({ nav, list, main }) => {
-  const {
-    layoutMode,
-    layoutAllSizes,
-    setLayoutAllSizes,
-    layoutSplitSizes,
-    setLayoutSplitSizes
-  } = useNoteStore();
+export const AppLayout: React.FC<AppLayoutProps> = React.memo(({ nav, list, main }) => {
+  const layoutMode = useNoteStore(state => state.layoutMode);
+  const layoutAllSizes = useNoteStore(state => state.layoutAllSizes);
+  const setLayoutAllSizes = useNoteStore(state => state.setLayoutAllSizes);
+  const layoutSplitSizes = useNoteStore(state => state.layoutSplitSizes);
+  const setLayoutSplitSizes = useNoteStore(state => state.setLayoutSplitSizes);
 
   const onLayoutChange = (layout: ResizablePrimitive.Layout) => {
     if (layoutMode === 'all') {
@@ -123,4 +121,4 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ nav, list, main }) => {
       <Toaster position="bottom-right" theme="dark" closeButton />
     </TooltipProvider>
   );
-};
+});
