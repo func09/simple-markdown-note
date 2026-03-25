@@ -75,8 +75,9 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags }) => {
       }, 0);
     } else if (e.key === 'ArrowDown') {
       const { selectionStart, value } = e.currentTarget;
-      // 最後の行にいるかチェック（簡易的に最後の文字付近なら次へ）
+      // 最後の文字付近なら次へ
       if (selectionStart >= value.length) {
+        e.preventDefault();
         bodyRef.current?.focus();
         bodyRef.current?.setSelectionRange(0, 0);
       }
