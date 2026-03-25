@@ -136,9 +136,9 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags }) => {
       </div>
 
       <div className="flex-1 w-full overflow-y-auto bg-[#0f172a] custom-scrollbar flex flex-col">
-        <div className="flex-1 w-full px-8 md:px-32 py-16 pb-64 flex flex-col min-h-full">
+        <div className="flex-1 w-full px-8 md:px-16 py-8 pb-32 flex flex-col min-h-full">
           {/* Title Area */}
-          <div className="relative mb-12 group w-full flex-shrink-0">
+          <div className="relative mb-6 group w-full flex-shrink-0">
             <textarea
               ref={titleRef}
               rows={1}
@@ -152,12 +152,12 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags }) => {
               placeholder="Title"
               className={cn(
                 "w-full bg-transparent border-none focus:ring-0 p-0 text-slate-100 font-bold tracking-tight outline-none placeholder:text-slate-800",
-                "text-4xl md:text-5xl lg:text-5xl leading-tight resize-none overflow-hidden whitespace-pre-wrap break-words",
+                "text-lg md:text-lg lg:text-lg leading-tight resize-none overflow-hidden whitespace-pre-wrap break-words",
                 "transition-all duration-300"
               )}
               style={{ height: 'auto' }}
             />
-            <div className="absolute -bottom-6 left-0 w-24 h-1.5 bg-blue-600/20 rounded-full group-focus-within:w-40 group-focus-within:bg-blue-500/50 transition-all duration-500" />
+            <div className="absolute -bottom-2 left-0 w-12 h-0.5 bg-blue-600/20 rounded-full group-focus-within:w-20 group-focus-within:bg-blue-500/50 transition-all duration-500" />
           </div>
 
           {/* Body Area */}
@@ -167,7 +167,7 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags }) => {
             onChange={handleBodyChange}
             onKeyDown={handleBodyKeyDown}
             placeholder="Start writing..."
-            className="w-full flex-1 bg-transparent border-none focus-visible:ring-0 p-0 text-slate-200 text-2xl md:text-3xl lg:text-3xl font-medium leading-relaxed resize-none font-inter placeholder:text-slate-800 shadow-none border-0 min-h-[calc(100vh-400px)] [field-sizing:fixed!important]"
+            className="w-full flex-1 bg-transparent border-none focus-visible:ring-0 p-0 text-slate-400 text-sm md:text-sm lg:text-sm leading-relaxed resize-none font-inter placeholder:text-slate-800 shadow-none border-0 min-h-[calc(100vh-250px)] [field-sizing:fixed!important]"
           />
         </div>
       </div>
