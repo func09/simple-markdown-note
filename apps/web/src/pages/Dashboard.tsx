@@ -4,7 +4,7 @@ import { NoteList, Editor, SidebarTagList, useNotes, useCreateNote, useDeleteNot
 import { logout } from '../features/auth';
 import { useNavigate } from 'react-router-dom';
 import { StickyNote, Settings, User, LogOut } from 'lucide-react';
-import { cn } from '../lib/utils';
+import { cn } from '@/lib/utils';
 
 /**
  * メインのダッシュボードページ
