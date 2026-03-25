@@ -136,10 +136,10 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags }) => {
         </div>
       </div>
 
-      <ScrollArea className="flex-1 w-full">
-        <div className="w-full px-8 md:px-16 py-10 pb-32 flex flex-col">
+      <ScrollArea className="flex-1 w-full bg-[#0f172a]">
+        <div className="w-full min-h-full px-8 md:px-16 py-10 pb-32 flex flex-col">
           {/* Title Area */}
-          <div className="relative mb-6 group w-full">
+          <div className="relative mb-6 group w-full flex-shrink-0">
             <textarea
               ref={titleRef}
               rows={1}
@@ -168,7 +168,7 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags }) => {
             onChange={handleBodyChange}
             onKeyDown={handleBodyKeyDown}
             placeholder="Start writing..."
-            className="w-full min-h-[600px] bg-transparent border-none focus-visible:ring-0 p-0 text-slate-400 text-lg leading-relaxed resize-none font-inter placeholder:text-slate-800 shadow-none border-0"
+            className="w-full flex-1 bg-transparent border-none focus-visible:ring-0 p-0 text-slate-400 text-lg leading-relaxed resize-none font-inter placeholder:text-slate-800 shadow-none border-0 min-h-[500px]"
           />
         </div>
       </ScrollArea>
