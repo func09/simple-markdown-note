@@ -11,11 +11,17 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "prisma": "^7.5.0"
   },
   "dependencies": {
-    "@prisma/client": "^7.5.0",
+    "@anatine/zod-mock": "^3.14.0",
+    "@faker-js/faker": "^10.4.0",
+    "@libsql/client": "^0.17.2",
     "@prisma/adapter-libsql": "^7.5.0",
-    "@libsql/client": "^0.17.2"
+    "@prisma/client": "^7.5.0",
+    "bcryptjs": "^3.0.3",
+    "openapi": "^1.0.0",
+    "zod": "^4.3.6"
   }
 }
