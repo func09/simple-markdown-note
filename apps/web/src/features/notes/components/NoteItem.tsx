@@ -31,10 +31,10 @@ export const NoteItem = React.memo<NoteItemProps>(({
     <div
       ref={ref}
       onClick={() => onSelect(note.id)}
-      className={`group relative mx-2 mb-1 p-4 rounded-xl cursor-pointer transition-all duration-200 ${
+      className={`group relative mx-2 mb-1 p-4 rounded-xl cursor-pointer ${
         isSelected 
           ? 'bg-blue-600/10 border border-blue-500/30' 
-          : 'hover:bg-slate-800/50 border border-transparent hover:border-slate-700/50'
+          : 'hover:bg-slate-800/50 border border-transparent hover:border-slate-700/50 transition-colors'
       }`}
     >
       <div className="flex gap-3 h-full">
