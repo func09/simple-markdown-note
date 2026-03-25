@@ -1,5 +1,11 @@
-import { PrismaClient } from '@prisma/client';
+import PrismaPkg from '@prisma/client';
+const { PrismaClient } = PrismaPkg;
+import { PrismaLibSql } from '@prisma/adapter-libsql';
 
-export const prisma = new PrismaClient();
+const adapter = new PrismaLibSql({
+  url: process.env.DATABASE_URL || 'file:../../storage/test.db',
+});
+
+export const prisma = new PrismaClient({ adapter });
 
 export * from '@prisma/client';

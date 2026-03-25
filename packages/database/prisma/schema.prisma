@@ -2,13 +2,13 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-arm64-openssl-1.1.x", "linux-arm64-openssl-3.0.x"]
 }
 
 // SQLiteデータベースの設定
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
 }
 
 // ユーザー情報を管理するモデル
@@ -18,6 +18,25 @@ model User {
   passwordHash String   @map("password_hash")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
+  
+  // ユーザーが所有するノート
+  notes        Note[]
 
   @@map("users")
+}
+
+// ノート情報を管理するモデル
+model Note {
+  id        String   @id @default(cuid())
+  title     String?  @default("")
+  content   String   @default("")
+  
+  // 所有者とのリレーション
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("notes")
 }
