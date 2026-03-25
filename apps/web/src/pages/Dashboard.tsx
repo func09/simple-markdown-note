@@ -144,6 +144,14 @@ const Dashboard: React.FC = () => {
   const { data: tags = [] } = useTags();
   const [isNavFocused, setIsNavFocused] = useState(false);
 
+  // 初回レンダリング時にナビゲーションにフォーカス
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      document.getElementById('nav-container')?.focus();
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
+
   // ナビゲーションの移動順序を定義
   const navItems = useMemo(() => {
     return [
@@ -183,7 +191,12 @@ const Dashboard: React.FC = () => {
       className="flex flex-col h-full overflow-y-auto custom-scrollbar px-2 focus:outline-none"
       tabIndex={0}
       onFocus={() => setIsNavFocused(true)}
-      onBlur={() => setIsNavFocused(false)}
+      onBlur={(e) => {
+        // パネル内の要素（ボタン等）にフォーカスが移った場合は、フォーカス中とみなす
+        if (!e.currentTarget.contains(e.relatedTarget)) {
+          setIsNavFocused(false);
+        }
+      }}
       onKeyDown={handleNavKeyDown}
     >
       <div className="flex flex-col gap-1 flex-shrink-0 py-4">
@@ -191,7 +204,7 @@ const Dashboard: React.FC = () => {
         <button
           onClick={handleAllNotes}
           className={cn(
-            "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all active:scale-95 group",
+            "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl active:scale-95 group",
             (selectedTag === null && searchQuery === '')
               ? isNavFocused 
                 ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20 font-medium" 

@@ -45,7 +45,7 @@ export const SidebarTagList: React.FC<SidebarTagListProps> = ({ isPanelFocused =
         <button
           onClick={() => setSelectedTag('__untagged__')}
           className={cn(
-            "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all active:scale-95 group text-sm",
+            "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl group text-sm",
             selectedTag === '__untagged__' 
               ? isPanelFocused
                 ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20 font-medium" 
@@ -61,7 +61,7 @@ export const SidebarTagList: React.FC<SidebarTagListProps> = ({ isPanelFocused =
             key={tag.id}
             onClick={() => setSelectedTag(tag.name)}
             className={cn(
-              "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all active:scale-95 group text-sm",
+              "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl group text-sm",
               selectedTag === tag.name 
                 ? isPanelFocused
                   ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20 font-medium" 
