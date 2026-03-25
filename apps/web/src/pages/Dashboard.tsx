@@ -25,7 +25,12 @@ import {
  */
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { selectedNoteId, setSelectedNoteId, searchQuery, selectedTag } = useNoteStore();
+  const { 
+    selectedNoteId, 
+    setSelectedNoteId, 
+    searchQuery, 
+    selectedTag 
+  } = useNoteStore();
   
   const { data: notes = [], isLoading: notesLoading } = useNotes();
   const createNoteMutation = useCreateNote();
@@ -34,25 +39,29 @@ const Dashboard: React.FC = () => {
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [noteToDelete, setNoteToDelete] = useState<string | null>(null);
+  const [isNavFocused, setIsNavFocused] = useState(false);
+  const [isTrashSelected, setIsTrashSelected] = useState(false);
 
-  // 検索クエリと選択されたタグに基づいてノートをフィルタリング
-  const filteredNotes = useMemo(() => {
-    let result = [...notes];
+  // 現在のノート一覧をフィルタリングする共通関数
+  const getFilteredNotes = React.useCallback((allNotes: any[], tag: string | null, query: string, isTrash: boolean) => {
+    if (isTrash) return [];
+
+    let result = [...allNotes];
     
     // タグフィルタリング
-    if (selectedTag === '__untagged__') {
+    if (tag === '__untagged__') {
       result = result.filter(note => !note.tags || note.tags.length === 0);
-    } else if (selectedTag) {
+    } else if (tag) {
       result = result.filter(note => 
-        note.tags?.some(tag => tag.name === selectedTag)
+        note.tags?.some((t: Tag) => t.name === tag)
       );
     }
     
     // 検索クエリフィルタリング
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
+    if (query) {
+      const q = query.toLowerCase();
       result = result.filter(note => 
-        note.content.toLowerCase().includes(query)
+        note.content.toLowerCase().includes(q)
       );
     }
 
@@ -64,34 +73,43 @@ const Dashboard: React.FC = () => {
     });
     
     return result;
-  }, [notes, searchQuery, selectedTag]);
+  }, []);
 
-  // タグや検索条件が変わった際、先頭のノートを強制選択する
-  React.useEffect(() => {
-    if (!notesLoading && filteredNotes.length > 0) {
-      // ユーザーの要望「以前の選択状態などは無視して、リストの先頭のノートが選択される」
-      setSelectedNoteId(filteredNotes[0].id);
-    } else if (!notesLoading && filteredNotes.length === 0) {
-      setSelectedNoteId(null);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedTag, searchQuery, notesLoading]); // メニュー（タグ）移動、検索、および初回ロード完了時のみトリガー
+  // 検索クエリと選択されたタグに基づいてノートをフィルタリング
+  const filteredNotes = useMemo(() => 
+    getFilteredNotes(notes, selectedTag, searchQuery, isTrashSelected),
+    [notes, searchQuery, selectedTag, isTrashSelected, getFilteredNotes]
+  );
 
-  const selectedNote = notes.find(n => n.id === selectedNoteId) || null;
-  const { setSelectedTag, setSearchQuery } = useNoteStore();
+  const selectedNote = useMemo(() => 
+    notes.find(n => n.id === selectedNoteId) || null,
+    [notes, selectedNoteId]
+  );
 
-  const handleAllNotes = () => {
-    setSelectedTag(null);
-    setSearchQuery('');
-  };
+  // 統合された選択ハンドラ
+  const updateSelection = React.useCallback((tag: string | null, isTrash: boolean, query: string = searchQuery) => {
+    const nextFiltered = getFilteredNotes(notes, tag, query, isTrash);
+    
+    // Zustand の一括更新 (set({ ... }) はバッチ処理される)
+    useNoteStore.setState({
+      selectedTag: tag,
+      searchQuery: query,
+      selectedNoteId: nextFiltered.length > 0 ? nextFiltered[0].id : null
+    });
+    setIsTrashSelected(isTrash);
+  }, [notes, searchQuery, getFilteredNotes]);
 
-  const handleLogout = () => {
+  const handleAllNotes = React.useCallback(() => {
+    updateSelection(null, false, '');
+  }, [updateSelection]);
+
+  const handleLogout = React.useCallback(() => {
     logout();
     navigate('/login');
     toast.success('Logged out successfully');
-  };
+  }, [navigate]);
 
-  const handleCreateNote = async () => {
+  const handleCreateNote = React.useCallback(async () => {
     try {
       const newNote: any = await createNoteMutation.mutateAsync({
         content: '',
@@ -103,14 +121,14 @@ const Dashboard: React.FC = () => {
       console.error(err);
       toast.error('Failed to create note');
     }
-  };
+  }, [createNoteMutation, selectedTag, setSelectedNoteId]);
 
-  const handleDeleteClick = (id: string) => {
+  const handleDeleteClick = React.useCallback((id: string) => {
     setNoteToDelete(id);
     setIsDeleteModalOpen(true);
-  };
+  }, []);
 
-  const confirmDeleteNote = async () => {
+  const confirmDeleteNote = React.useCallback(async () => {
     if (!noteToDelete) return;
     try {
       await deleteNoteMutation.mutateAsync(noteToDelete);
@@ -125,9 +143,9 @@ const Dashboard: React.FC = () => {
       setIsDeleteModalOpen(false);
       setNoteToDelete(null);
     }
-  };
+  }, [deleteNoteMutation, noteToDelete, selectedNoteId, setSelectedNoteId]);
 
-  const handleUpdateTags = async (noteId: string, tags: string[]) => {
+  const handleUpdateTags = React.useCallback(async (noteId: string, tags: string[]) => {
     try {
       await updateNoteMutation.mutateAsync({
         id: noteId,
@@ -138,12 +156,10 @@ const Dashboard: React.FC = () => {
       console.error(err);
       toast.error('Failed to sync tags');
     }
-  };
+  }, [updateNoteMutation]);
 
 
   const { data: tags = [] } = useTags();
-  const [isNavFocused, setIsNavFocused] = useState(false);
-  const [isTrashSelected, setIsTrashSelected] = useState(false);
 
   // 初回レンダリング時にナビゲーションにフォーカス
   React.useEffect(() => {
@@ -163,7 +179,7 @@ const Dashboard: React.FC = () => {
     ];
   }, [tags]);
 
-  const handleNavKeyDown = (e: React.KeyboardEvent) => {
+  const handleNavKeyDown = React.useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'ArrowDown') {
       e.preventDefault();
       const currentIndex = navItems.findIndex(item => {
@@ -175,15 +191,11 @@ const Dashboard: React.FC = () => {
       
       const nextItem = navItems[nextIndex];
       if (nextItem.type === 'all') {
-        setIsTrashSelected(false);
-        setSelectedTag(null);
-        setSearchQuery('');
+        updateSelection(null, false, '');
       } else if (nextItem.type === 'trash') {
-        setIsTrashSelected(true);
-        setSelectedTag(null);
+        updateSelection(null, true);
       } else {
-        setIsTrashSelected(false);
-        setSelectedTag(nextItem.value as any);
+        updateSelection(nextItem.value as any, false);
       }
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
@@ -196,25 +208,21 @@ const Dashboard: React.FC = () => {
       
       const prevItem = navItems[prevIndex];
       if (prevItem.type === 'all') {
-        setIsTrashSelected(false);
-        setSelectedTag(null);
-        setSearchQuery('');
+        updateSelection(null, false, '');
       } else if (prevItem.type === 'trash') {
-        setIsTrashSelected(true);
-        setSelectedTag(null);
+        updateSelection(null, true);
       } else {
-        setIsTrashSelected(false);
-        setSelectedTag(prevItem.value as any);
+        updateSelection(prevItem.value as any, false);
       }
     }
  else if (e.key === 'ArrowRight') {
       e.preventDefault();
       document.getElementById('note-list-container')?.focus();
     }
-  };
+  }, [navItems, isTrashSelected, selectedTag, updateSelection]);
 
-  // 左端のナビゲーションカラムの内容
-  const navigationContent = (
+  // 左端のナビゲーションカラムの内容 (メモ化)
+  const navigationContent = useMemo(() => (
     <div 
       id="nav-container"
       className="flex flex-col h-full overflow-y-auto custom-scrollbar px-2 focus:outline-none"
@@ -222,7 +230,7 @@ const Dashboard: React.FC = () => {
       onFocus={() => setIsNavFocused(true)}
       onBlur={(e) => {
         // パネル内の要素（ボタン等）にフォーカスが移った場合は、フォーカス中とみなす
-        if (!e.currentTarget.contains(e.relatedTarget)) {
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
           setIsNavFocused(false);
         }
       }}
@@ -236,7 +244,7 @@ const Dashboard: React.FC = () => {
             handleAllNotes();
           }}
           className={cn(
-            "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl active:scale-95 group",
+            "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl group",
             (selectedTag === null && searchQuery === '' && !isTrashSelected)
               ? isNavFocused 
                 ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20 font-medium" 
@@ -255,13 +263,9 @@ const Dashboard: React.FC = () => {
 
         {/* Trash */}
         <button
-          onClick={() => {
-            setIsTrashSelected(true);
-            setSelectedTag(null);
-            setSearchQuery('');
-          }}
+          onClick={() => updateSelection(null, true)}
           className={cn(
-            "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl active:scale-95 group",
+            "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl group",
             isTrashSelected
               ? isNavFocused 
                 ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20 font-medium" 
@@ -288,14 +292,14 @@ const Dashboard: React.FC = () => {
       <div className="mt-auto pt-6 pb-4 flex flex-col gap-1 flex-shrink-0">
         <button 
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-500 hover:bg-red-500/10 hover:text-red-400 transition-all group"
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-500 hover:bg-red-500/10 hover:text-red-400 group"
         >
-          <LogOut size={20} className="group-hover:text-red-400 transition-colors" />
+          <LogOut size={20} className="group-hover:text-red-400" />
           <span className="font-medium text-sm">Sign Out</span>
         </button>
       </div>
     </div>
-  );
+  ), [isNavFocused, isTrashSelected, selectedTag, searchQuery, handleNavKeyDown, tags, handleLogout]);
 
   if (notesLoading && notes.length === 0) {
     return (
@@ -309,20 +313,20 @@ const Dashboard: React.FC = () => {
     <>
       <AppLayout
         nav={navigationContent}
-        list={
+        list={useMemo(() => (
           <NoteList 
             notes={isTrashSelected ? [] : filteredNotes} 
             onCreateNote={handleCreateNote}
             onDeleteNote={handleDeleteClick}
             isLoading={notesLoading}
           />
-        }
-        main={
+        ), [isTrashSelected, filteredNotes, handleCreateNote, handleDeleteClick, notesLoading])}
+        main={useMemo(() => (
           <Editor 
             note={selectedNote} 
             onUpdateTags={handleUpdateTags}
           />
-        }
+        ), [selectedNote, handleUpdateTags])}
       />
 
       <AlertDialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
