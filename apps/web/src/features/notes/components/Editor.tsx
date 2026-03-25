@@ -59,9 +59,20 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags }) => {
   const handleTitleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      bodyRef.current?.focus();
-      // 本文の先頭にカーソルを移動
-      bodyRef.current?.setSelectionRange(0, 0);
+      const cursorPosition = e.currentTarget.selectionStart;
+      const beforeCursor = title.substring(0, cursorPosition);
+      const afterCursor = title.substring(cursorPosition);
+      
+      // タイトルの後半を本文の先頭に、それ以降に既存の本文を結合
+      const newContent = beforeCursor + '\n' + afterCursor + (body ? '\n' + body : '');
+      updateLocalContent(newContent);
+      
+      // 本文へフォーカスし、カーソルを移動
+      setTimeout(() => {
+        bodyRef.current?.focus();
+        // 本文の先頭（分割されて移動してきたテキストの開始位置）にカーソルを置く
+        bodyRef.current?.setSelectionRange(0, 0);
+      }, 0);
     } else if (e.key === 'ArrowDown') {
       const { selectionStart, value } = e.currentTarget;
       // 最後の行にいるかチェック（簡易的に最後の文字付近なら次へ）
