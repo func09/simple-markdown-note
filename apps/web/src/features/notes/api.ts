@@ -10,13 +10,13 @@ export const fetchNotes = async () => {
   return res.json();
 };
 
-export const createNote = async (data: { title: string; content: string }) => {
+export const createNote = async (data: { content: string; tags?: string[] }) => {
   const res = await api.notes.$post({ json: data });
   if (!res.ok) throw new Error('Failed to create note');
   return res.json();
 };
 
-export const updateNote = async (id: string, data: { title: string; content: string }) => {
+export const updateNote = async (id: string, data: { content?: string; tags?: string[] }) => {
   const res = await api.notes[':id'].$patch({
     param: { id },
     json: data
@@ -30,5 +30,11 @@ export const deleteNote = async (id: string) => {
     param: { id }
   });
   if (!res.ok) throw new Error('Failed to delete note');
+  return res.json();
+};
+
+export const fetchTags = async () => {
+  const res = await api.tags.$get();
+  if (!res.ok) throw new Error('Failed to fetch tags');
   return res.json();
 };

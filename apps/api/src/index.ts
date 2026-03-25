@@ -5,6 +5,7 @@ import { logger } from 'hono/logger'
 import { jwt } from 'hono/jwt'
 import authRouter from './routes/auth'
 import { notesRouter } from './routes/notes'
+import { tagsRouter } from './routes/tags'
 
 // アプリケーション共通の環境変数型定義
 type Env = {
@@ -29,6 +30,10 @@ app.get('/health', (c) => c.json({ status: 'ok' }))
 // ノート管理エンドポイント（認証が必要）
 app.use('/notes/*', jwt({ secret: JWT_SECRET, alg: 'HS256' }))
 app.route('/notes', notesRouter)
+
+// タグ管理エンドポイント（認証が必要）
+app.use('/tags/*', jwt({ secret: JWT_SECRET, alg: 'HS256' }))
+app.route('/tags', tagsRouter)
 
 // 認証エンドポイント
 app.route('/auth', authRouter)
