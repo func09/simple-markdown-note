@@ -6,6 +6,8 @@ interface NoteState {
   // 必要に応じて検索クエリや UI 状態を追加
   searchQuery: string;
   setSearchQuery: (query: string) => void;
+  selectedTag: string | null;
+  setSelectedTag: (tag: string | null) => void;
 }
 
 /**
@@ -16,4 +18,6 @@ export const useNoteStore = create<NoteState>((set) => ({
   setSelectedNoteId: (id) => set({ selectedNoteId: id }),
   searchQuery: '',
   setSearchQuery: (query) => set({ searchQuery: query }),
+  selectedTag: null,
+  setSelectedTag: (tag) => set({ selectedTag: tag }),
 }));
