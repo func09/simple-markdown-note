@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Note } from 'openapi';
-import { Trash2, FileText } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface NoteItemProps {
@@ -32,11 +32,6 @@ export const NoteItem: React.FC<NoteItemProps> = ({
       }`}
     >
       <div className="flex gap-3 h-full">
-        <div className={`mt-1 h-8 w-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
-          isSelected ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-500 group-hover:bg-slate-700 group-hover:text-slate-400'
-        }`}>
-          <FileText size={16} />
-        </div>
         
         <div className="flex-1 min-w-0 flex flex-col justify-center">
           <div className="flex justify-between items-start">
