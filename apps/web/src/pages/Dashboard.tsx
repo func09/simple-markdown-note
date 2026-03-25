@@ -16,7 +16,7 @@ import {
   AlertDialogHeader, 
   AlertDialogTitle 
 } from '@/components/ui/alert-dialog';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+// Tooltip imports removed as they are no longer used in navigationContent
 
 /**
  * メインのダッシュボードページ
@@ -125,61 +125,52 @@ const Dashboard: React.FC = () => {
 
   // 左端のナビゲーションカラムの内容
   const navigationContent = (
-    <div className="flex flex-col h-full overflow-y-auto custom-scrollbar">
-      <div className="flex flex-col gap-6 items-center flex-shrink-0 py-2">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              onClick={handleAllNotes}
-              className={cn(
-                "w-10 h-10 rounded-xl flex items-center justify-center transition-all active:scale-95",
-                (selectedTag === null && searchQuery === '')
-                  ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
-                  : "bg-slate-800 text-slate-400 hover:text-blue-400"
-              )}
-            >
-              <StickyNote size={24} />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent side="right">All Notes</TooltipContent>
-        </Tooltip>
+    <div className="flex flex-col h-full overflow-y-auto custom-scrollbar px-2">
+      <div className="flex flex-col gap-1 flex-shrink-0 py-4">
+        {/* All Notes */}
+        <button
+          onClick={handleAllNotes}
+          className={cn(
+            "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all active:scale-95 group",
+            (selectedTag === null && searchQuery === '')
+              ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
+              : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
+          )}
+        >
+          <StickyNote size={20} className={cn(
+            "transition-colors",
+            (selectedTag === null && searchQuery === '') ? "text-white" : "text-slate-500 group-hover:text-blue-400"
+          )} />
+          <span className="font-medium text-sm">All Notes</span>
+        </button>
 
-        <div className="flex flex-col gap-4 mt-2">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button className="p-2 text-slate-500 hover:text-blue-400 transition-colors">
-                <User size={24} />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="right">Profile</TooltipContent>
-          </Tooltip>
-          
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button className="p-2 text-slate-500 hover:text-blue-400 transition-colors">
-                <Settings size={24} />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="right">Settings</TooltipContent>
-          </Tooltip>
-        </div>
+        <div className="h-px bg-slate-800/50 my-2 mx-2" />
+
+        {/* Profile */}
+        <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-all group">
+          <User size={20} className="text-slate-500 group-hover:text-blue-400 transition-colors" />
+          <span className="font-medium text-sm">Profile</span>
+        </button>
+        
+        {/* Settings */}
+        <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-all group">
+          <Settings size={20} className="text-slate-500 group-hover:text-blue-400 transition-colors" />
+          <span className="font-medium text-sm">Settings</span>
+        </button>
       </div>
       
       {/* タグリストを表示 */}
       <SidebarTagList />
 
-      <div className="mt-auto pt-6 pb-4 flex flex-col items-center flex-shrink-0">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button 
-              onClick={handleLogout}
-              className="p-2 text-slate-500 hover:text-red-400 transition-colors"
-            >
-              <LogOut size={24} />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent side="right">Logout</TooltipContent>
-        </Tooltip>
+      {/* Sign Out at bottom */}
+      <div className="mt-auto pt-6 pb-4 flex flex-col gap-1 flex-shrink-0">
+        <button 
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-500 hover:bg-red-500/10 hover:text-red-400 transition-all group"
+        >
+          <LogOut size={20} className="group-hover:text-red-400 transition-colors" />
+          <span className="font-medium text-sm">Sign Out</span>
+        </button>
       </div>
     </div>
   );
