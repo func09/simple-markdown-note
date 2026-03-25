@@ -7,6 +7,7 @@ import { Clock, Loader2, Info } from 'lucide-react';
 import { useUpdateNote } from '../hooks/useNotesQuery';
 import { TagInput } from './TagInput';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
 
 interface EditorProps {
   note: Note | null;
@@ -29,10 +30,25 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags }) => {
     }
   }, [note?.id]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newContent = e.target.value;
-    setContent(newContent);
+  // content をタイトル（1行目）と本文（2行目以降）に分割
+  const lines = content.split('\n');
+  const title = lines[0] || '';
+  const body = lines.slice(1).join('\n');
 
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTitle = e.target.value;
+    const newContent = [newTitle, ...lines.slice(1)].join('\n');
+    updateLocalContent(newContent);
+  };
+
+  const handleBodyChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newBody = e.target.value;
+    const newContent = title + '\n' + newBody;
+    updateLocalContent(newContent);
+  };
+
+  const updateLocalContent = (newContent: string) => {
+    setContent(newContent);
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
     if (note) {
@@ -65,13 +81,31 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags }) => {
   return (
     <div className="flex-1 flex flex-col bg-[#0f172a] h-screen overflow-hidden">
       <ScrollArea className="flex-1 w-full">
-        <div className="max-w-4xl mx-auto w-full p-8 md:p-12 pb-32">
+        <div className="max-w-4xl mx-auto w-full p-8 md:p-12 pb-32 flex flex-col">
+          {/* Title Area */}
+          <div className="relative mb-12 group">
+            <input
+              type="text"
+              value={title}
+              onChange={handleTitleChange}
+              placeholder="Title"
+              className={cn(
+                "w-full bg-transparent border-none focus:ring-0 p-0 text-slate-100 font-bold tracking-tight outline-none placeholder:text-slate-800",
+                "text-4xl md:text-5xl lg:text-6xl",
+                "transition-all duration-300",
+                // 最初の1文字目を大きく（Drop Cap的スタイル）
+                "first-letter:text-blue-500 first-letter:mr-1 first-letter:font-outfit"
+              )}
+            />
+            <div className="absolute -bottom-4 left-0 w-12 h-1 bg-blue-600/30 rounded-full group-focus-within:w-24 group-focus-within:bg-blue-500 transition-all duration-500" />
+          </div>
+
+          {/* Body Area */}
           <Textarea
-            value={content}
-            onChange={handleChange}
+            value={body}
+            onChange={handleBodyChange}
             placeholder="Start writing..."
-            className="w-full min-h-[calc(100vh-250px)] bg-transparent border-none focus-visible:ring-0 p-0 text-slate-200 text-xl leading-relaxed resize-none font-inter placeholder:text-slate-700 shadow-none border-0"
-            autoFocus
+            className="w-full min-h-[500px] bg-transparent border-none focus-visible:ring-0 p-0 text-slate-400 text-lg leading-relaxed resize-none font-inter placeholder:text-slate-800 shadow-none border-0"
           />
         </div>
       </ScrollArea>
