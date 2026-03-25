@@ -35,19 +35,19 @@ export const SidebarTagList: React.FC = () => {
       
       <div className="space-y-0.5 px-2">
         <button
-          onClick={() => setSelectedTag(null)}
+          onClick={() => setSelectedTag('__untagged__')}
           className={cn(
             "w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 group text-sm",
-            selectedTag === null 
+            selectedTag === '__untagged__' 
               ? "bg-blue-600/10 text-blue-400 font-medium" 
               : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
           )}
         >
           <div className={cn(
             "w-1.5 h-1.5 rounded-full",
-            selectedTag === null ? "bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.5)]" : "bg-slate-700"
+            selectedTag === '__untagged__' ? "bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.5)]" : "bg-slate-700"
           )} />
-          <span className="flex-1 text-left">All Notes</span>
+          <span className="flex-1 text-left">Untagged</span>
         </button>
 
         {tags.map((tag) => (

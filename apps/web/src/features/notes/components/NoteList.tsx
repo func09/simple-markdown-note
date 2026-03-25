@@ -30,13 +30,13 @@ export const NoteList: React.FC<NoteListProps> = ({
       <div className="px-6 py-5 flex items-center justify-between">
         <div className="flex flex-col">
           <h2 className="text-xl font-bold font-outfit text-white tracking-tight">
-            {selectedTag ? 'Tagged Notes' : 'All Notes'}
+            {selectedTag === '__untagged__' ? 'Untagged' : selectedTag ? 'Tagged Notes' : 'All Notes'}
           </h2>
           {selectedTag && (
             <div className="flex items-center gap-1.5 mt-1">
               <span className="text-[10px] bg-blue-600/20 text-blue-400 px-2 py-0.5 rounded-full border border-blue-500/20 flex items-center gap-1">
                 <TagIcon size={8} />
-                {selectedTag}
+                {selectedTag === '__untagged__' ? 'Untagged' : selectedTag}
                 <button onClick={() => setSelectedTag(null)} className="hover:text-white transition-colors">
                   <X size={8} />
                 </button>
