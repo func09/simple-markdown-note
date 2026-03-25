@@ -147,15 +147,14 @@ async function main() {
       content = content.substring(0, lastPeriod + 1)
     }
 
-    // タイトルは最初の数十字
-    const title = content.substring(0, 30).split(/[。、\n]/)[0].trim() || '無題'
+    // 作品名を content の先頭に付けることで、クライアント側でタイトルとして認識されるようにする
+    const fullContent = `[${source.name}] ${content.trim()}`
 
     // ランダムな過去日付の生成 (1年前までの範囲)
     const pastDate = new Date(Date.now() - Math.floor(Math.random() * 365 * 24 * 60 * 60 * 1000))
 
     notesData.push({
-      title: `[${source.name}] ${title}`,
-      content: content.trim(),
+      content: fullContent,
       userId: testUser.id,
       createdAt: pastDate,
       updatedAt: new Date(),
