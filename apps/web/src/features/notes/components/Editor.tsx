@@ -28,6 +28,17 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags }) => {
       setContent('');
     }
   }, [note?.id]);
+  
+  const titleRef = useRef<HTMLTextAreaElement>(null);
+  const bodyRef = useRef<HTMLTextAreaElement>(null);
+
+  // タイトルの高さを自動調整する副作用
+  useEffect(() => {
+    if (titleRef.current) {
+      titleRef.current.style.height = 'auto';
+      titleRef.current.style.height = titleRef.current.scrollHeight + 'px';
+    }
+  }, [content, note?.id]);
 
   // content をタイトル（1行目）と本文（2行目以降）に分割
   const lines = content.split('\n');
