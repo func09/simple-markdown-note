@@ -298,6 +298,24 @@ const Dashboard: React.FC = () => {
     </div>
   ), [isNavFocused, isTrashSelected, selectedTag, searchQuery, handleNavKeyDown, tags, handleLogout]);
 
+  // 2ペイン目（List）のメモ化
+  const memoizedList = useMemo(() => (
+    <NoteList 
+      notes={isTrashSelected ? [] : filteredNotes} 
+      onCreateNote={handleCreateNote}
+      onDeleteNote={handleDeleteClick}
+      isLoading={notesLoading}
+    />
+  ), [isTrashSelected, filteredNotes, handleCreateNote, handleDeleteClick, notesLoading]);
+
+  // 3ペイン目（Editor）のメモ化
+  const memoizedMain = useMemo(() => (
+    <Editor 
+      note={selectedNote} 
+      onUpdateTags={handleUpdateTags}
+    />
+  ), [selectedNote, handleUpdateTags]);
+
   if (notesLoading && notes.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-[#0f172a] text-white">
@@ -310,20 +328,8 @@ const Dashboard: React.FC = () => {
     <>
       <AppLayout
         nav={navigationContent}
-        list={useMemo(() => (
-          <NoteList 
-            notes={isTrashSelected ? [] : filteredNotes} 
-            onCreateNote={handleCreateNote}
-            onDeleteNote={handleDeleteClick}
-            isLoading={notesLoading}
-          />
-        ), [isTrashSelected, filteredNotes, handleCreateNote, handleDeleteClick, notesLoading])}
-        main={useMemo(() => (
-          <Editor 
-            note={selectedNote} 
-            onUpdateTags={handleUpdateTags}
-          />
-        ), [selectedNote, handleUpdateTags])}
+        list={memoizedList}
+        main={memoizedMain}
       />
 
       <AlertDialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
