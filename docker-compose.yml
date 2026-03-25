@@ -14,7 +14,7 @@ services:
       - "3000:3000"
     depends_on:
       - minio
-    command: sh -c "npx prisma generate --schema=packages/database/prisma/schema.prisma && npm run dev -w apps/api"
+    command: sh -c "npm install && npx prisma generate --schema=packages/database/prisma/schema.prisma && npm run dev -w apps/api"
 
   web:
     build:
@@ -27,6 +27,7 @@ services:
       - "5173:5173"
     environment:
       - VITE_API_URL=http://localhost:3000
+    command: sh -c "npm install && npm run dev -w apps/web -- --host"
 
   minio:
     image: minio/minio
