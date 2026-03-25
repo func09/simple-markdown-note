@@ -142,6 +142,7 @@ const Dashboard: React.FC = () => {
 
 
   const { data: tags = [] } = useTags();
+  const [isNavFocused, setIsNavFocused] = useState(false);
 
   // ナビゲーションの移動順序を定義
   const navItems = useMemo(() => {
@@ -181,6 +182,8 @@ const Dashboard: React.FC = () => {
       id="nav-container"
       className="flex flex-col h-full overflow-y-auto custom-scrollbar px-2 focus:outline-none"
       tabIndex={0}
+      onFocus={() => setIsNavFocused(true)}
+      onBlur={() => setIsNavFocused(false)}
       onKeyDown={handleNavKeyDown}
     >
       <div className="flex flex-col gap-1 flex-shrink-0 py-4">
@@ -190,13 +193,17 @@ const Dashboard: React.FC = () => {
           className={cn(
             "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all active:scale-95 group",
             (selectedTag === null && searchQuery === '')
-              ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
+              ? isNavFocused 
+                ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20 font-medium" 
+                : "bg-blue-600/15 text-blue-400 border border-blue-500/20"
               : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
           )}
         >
           <StickyNote size={20} className={cn(
             "transition-colors",
-            (selectedTag === null && searchQuery === '') ? "text-white" : "text-slate-500 group-hover:text-blue-400"
+            (selectedTag === null && searchQuery === '') 
+              ? isNavFocused ? "text-white" : "text-blue-500"
+              : "text-slate-500 group-hover:text-blue-400"
           )} />
           <span className="font-medium text-sm">All Notes</span>
         </button>

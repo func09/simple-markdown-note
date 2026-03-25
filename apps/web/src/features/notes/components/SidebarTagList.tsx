@@ -9,7 +9,11 @@ import { Skeleton } from '@/components/ui/skeleton';
  * サイドバーに表示するタグ一覧コンポーネップ
  * クリックでノート一覧をフィルタリングする
  */
-export const SidebarTagList: React.FC = () => {
+interface SidebarTagListProps {
+  isPanelFocused?: boolean;
+}
+
+export const SidebarTagList: React.FC<SidebarTagListProps> = ({ isPanelFocused = false }) => {
   const { data: tags, isLoading } = useTags();
   const { selectedTag, setSelectedTag } = useNoteStore();
 
@@ -43,7 +47,9 @@ export const SidebarTagList: React.FC = () => {
           className={cn(
             "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all active:scale-95 group text-sm",
             selectedTag === '__untagged__' 
-              ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20" 
+              ? isPanelFocused
+                ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20 font-medium" 
+                : "bg-blue-600/15 text-blue-400 border border-blue-500/20"
               : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
           )}
         >
@@ -57,7 +63,9 @@ export const SidebarTagList: React.FC = () => {
             className={cn(
               "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all active:scale-95 group text-sm",
               selectedTag === tag.name 
-                ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20" 
+                ? isPanelFocused
+                  ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20 font-medium" 
+                  : "bg-blue-600/15 text-blue-400 border border-blue-500/20"
                 : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
             )}
           >

@@ -5,6 +5,7 @@ import { Trash2 } from 'lucide-react';
 interface NoteItemProps {
   note: Note;
   isSelected: boolean;
+  isPanelFocused: boolean;
   onSelect: (id: string) => void;
   onDelete: (id: string) => void;
 }
@@ -15,6 +16,7 @@ interface NoteItemProps {
 export const NoteItem = React.memo<NoteItemProps>(({
   note,
   isSelected,
+  isPanelFocused,
   onSelect,
   onDelete,
 }) => {
@@ -33,7 +35,9 @@ export const NoteItem = React.memo<NoteItemProps>(({
       onClick={() => onSelect(note.id)}
       className={`group relative mx-2 mb-1 p-4 rounded-xl cursor-pointer ${
         isSelected 
-          ? 'bg-blue-600/10 border border-blue-500/30 font-medium' 
+          ? isPanelFocused 
+            ? 'bg-blue-600 border border-blue-500 shadow-lg shadow-blue-500/20' 
+            : 'bg-blue-600/15 border border-blue-500/20'
           : 'hover:bg-slate-800/50 border border-transparent hover:border-slate-700/50'
       }`}
     >
@@ -41,12 +45,18 @@ export const NoteItem = React.memo<NoteItemProps>(({
         <div className="flex-1 min-w-0 flex flex-col justify-center">
           <div className="flex justify-between items-start">
             <h3 className={`font-semibold line-clamp-1 mb-0.5 text-sm ${
-              isSelected ? 'text-white' : 'text-slate-200'
+              isSelected 
+                ? isPanelFocused ? 'text-white' : 'text-blue-400'
+                : 'text-slate-200'
             }`}>
               {note.content.split('\n')[0] || 'Untitled'}
             </h3>
           </div>
-          <p className="text-slate-500 text-xs line-clamp-2 leading-relaxed">
+          <p className={`text-xs line-clamp-2 leading-relaxed ${
+            isSelected 
+              ? isPanelFocused ? 'text-blue-100' : 'text-slate-400'
+              : 'text-slate-500'
+          }`}>
             {note.content.split('\n').slice(1).join(' ') || 'No additional content'}
           </p>
         </div>
@@ -64,8 +74,8 @@ export const NoteItem = React.memo<NoteItemProps>(({
         <Trash2 size={14} />
       </button>
 
-      {/* Selected Indicator */}
-      {isSelected && (
+      {/* Selected Indicator (only when NOT focused to help visibility) */}
+      {isSelected && !isPanelFocused && (
         <div 
           className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-blue-500 rounded-full" 
         />
