@@ -7,8 +7,9 @@ describe('Notes API', () => {
 
   beforeAll(async () => {
     // テストデータベースの初期化
-    execSync('npx prisma db push --force-reset --schema=../../packages/database/prisma/schema.prisma', {
-      env: { ...process.env }
+    const dbUrl = process.env.DATABASE_URL || 'file:./test.db';
+    execSync(`npx prisma db push --force-reset --schema=../../packages/database/prisma/schema.prisma --config=../../packages/database/prisma.config.ts`, {
+      env: { ...process.env, DATABASE_URL: dbUrl }
     })
 
     // テスト用ユーザーの作成とログイン
@@ -100,5 +101,67 @@ describe('Notes API', () => {
     })
     const finalNotes = await finalRes.json()
     expect(finalNotes.length).toBe(0)
+  })
+
+  describe('Authorization', () => {
+    let otherToken: string;
+    let otherNoteId: string;
+
+    beforeAll(async () => {
+      // 別のユーザーを作成
+      const signupRes = await app.request('/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: 'other-user@example.com', password: 'password123' }),
+      })
+      const body = await signupRes.json()
+      otherToken = body.token
+
+      // 別のユーザーとしてノートを作成
+      const createRes = await app.request('/notes', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${otherToken}`
+        },
+        body: JSON.stringify({ title: 'Other User Note', content: 'Private Content' }),
+      })
+      const note = await createRes.json()
+      otherNoteId = note.id
+    })
+
+    it('should not include other user\'s notes in list', async () => {
+      const res = await app.request('/notes', {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${token}` }, // 元のユーザーのトークン
+      })
+
+      expect(res.status).toBe(200)
+      const body = await res.json()
+      // otherNoteId がリストに含まれていないことを確認
+      expect(body.some((n: any) => n.id === otherNoteId)).toBe(false)
+    })
+
+    it('should not allow updating other user\'s note', async () => {
+      const res = await app.request(`/notes/${otherNoteId}`, {
+        method: 'PATCH',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` // 元のユーザーのトークン
+        },
+        body: JSON.stringify({ title: 'Hacked Title' }),
+      })
+
+      expect(res.status).toBe(404) // 所有権がない場合は 404 を返す仕様
+    })
+
+    it('should not allow deleting other user\'s note', async () => {
+      const res = await app.request(`/notes/${otherNoteId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }, // 元のユーザーのトークン
+      })
+
+      expect(res.status).toBe(404) // 所有権がない場合は 404 を返す仕様
+    })
   })
 })
