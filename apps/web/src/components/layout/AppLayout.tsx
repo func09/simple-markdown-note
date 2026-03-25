@@ -53,7 +53,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ nav, list, main }) => {
               id="note-list"
               defaultSize={layoutMode === 'all' ? 25 : 35} 
               minSize={280}
-              maxSize={400}
+              maxSize={500}
               className="bg-slate-900/40 border-r border-slate-800/10"
             >
               <aside className="w-full h-full flex flex-col overflow-hidden">
