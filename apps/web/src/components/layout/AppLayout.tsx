@@ -20,18 +20,6 @@ interface AppLayoutProps {
  */
 export const AppLayout: React.FC<AppLayoutProps> = ({ nav, list, main }) => {
   const { layoutMode } = useNoteStore();
-  const [windowWidth, setWindowWidth] = React.useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
-
-  React.useEffect(() => {
-    const handleResize = () => setWindowWidth(window.innerWidth);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // 最小幅（px）をパーセンテージに変換
-  const minNavSize = (200 / windowWidth) * 100;
-  const minListSize = (280 / windowWidth) * 100;
-  const minEditorSize = (350 / windowWidth) * 100;
 
   return (
     <TooltipProvider>
