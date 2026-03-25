@@ -18,8 +18,18 @@ export const NoteItem = React.memo<NoteItemProps>(({
   onSelect,
   onDelete,
 }) => {
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (isSelected && ref.current) {
+      // ユーザーの要望「高速なレスポンス」に合わせ、behavior: 'auto' で即時スクロール
+      ref.current.scrollIntoView({ behavior: 'auto', block: 'nearest' });
+    }
+  }, [isSelected]);
+
   return (
     <div
+      ref={ref}
       onClick={() => onSelect(note.id)}
       className={`group relative mx-2 mb-1 p-4 rounded-xl cursor-pointer transition-all duration-200 ${
         isSelected 
