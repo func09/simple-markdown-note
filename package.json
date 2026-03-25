@@ -26,6 +26,8 @@
     "vitest": "^3.0.7"
   },
   "dependencies": {
+    "@anatine/zod-mock": "^3.14.0",
+    "@faker-js/faker": "^10.4.0",
     "@libsql/client": "^0.17.2",
     "@prisma/adapter-libsql": "^7.5.0",
     "@prisma/client": "^7.5.0",
