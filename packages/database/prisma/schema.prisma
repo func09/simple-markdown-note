@@ -2,13 +2,13 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-arm64-openssl-1.1.x", "linux-arm64-openssl-3.0.x"]
 }
 
 // SQLiteデータベースの設定
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
 }
 
 // ユーザー情報を管理するモデル
