@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { AppLayout } from '../components/layout/AppLayout';
-import { NoteList, Editor, SidebarTagList, useNotes, useCreateNote, useDeleteNote, useNoteStore, useUpdateNote } from '../features/notes';
+import { NoteList, Editor, SidebarTagList, useNotes, useTags, useCreateNote, useDeleteNote, useNoteStore, useUpdateNote } from '../features/notes';
+import type { Tag } from 'openapi';
 import { logout } from '../features/auth';
 import { useNavigate } from 'react-router-dom';
 import { StickyNote, Settings, User, LogOut } from 'lucide-react';
@@ -140,9 +141,44 @@ const Dashboard: React.FC = () => {
   };
 
 
+  const { data: tags = [] } = useTags();
+
+  // ナビゲーションの移動順序を定義
+  const navItems = useMemo(() => {
+    return [
+      { id: 'all', value: null },
+      { id: 'untagged', value: '__untagged__' },
+      ...tags.map((tag: Tag) => ({ id: tag.id, value: tag.name }))
+    ];
+  }, [tags]);
+
+  const handleNavKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const currentIndex = navItems.findIndex(item => item.value === selectedTag);
+      const nextIndex = Math.min(currentIndex + 1, navItems.length - 1);
+      if (nextIndex >= 0) {
+        setSelectedTag(navItems[nextIndex].value as any);
+        if (navItems[nextIndex].value === null) setSearchQuery('');
+      }
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const currentIndex = navItems.findIndex(item => item.value === selectedTag);
+      const prevIndex = Math.max(currentIndex - 1, 0);
+      if (prevIndex >= 0) {
+        setSelectedTag(navItems[prevIndex].value as any);
+        if (navItems[prevIndex].value === null) setSearchQuery('');
+      }
+    }
+  };
+
   // 左端のナビゲーションカラムの内容
   const navigationContent = (
-    <div className="flex flex-col h-full overflow-y-auto custom-scrollbar px-2">
+    <div 
+      className="flex flex-col h-full overflow-y-auto custom-scrollbar px-2 focus:outline-none"
+      tabIndex={0}
+      onKeyDown={handleNavKeyDown}
+    >
       <div className="flex flex-col gap-1 flex-shrink-0 py-4">
         {/* All Notes */}
         <button
