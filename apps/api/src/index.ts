@@ -2,7 +2,9 @@ import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
+import { jwt } from 'hono/jwt'
 import authRouter from './routes/auth'
+import { notesRouter } from './routes/notes'
 
 // アプリケーション共通の環境変数型定義
 type Env = {
@@ -17,10 +19,17 @@ export const app = new Hono<Env>()
 app.use('*', logger())
 app.use('*', cors())
 
+// JWT秘密鍵（auth.tsと共有）
+const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret'
+
 // ヘルスチェック用エンドポイント
 app.get('/health', (c) => c.json({ status: 'ok' }))
 
-// 各リソースのルーティング登録
+// ノート管理エンドポイント（認証が必要）
+app.use('/notes/*', jwt({ secret: JWT_SECRET, alg: 'HS256' }))
+app.route('/notes', notesRouter)
+
+// 認証エンドポイント
 app.route('/auth', authRouter)
 
 const port = 3000

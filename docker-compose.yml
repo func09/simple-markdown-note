@@ -14,6 +14,7 @@ services:
       - "3000:3000"
     depends_on:
       - minio
+    command: sh -c "npx prisma generate --schema=packages/database/prisma/schema.prisma && npm run dev -w apps/api"
 
   web:
     build:
@@ -43,11 +44,13 @@ services:
     build:
       context: .
       dockerfile: docker/api.Dockerfile
-    command: npx prisma studio
+    command: sh -c "npx prisma generate --schema=packages/database/prisma/schema.prisma && cd packages/database && npx prisma studio --browser none --port 5555"
     volumes:
       - .:/app
       - ./storage:/app/storage
     ports:
       - "5555:5555"
+    environment:
+      - DATABASE_URL=file:/app/storage/dev.db
     depends_on:
       - api
