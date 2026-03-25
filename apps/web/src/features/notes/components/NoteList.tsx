@@ -26,6 +26,7 @@ export const NoteList: React.FC<NoteListProps> = ({
   isLoading = false
 }) => {
   const { selectedNoteId, setSelectedNoteId, searchQuery, setSearchQuery, selectedTag, setSelectedTag } = useNoteStore();
+  const [isFocused, setIsFocused] = React.useState(false);
 
   return (
     <div className="flex flex-col h-full bg-[#0f172a]/50">
@@ -90,6 +91,8 @@ export const NoteList: React.FC<NoteListProps> = ({
         id="note-list-container"
         className="flex-1 min-h-0 focus:outline-none"
         tabIndex={0}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
         onKeyDown={(e) => {
           if (e.key === 'ArrowDown') {
             e.preventDefault();
@@ -128,6 +131,7 @@ export const NoteList: React.FC<NoteListProps> = ({
                     key={note.id}
                     note={note}
                     isSelected={selectedNoteId === note.id}
+                    isPanelFocused={isFocused}
                     onSelect={setSelectedNoteId}
                     onDelete={onDeleteNote}
                   />
