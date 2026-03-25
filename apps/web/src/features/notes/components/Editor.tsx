@@ -67,9 +67,9 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags }) => {
       const newContent = beforeCursor + '\n' + afterCursor + (body ? '\n' + body : '');
       updateLocalContent(newContent);
       
-      // 本文へフォーカスし、カーソルを移動
+      // 本文へフォーカスし、カーソルを移動（スクロールジャンプを抑制）
       setTimeout(() => {
-        bodyRef.current?.focus();
+        bodyRef.current?.focus({ preventScroll: true });
         // 本文の先頭（分割されて移動してきたテキストの開始位置）にカーソルを置く
         bodyRef.current?.setSelectionRange(0, 0);
       }, 0);
