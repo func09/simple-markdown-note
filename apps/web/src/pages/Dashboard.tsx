@@ -3,7 +3,7 @@ import { AppLayout } from '../components/layout/AppLayout';
 import { NoteList, Editor, SidebarTagList, useNotes, useCreateNote, useDeleteNote, useNoteStore, useUpdateNote } from '../features/notes';
 import { logout } from '../features/auth';
 import { useNavigate } from 'react-router-dom';
-import { StickyNote, Settings, User, LogOut, Columns3, Columns2, Maximize2 } from 'lucide-react';
+import { StickyNote, Settings, User, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { 
@@ -60,7 +60,7 @@ const Dashboard: React.FC = () => {
 
   const selectedNote = notes.find(n => n.id === selectedNoteId) || null;
 
-  const { setSelectedTag, setSearchQuery, layoutMode, toggleLayoutMode } = useNoteStore();
+  const { setSelectedTag, setSearchQuery } = useNoteStore();
 
   const handleAllNotes = () => {
     setSelectedTag(null);
@@ -126,15 +126,15 @@ const Dashboard: React.FC = () => {
   // 左端のナビゲーションカラムの内容
   const navigationContent = (
     <div className="flex flex-col h-full overflow-y-auto custom-scrollbar">
-      <div className="flex flex-col gap-6 items-center flex-shrink-0">
+      <div className="flex flex-col gap-6 items-center flex-shrink-0 py-2">
         <Tooltip>
           <TooltipTrigger asChild>
-            <button 
+            <button
               onClick={handleAllNotes}
               className={cn(
                 "w-10 h-10 rounded-xl flex items-center justify-center transition-all active:scale-95",
-                (selectedTag === null && searchQuery === '') 
-                  ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20" 
+                (selectedTag === null && searchQuery === '')
+                  ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
                   : "bg-slate-800 text-slate-400 hover:text-blue-400"
               )}
             >
@@ -144,21 +144,7 @@ const Dashboard: React.FC = () => {
           <TooltipContent side="right">All Notes</TooltipContent>
         </Tooltip>
 
-        <div className="flex flex-col gap-4 mt-4">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button 
-                onClick={toggleLayoutMode}
-                className="p-2 text-slate-500 hover:text-blue-400 transition-colors"
-              >
-                {layoutMode === 'all' && <Columns3 size={24} />}
-                {layoutMode === 'split' && <Columns2 size={24} />}
-                {layoutMode === 'focus' && <Maximize2 size={24} />}
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="right">Toggle Layout</TooltipContent>
-          </Tooltip>
-
+        <div className="flex flex-col gap-4 mt-2">
           <Tooltip>
             <TooltipTrigger asChild>
               <button className="p-2 text-slate-500 hover:text-blue-400 transition-colors">
