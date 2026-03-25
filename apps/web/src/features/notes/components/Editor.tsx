@@ -1,11 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { Note } from 'openapi';
+import { Textarea } from '../../../components/ui/textarea';
+import { Separator } from '../../../components/ui/separator';
+import { ScrollArea } from '../../../components/ui/scroll-area';
+import { Clock, Hash } from 'lucide-react';
 
 interface EditorProps {
   note: Note | null;
   onUpdateNote: (id: string, content: string, title: string) => void;
 }
 
+/**
+ * ノート編集用コンポーネント (shadcn/ui 使用版)
+ */
 export const Editor: React.FC<EditorProps> = ({ note, onUpdateNote }) => {
   const [content, setContent] = useState('');
   const timeoutRef = useRef<any>(null);
@@ -21,7 +28,7 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateNote }) => {
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newContent = e.target.value;
     const lines = newContent.split('\n');
-    const newTitle = lines[0].substring(0, 50); // First line as title
+    const newTitle = lines[0].substring(0, 50) || 'Untitled';
 
     setContent(newContent);
 
@@ -30,30 +37,49 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateNote }) => {
     if (note) {
       timeoutRef.current = setTimeout(() => {
         onUpdateNote(note.id, newContent, newTitle);
-      }, 1000); // Auto-save after 1 second
+      }, 1000);
     }
   };
 
   if (!note) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-[#0f172a] text-slate-500">
-        <p className="text-lg font-outfit">Select a note to start editing</p>
+      <div className="flex-1 flex items-center justify-center bg-[#0f172a] text-slate-600">
+        <div className="text-center">
+          <p className="text-xl font-outfit mb-2">No note selected</p>
+          <p className="text-sm">Select a note from the list to start editing</p>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="flex-1 flex flex-col bg-[#0f172a] h-screen overflow-hidden">
-      <textarea
-        value={content}
-        onChange={handleChange}
-        placeholder="Type your note here..."
-        className="flex-1 w-full bg-transparent border-none focus:ring-0 p-8 text-slate-200 text-lg resize-none font-inter placeholder:text-slate-700 custom-scrollbar"
-        autoFocus
-      />
-      <div className="p-4 border-t border-slate-800 text-slate-500 text-xs flex justify-between">
-        <span>Chars: {content.length}</span>
-        <span>Last updated: {new Date(note.updatedAt).toLocaleString()}</span>
+      <ScrollArea className="flex-1 w-full">
+        <div className="max-w-4xl mx-auto w-full p-8 md:p-12">
+          <Textarea
+            value={content}
+            onChange={handleChange}
+            placeholder="Start writing..."
+            className="w-full min-h-[calc(100vh-160px)] bg-transparent border-none focus-visible:ring-0 p-0 text-slate-200 text-xl leading-relaxed resize-none font-inter placeholder:text-slate-700 shadow-none border-0"
+            autoFocus
+          />
+        </div>
+      </ScrollArea>
+      
+      <Separator className="bg-slate-800" />
+      
+      <div className="px-6 py-3 bg-[#0f172a]/80 backdrop-blur-md text-slate-500 text-[11px] uppercase tracking-wider font-medium flex justify-between items-center">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1.5">
+            <Hash size={12} className="text-slate-600" />
+            <span>{content.length} characters</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Clock size={12} className="text-slate-600" />
+            <span>Last saved {new Date(note.updatedAt).toLocaleTimeString()}</span>
+          </div>
+        </div>
+        <div className="text-blue-500/50 font-outfit font-bold">SimpleNote Clone</div>
       </div>
     </div>
   );

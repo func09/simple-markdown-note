@@ -1,6 +1,18 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Lock, Loader2, ArrowRight } from 'lucide-react';
+import { Mail, Lock, Loader2, ArrowRight, AlertCircle } from 'lucide-react';
+import { Button } from '../../../components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '../../../components/ui/card';
+import { Input } from '../../../components/ui/input';
+import { Label } from '../../../components/ui/label';
+import { Alert, AlertDescription, AlertTitle } from '../../../components/ui/alert';
 
 interface AuthFormProps {
   type: 'login' | 'signup';
@@ -9,7 +21,9 @@ interface AuthFormProps {
   error?: string;
 }
 
-// ログイン・サインアップ共通のフォームコンポーネント
+/**
+ * ログイン・サインアップ共通のフォームコンポーネント (shadcn/ui 使用版)
+ */
 export const AuthForm: React.FC<AuthFormProps> = ({ type, onSubmit, isLoading, error }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -21,76 +35,88 @@ export const AuthForm: React.FC<AuthFormProps> = ({ type, onSubmit, isLoading, e
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: 'easeOut' }}
-      className="w-full max-w-md p-8 bg-slate-900/50 backdrop-blur-xl border border-slate-800 rounded-3xl shadow-2xl"
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.3, ease: 'easeOut' }}
+      className="w-full max-w-md"
     >
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold tracking-tight text-white mb-2 font-outfit">
-          {type === 'login' ? 'Welcome Back' : 'Create Account'}
-        </h2>
-        <p className="text-slate-400">
-          {type === 'login' ? 'Enter your details to sign in' : 'Start your note-taking journey'}
-        </p>
-      </div>
+      <Card className="bg-slate-900/50 backdrop-blur-xl border-slate-800 shadow-2xl rounded-3xl overflow-hidden">
+        <CardHeader className="text-center pt-8 pb-4">
+          <CardTitle className="text-3xl font-bold tracking-tight text-white font-outfit">
+            {type === 'login' ? 'Welcome Back' : 'Create Account'}
+          </CardTitle>
+          <CardDescription className="text-slate-400 text-base mt-2">
+            {type === 'login' ? 'Enter your details to sign in' : 'Start your note-taking journey'}
+          </CardDescription>
+        </CardHeader>
+        
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {error && (
+              <Alert variant="destructive" className="bg-red-500/10 border-red-500/50 text-red-400 rounded-xl">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-300 ml-1">Email</label>
-          <div className="relative">
-            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-2xl py-3.5 pl-12 pr-4 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
-              placeholder="name@example.com"
-            />
-          </div>
-        </div>
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-slate-300 ml-1">Email</Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                <Input
+                  id="email"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@example.com"
+                  className="bg-slate-950/50 border-slate-800 rounded-xl pl-10 h-12 text-white placeholder:text-slate-600 focus-visible:ring-blue-500/50"
+                  disabled={isLoading}
+                />
+              </div>
+            </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-300 ml-1">Password</label>
-          <div className="relative">
-            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-2xl py-3.5 pl-12 pr-4 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
-              placeholder="••••••••"
-            />
-          </div>
-        </div>
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-slate-300 ml-1">Password</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                <Input
+                  id="password"
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="bg-slate-950/50 border-slate-800 rounded-xl pl-10 h-12 text-white placeholder:text-slate-600 focus-visible:ring-blue-500/50"
+                  disabled={isLoading}
+                />
+              </div>
+            </div>
 
-        {error && (
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-sm text-red-400 text-center"
-          >
-            {error}
-          </motion.p>
-        )}
-
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3.5 rounded-2xl shadow-lg shadow-blue-500/20 transition-all flex items-center justify-center gap-2"
-        >
-          {isLoading ? (
-            <Loader2 className="w-5 h-5 animate-spin" />
-          ) : (
-            <>
-              {type === 'login' ? 'Sign In' : 'Create Account'}
-              <ArrowRight className="w-5 h-5" />
-            </>
-          )}
-        </button>
-      </form>
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold h-12 rounded-xl shadow-lg shadow-blue-500/20 transition-all gap-2 mt-4"
+            >
+              {isLoading ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <>
+                  {type === 'login' ? 'Sign In' : 'Create Account'}
+                  <ArrowRight className="w-5 h-5" />
+                </>
+              )}
+            </Button>
+          </form>
+        </CardContent>
+        
+        <CardFooter className="pb-8 justify-center">
+          <p className="text-sm text-slate-500">
+            Secure authentication powered by Hono JWT
+          </p>
+        </CardFooter>
+      </Card>
     </motion.div>
   );
 };
