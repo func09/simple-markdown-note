@@ -26,7 +26,8 @@
 
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "api": ["../../apps/api/src"]
     }
   },
   "include": ["src"]
