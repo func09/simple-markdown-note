@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Tag as TagIcon, X } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 interface TagInputProps {
   tags: string[];
@@ -60,18 +61,19 @@ export const TagInput: React.FC<TagInputProps> = ({ tags, onChange, placeholder 
       </div>
       
       {tags.map((tag) => (
-        <span 
+        <Badge 
           key={tag} 
-          className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 text-xs font-medium border border-slate-700/50 transition-colors hover:bg-slate-700"
+          variant="secondary"
+          className="bg-slate-800 text-slate-300 hover:bg-slate-700 border-slate-700/50 flex items-center gap-1 pr-1"
         >
           {tag}
           <button 
             onClick={() => removeTag(tag)}
-            className="text-slate-500 hover:text-slate-300 transition-colors"
+            className="text-slate-500 hover:text-slate-300 transition-colors p-0.5"
           >
-            <X size={12} />
+            <X size={10} />
           </button>
-        </span>
+        </Badge>
       ))}
       
       <input

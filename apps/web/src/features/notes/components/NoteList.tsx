@@ -2,9 +2,11 @@ import React from 'react';
 import type { Note } from 'openapi';
 import { Plus, Search, Tag as TagIcon, X } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
-import { Button } from '../../../components/ui/button';
-import { Input } from '../../../components/ui/input';
-import { ScrollArea } from '../../../components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useNoteStore } from '../store';
 import { NoteItem } from './NoteItem';
 
@@ -12,6 +14,7 @@ interface NoteListProps {
   notes: Note[];
   onCreateNote: () => void;
   onDeleteNote: (id: string) => void;
+  isLoading?: boolean;
 }
 
 /**
@@ -20,7 +23,8 @@ interface NoteListProps {
 export const NoteList: React.FC<NoteListProps> = ({ 
   notes, 
   onCreateNote,
-  onDeleteNote
+  onDeleteNote,
+  isLoading = false
 }) => {
   const { selectedNoteId, setSelectedNoteId, searchQuery, setSearchQuery, selectedTag, setSelectedTag } = useNoteStore();
 
@@ -44,14 +48,21 @@ export const NoteList: React.FC<NoteListProps> = ({
             </div>
           )}
         </div>
-        <Button 
-          variant="ghost"
-          size="icon"
-          onClick={onCreateNote}
-          className="h-8 w-8 text-blue-400 hover:text-blue-300 hover:bg-slate-800 rounded-lg"
-        >
-          <Plus size={18} />
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button 
+              variant="ghost"
+              size="icon"
+              onClick={onCreateNote}
+              className="h-8 w-8 text-blue-400 hover:text-blue-300 hover:bg-slate-800 rounded-lg"
+            >
+              <Plus size={18} />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" className="bg-slate-800 text-slate-200 border-slate-700">
+            Create New Note
+          </TooltipContent>
+        </Tooltip>
       </div>
 
       {/* Search Bar */}
@@ -78,23 +89,36 @@ export const NoteList: React.FC<NoteListProps> = ({
       {/* Note List with ScrollArea */}
       <ScrollArea className="flex-1 min-h-0">
         <div className="px-3 pb-8">
-          <AnimatePresence initial={false}>
-            {notes.map((note) => (
-              <NoteItem
-                key={note.id}
-                note={note}
-                isSelected={selectedNoteId === note.id}
-                onSelect={setSelectedNoteId}
-                onDelete={onDeleteNote}
-              />
-            ))}
-          </AnimatePresence>
-          {notes.length === 0 && (
-            <div className="mt-20 text-center px-4">
-              <p className="text-slate-600 text-sm font-outfit">
-                {searchQuery || selectedTag ? 'No matching notes' : 'No notes found'}
-              </p>
+          {isLoading ? (
+            <div className="space-y-3 px-3">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="flex flex-col gap-2 p-4 border border-slate-800/50 rounded-xl">
+                  <Skeleton className="h-4 w-3/4 bg-slate-800" />
+                  <Skeleton className="h-3 w-1/2 bg-slate-800/50" />
+                </div>
+              ))}
             </div>
+          ) : (
+            <>
+              <AnimatePresence initial={false}>
+                {notes.map((note) => (
+                  <NoteItem
+                    key={note.id}
+                    note={note}
+                    isSelected={selectedNoteId === note.id}
+                    onSelect={setSelectedNoteId}
+                    onDelete={onDeleteNote}
+                  />
+                ))}
+              </AnimatePresence>
+              {notes.length === 0 && (
+                <div className="mt-20 text-center px-4">
+                  <p className="text-slate-600 text-sm font-outfit">
+                    {searchQuery || selectedTag ? 'No matching notes' : 'No notes found'}
+                  </p>
+                </div>
+              )}
+            </>
           )}
         </div>
       </ScrollArea>
