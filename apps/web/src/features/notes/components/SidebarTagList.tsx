@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTags } from '../hooks/useNotesQuery';
 import { useNoteStore } from '../store';
-import { Tag as TagIcon, ChevronRight } from 'lucide-react';
+import { Tag as TagIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 
