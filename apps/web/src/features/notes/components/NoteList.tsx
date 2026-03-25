@@ -1,7 +1,6 @@
 import React from 'react';
 import type { Note } from 'openapi';
 import { Plus, Search, Tag as TagIcon, X } from 'lucide-react';
-import { AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -100,17 +99,15 @@ export const NoteList: React.FC<NoteListProps> = ({
             </div>
           ) : (
             <>
-              <AnimatePresence initial={false}>
-                {notes.map((note) => (
-                  <NoteItem
-                    key={note.id}
-                    note={note}
-                    isSelected={selectedNoteId === note.id}
-                    onSelect={setSelectedNoteId}
-                    onDelete={onDeleteNote}
-                  />
-                ))}
-              </AnimatePresence>
+              {notes.map((note) => (
+                <NoteItem
+                  key={note.id}
+                  note={note}
+                  isSelected={selectedNoteId === note.id}
+                  onSelect={setSelectedNoteId}
+                  onDelete={onDeleteNote}
+                />
+              ))}
               {notes.length === 0 && (
                 <div className="mt-20 text-center px-4">
                   <p className="text-slate-600 text-sm font-outfit">
