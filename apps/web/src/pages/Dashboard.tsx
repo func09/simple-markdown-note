@@ -54,12 +54,29 @@ const Dashboard: React.FC = () => {
         note.content.toLowerCase().includes(query)
       );
     }
+
+    // 更新日時（updatedAt）の降順でソート
+    result.sort((a, b) => {
+      const dateA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
+      const dateB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
+      return dateB - dateA;
+    });
     
     return result;
   }, [notes, searchQuery, selectedTag]);
 
-  const selectedNote = notes.find(n => n.id === selectedNoteId) || null;
+  // タグや検索条件が変わった際、先頭のノートを強制選択する
+  React.useEffect(() => {
+    if (!notesLoading && filteredNotes.length > 0) {
+      // ユーザーの要望「以前の選択状態などは無視して、リストの先頭のノートが選択される」
+      setSelectedNoteId(filteredNotes[0].id);
+    } else if (!notesLoading && filteredNotes.length === 0) {
+      setSelectedNoteId(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedTag, searchQuery, notesLoading]); // メニュー（タグ）移動、検索、および初回ロード完了時のみトリガー
 
+  const selectedNote = notes.find(n => n.id === selectedNoteId) || null;
   const { setSelectedTag, setSearchQuery } = useNoteStore();
 
   const handleAllNotes = () => {
