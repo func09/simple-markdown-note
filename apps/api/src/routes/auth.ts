@@ -7,6 +7,7 @@ import { SignupRequestSchema, SigninRequestSchema } from 'openapi'
 
 // 認証関連のルーティング
 const authRouter = new Hono()
+// @ts-ignore
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret'
 
 // ユーザー登録エンドポイント

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { AuthForm } from '../components/auth/AuthForm';
-import api from '../lib/api';
+import { AuthForm, signup } from '../features/auth';
 
 const SignupPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -12,11 +11,11 @@ const SignupPage: React.FC = () => {
     setIsLoading(true);
     setError(undefined);
     try {
-      const response = await api.post('/auth/signup', data);
-      localStorage.setItem('token', response.data.token);
+      const result: any = await signup(data);
+      localStorage.setItem('token', result.token);
       navigate('/');
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Signup failed. Please try again.');
+      setError(err.message || 'Signup failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
