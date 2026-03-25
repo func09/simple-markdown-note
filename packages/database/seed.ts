@@ -63,11 +63,11 @@ async function main() {
       // @anatine/zod-mock を使用
       const mock = generateMock(NoteSchemaMock, { seed: i, faker })
       title = mock?.title || faker.lorem.sentence()
-      content = mock?.content || faker.lorem.paragraphs(3)
+      content = mock?.content || faker.lorem.paragraphs(12) // 文章量を大幅に増量 (12段落)
     } catch (err) {
       // フォールバック: 直接 Faker を使用
       title = faker.lorem.sentence()
-      content = faker.lorem.paragraphs(3)
+      content = faker.lorem.paragraphs(12)
     }
 
     notesData.push({
