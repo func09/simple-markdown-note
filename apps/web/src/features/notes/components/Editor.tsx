@@ -155,15 +155,13 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags }) => {
       <div className="flex-1 w-full overflow-y-auto bg-[#0f172a] custom-scrollbar flex flex-col">
         <div className="flex-1 w-full px-8 md:px-16 py-8 pb-32 flex flex-col min-h-full">
           {/* Title Area */}
-          <div className="relative mb-6 group w-full flex-shrink-0">
+          <div className="mb-1 w-full flex-shrink-0">
             <textarea
               ref={titleRef}
               rows={1}
               value={title}
               onChange={(e) => {
                 handleTitleChange(e as any);
-                e.target.style.height = 'auto';
-                e.target.style.height = e.target.scrollHeight + 'px';
               }}
               onKeyDown={handleTitleKeyDown}
               placeholder="Title"
@@ -174,7 +172,6 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags }) => {
               )}
               style={{ height: 'auto' }}
             />
-            <div className="absolute -bottom-2 left-0 w-12 h-0.5 bg-blue-600/20 rounded-full group-focus-within:w-20 group-focus-within:bg-blue-500/50 transition-all duration-500" />
           </div>
 
           {/* Body Area */}
