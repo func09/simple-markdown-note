@@ -3,8 +3,7 @@ import { zValidator } from '@hono/zod-validator';
 import { prisma } from 'database';
 import { 
   CreateNoteRequestSchema, 
-  UpdateNoteRequestSchema,
-  NoteListResponseSchema 
+  UpdateNoteRequestSchema
 } from 'openapi';
 
 type Env = {
