@@ -6,7 +6,7 @@ export default defineConfig({
     url: process.env.DATABASE_URL,
   },
   migrations: {
-    seed: 'tsx ./seed.ts',
+    seed: 'tsx packages/database/seed.ts',
   },
 });
 
