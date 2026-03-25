@@ -1,10 +1,4 @@
-import path from 'path'
-// テスト用データベース環境変数の設定
-// 他のモジュール（Prismaクライアントなど）がロードされる前に設定する必要があります
-const dbPath = path.resolve(__dirname, '../../../../storage/test.db')
-process.env.DATABASE_URL = `file:${dbPath}`
-
-import { describe, it, expect, beforeAll } from 'vitest'
+import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import { app } from '../index'
 import { execSync } from 'child_process'
 
@@ -15,6 +9,11 @@ describe('Auth API', () => {
     execSync('npx prisma db push --force-reset --schema=../../packages/database/prisma/schema.prisma', {
       env: { ...process.env }
     })
+  })
+
+  afterAll(async () => {
+    const { prisma } = await import('database')
+    await prisma.$disconnect()
   })
 
   // ユーザー登録のテスト
