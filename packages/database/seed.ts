@@ -3,40 +3,14 @@ import { PrismaLibSql } from '@prisma/adapter-libsql'
 import { fakerJA as faker } from '@faker-js/faker'
 import bcrypt from 'bcryptjs'
 import path from 'path'
+import fs from 'fs'
 import { fileURLToPath } from 'url'
 
 // ESM でのパス解決
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-// 文学作品データベース
-const LITERATURE_SOURCES = [
-  {
-    title: '吾輩は猫である',
-    author: '夏目漱石',
-    text: `吾輩は猫である。名前はまだ無い。どこで生れたかとんと見当がつかぬ。何でも薄暗いじめじめした所でニャーニャー泣いていた事だけは記憶している。吾輩はここで始めて人間というものを見た。しかもあとで聞くとそれは書生という人間中で一番獰悪な種族であったそうだ。この書生というのは時々我々を捕えて煮て食うという話である。しかしその当時は何という考もなかったから別段恐しいとも思わなかった。ただ彼の掌に載せられてスーと持ち上げられた時何だかフワフワした感じがあったばかりである。掌の上で少し落ちついて書生の顔を見たのがいわゆる人間というものの見始であろう。この時妙なものだと思った感じが今でも残っている。第一毛をもって装飾されべきはずの顔がつるつるしてまるで薬缶だ。その後猫にもだいぶ逢ったがこんな片輪には一度も出会した事がない。のみならず顔の真中があまりに突起している。そうしてその穴の中から時々ぷうぷうと煙を吹く。どうも咽せぽくて実に弱った。これが人間の飲む煙草というものである事はようやくこの頃知った。この書生の掌の裏でしばらくはよい心持に坐っておったが、しばらくすると非常な速力で運転し始めた。書生が動くのか自分だけが動くのか分らないが無暗に眼が廻る。胸が悪くなる。到底助からないと思っていると、どさりと音がして眼から火が出た。それまでは記憶しているがあとは何の事やらいくら考え出そうとしても分らない。ふと気が付いて見ると書生はいない。たくさんおった兄弟が一疋も見えぬ。肝心の母親さえ姿を隠してしまった。その上今までの所とは違って無暗に明るい。眼を明いていられぬくらいだ。はてな何でも容子がおかしいと、のそのそ這い出して見ると非常に痛い。吾輩は藁の上から急に笹原の中へ棄てられたのである。ようやくの思いで笹原を這い出すと向うに大きな池がある。吾輩は池の前に坐ってどうしたらよかろうと考えて見た。別にこれという分別も出ない。しばらくして泣いたら書生がまた迎に来てくれるかと考え付いた。ニャー、ニャーと試みにやって見たが誰も来ない。そのうち池の上をさらさらと風が渡って日が暮れかかる。`
-  },
-  {
-    title: '走れメロス',
-    author: '太宰治',
-    text: `メロスは激怒した。必ず、かの邪智暴虐の王を除かなければならぬと決意した。メロスには政治がわからぬ。メロスは、村の牧人である。笛を吹き、羊と遊んで暮して来た。けれども邪悪に対しては、人一倍に敏感であった。きょう未明メロスは村を出発し、野を越え山越え、十里はなれた此のシラクスの市にやって来た。メロスには父も、母も無い。女房も無い。十六の、内気な妹と二人暮しだ。この妹は、村の或る律気な一牧男を、近々、花婿として迎える事になっていた。結婚式も間近かなのである。メロスは、それゆえ、花嫁の衣裳やら祝宴の御馳走やらを買いに、はるばる市にやって来たのだ。先ず、その品々を買い集め、それから都の大路をぶらぶら歩いた。メロスには竹馬の友があった。セリヌンティウスである。今は此のシラクスの市で、石工をしている。その友を、これから訪ねてみるつもりなのだ。久しく逢わなかったのだから、訪ねて行くのが楽しみである。歩いているうちにメロスは、まちの様子を怪しく思った。ひっそりしている。もう既に日も落ちて、まちの暗いのは当りまえだが、けれども、なんだか、夜のせいばかりでは無く、市全体が、やけに寂しい。のんきなメロスも、だんだん不安になって来た。路で逢った若い衆を捕えて、何かあったのか、二年前に此の市に来た時は、夜でも皆が歌を歌って、まちは賑やかであった筈だが、と質問した。若い衆は、首を振って答えなかった。しばらく歩いて老爺に逢い、今度はもっと語勢を強めて質問した。老爺は答えなかった。メロスは両手で老爺のからだを揺ぶり、重ねて質問した。老爺は、周囲をはばかり、低い声で、わずか答えた。「王様は、人を殺します。」「何故殺すのだ。」「悪心を抱いている、というのですが、誰もそんな、悪心を持っては居りませぬ。」「たくさんの人を殺したのか。」「はい、はじめは御自身の弟婿さまを。それから、御自身の御世嗣を。それから、女御さまを。それから、賢臣のあれこれさまを。」`
-  },
-  {
-    title: '銀河鉄道の夜',
-    author: '宮沢賢治',
-    text: `「ではみなさんは、そういうふうに川だと云われたり、乳の流れたあとだと云われたりしていたこのぼんやりと白いものがほんとうは何かご承知ですか。」先生は、黒板に吊した大きな黒い星座の図の、上から下へ白くけぶった銀河帯のようなところを指しながら、みんなに問いをかけました。カムパネルラが手をあげました。それから四五人立ち上がりました。ジョバンニも手をあげようとして、急いでそのままやめました。たしかにいつか雑誌で読んだのでしたが、このごろジョバンニはまるで毎日教室でもねむく、本を読むひまも読む気力もないので、なんだかよくわからないという気がするのでした。けれども先生はさっさとそれを見つけてしまいました。「ジョバンニさん。あなたはわかっているのでしょう。」ジョバンニは勢いよく立ち上がりましたが、立ってみるともうはっきりとそれを答えることができないのでした。ザネリが前の席からふりかえって、ジョバンニを見てくすっとわらいました。ジョバンニはもうどきどきしてまっ赤になってしまいました。先生がまた云いました。「大きな望遠鏡で銀河をよっく調べると銀河は大体何でしょう。」やはり星だとジョバンニは思いましたが、こんどもすぐに答えることができませんでした。先生はしばらく困ったようでしたが、眼をカムパネルラの方へ向けました。「ではカムパネルラさん。」するとあんなに元気に手をあげたカムパネルラが、やはりもじもじ立ち上がったまま答えませんでした。先生は意外なようでしたが、しばらくじっとカムパネルラを見ていましたが、急いで「では、よし。」と云いながら、自分で星図を指しました。「このぼんやりと白い銀河を大きないい望遠鏡で見ますと、もうたくさんの小さな星に見えるのです。ジョバンニさん。そうでしょう。」ジョバンニはまっ赤になってうなずきました。けれどもいつかジョバンニの眼のなかには涙がいっぱいになりました。そうだ僕は知っていたのだ、カムパネルラだって知っていたのだ、それは僕のお父さんが、いつか北の海から持ってきた雑誌のなかに書いてあったのだ。`
-  },
-  {
-    title: 'こころ',
-    author: '夏目漱石',
-    text: `私はその人を常に先生と呼んでいた。だからここでもただ先生と書くだけで本名は打ち明けない。これは世間をはばかる遠慮というよりも、そのほうが私にとって自然だからである。私はその人の記憶を呼び起すごとに、すぐ「先生」といいたくなる。筆を執っても心持は同じ事である。よそよそしい頭文字などはとても使う気になれない。私が先生と知り合いになったのは鎌倉である。その時私はまだ若々しい書生であった。暑中休暇を利用して海水浴に行った友達からぜひ来いという端書を受け取ったので、私は多少の金を工面して、出掛ける事にした。私は金の工面に二三日を費やした。ところが私が鎌倉に到着して三日と経たないうちに、私を呼び寄せた友達は、急に国元から帰れという電報を受け取った。電報には母が病気だからとあったが友達はそれを信じなかった。友達はかねてから国元にいる親たちに自分の好まない結婚を強（し）いられていた。彼は現代の習慣からいうと結婚するにはあまりに若過ぎた。それに肝心の当人が気に入らなかった。それで夏休みに当然帰るべきところを、避暑を名目にしつらえて房州辺で遊んでいたのである。彼は電報を私に見せてどうしようといった。私にはどうしていいか分らなかった。けれども当人が病気である場合には、それがたとえ親たちのこしらえた口実であっても、帰るのが正当であるという風に忠告した。彼は結局帰る事になった。せっかく来た私は一人取り残された。学校の始まるまではまだだいぶ日数がある。鎌倉に留まろうか、帰ろうかと考えた末、私は当分元の宿に留まる決心をした。友達は中国のある資産家の息子で金に不自由のない男であったが、学校が学校だけに生活程度は私と似たり寄ったりであった。`
-  }
-]
-
-// 文に分割するユーティリティ
-const splitToSentences = (text: string) => text.split(/[。？！]/).filter(s => s.trim().length > 0)
-
-// 絶対パスでデータベース URL を構築
+// データベース URL の特定
 const absoluteDbPath = path.resolve(__dirname, '../../storage/dev.db')
 const url = process.env.DATABASE_URL || `file:${absoluteDbPath}`
 
@@ -47,8 +21,31 @@ const adapter = new PrismaLibSql({
 
 const prisma = new PrismaClient({ adapter })
 
+// 文学作品ソースの読み込み
+const LITERATURE_DIR = path.resolve(__dirname, '../../storage/literature')
+
+function getLiteratureData() {
+  const files = ['melos.txt', 'cat.txt', 'rashomon.txt']
+  return files.map(file => {
+    const filePath = path.join(LITERATURE_DIR, file)
+    if (fs.existsSync(filePath)) {
+      return {
+        name: file.replace('.txt', ''),
+        content: fs.readFileSync(filePath, 'utf-8')
+      }
+    }
+    return null
+  }).filter(Boolean) as { name: string, content: string }[]
+}
+
 async function main() {
-  console.log('--- Start Large-Scale Literary Seeding (JA) ---')
+  console.log('--- Start Super-High-Volume Literary Seeding (JA) ---')
+
+  const sources = getLiteratureData()
+  if (sources.length === 0) {
+    console.error('No literature data found in storage/literature/. Please run scripts/fetch_literature.sh first.')
+    process.exit(1)
+  }
 
   console.log('Cleaning up existing data...')
   await prisma.note.deleteMany()
@@ -63,42 +60,52 @@ async function main() {
     }
   })
 
-  // 100件のノートを生成
-  console.log('Generating 100 high-volume literary notes...')
+  console.log('Generating 100 super-heavy notes (~3500 chars each)...')
   const notesData = []
   
   for (let i = 0; i < 100; i++) {
     // 作品をランダム選択
-    const source = LITERATURE_SOURCES[faker.number.int({ min: 0, max: LITERATURE_SOURCES.length - 1 })]
-    const sentences = splitToSentences(source.text)
+    const source = sources[faker.number.int({ min: 0, max: sources.length - 1 })]
+    const fullText = source.content
     
-    // タイトル生成 (最初の文か、ランダムな文の一部)
-    const titleBase = sentences[faker.number.int({ min: 0, max: Math.min(sentences.length - 1, 3) })]
-    const title = titleBase.length > 20 ? titleBase.substring(0, 20) + '...' : titleBase
-
-    // 本文生成 (作品のテキストを繰り返し繋げて「小説1ページ分 (約800〜1000文字)」をシミュレート)
-    let content = source.text
-    // 1ページ分（約1000文字以上）になるまで文章をシャッフルして追加
-    while (content.length < 1200) {
-      const randomSentence = sentences[faker.number.int({ min: 0, max: sentences.length - 1 })]
-      content += '\n\n' + randomSentence + '。'
+    // 重複を避けるため、ランダムな開始位置から約3500文字を抽出
+    // 文中から始まらないように、。の次から開始する調整を試みる
+    const targetLength = 3500
+    let startPos = faker.number.int({ min: 0, max: Math.max(0, fullText.length - targetLength - 500) })
+    
+    // 直近の「。」を探してそこから開始
+    const nextPeriod = fullText.indexOf('。', startPos)
+    if (nextPeriod !== -1 && nextPeriod < startPos + 100) {
+      startPos = nextPeriod + 1
     }
 
+    let content = fullText.substring(startPos, startPos + targetLength)
+    
+    // 最後も「。」で終わるように調整
+    const lastPeriod = content.lastIndexOf('。')
+    if (lastPeriod !== -1 && lastPeriod > targetLength - 500) {
+      content = content.substring(0, lastPeriod + 1)
+    }
+
+    // タイトルは最初の数十字
+    const title = content.substring(0, 30).split(/[。、\n]/)[0] || '無題'
+
     notesData.push({
-      title: `${source.title} - ${title}`,
-      content: content,
+      title: `${source.name.toUpperCase()}: ${title}`,
+      content: content.trim(),
       userId: testUser.id,
       createdAt: faker.date.past(),
       updatedAt: new Date(),
     })
   }
 
-  console.log(`Inserting ${notesData.length} heavy notes into database...`)
+  console.log(`Inserting ${notesData.length} massive notes into database...`)
+  // 100件まとめて投入
   await prisma.note.createMany({
     data: notesData,
   })
 
-  console.log(`Successfully seeded ${notesData.length} notes (each ~1200 chars) from 4 literary sources.`)
+  console.log(`Successfully seeded 100 notes (avg ~${targetLength} chars) from fetched literature.`)
   console.log('--- Seeding Completed ---')
 }
 
