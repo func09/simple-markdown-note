@@ -169,12 +169,16 @@ const Dashboard: React.FC = () => {
         setSelectedTag(navItems[prevIndex].value as any);
         if (navItems[prevIndex].value === null) setSearchQuery('');
       }
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      document.getElementById('note-list-container')?.focus();
     }
   };
 
   // 左端のナビゲーションカラムの内容
   const navigationContent = (
     <div 
+      id="nav-container"
       className="flex flex-col h-full overflow-y-auto custom-scrollbar px-2 focus:outline-none"
       tabIndex={0}
       onKeyDown={handleNavKeyDown}

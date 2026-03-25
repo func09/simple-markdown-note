@@ -80,6 +80,12 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags }) => {
       bodyRef.current?.focus();
       // 本文の先頭にカーソルを置く
       bodyRef.current?.setSelectionRange(0, 0);
+    } else if (e.key === 'ArrowLeft') {
+      const { selectionStart } = e.currentTarget;
+      if (selectionStart === 0) {
+        e.preventDefault();
+        document.getElementById('note-list-container')?.focus();
+      }
     }
   };
 
@@ -158,6 +164,7 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags }) => {
           <div className="mb-1 w-full flex-shrink-0">
             <textarea
               ref={titleRef}
+              id="editor-title"
               rows={1}
               value={title}
               onChange={(e) => {
