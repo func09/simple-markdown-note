@@ -26,3 +26,8 @@ docker compose exec api npm run test -w apps/api
 docker compose exec api sh -c "cd packages/database && npx prisma db push"
 ```
 
+### 5. シードデータの投入
+開発用の初期データ（テストユーザーやノート）を投入します。
+```bash
+docker compose run --rm api npx prisma db seed --config packages/database/prisma.config.ts
+```
