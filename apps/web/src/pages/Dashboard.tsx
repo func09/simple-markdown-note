@@ -237,7 +237,7 @@ const Dashboard: React.FC = () => {
       </div>
       
       {/* タグリストを表示 */}
-      <SidebarTagList />
+      <SidebarTagList isPanelFocused={isNavFocused} />
 
       {/* Sign Out at bottom */}
       <div className="mt-auto pt-6 pb-4 flex flex-col gap-1 flex-shrink-0">
