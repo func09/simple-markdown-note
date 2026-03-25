@@ -92,7 +92,11 @@ export const NoteList: React.FC<NoteListProps> = ({
         className="flex-1 min-h-0 focus:outline-none"
         tabIndex={0}
         onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
+        onBlur={(e) => {
+          if (!e.currentTarget.contains(e.relatedTarget)) {
+            setIsFocused(false);
+          }
+        }}
         onKeyDown={(e) => {
           if (e.key === 'ArrowDown') {
             e.preventDefault();
