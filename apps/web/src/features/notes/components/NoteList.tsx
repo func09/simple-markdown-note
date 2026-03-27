@@ -13,6 +13,8 @@ interface NoteListProps {
   notes: Note[];
   onCreateNote: () => void;
   onDeleteNote: (id: string) => void;
+  onRestoreNote: (id: string) => void;
+  onEmptyTrash: () => void;
   isLoading?: boolean;
 }
 
@@ -23,6 +25,8 @@ export const NoteList: React.FC<NoteListProps> = ({
   notes, 
   onCreateNote,
   onDeleteNote,
+  onRestoreNote,
+  onEmptyTrash,
   isLoading = false
 }) => {
   const selectedNoteId = useNoteStore(state => state.selectedNoteId);
@@ -31,6 +35,7 @@ export const NoteList: React.FC<NoteListProps> = ({
   const setSearchQuery = useNoteStore(state => state.setSearchQuery);
   const selectedTag = useNoteStore(state => state.selectedTag);
   const setSelectedTag = useNoteStore(state => state.setSelectedTag);
+  const isTrashSelected = useNoteStore(state => state.isTrashSelected);
   const [isFocused, setIsFocused] = React.useState(false);
 
   return (
@@ -39,7 +44,7 @@ export const NoteList: React.FC<NoteListProps> = ({
       <div className="px-6 py-5 flex items-center justify-between">
         <div className="flex flex-col">
           <h2 className="text-xl font-bold font-outfit text-white tracking-tight">
-            {selectedTag === '__untagged__' ? 'Untagged' : selectedTag ? 'Tagged Notes' : 'All Notes'}
+            {isTrashSelected ? 'Trash' : selectedTag === '__untagged__' ? 'Untagged' : selectedTag ? 'Tagged Notes' : 'All Notes'}
           </h2>
           {selectedTag && (
             <div className="flex items-center gap-1.5 mt-1">
@@ -53,21 +58,33 @@ export const NoteList: React.FC<NoteListProps> = ({
             </div>
           )}
         </div>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button 
-              variant="ghost"
-              size="icon"
-              onClick={onCreateNote}
-              className="h-8 w-8 text-blue-400 hover:text-blue-300 hover:bg-slate-800 rounded-lg"
-            >
-              <Plus size={18} />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="bottom" className="bg-slate-800 text-slate-200 border-slate-700">
-            Create New Note
-          </TooltipContent>
-        </Tooltip>
+        {!isTrashSelected && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="ghost"
+                size="icon"
+                onClick={onCreateNote}
+                className="h-8 w-8 text-blue-400 hover:text-blue-300 hover:bg-slate-800 rounded-lg"
+              >
+                <Plus size={18} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" className="bg-slate-800 text-slate-200 border-slate-700">
+              Create New Note
+            </TooltipContent>
+          </Tooltip>
+        )}
+        {isTrashSelected && notes.length > 0 && (
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={onEmptyTrash}
+            className="text-[10px] uppercase tracking-wider font-bold text-red-400 hover:text-red-300 hover:bg-red-400/10 h-7 px-2 rounded-md"
+          >
+            Empty
+          </Button>
+        )}
       </div>
 
       {/* Search Bar */}
@@ -143,6 +160,7 @@ export const NoteList: React.FC<NoteListProps> = ({
                     isPanelFocused={isFocused}
                     onSelect={setSelectedNoteId}
                     onDelete={onDeleteNote}
+                    onRestore={onRestoreNote}
                   />
                 ))}
                 {notes.length === 0 && (

@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { AppLayout } from '../components/layout/AppLayout';
-import { NoteList, Editor, SidebarTagList, useNotes, useTags, useCreateNote, useDeleteNote, useNoteStore, useUpdateNote } from '../features/notes';
+import { NoteList, Editor, SidebarTagList, useNotes, useTags, useCreateNote, useDeleteNote, useNoteStore, useUpdateNote, useRestoreNote, usePermanentDeleteNote, useEmptyTrash } from '../features/notes';
 import type { Tag } from 'openapi';
 import { logout } from '../features/auth';
 import { useNavigate } from 'react-router-dom';
@@ -33,9 +33,12 @@ const Dashboard: React.FC = () => {
     isTrashSelected
   } = useNoteStore();
   
-  const { data: notes = [], isLoading: notesLoading } = useNotes();
+  const { data: notes = [], isLoading: notesLoading } = useNotes(isTrashSelected);
   const createNoteMutation = useCreateNote();
   const deleteNoteMutation = useDeleteNote();
+  const restoreNoteMutation = useRestoreNote();
+  const permanentDeleteNoteMutation = usePermanentDeleteNote();
+  const emptyTrashMutation = useEmptyTrash();
   const updateNoteMutation = useUpdateNote();
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -43,9 +46,8 @@ const Dashboard: React.FC = () => {
   const [isNavFocused, setIsNavFocused] = useState(false);
 
   // 現在のノート一覧をフィルタリングする共通関数
-  const getFilteredNotes = React.useCallback((allNotes: any[], tag: string | null, query: string, isTrash: boolean) => {
-    if (isTrash) return [];
-
+  const getFilteredNotes = React.useCallback((allNotes: any[], tag: string | null, query: string, _isTrash: boolean) => {
+    // isTrash は既に useNotes(isTrashSelected) で解決されているため、ここではフィルタリングのみ行う
     let result = [...allNotes];
     
     // タグフィルタリング
@@ -131,19 +133,46 @@ const Dashboard: React.FC = () => {
   const confirmDeleteNote = React.useCallback(async () => {
     if (!noteToDelete) return;
     try {
-      await deleteNoteMutation.mutateAsync(noteToDelete);
+      if (isTrashSelected) {
+        await permanentDeleteNoteMutation.mutateAsync(noteToDelete);
+        toast.success('Note permanently deleted');
+      } else {
+        await deleteNoteMutation.mutateAsync(noteToDelete);
+        toast.success('Note moved to trash');
+      }
+      
       if (selectedNoteId === noteToDelete) {
         setSelectedNoteId(null);
       }
-      toast.success('Note moved to trash');
     } catch (err) {
       console.error(err);
-      toast.error('Failed to delete note');
+      toast.error(isTrashSelected ? 'Failed to permanently delete note' : 'Failed to delete note');
     } finally {
       setIsDeleteModalOpen(false);
       setNoteToDelete(null);
     }
-  }, [deleteNoteMutation, noteToDelete, selectedNoteId, setSelectedNoteId]);
+  }, [deleteNoteMutation, permanentDeleteNoteMutation, isTrashSelected, noteToDelete, selectedNoteId, setSelectedNoteId]);
+
+  const handleRestoreNote = React.useCallback(async (id: string) => {
+    try {
+      await restoreNoteMutation.mutateAsync(id);
+      toast.success('Note restored');
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to restore note');
+    }
+  }, [restoreNoteMutation]);
+
+  const handleEmptyTrash = React.useCallback(async () => {
+    try {
+      await emptyTrashMutation.mutateAsync();
+      setSelectedNoteId(null);
+      toast.success('Trash emptied');
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to empty trash');
+    }
+  }, [emptyTrashMutation, setSelectedNoteId]);
 
   const handleUpdateTags = React.useCallback(async (noteId: string, tags: string[]) => {
     try {
@@ -301,20 +330,23 @@ const Dashboard: React.FC = () => {
   // 2ペイン目（List）のメモ化
   const memoizedList = useMemo(() => (
     <NoteList 
-      notes={isTrashSelected ? [] : filteredNotes} 
+      notes={filteredNotes} 
       onCreateNote={handleCreateNote}
       onDeleteNote={handleDeleteClick}
+      onRestoreNote={handleRestoreNote}
+      onEmptyTrash={handleEmptyTrash}
       isLoading={notesLoading}
     />
-  ), [isTrashSelected, filteredNotes, handleCreateNote, handleDeleteClick, notesLoading]);
+  ), [filteredNotes, handleCreateNote, handleDeleteClick, handleRestoreNote, notesLoading]);
 
   // 3ペイン目（Editor）のメモ化
   const memoizedMain = useMemo(() => (
     <Editor 
       note={selectedNote} 
       onUpdateTags={handleUpdateTags}
+      onRestore={handleRestoreNote}
     />
-  ), [selectedNote, handleUpdateTags]);
+  ), [selectedNote, handleUpdateTags, handleRestoreNote]);
 
   if (notesLoading && notes.length === 0) {
     return (
@@ -335,9 +367,13 @@ const Dashboard: React.FC = () => {
       <AlertDialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
         <AlertDialogContent className="bg-slate-900 border-slate-800 text-slate-200">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white">Delete Note?</AlertDialogTitle>
+            <AlertDialogTitle className="text-white">
+              {isTrashSelected ? 'Delete Permanently?' : 'Delete Note?'}
+            </AlertDialogTitle>
             <AlertDialogDescription className="text-slate-400">
-              This action cannot be undone. This will permanently delete your note from our servers.
+              {isTrashSelected 
+                ? 'This action is final and cannot be undone.' 
+                : 'This note will be moved to the trash.'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
