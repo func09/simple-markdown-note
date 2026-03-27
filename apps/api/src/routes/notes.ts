@@ -3,7 +3,9 @@ import { zValidator } from '@hono/zod-validator';
 import { prisma } from 'database';
 import { 
   CreateNoteRequestSchema, 
-  UpdateNoteRequestSchema
+  UpdateNoteRequestSchema,
+  NoteListQuerySchema,
+  type SuccessResponse
 } from 'openapi';
 import { TagService } from '../services/tags';
 
@@ -20,9 +22,10 @@ const notesRouter = new Hono<Env>();
 /**
  * ノート一覧の取得 (GET /notes)
  */
-notesRouter.get('/', async (c) => {
+notesRouter.get('/', zValidator('query', NoteListQuerySchema) as any, async (c: any) => {
   const userId = c.get('jwtPayload').userId;
-  const isTrash = c.req.query('trash') === 'true';
+  const { trash } = c.req.valid('query');
+  const isTrash = trash === 'true';
 
   const notes = await prisma.note.findMany({
     where: { 
@@ -139,7 +142,7 @@ notesRouter.delete('/:id', async (c) => {
     data: { deletedAt: new Date() },
   });
 
-  return c.json({ success: true });
+  return c.json({ success: true } as SuccessResponse);
 });
 
 /**
@@ -167,25 +170,19 @@ notesRouter.patch('/:id/restore', async (c) => {
 });
 
 /**
- * ノートの永久削除 (DELETE /notes/:id/permanent)
+ * ゴミ箱を空にする (DELETE /notes/trash)
  */
-notesRouter.delete('/:id/permanent', async (c) => {
+notesRouter.delete('/trash', async (c) => {
   const userId = c.get('jwtPayload').userId;
-  const id = c.req.param('id');
 
-  const existingNote = await prisma.note.findUnique({
-    where: { id },
+  await prisma.note.deleteMany({
+    where: { 
+      userId,
+      deletedAt: { not: null }
+    },
   });
 
-  if (!existingNote || existingNote.userId !== userId) {
-    return c.json({ error: 'Note not found' }, 404);
-  }
-
-  await prisma.note.delete({
-    where: { id },
-  });
-
-  return c.json({ success: true });
+  return c.json({ success: true } as SuccessResponse);
 });
 
 export { notesRouter };
