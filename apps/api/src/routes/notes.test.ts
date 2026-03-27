@@ -231,5 +231,47 @@ describe('Notes API', () => {
 
       expect(res.status).toBe(404) // 所有権がない場合は 404 を返す仕様
     })
+
+    it('should not allow restoring other user\'s note', async () => {
+      const res = await app.request(`/notes/${otherNoteId}/restore`, {
+        method: 'PATCH',
+        headers: { 'Authorization': `Bearer ${token}` },
+      })
+
+      expect(res.status).toBe(404)
+    })
+
+    it('should not allow permanently deleting other user\'s note', async () => {
+      const res = await app.request(`/notes/${otherNoteId}/permanent`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` },
+      })
+
+      expect(res.status).toBe(404)
+    })
+
+    it('should only empty own trash', async () => {
+      // 別のユーザーのノートを削除（ゴミ箱に入れる）
+      const deleteRes = await app.request(`/notes/${otherNoteId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${otherToken}` },
+      })
+      expect(deleteRes.status).toBe(200)
+
+      // 元のユーザーとしてゴミ箱を空にする
+      const res = await app.request('/notes/trash', {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` },
+      })
+      expect(res.status).toBe(200)
+
+      // 別のユーザーのゴミ箱にはまだ残っていることを確認
+      const trashRes = await app.request('/notes?trash=true', {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${otherToken}` },
+      })
+      const trashNotes = await trashRes.json()
+      expect(trashNotes.some((n: any) => n.id === otherNoteId)).toBe(true)
+    })
   })
 })

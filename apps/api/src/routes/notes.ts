@@ -22,7 +22,7 @@ const notesRouter = new Hono<Env>();
 /**
  * ノート一覧の取得 (GET /notes)
  */
-notesRouter.get('/', zValidator('query', NoteListQuerySchema) as any, async (c: any) => {
+notesRouter.get('/', zValidator('query', NoteListQuerySchema), async (c) => {
   const userId = c.get('jwtPayload').userId;
   const { trash } = c.req.valid('query');
   const isTrash = trash === 'true';
@@ -59,7 +59,7 @@ notesRouter.get('/:id', async (c) => {
 /**
  * ノートの作成 (POST /notes)
  */
-notesRouter.post('/', zValidator('json', CreateNoteRequestSchema) as any, async (c: any) => {
+notesRouter.post('/', zValidator('json', CreateNoteRequestSchema), async (c) => {
   const userId = c.get('jwtPayload').userId;
   const { content, tags } = c.req.valid('json');
 
@@ -87,7 +87,7 @@ notesRouter.post('/', zValidator('json', CreateNoteRequestSchema) as any, async 
 /**
  * ノートの更新 (PATCH /notes/:id)
  */
-notesRouter.patch('/:id', zValidator('json', UpdateNoteRequestSchema) as any, async (c: any) => {
+notesRouter.patch('/:id', zValidator('json', UpdateNoteRequestSchema), async (c) => {
   const userId = c.get('jwtPayload').userId;
   const id = c.req.param('id');
   const { content, tags } = c.req.valid('json');
@@ -120,6 +120,22 @@ notesRouter.patch('/:id', zValidator('json', UpdateNoteRequestSchema) as any, as
   }
 
   return c.json(updatedNote);
+});
+
+/**
+ * ゴミ箱を空にする (DELETE /notes/trash)
+ */
+notesRouter.delete('/trash', async (c) => {
+  const userId = c.get('jwtPayload').userId;
+
+  await prisma.note.deleteMany({
+    where: { 
+      userId,
+      deletedAt: { not: null }
+    },
+  });
+
+  return c.json({ success: true } as SuccessResponse);
 });
 
 /**
@@ -170,16 +186,22 @@ notesRouter.patch('/:id/restore', async (c) => {
 });
 
 /**
- * ゴミ箱を空にする (DELETE /notes/trash)
+ * ノートの永久削除 (DELETE /notes/:id/permanent)
  */
-notesRouter.delete('/trash', async (c) => {
+notesRouter.delete('/:id/permanent', async (c) => {
   const userId = c.get('jwtPayload').userId;
+  const id = c.req.param('id');
 
-  await prisma.note.deleteMany({
-    where: { 
-      userId,
-      deletedAt: { not: null }
-    },
+  const existingNote = await prisma.note.findUnique({
+    where: { id },
+  });
+
+  if (!existingNote || existingNote.userId !== userId) {
+    return c.json({ error: 'Note not found' }, 404);
+  }
+
+  await prisma.note.delete({
+    where: { id },
   });
 
   return c.json({ success: true } as SuccessResponse);
