@@ -17,6 +17,10 @@ interface DeleteConfirmModalProps {
   onConfirm: () => void;
 }
 
+/**
+ * ノート削除時の確誋用モーダルダイアログ
+ * 通常のゴミ箱移動と、ゴミ箱からの完全削除で表示文言およびアクションを切り替えます。
+ */
 export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
   isOpen,
   onOpenChange,

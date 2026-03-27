@@ -6,6 +6,10 @@ import api from '@/lib/api';
  * Hono RPC を使用したノート関連の API 通信
  */
 
+/**
+ * ノート一覧を取得する（条件付きでゴミ箱のノートも取得可能）
+ * @param params - 抽出オプション `{ trash?: boolean }`
+ */
 export const fetchNotes = async (params?: { trash?: boolean }) => {
   const query = params?.trash ? { trash: 'true' } : {};
   const res = await api.notes.$get({ query });
@@ -13,12 +17,21 @@ export const fetchNotes = async (params?: { trash?: boolean }) => {
   return res.json() as Promise<Note[]>;
 };
 
+/**
+ * 新規ノートを作成する
+ * @param data - サインアップなどの初期データ `{ content: string, tags?: string[] }`
+ */
 export const createNote = async (data: { content: string; tags?: string[] }) => {
   const res = await api.notes.$post({ json: data });
   if (!res.ok) throw new Error('Failed to create note');
   return res.json() as Promise<Note>;
 };
 
+/**
+ * 既存のノートの本文またはタグを更新する
+ * @param id - ノートID
+ * @param data - 更新内容 `{ content?: string, tags?: string[] }`
+ */
 export const updateNote = async (id: string, data: { content?: string; tags?: string[] }) => {
   const res = await api.notes[':id'].$patch({
     param: { id },
@@ -28,6 +41,10 @@ export const updateNote = async (id: string, data: { content?: string; tags?: st
   return res.json() as Promise<Note>;
 };
 
+/**
+ * ノートを削除（ゴミ箱へ移動）する
+ * @param id - ノートID
+ */
 export const deleteNote = async (id: string) => {
   const res = await api.notes[':id'].$delete({
     param: { id },
@@ -36,6 +53,10 @@ export const deleteNote = async (id: string) => {
   return res.json();
 };
 
+/**
+ * ゴミ箱にあるノートを復元する
+ * @param id - ノートID
+ */
 export const restoreNote = async (id: string) => {
   const res = await api.notes[':id'].restore.$patch({
     param: { id },
@@ -44,6 +65,10 @@ export const restoreNote = async (id: string) => {
   return res.json();
 };
 
+/**
+ * ノートを完全に削除（物理削除）する
+ * @param id - ノートID
+ */
 export const permanentDeleteNote = async (id: string) => {
   const res = await api.notes[':id'].permanent.$delete({
     param: { id },
@@ -52,12 +77,18 @@ export const permanentDeleteNote = async (id: string) => {
   return res.json();
 };
 
+/**
+ * ゴミ箱を空にする（ゴミ箱内の全ノートを物理削除）
+ */
 export const emptyTrash = async () => {
   const res = await api.notes.trash.$delete();
   if (!res.ok) throw new Error('Failed to empty trash');
   return res.json();
 };
 
+/**
+ * 現在使用されている全タグの一覧を取得する
+ */
 export const fetchTags = async () => {
   const res = await api.tags.$get();
   if (!res.ok) throw new Error('Failed to fetch tags');

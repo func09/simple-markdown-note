@@ -10,6 +10,10 @@ interface MobileEditorHeaderProps {
   onDelete: (id: string) => void;
 }
 
+/**
+ * モバイル用エディタ上部のヘッダーバー
+ * リスト画面へ戻るボタンや、ノートの削除・復元アクションを提供します。
+ */
 export const MobileEditorHeader: React.FC<MobileEditorHeaderProps> = ({
   selectedNoteId,
   isTrashSelected,

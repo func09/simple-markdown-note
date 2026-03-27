@@ -13,6 +13,10 @@ import {
 } from '@/features/notes/hooks/useNotesQuery';
 import { useNoteStore } from '@/features/notes/store';
 
+/**
+ * DesktopとMobileの両方のDashboardで共有されるビジネスロジックと状態を管理するカスタムフック
+ * ノートのフィルタリング、検索、アクションハンドラー（作成・削除・復元など）を提供します。
+ */
 export const useDashboard = () => {
   const {
     selectedNoteId,
@@ -35,6 +39,9 @@ export const useDashboard = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [noteToDelete, setNoteToDelete] = useState<string | null>(null);
 
+  /**
+   * ノート一覧に対し、選択されたタグと検索クエリに基づいてフィルタリングを行い、更新日時順にソートして返します。
+   */
   const getFilteredNotes = React.useCallback(
     (allNotes: Note[], tag: string | null, query: string) => {
       let result = [...allNotes];
@@ -71,6 +78,10 @@ export const useDashboard = () => {
     [notes, selectedNoteId]
   );
 
+  /**
+   * タグやゴミ箱の選択状態を更新し、フィルタリングされた先頭のノートを自動選択します。
+   * モバイル環境ではリストビューへ遷移させ、サイドバーを閉じます。
+   */
   const updateSelection = React.useCallback(
     (tag: string | null, isTrash: boolean, query: string = searchQuery) => {
       const nextFiltered = getFilteredNotes(notes, tag, query);
@@ -88,6 +99,10 @@ export const useDashboard = () => {
     [notes, searchQuery, getFilteredNotes, setIsSidebarOpen]
   );
 
+  /**
+   * 新しいノートを作成し、作成されたノートを自動選択してエディタ画面（モバイル）へ遷移させます。
+   * 特定のタグが選択されている場合は、そのタグを付与した状態で作成します。
+   */
   const handleCreateNote = React.useCallback(async () => {
     try {
       const resp = await createNoteMutation.mutateAsync({
@@ -104,11 +119,18 @@ export const useDashboard = () => {
     }
   }, [createNoteMutation, selectedTag, setSelectedNoteId, setActiveView]);
 
+  /**
+   * 削除ボタンクリック時のハンドラー。削除確認モーダルを開きます。
+   */
   const handleDeleteClick = React.useCallback((id: string) => {
     setNoteToDelete(id);
     setIsDeleteModalOpen(true);
   }, []);
 
+  /**
+   * モーダル内の「削除」確定時のハンドラー。
+   * ゴミ箱表示中は完全削除（物理削除）、それ以外はゴミ箱へ移動（論理削除）します。
+   */
   const confirmDeleteNote = React.useCallback(async () => {
     if (!noteToDelete) return;
     try {
@@ -141,6 +163,9 @@ export const useDashboard = () => {
     setActiveView,
   ]);
 
+  /**
+   * ゴミ箱にあるノートを復元します。
+   */
   const handleRestoreNote = React.useCallback(
     async (id: string) => {
       try {
@@ -154,6 +179,10 @@ export const useDashboard = () => {
     [restoreNoteMutation]
   );
 
+  /**
+   * ゴミ箱を空にします（ゴミ箱内の全ノートを物理削除）。
+   * 処理完了後、選択状態をリセットしてリストへ戻ります。
+   */
   const handleEmptyTrash = React.useCallback(async () => {
     try {
       await emptyTrashMutation.mutateAsync();
@@ -166,6 +195,9 @@ export const useDashboard = () => {
     }
   }, [emptyTrashMutation, setSelectedNoteId, setActiveView]);
 
+  /**
+   * 既存のノートに対してタグを更新します。
+   */
   const handleUpdateTags = React.useCallback(
     async (noteId: string, tags: string[]) => {
       try {
