@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+
 import { Tag as TagIcon, X } from 'lucide-react';
+
 import { Badge } from '@/components/ui/badge';
 
 interface TagInputProps {
@@ -12,19 +14,23 @@ interface TagInputProps {
  * Simplenote風のステートレスな手触りのタグ入力コンポーネント
  * カンマやスペース、Enterで入力を確定させ、親コンポーネントに通知する
  */
-export const TagInput: React.FC<TagInputProps> = ({ tags, onChange, placeholder = 'Add tags...' }) => {
+export const TagInput: React.FC<TagInputProps> = ({
+  tags,
+  onChange,
+  placeholder = 'Add tags...',
+}) => {
   const [inputValue, setInputValue] = useState('');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    
+
     // カンマまたはスペースが含まれているかチェック
     if (value.includes(',') || value.includes(' ')) {
       const newTags = value
         .split(/[,\s]+/)
-        .map(t => t.trim())
-        .filter(t => t !== '' && !tags.includes(t));
-      
+        .map((t) => t.trim())
+        .filter((t) => t !== '' && !tags.includes(t));
+
       if (newTags.length > 0) {
         onChange([...tags, ...newTags]);
         setInputValue('');
@@ -51,38 +57,38 @@ export const TagInput: React.FC<TagInputProps> = ({ tags, onChange, placeholder 
   };
 
   const removeTag = (tagToRemove: string) => {
-    onChange(tags.filter(tag => tag !== tagToRemove));
+    onChange(tags.filter((tag) => tag !== tagToRemove));
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-2 py-2 px-1 min-h-[40px] border-t border-slate-800/50">
-      <div className="flex items-center gap-1.5 text-slate-500 mr-1">
+    <div className="flex min-h-[40px] flex-wrap items-center gap-2 border-t border-slate-800/50 px-1 py-2">
+      <div className="mr-1 flex items-center gap-1.5 text-slate-500">
         <TagIcon size={14} />
       </div>
-      
+
       {tags.map((tag) => (
-        <Badge 
-          key={tag} 
+        <Badge
+          key={tag}
           variant="secondary"
-          className="bg-slate-800 text-slate-300 hover:bg-slate-700 border-slate-700/50 flex items-center gap-1 pr-1"
+          className="flex items-center gap-1 border-slate-700/50 bg-slate-800 pr-1 text-slate-300 hover:bg-slate-700"
         >
           {tag}
-          <button 
+          <button
             onClick={() => removeTag(tag)}
-            className="text-slate-500 hover:text-slate-300 transition-colors p-0.5"
+            className="p-0.5 text-slate-500 transition-colors hover:text-slate-300"
           >
             <X size={10} />
           </button>
         </Badge>
       ))}
-      
+
       <input
         type="text"
         value={inputValue}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
         placeholder={tags.length === 0 ? placeholder : ''}
-        className="flex-1 bg-transparent border-none focus:outline-none text-slate-300 text-sm py-1 min-w-[120px] placeholder:text-slate-600"
+        className="min-w-[120px] flex-1 border-none bg-transparent py-1 text-sm text-slate-300 placeholder:text-slate-600 focus:outline-none"
       />
     </div>
   );

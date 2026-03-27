@@ -1,13 +1,7 @@
 import React from 'react';
-import { TooltipProvider } from '@/components/ui/tooltip';
-import { Toaster } from 'sonner';
-import { useNoteStore } from '../../features/notes/store';
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup
-} from '@/components/ui/resizable';
+import { useNoteStore } from '@/features/notes/store';
 import * as ResizablePrimitive from 'react-resizable-panels';
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 
 interface AppLayoutProps {
   nav: React.ReactNode;
@@ -16,109 +10,127 @@ interface AppLayoutProps {
 }
 
 /**
- * 3カラム構成のメインレイアウト (Resizable 版)
- * Navigation (Narrow) | Note List (Medium) | Editor (Wide)
- * 折りたたみ機能（Collapse）を使用して状態を維持しながら表示を切り替えます。
+ * 3カラム構成のメインレイアウト (標準コンポーネント + 黄金比)
  */
 export const AppLayout: React.FC<AppLayoutProps> = React.memo(({ nav, list, main }) => {
-  const layoutMode = useNoteStore(state => state.layoutMode);
-  const layoutAllSizes = useNoteStore(state => state.layoutAllSizes);
-  const setLayoutAllSizes = useNoteStore(state => state.setLayoutAllSizes);
-  const layoutSplitSizes = useNoteStore(state => state.layoutSplitSizes);
-  const setLayoutSplitSizes = useNoteStore(state => state.setLayoutSplitSizes);
+  const layoutMode = useNoteStore((state) => state.layoutMode);
+  const layoutAllSizesArr = useNoteStore((state) => state.layoutAllSizes);
+  const setLayoutAllSizes = useNoteStore((state) => state.setLayoutAllSizes);
+  const layoutSplitSizesArr = useNoteStore((state) => state.layoutSplitSizes);
+  const setLayoutSplitSizes = useNoteStore((state) => state.setLayoutSplitSizes);
 
-  const onLayoutChange = (layout: ResizablePrimitive.Layout) => {
-    if (layoutMode === 'all') {
-      const nav = layout['navigation'];
-      const list = layout['note-list'];
-      const editor = layout['editor'];
-      if (nav !== undefined && list !== undefined && editor !== undefined) {
-        setLayoutAllSizes([nav, list, editor]);
-      }
-    } else if (layoutMode === 'split') {
-      const list = layout['note-list'];
-      const editor = layout['editor'];
-      if (list !== undefined && editor !== undefined) {
-        setLayoutSplitSizes([list, editor]);
-      }
-    }
+  // 初期の理想的なバランス [15%, 25%, 60%]
+  const IDEAL_ALL = [15, 25, 60];
+  const IDEAL_SPLIT = [32, 68];
+
+  // ストアの値をサニタイズ（極端な値は初期値に戻す）
+  const sanitizedAll = React.useMemo(() => {
+    const [n, l, e] = layoutAllSizesArr;
+    // 10%未満のペインがあれば、壊れていると判断して初期値にリセット
+    if (n < 10 || l < 10 || e < 10) return IDEAL_ALL;
+    return layoutAllSizesArr;
+  }, [layoutAllSizesArr]);
+
+  const sanitizedSplit = React.useMemo(() => {
+    const [l, e] = layoutSplitSizesArr;
+    if (l < 10 || e < 10) return IDEAL_SPLIT;
+    return layoutSplitSizesArr;
+  }, [layoutSplitSizesArr]);
+
+  // ID を刷新してキャッシュを回避 (v100)
+  const IDS = {
+    NAV: 'nav-v100',
+    LIST: 'list-v100',
+    EDITOR: 'editor-v100',
   };
 
-  const defaultLayout = React.useMemo((): ResizablePrimitive.Layout => {
-    if (layoutMode === 'all') {
-      return {
-        'navigation': layoutAllSizes[0],
-        'note-list': layoutAllSizes[1],
-        'editor': layoutAllSizes[2]
-      };
-    } else if (layoutMode === 'split') {
-      return {
-        'note-list': layoutSplitSizes[0],
-        'editor': layoutSplitSizes[1]
-      };
-    }
-    return { 'editor': 100 };
-  }, [layoutMode, layoutAllSizes, layoutSplitSizes]);
+  const handleLayoutChange = React.useCallback(
+    (layout: ResizablePrimitive.Layout) => {
+      if (layoutMode === 'all') {
+        const n = layout[IDS.NAV];
+        const l = layout[IDS.LIST];
+        const e = layout[IDS.EDITOR];
+        if (n !== undefined && l !== undefined && e !== undefined) {
+          if (n < 5 || l < 5 || e < 5) return;
+          setLayoutAllSizes([n, l, e]);
+        }
+      } else if (layoutMode === 'split') {
+        const l = layout[IDS.LIST];
+        const e = layout[IDS.EDITOR];
+        if (l !== undefined && e !== undefined) {
+          if (l < 5 || e < 5) return;
+          setLayoutSplitSizes([l, e]);
+        }
+      }
+    },
+    [layoutMode, setLayoutAllSizes, setLayoutSplitSizes, IDS]
+  );
 
   return (
-    <TooltipProvider>
-      <div className="flex h-screen w-full overflow-hidden bg-[#0f172a] text-slate-200">
-        <ResizablePanelGroup
-          key={layoutMode}
-          orientation="horizontal"
-          className="w-full h-full"
-          onLayoutChange={onLayoutChange}
-          defaultLayout={defaultLayout}
-        >
-          {/* Column 1: Navigation */}
-          {layoutMode === 'all' && (
-            <ResizablePanel
-              id="navigation"
-              defaultSize={layoutAllSizes[0]}
-              minSize="200px"
-              maxSize="300px"
-              className="bg-slate-950/50 border-r border-slate-800/10"
-            >
-              <aside className="w-full h-full py-4 overflow-hidden">
-                {nav}
-              </aside>
-            </ResizablePanel>
-          )}
-          {layoutMode === 'all' && (
-            <ResizableHandle withHandle className="bg-slate-800/30 w-[2px] hover:w-[4px] transition-all" />
-          )}
-
-          {/* Column 2: Note List */}
-          {(layoutMode === 'all' || layoutMode === 'split') && (
-            <ResizablePanel
-              id="note-list"
-              defaultSize={layoutMode === 'all' ? layoutAllSizes[1] : layoutSplitSizes[0]}
-              minSize="280px"
-              maxSize="500px"
-              className="bg-slate-900/40 border-r border-slate-800/10"
-            >
-              <aside className="w-full h-full flex flex-col overflow-hidden">
-                {list}
-              </aside>
-            </ResizablePanel>
-          )}
-          {(layoutMode === 'all' || layoutMode === 'split') && (
-            <ResizableHandle withHandle className="bg-slate-800/30 w-[2px] hover:w-[4px] transition-all" />
-          )}
-
-          {/* Column 3: Main Editor */}
+    <div className="h-screen w-full overflow-hidden bg-[#0f172a] text-slate-200">
+      <ResizablePanelGroup
+        key={`layout-${layoutMode}-v100`}
+        orientation="horizontal"
+        onLayoutChange={handleLayoutChange}
+        className="h-full w-full"
+      >
+        {/* Column 1: Navigation */}
+        {layoutMode === 'all' && (
           <ResizablePanel
-            id="editor"
-            defaultSize={layoutMode === 'all' ? layoutAllSizes[2] : (layoutMode === 'split' ? layoutSplitSizes[1] : 100)}
-            minSize="350px"
+            id={IDS.NAV}
+            defaultSize={sanitizedAll[0]}
+            minSize="180px"
+            maxSize="300px"
+            className="border-r border-slate-800/10 bg-slate-950/50"
           >
-            <main className="flex-1 h-full flex flex-col bg-[#0f172a] min-w-0">
-              {main}
-            </main>
+            <aside className="h-full w-full overflow-hidden py-4">{nav}</aside>
           </ResizablePanel>
-        </ResizablePanelGroup>
-      </div>
-      <Toaster position="bottom-right" theme="dark" closeButton />
-    </TooltipProvider>
+        )}
+        {layoutMode === 'all' && (
+          <ResizableHandle
+            withHandle
+            className="w-[2px] bg-slate-800/50 transition-colors hover:bg-blue-500/50"
+          />
+        )}
+
+        {/* Column 2: Note List */}
+        {(layoutMode === 'all' || layoutMode === 'split') && (
+          <ResizablePanel
+            id={IDS.LIST}
+            defaultSize={layoutMode === 'all' ? sanitizedAll[1] : sanitizedSplit[0]}
+            minSize="300px"
+            maxSize="450px"
+            className="border-r border-slate-800/10 bg-slate-900/40"
+          >
+            <aside className="flex h-full w-full flex-col overflow-hidden">{list}</aside>
+          </ResizablePanel>
+        )}
+        {(layoutMode === 'all' || layoutMode === 'split') && (
+          <ResizableHandle
+            withHandle
+            className="w-[2px] bg-slate-800/50 transition-colors hover:bg-blue-500/50"
+          />
+        )}
+
+        {/* Column 3: Main Editor */}
+        <ResizablePanel
+          id={IDS.EDITOR}
+          defaultSize={
+            layoutMode === 'all'
+              ? sanitizedAll[2]
+              : layoutMode === 'split'
+                ? sanitizedSplit[1]
+                : 100
+          }
+          minSize="300px"
+        >
+          <main className="flex h-full min-w-0 flex-1 flex-col bg-[#0f172a]" id="note-editor">
+            {main}
+          </main>
+        </ResizablePanel>
+      </ResizablePanelGroup>
+    </div>
   );
 });
+
+AppLayout.displayName = 'AppLayout';
