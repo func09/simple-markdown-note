@@ -10,6 +10,10 @@ interface DesktopEditorHeaderProps {
   onDelete?: (id: string) => void;
 }
 
+/**
+ * デスクトップ用エディタ上部のヘッダーバー
+ * レイアウト切り替えや、ノートの削除・復元アクションを提供します。
+ */
 export const DesktopEditorHeader: React.FC<DesktopEditorHeaderProps> = ({
   noteId,
   isTrashSelected,

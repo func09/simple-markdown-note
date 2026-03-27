@@ -9,6 +9,10 @@ import { NoteList } from '@/features/notes/components/shared/NoteList';
 import { useDashboard } from '@/features/notes/hooks/useDashboard';
 import { useNoteStore } from '@/features/notes/store';
 
+/**
+ * モバイル向けのメインダッシュボードコンポーネント
+ * ドロワー形式のサイドバー、リスト画面、エディタ画面を切り替えて表示し、`useDashboard` で状態を管理します。
+ */
 export const MobileDashboard: React.FC = () => {
   const { activeView, setActiveView, isSidebarOpen, setIsSidebarOpen } = useNoteStore();
 
@@ -28,6 +32,10 @@ export const MobileDashboard: React.FC = () => {
     handleUpdateTags,
   } = useDashboard();
 
+  /**
+   * ノート一覧（リストビュー）のメモ化
+   * ダッシュボード全体の再レンダリング時に、リスト画面が不要に再描画されるのを防ぎます
+   */
   const memoizedList = useMemo(
     () => (
       <div className="flex h-full flex-col">
@@ -45,6 +53,10 @@ export const MobileDashboard: React.FC = () => {
     [filteredNotes, handleCreateNote, handleEmptyTrash, notesLoading]
   );
 
+  /**
+   * ノート編集（エディタビュー）のメモ化
+   * エディタ画面のヘッダーとコアエディタをまとめ、不要な再描画を防ぎます
+   */
   const memoizedMain = useMemo(
     () => (
       <div className="flex h-full flex-col">

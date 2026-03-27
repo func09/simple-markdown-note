@@ -12,6 +12,10 @@ export interface AuthResponse {
   };
 }
 
+/**
+ * 既存アカウントでログインする
+ * @param data - メールアドレスとパスワード
+ */
 export const signin = async (data: { email: string; password: string }): Promise<AuthResponse> => {
   const res = await api.auth.signin.$post({ json: data });
   if (!res.ok) {
@@ -21,6 +25,10 @@ export const signin = async (data: { email: string; password: string }): Promise
   return res.json() as Promise<AuthResponse>;
 };
 
+/**
+ * 新規アカウントを作成する
+ * @param data - 登録するメールアドレスとパスワード
+ */
 export const signup = async (data: { email: string; password: string }): Promise<AuthResponse> => {
   const res = await api.auth.signup.$post({ json: data });
   if (!res.ok) {
@@ -30,6 +38,9 @@ export const signup = async (data: { email: string; password: string }): Promise
   return res.json() as Promise<AuthResponse>;
 };
 
+/**
+ * ログアウトを実行し、ローカルのトークンを削除する
+ */
 export const logout = () => {
   localStorage.removeItem('token');
 };

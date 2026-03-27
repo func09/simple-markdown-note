@@ -12,6 +12,10 @@ import { useDashboard } from '@/features/notes/hooks/useDashboard';
 import { useTags } from '@/features/notes/hooks/useNotesQuery';
 import { useNoteStore } from '@/features/notes/store';
 
+/**
+ * デスクトップ向けのメインダッシュボードコンポーネント
+ * 3ペインレイアウト（サイドバー、ノートリスト、エディタ）を統合し、`useDashboard` で状態・ロジックを管理します。
+ */
 export const DesktopDashboard: React.FC = () => {
   const { selectedTag, isTrashSelected } = useNoteStore();
 
@@ -40,6 +44,10 @@ export const DesktopDashboard: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  /**
+   * サイドバーのナビゲーション項目（All Notes, Trash, Untagged, 各タグ）を一次元配列として定義
+   * キーボード操作時の上下移動のインデックス計算に使用します
+   */
   const navItems = useMemo(() => {
     return [
       { id: 'all', value: null, type: 'all' },
@@ -49,6 +57,10 @@ export const DesktopDashboard: React.FC = () => {
     ];
   }, [tags]);
 
+  /**
+   * サイドバーフォーカス時のキーボードナビゲーションハンドラー
+   * 上下キーでタグ・ゴミ箱の選択を切り替え、右キーでノートリストへフォーカスを移動させます
+   */
   const handleNavKeyDown = React.useCallback(
     (e: React.KeyboardEvent) => {
       if (e.key === 'ArrowDown') {
@@ -93,6 +105,7 @@ export const DesktopDashboard: React.FC = () => {
     [navItems, isTrashSelected, selectedTag, updateSelection]
   );
 
+  /** ノート一覧エリアのメモ化（再レンダリング最適化） */
   const memoizedList = useMemo(
     () => (
       <NoteList
@@ -105,6 +118,7 @@ export const DesktopDashboard: React.FC = () => {
     [filteredNotes, handleCreateNote, handleEmptyTrash, notesLoading]
   );
 
+  /** エディタエリアのメモ化（再レンダリング最適化） */
   const memoizedMain = useMemo(
     () => (
       <DesktopEditor
@@ -117,6 +131,7 @@ export const DesktopDashboard: React.FC = () => {
     [selectedNote, handleUpdateTags, handleRestoreNote, handleDeleteClick]
   );
 
+  /** サイドバー（ナビゲーション）エリアのメモ化（再レンダリング最適化） */
   const navigationContent = useMemo(
     () => (
       <DesktopSidebar
