@@ -115,4 +115,41 @@ describe('Tags API', () => {
     const tags = await tagsRes.json()
     expect(tags.length).toBe(0)
   })
+
+  describe('Authorization', () => {
+    it('should not include other user\'s tags in list', async () => {
+      // 別のユーザーを作成してノートを作成（タグ付き）
+      await app.request('/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: 'tag-other@example.com', password: 'password123' }),
+      })
+      const loginRes = await app.request('/auth/signin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: 'tag-other@example.com', password: 'password123' }),
+      })
+      const { token: otherToken } = await loginRes.json()
+
+      await app.request('/notes', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${otherToken}`
+        },
+        body: JSON.stringify({ content: 'Other note', tags: ['PrivateTag'] }),
+      })
+
+      // 元のユーザーとしてタグ一覧を取得
+      const res = await app.request('/tags', {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${token}` },
+      })
+
+      expect(res.status).toBe(200)
+      const body = await res.json()
+      // PrivateTag が含まれていないことを確認
+      expect(body.some((t: any) => t.name === 'PrivateTag')).toBe(false)
+    })
+  })
 })
