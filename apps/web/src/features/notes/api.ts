@@ -1,4 +1,6 @@
-import api from '../../lib/api';
+import type { Note, Tag } from 'openapi';
+
+import api from '@/lib/api';
 
 /**
  * Hono RPC を使用したノート関連の API 通信
@@ -8,13 +10,13 @@ export const fetchNotes = async (params?: { trash?: boolean }) => {
   const query = params?.trash ? { trash: 'true' } : {};
   const res = await api.notes.$get({ query });
   if (!res.ok) throw new Error('Failed to fetch notes');
-  return res.json();
+  return res.json() as Promise<Note[]>;
 };
 
 export const createNote = async (data: { content: string; tags?: string[] }) => {
   const res = await api.notes.$post({ json: data });
   if (!res.ok) throw new Error('Failed to create note');
-  return res.json();
+  return res.json() as Promise<Note>;
 };
 
 export const updateNote = async (id: string, data: { content?: string; tags?: string[] }) => {
@@ -23,7 +25,7 @@ export const updateNote = async (id: string, data: { content?: string; tags?: st
     json: data
   });
   if (!res.ok) throw new Error('Failed to update note');
-  return res.json();
+  return res.json() as Promise<Note>;
 };
 
 export const deleteNote = async (id: string) => {
@@ -59,5 +61,5 @@ export const emptyTrash = async () => {
 export const fetchTags = async () => {
   const res = await api.tags.$get();
   if (!res.ok) throw new Error('Failed to fetch tags');
-  return res.json();
+  return res.json() as Promise<Tag[]>;
 };
