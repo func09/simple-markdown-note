@@ -30,7 +30,7 @@ export const MobileHeader: React.FC = () => {
         <div className="flex items-center gap-2">
           <StickyNote size={18} className="text-blue-500" />
           <span className="font-outfit font-bold text-slate-200 tracking-tight">
-            {isTrashSelected ? 'Trash' : selectedTag || 'All Notes'}
+            {isTrashSelected ? 'Trash' : selectedTag === '__untagged__' ? 'Untagged' : selectedTag || 'All Notes'}
           </span>
         </div>
       </div>
