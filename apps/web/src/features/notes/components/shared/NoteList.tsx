@@ -181,3 +181,5 @@ export const NoteList: React.FC<NoteListProps> = ({
     </div>
   );
 };
+
+NoteList.displayName = 'NoteList';
