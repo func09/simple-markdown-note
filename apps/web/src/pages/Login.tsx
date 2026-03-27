@@ -1,21 +1,24 @@
 import React, { useState } from 'react';
+
 import { useNavigate, Link } from 'react-router-dom';
-import { AuthForm, signin } from '../features/auth';
+
+import { AuthForm, signin } from '@/features/auth';
 
 const LoginPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>();
   const navigate = useNavigate();
 
-  const handleLogin = async (data: any) => {
+  const handleLogin = async (data: { email: string; password: string }) => {
     setIsLoading(true);
     setError(undefined);
     try {
-      const result: any = await signin(data);
+      const result = await signin(data);
       localStorage.setItem('token', result.token);
       navigate('/');
-    } catch (err: any) {
-      setError(err.message || 'Login failed. Please check your credentials.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Login failed. Please check your credentials.';
+      setError(message);
     } finally {
       setIsLoading(false);
     }

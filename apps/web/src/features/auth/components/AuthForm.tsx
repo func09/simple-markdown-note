@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
+
 import { motion } from 'framer-motion';
 import { Mail, Lock, Loader2, ArrowRight, AlertCircle } from 'lucide-react';
-import { Button } from '../../../components/ui/button';
+
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -9,14 +12,13 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '../../../components/ui/card';
-import { Input } from '../../../components/ui/input';
-import { Label } from '../../../components/ui/label';
-import { Alert, AlertDescription, AlertTitle } from '../../../components/ui/alert';
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface AuthFormProps {
   type: 'login' | 'signup';
-  onSubmit: (data: any) => Promise<void>;
+  onSubmit: (data: { email: string; password: string }) => Promise<void>;
   isLoading: boolean;
   error?: string;
 }
