@@ -1,18 +1,18 @@
 import React from 'react';
 
-import { DesktopDashboard, MobileDashboard } from '@/features/notes';
-
+import { DesktopDashboard } from '@/features/notes/components/desktop/DesktopDashboard';
+import { MobileDashboard } from '@/features/notes/components/mobile/MobileDashboard';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 
-/**
- * メインのダッシュボードページ
- * 画面サイズに応じてデスクトップ・モバイルの各実装へ振り分ける
- */
 const Dashboard: React.FC = () => {
-  const isMobile = useMediaQuery('(max-width: 1024px)');
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
-  // 1024px を境界としてコンポーネントを切り替え
-  return isMobile ? <MobileDashboard /> : <DesktopDashboard />;
+  if (isMobile) {
+    return <MobileDashboard />;
+  }
+
+  // DesktopDashboard 内部で AppLayout を適切に利用しているため、ここでは直接呼び出します
+  return <DesktopDashboard />;
 };
 
 export default Dashboard;

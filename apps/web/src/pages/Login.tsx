@@ -1,24 +1,21 @@
 import React, { useState } from 'react';
-
 import { useNavigate, Link } from 'react-router-dom';
-
-import { AuthForm, signin } from '@/features/auth';
+import { AuthForm } from '@/features/auth/components/AuthForm';
+import { signin } from '@/features/auth/api';
+import { toast } from 'sonner';
 
 const LoginPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string>();
   const navigate = useNavigate();
 
-  const handleLogin = async (data: { email: string; password: string }) => {
+  const handleLogin = async (data: any) => {
     setIsLoading(true);
-    setError(undefined);
     try {
-      const result = await signin(data);
-      localStorage.setItem('token', result.token);
+      await signin({ email: data.email, password: data.password });
+      toast.success('Logged in successfully');
       navigate('/');
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Login failed. Please check your credentials.';
-      setError(message);
+    } catch (err: any) {
+      toast.error(err.message || 'Login failed. Please check your credentials.');
     } finally {
       setIsLoading(false);
     }
@@ -30,7 +27,6 @@ const LoginPage: React.FC = () => {
         type="login" 
         onSubmit={handleLogin} 
         isLoading={isLoading} 
-        error={error} 
       />
       <div className="mt-8 text-slate-400">
         Don't have an account?{' '}
