@@ -77,7 +77,7 @@ describe('Notes API', () => {
     expect(body.content).toBe('Updated Content')
   })
 
-  it('should delete a note', async () => {
+  it('should soft delete a note', async () => {
     const listRes = await app.request('/notes', {
       method: 'GET',
       headers: { 'Authorization': `Bearer ${token}` },
@@ -92,13 +92,83 @@ describe('Notes API', () => {
 
     expect(res.status).toBe(200)
     
-    // 削除後の確認
+    // 通常の一覧からは消えていることを確認
     const finalRes = await app.request('/notes', {
       method: 'GET',
       headers: { 'Authorization': `Bearer ${token}` },
     })
     const finalNotes = await finalRes.json()
     expect(finalNotes.length).toBe(0)
+
+    // ゴミ箱一覧には存在することを確認
+    const trashRes = await app.request('/notes?trash=true', {
+      method: 'GET',
+      headers: { 'Authorization': `Bearer ${token}` },
+    })
+    const trashNotes = await trashRes.json()
+    expect(trashNotes.length).toBe(1)
+    expect(trashNotes[0].id).toBe(noteId)
+    expect(trashNotes[0].deletedAt).not.toBeNull()
+  })
+
+  it('should restore a note from trash', async () => {
+    // ゴミ箱のノートを取得
+    const trashRes = await app.request('/notes?trash=true', {
+      method: 'GET',
+      headers: { 'Authorization': `Bearer ${token}` },
+    })
+    const trashNotes = await trashRes.json()
+    const noteId = trashNotes[0].id
+
+    // 復元
+    const res = await app.request(`/notes/${noteId}/restore`, {
+      method: 'PATCH',
+      headers: { 'Authorization': `Bearer ${token}` },
+    })
+
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.deletedAt).toBeNull()
+
+    // 通常の一覧に戻っていることを確認
+    const finalRes = await app.request('/notes', {
+      method: 'GET',
+      headers: { 'Authorization': `Bearer ${token}` },
+    })
+    const finalNotes = await finalRes.json()
+    expect(finalNotes.length).toBe(1)
+    expect(finalNotes[0].id).toBe(noteId)
+  })
+
+  it('should permanently delete a note', async () => {
+    // まずノートを再度削除
+    const listRes = await app.request('/notes', {
+      method: 'GET',
+      headers: { 'Authorization': `Bearer ${token}` },
+    })
+    const notes = await listRes.json()
+    const noteId = notes[0].id
+
+    await app.request(`/notes/${noteId}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` },
+    })
+
+    // 永久削除
+    const res = await app.request(`/notes/${noteId}/permanent`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` },
+    })
+
+    expect(res.status).toBe(200)
+
+    // ゴミ箱からも消えていることを確認
+    const trashRes = await app.request('/notes?trash=true', {
+      method: 'GET',
+      headers: { 'Authorization': `Bearer ${token}` },
+    })
+    const trashNotes = await trashRes.json()
+    expect(trashNotes.length).toBe(0)
   })
 
   describe('Authorization', () => {
