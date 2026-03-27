@@ -5,11 +5,11 @@ import type { Note, Tag } from 'openapi';
 /**
  * ノート一覧を取得するためのクエリフック
  */
-export const useNotes = () => {
+export const useNotes = (isTrash = false) => {
   return useQuery<Note[]>({
-    queryKey: ['notes'],
+    queryKey: ['notes', { isTrash }],
     queryFn: async () => {
-      const data = await noteApi.fetchNotes();
+      const data = await noteApi.fetchNotes({ trash: isTrash });
       return data as Note[];
     },
   });
@@ -53,7 +53,7 @@ export const useUpdateNote = () => {
     mutationFn: ({ id, data }: { id: string; data: { content?: string; tags?: string[] } }) =>
       noteApi.updateNote(id, data),
     onSuccess: (updatedNote) => {
-      queryClient.setQueryData(['notes'], (oldNotes: Note[] | undefined) => {
+      queryClient.setQueryData(['notes', { isTrash: false }], (oldNotes: Note[] | undefined) => {
         if (!oldNotes) return [];
         return oldNotes.map((note) => (note.id === (updatedNote as any).id ? updatedNote : note));
       });
@@ -64,7 +64,7 @@ export const useUpdateNote = () => {
 };
 
 /**
- * ノートを削除するためのミューテーションフック
+ * ノートを削除するためのミューテーションフック（論理削除）
  */
 export const useDeleteNote = () => {
   const queryClient = useQueryClient();
@@ -72,12 +72,69 @@ export const useDeleteNote = () => {
   return useMutation({
     mutationFn: (id: string) => noteApi.deleteNote(id),
     onSuccess: (_, deletedId) => {
-      queryClient.setQueryData(['notes'], (oldNotes: Note[] | undefined) => {
+      // 全ノート一覧から削除
+      queryClient.setQueryData(['notes', { isTrash: false }], (oldNotes: Note[] | undefined) => {
         if (!oldNotes) return [];
         return oldNotes.filter((note) => note.id !== deletedId);
       });
-      // タグ一覧も再取得（クリーンアップの可能性があるため）
+      // ゴミ箱一覧を無効化（削除されたノートが入るため）
+      queryClient.invalidateQueries({ queryKey: ['notes', { isTrash: true }] });
+      // タグ一覧も再取得
       queryClient.invalidateQueries({ queryKey: ['tags'] });
+    },
+  });
+};
+
+/**
+ * ノートを復元するためのミューテーションフック
+ */
+export const useRestoreNote = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => noteApi.restoreNote(id),
+    onSuccess: (_, restoredId) => {
+      // ゴミ箱一覧から削除
+      queryClient.setQueryData(['notes', { isTrash: true }], (oldNotes: Note[] | undefined) => {
+        if (!oldNotes) return [];
+        return oldNotes.filter((note) => note.id !== restoredId);
+      });
+      // 全ノート一覧を無効化（復元されたノートが戻るため）
+      queryClient.invalidateQueries({ queryKey: ['notes', { isTrash: false }] });
+      // タグ一覧も再取得
+      queryClient.invalidateQueries({ queryKey: ['tags'] });
+    },
+  });
+};
+
+/**
+ * ノートを永久削除するためのミューテーションフック
+ */
+export const usePermanentDeleteNote = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => noteApi.permanentDeleteNote(id),
+    onSuccess: (_, deletedId) => {
+      queryClient.setQueryData(['notes', { isTrash: true }], (oldNotes: Note[] | undefined) => {
+        if (!oldNotes) return [];
+        return oldNotes.filter((note) => note.id !== deletedId);
+      });
+    },
+  });
+};
+
+/**
+ * ゴミ箱を空にするためのミューテーションフック
+ */
+export const useEmptyTrash = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => noteApi.emptyTrash(),
+    onSuccess: () => {
+      // ゴミ箱一覧を空にする
+      queryClient.setQueryData(['notes', { isTrash: true }], []);
     },
   });
 };
