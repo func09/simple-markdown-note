@@ -235,6 +235,24 @@ export const DesktopDashboard: React.FC = () => {
     }
   }, [navItems, isTrashSelected, selectedTag, updateSelection]);
 
+  // filteredNotes が変更された際（APIデータ到着時など）、
+  // 選択されていたノートが新リストに存在しなければ、自動的にリストの先頭を選択する
+  React.useEffect(() => {
+    if (filteredNotes.length === 0) {
+      if (selectedNoteId !== null) {
+        useNoteStore.setState({ selectedNoteId: null });
+      }
+      return;
+    }
+    
+    // 現在の選択がリスト内に存在するか確認
+    const isExist = filteredNotes.some(n => n.id === selectedNoteId);
+    if (!isExist) {
+      // 存在しなければ先頭を選択する
+      useNoteStore.setState({ selectedNoteId: filteredNotes[0].id });
+    }
+  }, [filteredNotes, selectedNoteId]);
+
   const memoizedList = useMemo(() => (
     <NoteList 
       notes={filteredNotes} 
