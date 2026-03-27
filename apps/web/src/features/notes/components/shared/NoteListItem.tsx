@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { RotateCw, Trash2 } from 'lucide-react';
 import type { Note } from 'openapi';
 
 interface NoteItemProps {
@@ -8,8 +7,6 @@ interface NoteItemProps {
   isSelected: boolean;
   isPanelFocused: boolean;
   onSelect: (id: string) => void;
-  onDelete: (id: string) => void;
-  onRestore: (id: string) => void;
 }
 
 /**
@@ -20,8 +17,6 @@ export const NoteListItem = React.memo<NoteItemProps>(({
   isSelected,
   isPanelFocused,
   onSelect,
-  onDelete,
-  onRestore,
 }) => {
   const ref = React.useRef<HTMLDivElement>(null);
 
@@ -64,32 +59,6 @@ export const NoteListItem = React.memo<NoteItemProps>(({
         </div>
       </div>
       
-      {/* Action Buttons (Hover) */}
-      <div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 flex gap-1 z-10">
-        {note.deletedAt && (
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              onRestore(note.id);
-            }}
-            className="p-2 rounded-lg text-slate-500 hover:text-blue-400 hover:bg-blue-400/10 transition-all"
-            title="Restore note"
-          >
-            <RotateCw size={14} />
-          </button>
-        )}
-        <button 
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete(note.id);
-          }}
-          className="p-2 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-400/10 transition-all"
-          title={note.deletedAt ? "Delete permanently" : "Delete note"}
-        >
-          <Trash2 size={14} />
-        </button>
-      </div>
-
       {/* Selected Indicator (only when NOT focused to help visibility) */}
       {isSelected && !isPanelFocused && (
         <div 

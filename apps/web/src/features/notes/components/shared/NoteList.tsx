@@ -15,8 +15,6 @@ import { useNoteStore } from '@/features/notes/store';
 interface NoteListProps {
   notes: Note[];
   onCreateNote: () => void;
-  onDeleteNote: (id: string) => void;
-  onRestoreNote: (id: string) => void;
   onEmptyTrash: () => void;
   isLoading?: boolean;
 }
@@ -27,8 +25,6 @@ interface NoteListProps {
 export const NoteList: React.FC<NoteListProps> = ({ 
   notes, 
   onCreateNote,
-  onDeleteNote,
-  onRestoreNote,
   onEmptyTrash,
   isLoading = false
 }) => {
@@ -138,7 +134,8 @@ export const NoteList: React.FC<NoteListProps> = ({
             document.getElementById('nav-container')?.focus();
           } else if (e.key === 'ArrowRight') {
             e.preventDefault();
-            document.getElementById('editor-title')?.focus();
+            // Desktopエディタにはタイトルがない可能性があるが、ひとまずEditorCoreへフォーカス
+            document.getElementById('note-editor')?.focus();
           }
         }}
       >
@@ -162,8 +159,6 @@ export const NoteList: React.FC<NoteListProps> = ({
                     isSelected={selectedNoteId === note.id}
                     isPanelFocused={isFocused}
                     onSelect={setSelectedNoteId}
-                    onDelete={onDeleteNote}
-                    onRestore={onRestoreNote}
                   />
                 ))}
                 {notes.length === 0 && (
