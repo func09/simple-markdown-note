@@ -10,12 +10,13 @@ import { useNoteStore } from '../store';
 interface EditorProps {
   note: Note | null;
   onUpdateTags?: (noteId: string, tags: string[]) => void;
+  onRestore?: (id: string) => void;
 }
 
 /**
  * ノート編集用コンポーネント (TanStack Query 使用版)
  */
-export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags }) => {
+export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags, onRestore }) => {
   const [content, setContent] = useState('');
   const timeoutRef = useRef<any>(null);
   const updateNoteMutation = useUpdateNote();
@@ -136,6 +137,22 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags }) => {
 
   return (
     <div className="flex-1 flex flex-col bg-[#0f172a] h-screen overflow-hidden">
+      {/* Restore Banner */}
+      {note.deletedAt && (
+        <div className="bg-blue-600/20 border-b border-blue-500/30 px-6 py-2 flex items-center justify-between text-blue-400 text-xs font-medium">
+          <div className="flex items-center gap-2">
+            <Info size={14} />
+            <span>このノートはゴミ箱の中にあります。編集するには復元してください。</span>
+          </div>
+          <button 
+            onClick={() => onRestore?.(note.id)}
+            className="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1 rounded-md transition-colors"
+          >
+            復元する
+          </button>
+        </div>
+      )}
+
       {/* Editor Header */}
       <div className="h-14 px-6 flex items-center justify-between border-b border-slate-800/30 bg-[#0f172a]/50 backdrop-blur-md z-10">
         <div className="flex items-center gap-4">
@@ -172,10 +189,12 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags }) => {
               }}
               onKeyDown={handleTitleKeyDown}
               placeholder="Title"
+              disabled={!!note.deletedAt}
               className={cn(
                 "w-full bg-transparent border-none focus:ring-0 p-0 text-slate-100 font-bold tracking-tight outline-none placeholder:text-slate-800",
                 "text-lg md:text-lg lg:text-lg leading-tight resize-none overflow-hidden whitespace-pre-wrap break-words",
-                "transition-all duration-300"
+                "transition-all duration-300",
+                note.deletedAt && "opacity-60 cursor-not-allowed"
               )}
               style={{ height: 'auto' }}
             />
@@ -188,13 +207,20 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags }) => {
             onChange={handleBodyChange}
             onKeyDown={handleBodyKeyDown}
             placeholder="Start writing..."
-            className="w-full flex-1 bg-transparent border-none focus-visible:ring-0 p-0 text-slate-400 text-sm md:text-sm lg:text-sm leading-relaxed resize-none font-inter placeholder:text-slate-800 shadow-none border-0 min-h-[calc(100vh-150px)] [field-sizing:content!important] overflow-hidden"
+            disabled={!!note.deletedAt}
+            className={cn(
+              "w-full flex-1 bg-transparent border-none focus-visible:ring-0 p-0 text-slate-400 text-sm md:text-sm lg:text-sm leading-relaxed resize-none font-inter placeholder:text-slate-800 shadow-none border-0 min-h-[calc(100vh-150px)] [field-sizing:content!important] overflow-hidden",
+              note.deletedAt && "opacity-60 cursor-not-allowed"
+            )}
           />
         </div>
       </div>
       
       {/* タグ入力エリア */}
-      <div className="px-8 md:px-12 py-2 bg-[#0f172a]/80 backdrop-blur-md border-t border-slate-800/30">
+      <div className={cn(
+        "px-8 md:px-12 py-2 bg-[#0f172a]/80 backdrop-blur-md border-t border-slate-800/30",
+        note.deletedAt && "pointer-events-none opacity-40"
+      )}>
         <TagInput 
           tags={note.tags?.map(t => t.name) || []} 
           onChange={handleTagsChange} 

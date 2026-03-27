@@ -18,10 +18,26 @@ export const UpdateNoteRequestSchema = z.object({
 }).openapi('UpdateNoteRequest');
 
 /**
+ * ノート一覧取得のクエリパラメータ
+ */
+export const NoteListQuerySchema = z.object({
+  trash: z.string().optional().openapi({ example: 'true' }),
+}).openapi('NoteListQuery');
+
+/**
  * ノート一覧レスポンスのスキーマ
  */
 export const NoteListResponseSchema = z.array(NoteSchema).openapi('NoteListResponse');
 
+/**
+ * 成功レスポンスの共通スキーマ
+ */
+export const SuccessResponseSchema = z.object({
+  success: z.boolean().openapi({ example: true }),
+}).openapi('SuccessResponse');
+
 export type CreateNoteRequest = z.infer<typeof CreateNoteRequestSchema>;
 export type UpdateNoteRequest = z.infer<typeof UpdateNoteRequestSchema>;
+export type NoteListQuery = z.infer<typeof NoteListQuerySchema>;
 export type NoteListResponse = z.infer<typeof NoteListResponseSchema>;
+export type SuccessResponse = z.infer<typeof SuccessResponseSchema>;
