@@ -1,14 +1,12 @@
 import React from 'react';
+import { useNoteStore } from '@/features/notes/store';
 
 import * as ResizablePrimitive from 'react-resizable-panels';
-
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup
 } from '@/components/ui/resizable';
-
-import { useNoteStore } from '@/features/notes/store';
 
 interface AppLayoutProps {
   nav: React.ReactNode;
@@ -19,7 +17,6 @@ interface AppLayoutProps {
 /**
  * 3カラム構成のメインレイアウト (Resizable 版)
  * Navigation (Narrow) | Note List (Medium) | Editor (Wide)
- * 折りたたみ機能（Collapse）を使用して状態を維持しながら表示を切り替えます。
  */
 export const AppLayout: React.FC<AppLayoutProps> = React.memo(({ nav, list, main }) => {
   const layoutMode = useNoteStore(state => state.layoutMode);
@@ -75,8 +72,8 @@ export const AppLayout: React.FC<AppLayoutProps> = React.memo(({ nav, list, main
           <ResizablePanel
             id="navigation"
             defaultSize={layoutAllSizes[0]}
-            minSize={200}
-            maxSize={300}
+            minSize={15}
+            maxSize={30}
             className="bg-slate-950/50 border-r border-slate-800/10"
           >
             <aside className="w-full h-full py-4 overflow-hidden">
@@ -93,8 +90,8 @@ export const AppLayout: React.FC<AppLayoutProps> = React.memo(({ nav, list, main
           <ResizablePanel
             id="note-list"
             defaultSize={layoutMode === 'all' ? layoutAllSizes[1] : layoutSplitSizes[0]}
-            minSize={280}
-            maxSize={500}
+            minSize={20}
+            maxSize={40}
             className="bg-slate-900/40 border-r border-slate-800/10"
           >
             <aside className="w-full h-full flex flex-col overflow-hidden">
@@ -110,7 +107,7 @@ export const AppLayout: React.FC<AppLayoutProps> = React.memo(({ nav, list, main
         <ResizablePanel
           id="editor"
           defaultSize={layoutMode === 'all' ? layoutAllSizes[2] : (layoutMode === 'split' ? layoutSplitSizes[1] : 100)}
-          minSize={350}
+          minSize={30}
         >
           <main className="flex-1 h-full flex flex-col bg-[#0f172a] min-w-0">
             {main}

@@ -50,7 +50,7 @@ export const useNoteStore = create<NoteState>((set) => ({
   layoutAllSizes: [20, 25, 55],
   setLayoutAllSizes: (sizes) => set({ layoutAllSizes: sizes }),
   layoutSplitSizes: [35, 65],
-  setLayoutSplitSizes: (sizes) => set({ layoutAllSizes: sizes }),
+  setLayoutSplitSizes: (sizes) => set({ layoutSplitSizes: sizes }),
   // モバイル表示用の状態
   activeView: 'list',
   setActiveView: (view) => set({ activeView: view }),
