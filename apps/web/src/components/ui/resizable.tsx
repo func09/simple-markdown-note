@@ -1,5 +1,4 @@
 import * as React from "react"
-
 import * as ResizablePrimitive from "react-resizable-panels"
 
 import { cn } from "@/lib/utils"
@@ -13,7 +12,7 @@ const ResizablePanelGroup = React.forwardRef<
     data-slot="resizable-panel-group"
     orientation={orientation}
     className={cn(
-      "flex h-full w-full data-[direction=vertical]:flex-col",
+      "flex h-full w-full data-[orientation=vertical]:flex-col",
       className
     )}
     {...props}

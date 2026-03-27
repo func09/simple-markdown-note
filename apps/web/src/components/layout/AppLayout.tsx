@@ -1,12 +1,7 @@
 import React from 'react';
 import { useNoteStore } from '@/features/notes/store';
 
-import * as ResizablePrimitive from 'react-resizable-panels';
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup
-} from '@/components/ui/resizable';
+import { Group, Panel, Separator } from 'react-resizable-panels';
 
 interface AppLayoutProps {
   nav: React.ReactNode;
@@ -15,105 +10,91 @@ interface AppLayoutProps {
 }
 
 /**
- * 3カラム構成のメインレイアウト (Resizable 版)
- * Navigation (Narrow) | Note List (Medium) | Editor (Wide)
+ * 3カラム構成のメインレイアウト (最終・物理強制版)
+ * インラインスタイルを多用し、CSSの競合を力づくで解決します。
  */
 export const AppLayout: React.FC<AppLayoutProps> = React.memo(({ nav, list, main }) => {
   const layoutMode = useNoteStore(state => state.layoutMode);
-  const layoutAllSizes = useNoteStore(state => state.layoutAllSizes);
-  const setLayoutAllSizes = useNoteStore(state => state.setLayoutAllSizes);
-  const layoutSplitSizes = useNoteStore(state => state.layoutSplitSizes);
-  const setLayoutSplitSizes = useNoteStore(state => state.setLayoutSplitSizes);
 
-  const onLayoutChange = (layout: ResizablePrimitive.Layout) => {
-    if (layoutMode === 'all') {
-      const navOrder = layout['navigation'];
-      const listOrder = layout['note-list'];
-      const editorOrder = layout['editor'];
-      if (navOrder !== undefined && listOrder !== undefined && editorOrder !== undefined) {
-        setLayoutAllSizes([navOrder, listOrder, editorOrder]);
-      }
-    } else if (layoutMode === 'split') {
-      const listOrder = layout['note-list'];
-      const editorOrder = layout['editor'];
-      if (listOrder !== undefined && editorOrder !== undefined) {
-        setLayoutSplitSizes([listOrder, editorOrder]);
-      }
-    }
+  // 常にデフォルト値を適用 (キャッシュ・ストアの値を一度無視してリセットを試みる)
+  const defaultSizes = {
+    all: { 'nav-v12': 20, 'list-v12': 30, 'editor-v12': 50 },
+    split: { 'list-v12': 32, 'editor-v12': 68 },
   };
 
-  const defaultLayout = React.useMemo((): ResizablePrimitive.Layout => {
-    if (layoutMode === 'all') {
-      return {
-        'navigation': layoutAllSizes[0],
-        'note-list': layoutAllSizes[1],
-        'editor': layoutAllSizes[2]
-      };
-    } else if (layoutMode === 'split') {
-      return {
-        'note-list': layoutSplitSizes[0],
-        'editor': layoutSplitSizes[1]
-      };
-    }
-    return { 'editor': 100 };
-  }, [layoutMode, layoutAllSizes, layoutSplitSizes]);
+  const currentLayout = React.useMemo(() => {
+    if (layoutMode === 'all') return defaultSizes.all;
+    if (layoutMode === 'split') return defaultSizes.split;
+    return { 'editor-v12': 100 };
+  }, [layoutMode]);
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-[#0f172a] text-slate-200">
-      <ResizablePanelGroup
-        key={layoutMode}
+    <div 
+      className="bg-[#0f172a] text-slate-200" 
+      style={{ width: '100vw', height: '100vh', display: 'flex', overflow: 'hidden' }}
+    >
+      <Group
+        key={`group-${layoutMode}-v12`}
+        id="main-group-v12"
         orientation="horizontal"
+        direction="horizontal" // 両方渡す
         className="w-full h-full"
-        onLayoutChange={onLayoutChange}
-        defaultLayout={defaultLayout}
+        style={{ display: 'flex', width: '100%', height: '100%' }}
+        defaultLayout={currentLayout}
       >
         {/* Column 1: Navigation */}
         {layoutMode === 'all' && (
-          <ResizablePanel
-            id="navigation"
-            defaultSize={layoutAllSizes[0]}
+          <Panel
+            id="nav-v12"
+            defaultSize={defaultSizes.all['nav-v12']}
             minSize={15}
-            maxSize={30}
-            className="bg-slate-950/50 border-r border-slate-800/10"
+            className="bg-slate-950/50"
+            style={{ display: 'flex', flexDirection: 'column' }}
           >
-            <aside className="w-full h-full py-4 overflow-hidden">
+            <aside className="w-full h-full py-4 overflow-hidden border-r border-slate-800/10">
               {nav}
             </aside>
-          </ResizablePanel>
+          </Panel>
         )}
         {layoutMode === 'all' && (
-          <ResizableHandle withHandle className="bg-slate-800/30 w-[2px] hover:w-[4px] transition-all" />
+          <Separator 
+            style={{ width: '4px', backgroundColor: 'rgba(51, 65, 85, 0.4)', cursor: 'col-resize' }} 
+          />
         )}
 
         {/* Column 2: Note List */}
         {(layoutMode === 'all' || layoutMode === 'split') && (
-          <ResizablePanel
-            id="note-list"
-            defaultSize={layoutMode === 'all' ? layoutAllSizes[1] : layoutSplitSizes[0]}
+          <Panel
+            id="list-v12"
+            defaultSize={layoutMode === 'all' ? defaultSizes.all['list-v12'] : defaultSizes.split['list-v12']}
             minSize={20}
-            maxSize={40}
-            className="bg-slate-900/40 border-r border-slate-800/10"
+            className="bg-slate-900/40"
+            style={{ display: 'flex', flexDirection: 'column' }}
           >
-            <aside className="w-full h-full flex flex-col overflow-hidden">
+            <aside className="w-full h-full flex flex-col overflow-hidden border-r border-slate-800/10">
               {list}
             </aside>
-          </ResizablePanel>
+          </Panel>
         )}
         {(layoutMode === 'all' || layoutMode === 'split') && (
-          <ResizableHandle withHandle className="bg-slate-800/30 w-[2px] hover:w-[4px] transition-all" />
+          <Separator 
+            style={{ width: '4px', backgroundColor: 'rgba(51, 65, 85, 0.4)', cursor: 'col-resize' }} 
+          />
         )}
 
         {/* Column 3: Main Editor */}
-        <ResizablePanel
-          id="editor"
-          defaultSize={layoutMode === 'all' ? layoutAllSizes[2] : (layoutMode === 'split' ? layoutSplitSizes[1] : 100)}
+        <Panel
+          id="editor-v12"
+          defaultSize={layoutMode === 'all' ? defaultSizes.all['editor-v12'] : (layoutMode === 'split' ? defaultSizes.split['editor-v12'] : 100)}
           minSize={30}
+          className="bg-[#0f172a]"
+          style={{ display: 'flex', flexDirection: 'column' }}
         >
-          <main className="flex-1 h-full flex flex-col bg-[#0f172a] min-w-0">
+          <main className="flex-1 h-full flex flex-col min-w-0" id="note-editor">
             {main}
           </main>
-        </ResizablePanel>
-      </ResizablePanelGroup>
+        </Panel>
+      </Group>
     </div>
   );
 });
