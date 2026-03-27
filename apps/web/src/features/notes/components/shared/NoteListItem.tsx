@@ -1,6 +1,7 @@
 import React from 'react';
+
+import { RotateCw, Trash2 } from 'lucide-react';
 import type { Note } from 'openapi';
-import { Trash2, RotateCw } from 'lucide-react';
 
 interface NoteItemProps {
   note: Note;
@@ -14,7 +15,7 @@ interface NoteItemProps {
 /**
  * リスト内の各ノート要素 (デザイン調整版) - 高速化のためアニメーションを削除しメモ化
  */
-export const NoteItem = React.memo<NoteItemProps>(({
+export const NoteListItem = React.memo<NoteItemProps>(({
   note,
   isSelected,
   isPanelFocused,
@@ -26,7 +27,6 @@ export const NoteItem = React.memo<NoteItemProps>(({
 
   React.useEffect(() => {
     if (isSelected && ref.current) {
-      // ユーザーの要望「高速なレスポンス」に合わせ、behavior: 'auto' で即時スクロール
       ref.current.scrollIntoView({ behavior: 'auto', block: 'nearest' });
     }
   }, [isSelected]);
@@ -100,4 +100,4 @@ export const NoteItem = React.memo<NoteItemProps>(({
   );
 });
 
-NoteItem.displayName = 'NoteItem';
+NoteListItem.displayName = 'NoteListItem';
