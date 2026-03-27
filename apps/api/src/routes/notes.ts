@@ -22,8 +22,13 @@ const notesRouter = new Hono<Env>();
  */
 notesRouter.get('/', async (c) => {
   const userId = c.get('jwtPayload').userId;
+  const isTrash = c.req.query('trash') === 'true';
+
   const notes = await prisma.note.findMany({
-    where: { userId },
+    where: { 
+      userId,
+      deletedAt: isTrash ? { not: null } : null,
+    },
     include: { tags: true },
     orderBy: { updatedAt: 'desc' },
   });
@@ -115,9 +120,56 @@ notesRouter.patch('/:id', zValidator('json', UpdateNoteRequestSchema) as any, as
 });
 
 /**
- * ノートの削除 (DELETE /notes/:id)
+ * ノートの論理削除 (DELETE /notes/:id)
  */
 notesRouter.delete('/:id', async (c) => {
+  const userId = c.get('jwtPayload').userId;
+  const id = c.req.param('id');
+
+  const existingNote = await prisma.note.findUnique({
+    where: { id },
+  });
+
+  if (!existingNote || existingNote.userId !== userId) {
+    return c.json({ error: 'Note not found' }, 404);
+  }
+
+  await prisma.note.update({
+    where: { id },
+    data: { deletedAt: new Date() },
+  });
+
+  return c.json({ success: true });
+});
+
+/**
+ * ノートの復元 (PATCH /notes/:id/restore)
+ */
+notesRouter.patch('/:id/restore', async (c) => {
+  const userId = c.get('jwtPayload').userId;
+  const id = c.req.param('id');
+
+  const existingNote = await prisma.note.findUnique({
+    where: { id },
+  });
+
+  if (!existingNote || existingNote.userId !== userId) {
+    return c.json({ error: 'Note not found' }, 404);
+  }
+
+  const restoredNote = await prisma.note.update({
+    where: { id },
+    data: { deletedAt: null },
+    include: { tags: true },
+  });
+
+  return c.json(restoredNote);
+});
+
+/**
+ * ノートの永久削除 (DELETE /notes/:id/permanent)
+ */
+notesRouter.delete('/:id/permanent', async (c) => {
   const userId = c.get('jwtPayload').userId;
   const id = c.req.param('id');
 
