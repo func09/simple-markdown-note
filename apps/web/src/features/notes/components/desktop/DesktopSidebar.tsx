@@ -54,7 +54,11 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
     >
       <div className="flex flex-col gap-1 flex-shrink-0 py-4">
         <button
-          onClick={() => onSelectTag(null, false)}
+          onClick={(e) => {
+            e.preventDefault();
+            document.getElementById('note-list-container')?.focus();
+            onSelectTag(null, false);
+          }}
           className={cn(
             "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl group",
             (selectedTag === null && searchQuery === '' && !isTrashSelected)
@@ -74,7 +78,11 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
         </button>
 
         <button
-          onClick={() => onSelectTag(null, true)}
+          onClick={(e) => {
+            e.preventDefault();
+            document.getElementById('note-list-container')?.focus();
+            onSelectTag(null, true);
+          }}
           className={cn(
             "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl group",
             isTrashSelected
@@ -103,7 +111,10 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
         </div>
         <TagList 
           isPanelFocused={isNavFocused} 
-          onSelectTag={(tag) => onSelectTag(tag, false)} 
+          onSelectTag={(tag) => {
+            document.getElementById('note-list-container')?.focus();
+            onSelectTag(tag, false);
+          }} 
         />
       </div>
 
