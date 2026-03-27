@@ -10,7 +10,6 @@ import { useNoteStore } from '@/features/notes/store';
 
 import { cn } from '@/lib/utils';
 
-
 interface DesktopSidebarProps {
   isNavFocused: boolean;
   onSelectTag: (tag: string | null, isTrash: boolean) => void;
@@ -22,16 +21,16 @@ interface DesktopSidebarProps {
  * デスクトップ用のサイドバーコンポーネント
  * ナビゲーション項目（All Notes, Trash）とタグ一覧を表示
  */
-export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({ 
-  isNavFocused, 
+export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
+  isNavFocused,
   onSelectTag,
   onFocusChange,
-  onKeyDown
+  onKeyDown,
 }) => {
   const navigate = useNavigate();
-  const selectedTag = useNoteStore(state => state.selectedTag);
-  const isTrashSelected = useNoteStore(state => state.isTrashSelected);
-  const searchQuery = useNoteStore(state => state.searchQuery);
+  const selectedTag = useNoteStore((state) => state.selectedTag);
+  const isTrashSelected = useNoteStore((state) => state.isTrashSelected);
+  const searchQuery = useNoteStore((state) => state.searchQuery);
 
   const handleLogout = React.useCallback(() => {
     logout();
@@ -40,9 +39,9 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
   }, [navigate]);
 
   return (
-    <div 
+    <div
       id="nav-container"
-      className="flex flex-col h-full overflow-y-auto custom-scrollbar px-2 focus:outline-none"
+      className="custom-scrollbar flex h-full flex-col overflow-y-auto px-2 focus:outline-none"
       tabIndex={0}
       onFocus={() => onFocusChange(true)}
       onBlur={(e) => {
@@ -52,7 +51,7 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
       }}
       onKeyDown={onKeyDown}
     >
-      <div className="flex flex-col gap-1 flex-shrink-0 py-4">
+      <div className="flex flex-shrink-0 flex-col gap-1 py-4">
         <button
           onClick={(e) => {
             e.preventDefault();
@@ -60,21 +59,26 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
             onSelectTag(null, false);
           }}
           className={cn(
-            "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl group",
-            (selectedTag === null && searchQuery === '' && !isTrashSelected)
-              ? isNavFocused 
-                ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20 font-medium" 
-                : "bg-blue-600/15 text-blue-400 border border-blue-500/20"
-              : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
+            'group flex w-full items-center gap-3 rounded-xl px-3 py-2.5',
+            selectedTag === null && searchQuery === '' && !isTrashSelected
+              ? isNavFocused
+                ? 'bg-blue-600 font-medium text-white shadow-lg shadow-blue-500/20'
+                : 'border border-blue-500/20 bg-blue-600/15 text-blue-400'
+              : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
           )}
         >
-          <StickyNote size={20} className={cn(
-            "transition-colors",
-            (selectedTag === null && searchQuery === '' && !isTrashSelected) 
-              ? isNavFocused ? "text-white" : "text-blue-500"
-              : "text-slate-500 group-hover:text-blue-400"
-          )} />
-          <span className="font-medium text-sm">All Notes</span>
+          <StickyNote
+            size={20}
+            className={cn(
+              'transition-colors',
+              selectedTag === null && searchQuery === '' && !isTrashSelected
+                ? isNavFocused
+                  ? 'text-white'
+                  : 'text-blue-500'
+                : 'text-slate-500 group-hover:text-blue-400'
+            )}
+          />
+          <span className="text-sm font-medium">All Notes</span>
         </button>
 
         <button
@@ -84,47 +88,52 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
             onSelectTag(null, true);
           }}
           className={cn(
-            "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl group",
+            'group flex w-full items-center gap-3 rounded-xl px-3 py-2.5',
             isTrashSelected
-              ? isNavFocused 
-                ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20 font-medium" 
-                : "bg-blue-600/15 text-blue-400 border border-blue-500/20"
-              : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
+              ? isNavFocused
+                ? 'bg-blue-600 font-medium text-white shadow-lg shadow-blue-500/20'
+                : 'border border-blue-500/20 bg-blue-600/15 text-blue-400'
+              : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
           )}
         >
-          <Trash2 size={20} className={cn(
-            "transition-colors",
-            isTrashSelected 
-              ? isNavFocused ? "text-white" : "text-blue-500"
-              : "text-slate-500 group-hover:text-blue-400"
-          )} />
-          <span className="font-medium text-sm">Trash</span>
+          <Trash2
+            size={20}
+            className={cn(
+              'transition-colors',
+              isTrashSelected
+                ? isNavFocused
+                  ? 'text-white'
+                  : 'text-blue-500'
+                : 'text-slate-500 group-hover:text-blue-400'
+            )}
+          />
+          <span className="text-sm font-medium">Trash</span>
         </button>
 
-        <div className="h-px bg-slate-800/50 my-2 mx-2" />
+        <div className="mx-2 my-2 h-px bg-slate-800/50" />
       </div>
-      
-      <div className="flex flex-col flex-1">
-        <div className="px-4 mb-2 flex items-center gap-2 text-slate-500 text-[10px] uppercase tracking-widest font-bold">
+
+      <div className="flex flex-1 flex-col">
+        <div className="mb-2 flex items-center gap-2 px-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">
           <TagIcon size={12} />
           <span>Tags</span>
         </div>
-        <TagList 
-          isPanelFocused={isNavFocused} 
+        <TagList
+          isPanelFocused={isNavFocused}
           onSelectTag={(tag) => {
             document.getElementById('note-list-container')?.focus();
             onSelectTag(tag, false);
-          }} 
+          }}
         />
       </div>
 
-      <div className="mt-auto pt-6 pb-4 flex flex-col gap-1 flex-shrink-0">
-        <button 
+      <div className="mt-auto flex flex-shrink-0 flex-col gap-1 pb-4 pt-6">
+        <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-500 hover:bg-red-500/10 hover:text-red-400 group"
+          className="group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-slate-500 hover:bg-red-500/10 hover:text-red-400"
         >
           <LogOut size={20} className="group-hover:text-red-400" />
-          <span className="font-medium text-sm">Sign Out</span>
+          <span className="text-sm font-medium">Sign Out</span>
         </button>
       </div>
     </div>

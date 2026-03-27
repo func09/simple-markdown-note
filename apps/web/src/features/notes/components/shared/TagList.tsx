@@ -2,7 +2,6 @@ import React from 'react';
 
 import { Skeleton } from '@/components/ui/skeleton';
 
-
 import { useTags } from '@/features/notes/hooks/useNotesQuery';
 import { useNoteStore } from '@/features/notes/store';
 
@@ -25,15 +24,15 @@ const TagItem = React.memo<TagItemProps>(({ name, isSelected, isPanelFocused, on
   <button
     onClick={() => onClick(name)}
     className={cn(
-      "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl group text-sm",
-      isSelected 
+      'group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm',
+      isSelected
         ? isPanelFocused
-          ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20 font-medium" 
-          : "bg-blue-600/15 text-blue-400 border border-blue-500/20"
-        : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
+          ? 'bg-blue-600 font-medium text-white shadow-lg shadow-blue-500/20'
+          : 'border border-blue-500/20 bg-blue-600/15 text-blue-400'
+        : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
     )}
   >
-    <span className="flex-1 text-left truncate font-medium">{label}</span>
+    <span className="flex-1 truncate text-left font-medium">{label}</span>
   </button>
 ));
 
@@ -45,23 +44,26 @@ TagItem.displayName = 'TagItem';
  */
 export const TagList: React.FC<TagListProps> = ({ isPanelFocused = false, onSelectTag }) => {
   const { data: tags, isLoading } = useTags();
-  const selectedTag = useNoteStore(state => state.selectedTag);
-  const setSelectedTag = useNoteStore(state => state.setSelectedTag);
+  const selectedTag = useNoteStore((state) => state.selectedTag);
+  const setSelectedTag = useNoteStore((state) => state.setSelectedTag);
 
-  const handleTagClick = React.useCallback((name: string | null) => {
-    if (onSelectTag) {
-      onSelectTag(name);
-    } else {
-      setSelectedTag(name);
-    }
-  }, [onSelectTag, setSelectedTag]);
+  const handleTagClick = React.useCallback(
+    (name: string | null) => {
+      if (onSelectTag) {
+        onSelectTag(name);
+      } else {
+        setSelectedTag(name);
+      }
+    },
+    [onSelectTag, setSelectedTag]
+  );
 
   if (isLoading) {
     return (
-      <div className="space-y-2 mt-4 px-2">
-        <Skeleton className="h-3 w-16 bg-slate-800 mb-4 ml-2" />
+      <div className="mt-4 space-y-2 px-2">
+        <Skeleton className="mb-4 ml-2 h-3 w-16 bg-slate-800" />
         {[1, 2, 3, 4].map((i) => (
-          <Skeleton key={i} className="h-10 w-full bg-slate-800/50 rounded-xl" />
+          <Skeleton key={i} className="h-10 w-full rounded-xl bg-slate-800/50" />
         ))}
       </div>
     );
@@ -77,7 +79,7 @@ export const TagList: React.FC<TagListProps> = ({ isPanelFocused = false, onSele
 
   return (
     <div className="space-y-0.5 px-2">
-      <TagItem 
+      <TagItem
         name="__untagged__"
         label="Untagged"
         isSelected={selectedTag === '__untagged__'}
@@ -86,7 +88,7 @@ export const TagList: React.FC<TagListProps> = ({ isPanelFocused = false, onSele
       />
 
       {tags.map((tag) => (
-        <TagItem 
+        <TagItem
           key={tag.id}
           name={tag.name}
           label={tag.name}

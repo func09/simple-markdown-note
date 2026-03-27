@@ -29,11 +29,12 @@ interface NoteState {
  */
 export const useNoteStore = create<NoteState>((set) => ({
   selectedNoteId: null,
-  setSelectedNoteId: (id) => set((state) => ({ 
-    selectedNoteId: id,
-    // ノートが選択されたら、モバイルでの表示を切り替えやすくするために状態を更新
-    activeView: id ? 'editor' : state.activeView 
-  })),
+  setSelectedNoteId: (id) =>
+    set((state) => ({
+      selectedNoteId: id,
+      // ノートが選択されたら、モバイルでの表示を切り替えやすくするために状態を更新
+      activeView: id ? 'editor' : state.activeView,
+    })),
   searchQuery: '',
   setSearchQuery: (query) => set({ searchQuery: query }),
   selectedTag: null,
@@ -42,11 +43,12 @@ export const useNoteStore = create<NoteState>((set) => ({
   setIsTrashSelected: (isTrash) => set({ isTrashSelected: isTrash }),
   layoutMode: 'all',
   setLayoutMode: (mode) => set({ layoutMode: mode }),
-  toggleLayoutMode: () => set((state) => {
-    if (state.layoutMode === 'all') return { layoutMode: 'split' };
-    if (state.layoutMode === 'split') return { layoutMode: 'focus' };
-    return { layoutMode: 'all' };
-  }),
+  toggleLayoutMode: () =>
+    set((state) => {
+      if (state.layoutMode === 'all') return { layoutMode: 'split' };
+      if (state.layoutMode === 'split') return { layoutMode: 'focus' };
+      return { layoutMode: 'all' };
+    }),
   layoutAllSizes: [20, 25, 55],
   setLayoutAllSizes: (sizes) => set({ layoutAllSizes: sizes }),
   layoutSplitSizes: [35, 65],

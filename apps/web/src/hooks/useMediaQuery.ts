@@ -18,7 +18,7 @@ export function useMediaQuery(query: string): boolean {
 
     // modern browsers
     media.addEventListener('change', listener);
-    
+
     return () => {
       media.removeEventListener('change', listener);
     };

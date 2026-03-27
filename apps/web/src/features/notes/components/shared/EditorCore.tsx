@@ -10,7 +10,6 @@ import { useUpdateNote } from '@/features/notes/hooks/useNotesQuery';
 
 import { cn } from '@/lib/utils';
 
-
 interface EditorCoreProps {
   note: Note | null;
   onUpdateTags?: (noteId: string, tags: string[]) => void;
@@ -26,7 +25,6 @@ export const EditorCore: React.FC<EditorCoreProps> = ({ note, onUpdateTags, onRe
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const updateNoteMutation = useUpdateNote();
 
-  
   const titleRef = useRef<HTMLTextAreaElement>(null);
   const bodyRef = useRef<HTMLTextAreaElement>(null);
 
@@ -59,10 +57,10 @@ export const EditorCore: React.FC<EditorCoreProps> = ({ note, onUpdateTags, onRe
       const cursorPosition = e.currentTarget.selectionStart;
       const beforeCursor = title.substring(0, cursorPosition);
       const afterCursor = title.substring(cursorPosition);
-      
+
       const newContent = beforeCursor + '\n' + afterCursor + (body ? '\n' + body : '');
       updateLocalContent(newContent);
-      
+
       setTimeout(() => {
         bodyRef.current?.focus({ preventScroll: true });
         bodyRef.current?.setSelectionRange(0, 0);
@@ -92,9 +90,9 @@ export const EditorCore: React.FC<EditorCoreProps> = ({ note, onUpdateTags, onRe
 
     if (note) {
       timeoutRef.current = setTimeout(() => {
-        updateNoteMutation.mutate({ 
-          id: note.id, 
-          data: { content: newContent } 
+        updateNoteMutation.mutate({
+          id: note.id,
+          data: { content: newContent },
         });
       }, 1000);
     }
@@ -108,9 +106,9 @@ export const EditorCore: React.FC<EditorCoreProps> = ({ note, onUpdateTags, onRe
 
   if (!note) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-[#0f172a] text-slate-600">
+      <div className="flex flex-1 items-center justify-center bg-[#0f172a] text-slate-600">
         <div className="text-center">
-          <p className="text-xl font-outfit mb-2">No note selected</p>
+          <p className="font-outfit mb-2 text-xl">No note selected</p>
           <p className="text-sm">Select a note from the list to start editing</p>
         </div>
       </div>
@@ -118,25 +116,25 @@ export const EditorCore: React.FC<EditorCoreProps> = ({ note, onUpdateTags, onRe
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-[#0f172a] h-full overflow-hidden">
+    <div className="flex h-full flex-1 flex-col overflow-hidden bg-[#0f172a]">
       {/* Restore Banner */}
       {note.deletedAt && (
-        <div className="bg-blue-600/20 border-b border-blue-500/30 px-6 py-2 flex items-center justify-between text-blue-400 text-xs font-medium">
+        <div className="flex items-center justify-between border-b border-blue-500/30 bg-blue-600/20 px-6 py-2 text-xs font-medium text-blue-400">
           <div className="flex items-center gap-2">
             <Info size={14} />
             <span>このノートはゴミ箱の中にあります。編集するには復元してください。</span>
           </div>
-          <button 
+          <button
             onClick={() => onRestore?.(note.id)}
-            className="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1 rounded-md transition-colors"
+            className="rounded-md bg-blue-600 px-3 py-1 text-white transition-colors hover:bg-blue-500"
           >
             復元する
           </button>
         </div>
       )}
 
-      <div className="flex-1 w-full overflow-y-auto bg-[#0f172a] custom-scrollbar flex flex-col">
-        <div className="flex-1 w-full px-8 md:px-16 py-8 pb-32 flex flex-col min-h-full">
+      <div className="custom-scrollbar flex w-full flex-1 flex-col overflow-y-auto bg-[#0f172a]">
+        <div className="flex min-h-full w-full flex-1 flex-col px-8 py-8 pb-32 md:px-16">
           {/* Title Area */}
           <div className="mb-1 w-full flex-shrink-0">
             <textarea
@@ -149,10 +147,10 @@ export const EditorCore: React.FC<EditorCoreProps> = ({ note, onUpdateTags, onRe
               placeholder="Title"
               disabled={!!note.deletedAt}
               className={cn(
-                "w-full bg-transparent border-none focus:ring-0 p-0 text-slate-100 font-bold tracking-tight outline-none placeholder:text-slate-800",
-                "text-lg md:text-lg lg:text-lg leading-tight resize-none overflow-hidden whitespace-pre-wrap break-words",
-                "transition-all duration-300",
-                note.deletedAt && "opacity-60 cursor-not-allowed"
+                'w-full border-none bg-transparent p-0 font-bold tracking-tight text-slate-100 outline-none placeholder:text-slate-800 focus:ring-0',
+                'resize-none overflow-hidden whitespace-pre-wrap break-words text-lg leading-tight md:text-lg lg:text-lg',
+                'transition-all duration-300',
+                note.deletedAt && 'cursor-not-allowed opacity-60'
               )}
               style={{ height: 'auto' }}
             />
@@ -167,26 +165,25 @@ export const EditorCore: React.FC<EditorCoreProps> = ({ note, onUpdateTags, onRe
             placeholder="Start writing..."
             disabled={!!note.deletedAt}
             className={cn(
-              "w-full flex-1 bg-transparent border-none focus-visible:ring-0 p-0 text-slate-400 text-sm md:text-sm lg:text-sm leading-relaxed resize-none font-inter placeholder:text-slate-800 shadow-none border-0 min-h-[calc(100vh-150px)] [field-sizing:content!important] overflow-hidden",
-              note.deletedAt && "opacity-60 cursor-not-allowed"
+              'font-inter min-h-[calc(100vh-150px)] w-full flex-1 resize-none overflow-hidden border-0 border-none bg-transparent p-0 text-sm leading-relaxed text-slate-400 shadow-none [field-sizing:content!important] placeholder:text-slate-800 focus-visible:ring-0 md:text-sm lg:text-sm',
+              note.deletedAt && 'cursor-not-allowed opacity-60'
             )}
           />
         </div>
       </div>
-      
+
       {/* タグ入力エリア */}
-      <div className={cn(
-        "px-8 md:px-12 py-2 bg-[#0f172a]/80 backdrop-blur-md border-t border-slate-800/30",
-        note.deletedAt && "pointer-events-none opacity-40"
-      )}>
-        <TagInput 
-          tags={note.tags?.map(t => t.name) || []} 
-          onChange={handleTagsChange} 
-        />
+      <div
+        className={cn(
+          'border-t border-slate-800/30 bg-[#0f172a]/80 px-8 py-2 backdrop-blur-md md:px-12',
+          note.deletedAt && 'pointer-events-none opacity-40'
+        )}
+      >
+        <TagInput tags={note.tags?.map((t) => t.name) || []} onChange={handleTagsChange} />
       </div>
 
       {/* Status Bar */}
-      <div className="px-6 py-2 bg-[#0f172a] text-slate-600 text-[10px] uppercase tracking-wider font-medium flex justify-between items-center border-t border-slate-800/10">
+      <div className="flex items-center justify-between border-t border-slate-800/10 bg-[#0f172a] px-6 py-2 text-[10px] font-medium uppercase tracking-wider text-slate-600">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5">
             <Info size={10} className="text-slate-700" />
@@ -195,11 +192,13 @@ export const EditorCore: React.FC<EditorCoreProps> = ({ note, onUpdateTags, onRe
           <div className="flex items-center gap-1.5">
             <Clock size={10} className="text-slate-700" />
             <span>
-              {updateNoteMutation.isPending ? 'Syncing...' : `Saved ${new Date(note.updatedAt).toLocaleTimeString()}`}
+              {updateNoteMutation.isPending
+                ? 'Syncing...'
+                : `Saved ${new Date(note.updatedAt).toLocaleTimeString()}`}
             </span>
           </div>
         </div>
-        <div className="text-slate-800 font-outfit font-bold">SN CLONE</div>
+        <div className="font-outfit font-bold text-slate-800">SN CLONE</div>
       </div>
     </div>
   );

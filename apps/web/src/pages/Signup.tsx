@@ -22,15 +22,14 @@ const SignupPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 bg-[#0f172a] selection:bg-blue-500/30">
-      <AuthForm 
-        type="signup" 
-        onSubmit={handleSignup} 
-        isLoading={isLoading} 
-      />
+    <div className="flex min-h-screen w-full flex-col items-center justify-center bg-[#0f172a] p-4 selection:bg-blue-500/30">
+      <AuthForm type="signup" onSubmit={handleSignup} isLoading={isLoading} />
       <div className="mt-8 text-slate-400">
         Already have an account?{' '}
-        <Link to="/login" className="text-blue-400 hover:text-blue-300 font-medium transition-colors">
+        <Link
+          to="/login"
+          className="font-medium text-blue-400 transition-colors hover:text-blue-300"
+        >
           Sign In
         </Link>
       </div>

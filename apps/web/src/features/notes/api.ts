@@ -22,7 +22,7 @@ export const createNote = async (data: { content: string; tags?: string[] }) => 
 export const updateNote = async (id: string, data: { content?: string; tags?: string[] }) => {
   const res = await api.notes[':id'].$patch({
     param: { id },
-    json: data
+    json: data,
   });
   if (!res.ok) throw new Error('Failed to update note');
   return res.json() as Promise<Note>;
@@ -30,7 +30,7 @@ export const updateNote = async (id: string, data: { content?: string; tags?: st
 
 export const deleteNote = async (id: string) => {
   const res = await api.notes[':id'].$delete({
-    param: { id }
+    param: { id },
   });
   if (!res.ok) throw new Error('Failed to delete note');
   return res.json();
@@ -38,7 +38,7 @@ export const deleteNote = async (id: string) => {
 
 export const restoreNote = async (id: string) => {
   const res = await api.notes[':id'].restore.$patch({
-    param: { id }
+    param: { id },
   });
   if (!res.ok) throw new Error('Failed to restore note');
   return res.json();
@@ -46,7 +46,7 @@ export const restoreNote = async (id: string) => {
 
 export const permanentDeleteNote = async (id: string) => {
   const res = await api.notes[':id'].permanent.$delete({
-    param: { id }
+    param: { id },
   });
   if (!res.ok) throw new Error('Failed to permanently delete note');
   return res.json();
