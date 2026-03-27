@@ -239,8 +239,6 @@ export const DesktopDashboard: React.FC = () => {
     <NoteList 
       notes={filteredNotes} 
       onCreateNote={handleCreateNote}
-      onDeleteNote={handleDeleteClick}
-      onRestoreNote={handleRestoreNote}
       onEmptyTrash={handleEmptyTrash}
       isLoading={notesLoading}
     />
@@ -251,8 +249,9 @@ export const DesktopDashboard: React.FC = () => {
       note={selectedNote} 
       onUpdateTags={handleUpdateTags}
       onRestore={handleRestoreNote}
+      onDelete={handleDeleteClick}
     />
-  ), [selectedNote, handleUpdateTags, handleRestoreNote]);
+  ), [selectedNote, handleUpdateTags, handleRestoreNote, handleDeleteClick]);
 
   const navigationContent = useMemo(() => (
     <DesktopSidebar
