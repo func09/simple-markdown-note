@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import * as noteApi from '../api';
 import type { Note, Tag } from 'openapi';
+
+import * as noteApi from '@/features/notes/api';
 
 /**
  * ノート一覧を取得するためのクエリフック
@@ -55,7 +56,7 @@ export const useUpdateNote = () => {
     onSuccess: (updatedNote) => {
       queryClient.setQueryData(['notes', { isTrash: false }], (oldNotes: Note[] | undefined) => {
         if (!oldNotes) return [];
-        return oldNotes.map((note) => (note.id === (updatedNote as any).id ? updatedNote : note));
+        return oldNotes.map((note) => (note.id === (updatedNote as Note).id ? updatedNote : note));
       });
       // タグ一覧も再取得（クリーンアップの可能性があるため）
       queryClient.invalidateQueries({ queryKey: ['tags'] });
