@@ -1,13 +1,14 @@
 import React from 'react';
-import { TooltipProvider } from '@/components/ui/tooltip';
-import { Toaster } from 'sonner';
-import { useNoteStore } from '../../features/notes/store';
+
+import * as ResizablePrimitive from 'react-resizable-panels';
+
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup
 } from '@/components/ui/resizable';
-import * as ResizablePrimitive from 'react-resizable-panels';
+
+import { useNoteStore } from '@/features/notes/store';
 
 interface AppLayoutProps {
   nav: React.ReactNode;
@@ -29,17 +30,17 @@ export const AppLayout: React.FC<AppLayoutProps> = React.memo(({ nav, list, main
 
   const onLayoutChange = (layout: ResizablePrimitive.Layout) => {
     if (layoutMode === 'all') {
-      const nav = layout['navigation'];
-      const list = layout['note-list'];
-      const editor = layout['editor'];
-      if (nav !== undefined && list !== undefined && editor !== undefined) {
-        setLayoutAllSizes([nav, list, editor]);
+      const navOrder = layout['navigation'];
+      const listOrder = layout['note-list'];
+      const editorOrder = layout['editor'];
+      if (navOrder !== undefined && listOrder !== undefined && editorOrder !== undefined) {
+        setLayoutAllSizes([navOrder, listOrder, editorOrder]);
       }
     } else if (layoutMode === 'split') {
-      const list = layout['note-list'];
-      const editor = layout['editor'];
-      if (list !== undefined && editor !== undefined) {
-        setLayoutSplitSizes([list, editor]);
+      const listOrder = layout['note-list'];
+      const editorOrder = layout['editor'];
+      if (listOrder !== undefined && editorOrder !== undefined) {
+        setLayoutSplitSizes([listOrder, editorOrder]);
       }
     }
   };
@@ -61,64 +62,63 @@ export const AppLayout: React.FC<AppLayoutProps> = React.memo(({ nav, list, main
   }, [layoutMode, layoutAllSizes, layoutSplitSizes]);
 
   return (
-    <TooltipProvider>
-      <div className="flex h-screen w-full overflow-hidden bg-[#0f172a] text-slate-200">
-        <ResizablePanelGroup
-          key={layoutMode}
-          orientation="horizontal"
-          className="w-full h-full"
-          onLayoutChange={onLayoutChange}
-          defaultLayout={defaultLayout}
-        >
-          {/* Column 1: Navigation */}
-          {layoutMode === 'all' && (
-            <ResizablePanel
-              id="navigation"
-              defaultSize={layoutAllSizes[0]}
-              minSize="200px"
-              maxSize="300px"
-              className="bg-slate-950/50 border-r border-slate-800/10"
-            >
-              <aside className="w-full h-full py-4 overflow-hidden">
-                {nav}
-              </aside>
-            </ResizablePanel>
-          )}
-          {layoutMode === 'all' && (
-            <ResizableHandle withHandle className="bg-slate-800/30 w-[2px] hover:w-[4px] transition-all" />
-          )}
-
-          {/* Column 2: Note List */}
-          {(layoutMode === 'all' || layoutMode === 'split') && (
-            <ResizablePanel
-              id="note-list"
-              defaultSize={layoutMode === 'all' ? layoutAllSizes[1] : layoutSplitSizes[0]}
-              minSize="280px"
-              maxSize="500px"
-              className="bg-slate-900/40 border-r border-slate-800/10"
-            >
-              <aside className="w-full h-full flex flex-col overflow-hidden">
-                {list}
-              </aside>
-            </ResizablePanel>
-          )}
-          {(layoutMode === 'all' || layoutMode === 'split') && (
-            <ResizableHandle withHandle className="bg-slate-800/30 w-[2px] hover:w-[4px] transition-all" />
-          )}
-
-          {/* Column 3: Main Editor */}
+    <div className="flex h-screen w-full overflow-hidden bg-[#0f172a] text-slate-200">
+      <ResizablePanelGroup
+        key={layoutMode}
+        orientation="horizontal"
+        className="w-full h-full"
+        onLayoutChange={onLayoutChange}
+        defaultLayout={defaultLayout}
+      >
+        {/* Column 1: Navigation */}
+        {layoutMode === 'all' && (
           <ResizablePanel
-            id="editor"
-            defaultSize={layoutMode === 'all' ? layoutAllSizes[2] : (layoutMode === 'split' ? layoutSplitSizes[1] : 100)}
-            minSize="350px"
+            id="navigation"
+            defaultSize={layoutAllSizes[0]}
+            minSize={200}
+            maxSize={300}
+            className="bg-slate-950/50 border-r border-slate-800/10"
           >
-            <main className="flex-1 h-full flex flex-col bg-[#0f172a] min-w-0">
-              {main}
-            </main>
+            <aside className="w-full h-full py-4 overflow-hidden">
+              {nav}
+            </aside>
           </ResizablePanel>
-        </ResizablePanelGroup>
-      </div>
-      <Toaster position="bottom-right" theme="dark" closeButton />
-    </TooltipProvider>
+        )}
+        {layoutMode === 'all' && (
+          <ResizableHandle withHandle className="bg-slate-800/30 w-[2px] hover:w-[4px] transition-all" />
+        )}
+
+        {/* Column 2: Note List */}
+        {(layoutMode === 'all' || layoutMode === 'split') && (
+          <ResizablePanel
+            id="note-list"
+            defaultSize={layoutMode === 'all' ? layoutAllSizes[1] : layoutSplitSizes[0]}
+            minSize={280}
+            maxSize={500}
+            className="bg-slate-900/40 border-r border-slate-800/10"
+          >
+            <aside className="w-full h-full flex flex-col overflow-hidden">
+              {list}
+            </aside>
+          </ResizablePanel>
+        )}
+        {(layoutMode === 'all' || layoutMode === 'split') && (
+          <ResizableHandle withHandle className="bg-slate-800/30 w-[2px] hover:w-[4px] transition-all" />
+        )}
+
+        {/* Column 3: Main Editor */}
+        <ResizablePanel
+          id="editor"
+          defaultSize={layoutMode === 'all' ? layoutAllSizes[2] : (layoutMode === 'split' ? layoutSplitSizes[1] : 100)}
+          minSize={350}
+        >
+          <main className="flex-1 h-full flex flex-col bg-[#0f172a] min-w-0">
+            {main}
+          </main>
+        </ResizablePanel>
+      </ResizablePanelGroup>
+    </div>
   );
 });
+
+AppLayout.displayName = 'AppLayout';

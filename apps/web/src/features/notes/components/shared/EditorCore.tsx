@@ -1,39 +1,36 @@
 import React, { useState, useEffect, useRef } from 'react';
-import type { Note } from 'openapi';
-import { Textarea } from '@/components/ui/textarea';
-import { Clock, Loader2, Info, Columns3 } from 'lucide-react';
-import { useUpdateNote } from '../hooks/useNotesQuery';
-import { TagInput } from './TagInput';
-import { cn } from '@/lib/utils';
-import { useNoteStore } from '../store';
 
-interface EditorProps {
+import { Clock, Info } from 'lucide-react';
+import type { Note } from 'openapi';
+
+import { Textarea } from '@/components/ui/textarea';
+
+import { TagInput } from '@/features/notes/components/shared/TagInput';
+import { useUpdateNote } from '@/features/notes/hooks/useNotesQuery';
+
+import { cn } from '@/lib/utils';
+
+
+interface EditorCoreProps {
   note: Note | null;
   onUpdateTags?: (noteId: string, tags: string[]) => void;
   onRestore?: (id: string) => void;
 }
 
 /**
- * ノート編集用コンポーネント (TanStack Query 使用版)
+ * ノート編集コアコンポーネント
+ * ヘッダーを含まず、タイトル・本文・タグの編集のみを行う
  */
-export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags, onRestore }) => {
-  const [content, setContent] = useState('');
-  const timeoutRef = useRef<any>(null);
+export const EditorCore: React.FC<EditorCoreProps> = ({ note, onUpdateTags, onRestore }) => {
+  const [content, setContent] = useState(note?.content || '');
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const updateNoteMutation = useUpdateNote();
-  const { toggleLayoutMode } = useNoteStore();
 
-  useEffect(() => {
-    if (note) {
-      setContent(note.content || '');
-    } else {
-      setContent('');
-    }
-  }, [note?.id]);
   
   const titleRef = useRef<HTMLTextAreaElement>(null);
   const bodyRef = useRef<HTMLTextAreaElement>(null);
 
-  // タイトルの高さを自動調整する副作用
+  // タイトルの高さを自動調整
   useEffect(() => {
     if (titleRef.current) {
       titleRef.current.style.height = 'auto';
@@ -41,12 +38,11 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags, onRestore })
     }
   }, [content, note?.id]);
 
-  // content をタイトル（1行目）と本文（2行目以降）に分割
   const lines = content.split('\n');
   const title = lines[0] || '';
   const body = lines.slice(1).join('\n');
 
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTitleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newTitle = e.target.value;
     const newContent = [newTitle, ...lines.slice(1)].join('\n');
     updateLocalContent(newContent);
@@ -56,7 +52,6 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags, onRestore })
     updateLocalContent(title + '\n' + e.target.value);
   };
 
-  // タイトル入力でのキー操作
   const handleTitleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter') {
       if (e.nativeEvent.isComposing) return;
@@ -65,39 +60,26 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags, onRestore })
       const beforeCursor = title.substring(0, cursorPosition);
       const afterCursor = title.substring(cursorPosition);
       
-      // タイトルの後半を本文の先頭に、それ以降に既存の本文を結合
       const newContent = beforeCursor + '\n' + afterCursor + (body ? '\n' + body : '');
       updateLocalContent(newContent);
       
-      // 本文へフォーカスし、カーソルを移動（スクロールジャンプを抑制）
       setTimeout(() => {
         bodyRef.current?.focus({ preventScroll: true });
-        // 本文の先頭（分割されて移動してきたテキストの開始位置）にカーソルを置く
         bodyRef.current?.setSelectionRange(0, 0);
       }, 0);
     } else if (e.key === 'ArrowDown') {
-      // 1行のタイトル（または最終行）のため、常に本文へ移動
       e.preventDefault();
       bodyRef.current?.focus();
-      // 本文の先頭にカーソルを置く
       bodyRef.current?.setSelectionRange(0, 0);
-    } else if (e.key === 'ArrowLeft') {
-      const { selectionStart } = e.currentTarget;
-      if (selectionStart === 0) {
-        e.preventDefault();
-        document.getElementById('note-list-container')?.focus();
-      }
     }
   };
 
-  // 本文入力でのキー操作
   const handleBodyKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'ArrowUp') {
       const { selectionStart } = e.currentTarget;
       if (selectionStart === 0) {
         e.preventDefault();
         titleRef.current?.focus();
-        // タイトルの末尾にカーソルを移動
         const titleLen = titleRef.current?.value.length || 0;
         titleRef.current?.setSelectionRange(titleLen, titleLen);
       }
@@ -136,7 +118,7 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags, onRestore })
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-[#0f172a] h-screen overflow-hidden">
+    <div className="flex-1 flex flex-col bg-[#0f172a] h-full overflow-hidden">
       {/* Restore Banner */}
       {note.deletedAt && (
         <div className="bg-blue-600/20 border-b border-blue-500/30 px-6 py-2 flex items-center justify-between text-blue-400 text-xs font-medium">
@@ -153,28 +135,6 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags, onRestore })
         </div>
       )}
 
-      {/* Editor Header */}
-      <div className="h-14 px-6 flex items-center justify-between border-b border-slate-800/30 bg-[#0f172a]/50 backdrop-blur-md z-10">
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={toggleLayoutMode}
-            className="p-2 text-slate-500 hover:text-blue-400 transition-colors bg-slate-800/20 rounded-lg"
-            title="Toggle Layout"
-          >
-            <Columns3 size={20} />
-          </button>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          {updateNoteMutation.isPending && (
-            <div className="flex items-center gap-1.5 text-[10px] text-slate-500 uppercase tracking-widest font-bold">
-              <Loader2 size={12} className="animate-spin text-blue-500" />
-              <span>Saving</span>
-            </div>
-          )}
-        </div>
-      </div>
-
       <div className="flex-1 w-full overflow-y-auto bg-[#0f172a] custom-scrollbar flex flex-col">
         <div className="flex-1 w-full px-8 md:px-16 py-8 pb-32 flex flex-col min-h-full">
           {/* Title Area */}
@@ -184,9 +144,7 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags, onRestore })
               id="editor-title"
               rows={1}
               value={title}
-              onChange={(e) => {
-                handleTitleChange(e as any);
-              }}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleTitleChange(e)}
               onKeyDown={handleTitleKeyDown}
               placeholder="Title"
               disabled={!!note.deletedAt}
@@ -202,7 +160,7 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags, onRestore })
 
           {/* Body Area */}
           <Textarea
-            ref={bodyRef as any}
+            ref={bodyRef}
             value={body}
             onChange={handleBodyChange}
             onKeyDown={handleBodyKeyDown}
@@ -227,6 +185,7 @@ export const Editor: React.FC<EditorProps> = ({ note, onUpdateTags, onRestore })
         />
       </div>
 
+      {/* Status Bar */}
       <div className="px-6 py-2 bg-[#0f172a] text-slate-600 text-[10px] uppercase tracking-wider font-medium flex justify-between items-center border-t border-slate-800/10">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5">

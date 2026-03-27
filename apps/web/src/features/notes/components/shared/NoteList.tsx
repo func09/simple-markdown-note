@@ -1,13 +1,16 @@
 import React from 'react';
-import type { Note } from 'openapi';
+
 import { Plus, Search, Tag as TagIcon, X } from 'lucide-react';
+import type { Note } from 'openapi';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { useNoteStore } from '../store';
-import { NoteItem } from './NoteItem';
+
+import { NoteListItem as NoteItem } from '@/features/notes/components/shared/NoteListItem';
+import { useNoteStore } from '@/features/notes/store';
 
 interface NoteListProps {
   notes: Note[];
@@ -115,7 +118,7 @@ export const NoteList: React.FC<NoteListProps> = ({
         tabIndex={0}
         onFocus={() => setIsFocused(true)}
         onBlur={(e) => {
-          if (!e.currentTarget.contains(e.relatedTarget)) {
+          if (!e.currentTarget.contains(e.relatedTarget as Node)) {
             setIsFocused(false);
           }
         }}
