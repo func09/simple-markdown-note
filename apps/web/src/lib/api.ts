@@ -12,7 +12,7 @@ const client = hc<AppType>('/api', {
       headers['Authorization'] = `Bearer ${token}`;
     }
     return headers;
-  }
+  },
 });
 
 // 認証トークンの付与などのためのラッパーやインターセプターが必要な場合は
