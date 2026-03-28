@@ -1,5 +1,5 @@
-import { defineConfig } from 'vitest/config'
-import path from 'path'
+import { defineConfig } from 'vitest/config';
+import path from 'path';
 
 export default defineConfig({
   test: {
@@ -8,8 +8,8 @@ export default defineConfig({
     env: {
       DATABASE_URL: `file:${path.resolve(__dirname, '../../storage/test.db')}`,
       NODE_ENV: 'test',
-      JWT_SECRET: 'test-secret'
+      JWT_SECRET: 'test-secret',
     },
     globals: true,
   },
-})
+});
