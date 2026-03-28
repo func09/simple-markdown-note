@@ -9,11 +9,11 @@ import {
   useCreateNote,
   useDeleteNote,
   useEmptyTrash,
-  useNotes,
   usePermanentDeleteNote,
   useRestoreNote,
   useUpdateNote,
 } from '@/features/notes/hooks/useNotesQuery';
+import { useSync } from '@/features/notes/hooks/useSync';
 import { useNoteStore } from '@/features/notes/store';
 
 /**
@@ -32,7 +32,7 @@ export const useDashboard = () => {
   } = useNoteStore();
 
   // サーバーからの同期状態を追跡するためフック自体は残すが、UIが直接参照する状態は Dexie から取得する
-  const { isLoading: notesLoading } = useNotes();
+  const { isLoading: notesLoading } = useSync();
 
   // IndexedDB (Dexie) を Single Source of Truth として監視する
   const dexieNotes = useLiveQuery(() => db.notes.toArray(), []) || [];
