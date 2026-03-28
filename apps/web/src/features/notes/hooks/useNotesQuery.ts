@@ -28,11 +28,32 @@ export const useCreateNote = () => {
   const triggerSync = useTriggerSync();
 
   return useMutation({
-    mutationFn: (data: { content: string; tags?: string[] }) => noteApi.createNote(data),
-    onSuccess: async (newNote) => {
-      await db.notes.put(newNote as Note);
+    mutationFn: async (data: { content: string; tags?: string[] }) => {
+      const id = crypto.randomUUID();
+      const now = new Date().toISOString();
+      const newNote: Note = {
+        id,
+        content: data.content,
+        tags:
+          data.tags?.map((t) => ({ id: t, name: t, userId: '', createdAt: now, updatedAt: now })) ||
+          [],
+        userId: '',
+        createdAt: now,
+        updatedAt: now,
+        deletedAt: null,
+      };
+
+      await db.notes.put(newNote);
+      await db.syncQueue.put({
+        action: 'create',
+        payload: { id, content: data.content, tags: data.tags },
+        createdAt: now,
+      });
+      return newNote;
+    },
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tags'] });
-      triggerSync(); // 他の変更もまとめてバックグラウンド同期
+      triggerSync(); // バックグラウンド同期キューをキック
     },
   });
 };
@@ -45,10 +66,45 @@ export const useUpdateNote = () => {
   const triggerSync = useTriggerSync();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: { content?: string; tags?: string[] } }) =>
-      noteApi.updateNote(id, data),
-    onSuccess: async (updatedNote) => {
-      await db.notes.put(updatedNote as Note);
+    mutationFn: async ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: { content?: string; tags?: string[] };
+    }) => {
+      const existing = await db.notes.get(id);
+      const now = new Date().toISOString();
+
+      if (existing) {
+        let updatedTags = existing.tags;
+        if (data.tags) {
+          updatedTags = data.tags.map((t) => ({
+            id: t,
+            name: t,
+            userId: '',
+            createdAt: now,
+            updatedAt: now,
+          }));
+        }
+
+        const updatedNote: Note = {
+          ...existing,
+          content: data.content ?? existing.content,
+          tags: updatedTags,
+          updatedAt: now,
+        };
+        await db.notes.put(updatedNote);
+      }
+
+      await db.syncQueue.put({
+        action: 'update',
+        payload: { id, data },
+        createdAt: now,
+      });
+      return { id, data };
+    },
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tags'] });
       triggerSync();
     },
@@ -63,9 +119,17 @@ export const useDeleteNote = () => {
   const triggerSync = useTriggerSync();
 
   return useMutation({
-    mutationFn: (id: string) => noteApi.deleteNote(id),
-    onSuccess: async (_, deletedId) => {
-      await db.notes.update(deletedId, { deletedAt: new Date().toISOString() });
+    mutationFn: async (id: string) => {
+      const now = new Date().toISOString();
+      await db.notes.update(id, { deletedAt: now, updatedAt: now });
+      await db.syncQueue.put({
+        action: 'delete',
+        payload: { id },
+        createdAt: now,
+      });
+      return id;
+    },
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tags'] });
       triggerSync();
     },
@@ -80,9 +144,17 @@ export const useRestoreNote = () => {
   const triggerSync = useTriggerSync();
 
   return useMutation({
-    mutationFn: (id: string) => noteApi.restoreNote(id),
-    onSuccess: async (_, restoredId) => {
-      await db.notes.update(restoredId, { deletedAt: null });
+    mutationFn: async (id: string) => {
+      const now = new Date().toISOString();
+      await db.notes.update(id, { deletedAt: null, updatedAt: now });
+      await db.syncQueue.put({
+        action: 'restore',
+        payload: { id },
+        createdAt: now,
+      });
+      return id;
+    },
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tags'] });
       triggerSync();
     },
@@ -96,9 +168,17 @@ export const usePermanentDeleteNote = () => {
   const triggerSync = useTriggerSync();
 
   return useMutation({
-    mutationFn: (id: string) => noteApi.permanentDeleteNote(id),
-    onSuccess: async (_, deletedId) => {
-      await db.notes.delete(deletedId);
+    mutationFn: async (id: string) => {
+      const now = new Date().toISOString();
+      await db.notes.delete(id);
+      await db.syncQueue.put({
+        action: 'permanentDelete',
+        payload: { id },
+        createdAt: now,
+      });
+      return id;
+    },
+    onSuccess: () => {
       triggerSync();
     },
   });
@@ -111,11 +191,19 @@ export const useEmptyTrash = () => {
   const triggerSync = useTriggerSync();
 
   return useMutation({
-    mutationFn: () => noteApi.emptyTrash(),
-    onSuccess: async () => {
+    mutationFn: async () => {
+      const now = new Date().toISOString();
       const trashNotes = await db.notes.filter((n) => !!n.deletedAt).toArray();
       const trashIds = trashNotes.map((n) => n.id);
       await db.notes.bulkDelete(trashIds);
+
+      await db.syncQueue.put({
+        action: 'emptyTrash',
+        payload: {},
+        createdAt: now,
+      });
+    },
+    onSuccess: () => {
       triggerSync();
     },
   });

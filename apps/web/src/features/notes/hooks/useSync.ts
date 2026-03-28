@@ -14,8 +14,52 @@ export const useSync = () => {
   return useQuery<{ syncedCount: number }>({
     queryKey: ['sync'],
     queryFn: async () => {
+      // 1. オフラインキューのバックグラウンドアップロード処理 (Delta Sync Up)
+      if (navigator.onLine) {
+        const queueItems = await db.syncQueue.orderBy('id').toArray();
+        for (const item of queueItems) {
+          try {
+            switch (item.action) {
+              case 'create':
+                await noteApi.createNote(
+                  item.payload as { id: string; content: string; tags?: string[] }
+                );
+                break;
+              case 'update':
+                await noteApi.updateNote(item.payload.id, item.payload.data);
+                break;
+              case 'delete':
+                await noteApi.deleteNote(item.payload.id);
+                break;
+              case 'restore':
+                await noteApi.restoreNote(item.payload.id);
+                break;
+              case 'permanentDelete':
+                await noteApi.permanentDeleteNote(item.payload.id);
+                break;
+              case 'emptyTrash':
+                await noteApi.emptyTrash();
+                break;
+            }
+            // 成功したらキューから削除
+            await db.syncQueue.delete(item.id!);
+          } catch (e) {
+            console.error('Failed to process sync queue item:', e);
+            // エラーが発生した場合は、後続のキューも一旦保留にする（順序を保つため）
+            break;
+          }
+        }
+      }
+
+      // 2. サーバーからのバックグラウンド差分同期処理 (Delta Sync Down)
       const lastSyncedAt = localStorage.getItem(LAST_SYNC_KEY) || undefined;
-      const notes = await noteApi.fetchNotes({ updatedAfter: lastSyncedAt });
+      let notes: import('openapi').Note[] = [];
+      try {
+        notes = await noteApi.fetchNotes({ updatedAfter: lastSyncedAt });
+      } catch (e) {
+        console.error('Failed to fetch delta sync down', e);
+        return { syncedCount: 0 };
+      }
 
       if (notes.length > 0) {
         await db.notes.bulkPut(notes);
