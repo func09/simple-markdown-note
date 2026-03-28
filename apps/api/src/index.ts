@@ -2,7 +2,7 @@ import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { jwt } from "hono/jwt";
-import { logger } from "./utils/logger";
+
 import authRouter from "./routes/auth";
 import { notesRouter } from "./routes/notes";
 import { tagsRouter } from "./routes/tags";
@@ -17,38 +17,28 @@ type Env = {
 // Honoアプリケーションのインスタンス化
 export const app = new Hono<Env>();
 
-// カスタムロガー
+// シンプルで情報密度の高いロガー
 app.use("*", async (c, next) => {
-  const method = c.req.method;
-  const url = c.req.path;
-  const queryObj = c.req.query();
-
-  logger.info(
-    { req: { method, url, query: queryObj } },
-    `[Request] ${method} ${url}`,
-  );
-
   const start = Date.now();
-  await next();
-  const ms = Date.now() - start;
+  const { method, path } = c.req;
+  const query = c.req.query();
+  const queryStr = Object.keys(query).length
+    ? `?${new URLSearchParams(query)}`
+    : "";
 
-  const resMeta = { res: { status: c.res.status }, ms };
-  if (c.res.status >= 500) {
-    logger.error(
-      resMeta,
-      `[Response] ${method} ${url} - Status: ${c.res.status} (${ms}ms)`,
-    );
-  } else if (c.res.status >= 400) {
-    logger.warn(
-      resMeta,
-      `[Response] ${method} ${url} - Status: ${c.res.status} (${ms}ms)`,
-    );
-  } else {
-    logger.info(
-      resMeta,
-      `[Response] ${method} ${url} - Status: ${c.res.status} (${ms}ms)`,
-    );
-  }
+  await next();
+
+  const ms = Date.now() - start;
+  const status = c.res.status;
+
+  // ステータスコードによって色を変える（ANSI escape codes）
+  const color =
+    status >= 400 ? "\x1b[31m" : status >= 300 ? "\x1b[33m" : "\x1b[32m";
+  const reset = "\x1b[0m";
+
+  console.log(
+    `${color}${method}${reset} ${path}${queryStr} ${color}${status}${reset} - ${ms}ms`,
+  );
 });
 
 app.use("*", cors());
