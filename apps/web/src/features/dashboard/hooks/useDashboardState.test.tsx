@@ -6,7 +6,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as dexieHooks from 'dexie-react-hooks';
 import * as hooks from '@/features/notes/hooks';
 import * as useDashboardActionsHook from './useDashboardActions';
-import React from 'react';
 
 vi.mock('dexie-react-hooks');
 vi.mock('@/features/notes/hooks');
