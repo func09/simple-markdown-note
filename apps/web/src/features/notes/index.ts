@@ -1,6 +1,5 @@
 export * from '@/features/notes/components/shared/NoteList';
 export * from '@/features/notes/components/desktop/DesktopEditor';
-export * from '@/features/notes/components/shared/TagList';
 export * from '@/features/notes/hooks/useNotesQuery';
 export * from '@/features/notes/store';
 export * from '@/features/notes/components/shared/EditorCore';

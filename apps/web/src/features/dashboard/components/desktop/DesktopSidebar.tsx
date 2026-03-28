@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { logout } from '@/features/auth';
-import { TagList } from '@/features/notes/components/shared/TagList';
+import { TagList } from '@/features/dashboard/components/shared/TagList';
 import { useDashboardStore } from '@/features/dashboard/store';
 
 import { cn } from '@/lib/utils';
