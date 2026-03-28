@@ -2,6 +2,9 @@ import React, { useMemo, useState } from 'react';
 import type { Note, Tag } from 'openapi';
 import { toast } from 'sonner';
 
+import { useLiveQuery } from 'dexie-react-hooks';
+import { db } from '@/lib/db';
+
 import {
   useCreateNote,
   useDeleteNote,
@@ -28,7 +31,16 @@ export const useDashboard = () => {
     setIsSidebarOpen,
   } = useNoteStore();
 
-  const { data: notes = [], isLoading: notesLoading } = useNotes(isTrashSelected);
+  // サーバーからの同期状態を追跡するためフック自体は残すが、UIが直接参照する状態は Dexie から取得する
+  const { isLoading: notesLoading } = useNotes();
+
+  // IndexedDB (Dexie) を Single Source of Truth として監視する
+  const dexieNotes = useLiveQuery(() => db.notes.toArray(), []) || [];
+
+  // 現在の「ゴミ箱か否か」のビューに基づいて Dexie のデータをフィルタリングする
+  const notes = useMemo(() => {
+    return dexieNotes.filter((n) => (isTrashSelected ? !!n.deletedAt : !n.deletedAt));
+  }, [dexieNotes, isTrashSelected]);
   const createNoteMutation = useCreateNote();
   const deleteNoteMutation = useDeleteNote();
   const restoreNoteMutation = useRestoreNote();

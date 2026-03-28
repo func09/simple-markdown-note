@@ -2,17 +2,27 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Note, Tag } from 'openapi';
 
 import * as noteApi from '@/features/notes/api';
+import { db } from '@/lib/db';
 
 /**
  * ノート一覧を取得するためのクエリフック
+ * API経由で全ノートを取得し、IndexedDB に同期保存する
  */
-export const useNotes = (isTrash = false) => {
+export const useNotes = () => {
   return useQuery<Note[]>({
-    queryKey: ['notes', { isTrash }],
+    queryKey: ['notes'], // 引数が消えたのでキーは固定の['notes']のみ
     queryFn: async () => {
-      const data = await noteApi.fetchNotes({ trash: isTrash });
-      return data as Note[];
+      const data = await noteApi.fetchNotes();
+      const notes = data as Note[];
+
+      // Dexie にデータを保存することで、useLiveQuery が自動でUIを更新する
+      if (notes.length > 0) {
+        await db.notes.bulkPut(notes);
+      }
+
+      return notes;
     },
+    staleTime: 5 * 60 * 1000, // ★ 5分間は再取得せずにキャッシュを利用
   });
 };
 
@@ -26,6 +36,7 @@ export const useTags = () => {
       const data = await noteApi.fetchTags();
       return data as Tag[];
     },
+    staleTime: 5 * 60 * 1000,
   });
 };
 
@@ -37,7 +48,8 @@ export const useCreateNote = () => {
 
   return useMutation({
     mutationFn: (data: { content: string; tags?: string[] }) => noteApi.createNote(data),
-    onSuccess: () => {
+    onSuccess: async (newNote) => {
+      await db.notes.put(newNote as Note);
       queryClient.invalidateQueries({ queryKey: ['notes'] });
       queryClient.invalidateQueries({ queryKey: ['tags'] });
     },
@@ -53,8 +65,9 @@ export const useUpdateNote = () => {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: { content?: string; tags?: string[] } }) =>
       noteApi.updateNote(id, data),
-    onSuccess: (updatedNote) => {
-      queryClient.setQueryData(['notes', { isTrash: false }], (oldNotes: Note[] | undefined) => {
+    onSuccess: async (updatedNote) => {
+      await db.notes.put(updatedNote as Note);
+      queryClient.setQueryData(['notes'], (oldNotes: Note[] | undefined) => {
         if (!oldNotes) return [];
         return oldNotes.map((note) => (note.id === (updatedNote as Note).id ? updatedNote : note));
       });
@@ -72,14 +85,15 @@ export const useDeleteNote = () => {
 
   return useMutation({
     mutationFn: (id: string) => noteApi.deleteNote(id),
-    onSuccess: (_, deletedId) => {
+    onSuccess: async (_, deletedId) => {
+      await db.notes.update(deletedId, { deletedAt: new Date().toISOString() });
       // 全ノート一覧から削除
-      queryClient.setQueryData(['notes', { isTrash: false }], (oldNotes: Note[] | undefined) => {
+      queryClient.setQueryData(['notes'], (oldNotes: Note[] | undefined) => {
         if (!oldNotes) return [];
         return oldNotes.filter((note) => note.id !== deletedId);
       });
       // ゴミ箱一覧を無効化（削除されたノートが入るため）
-      queryClient.invalidateQueries({ queryKey: ['notes', { isTrash: true }] });
+      queryClient.invalidateQueries({ queryKey: ['notes'] });
       // タグ一覧も再取得
       queryClient.invalidateQueries({ queryKey: ['tags'] });
     },
@@ -94,14 +108,15 @@ export const useRestoreNote = () => {
 
   return useMutation({
     mutationFn: (id: string) => noteApi.restoreNote(id),
-    onSuccess: (_, restoredId) => {
+    onSuccess: async (_, restoredId) => {
+      await db.notes.update(restoredId, { deletedAt: null });
       // ゴミ箱一覧から削除
-      queryClient.setQueryData(['notes', { isTrash: true }], (oldNotes: Note[] | undefined) => {
+      queryClient.setQueryData(['notes'], (oldNotes: Note[] | undefined) => {
         if (!oldNotes) return [];
         return oldNotes.filter((note) => note.id !== restoredId);
       });
       // 全ノート一覧を無効化（復元されたノートが戻るため）
-      queryClient.invalidateQueries({ queryKey: ['notes', { isTrash: false }] });
+      queryClient.invalidateQueries({ queryKey: ['notes'] });
       // タグ一覧も再取得
       queryClient.invalidateQueries({ queryKey: ['tags'] });
     },
@@ -116,8 +131,9 @@ export const usePermanentDeleteNote = () => {
 
   return useMutation({
     mutationFn: (id: string) => noteApi.permanentDeleteNote(id),
-    onSuccess: (_, deletedId) => {
-      queryClient.setQueryData(['notes', { isTrash: true }], (oldNotes: Note[] | undefined) => {
+    onSuccess: async (_, deletedId) => {
+      await db.notes.delete(deletedId);
+      queryClient.setQueryData(['notes'], (oldNotes: Note[] | undefined) => {
         if (!oldNotes) return [];
         return oldNotes.filter((note) => note.id !== deletedId);
       });
@@ -133,9 +149,12 @@ export const useEmptyTrash = () => {
 
   return useMutation({
     mutationFn: () => noteApi.emptyTrash(),
-    onSuccess: () => {
+    onSuccess: async () => {
+      const trashNotes = await db.notes.filter((n) => !!n.deletedAt).toArray();
+      const trashIds = trashNotes.map((n) => n.id);
+      await db.notes.bulkDelete(trashIds);
       // ゴミ箱一覧を空にする
-      queryClient.setQueryData(['notes', { isTrash: true }], []);
+      queryClient.setQueryData(['notes'], []);
     },
   });
 };
