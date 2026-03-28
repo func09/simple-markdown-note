@@ -51,7 +51,9 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
       }}
       onKeyDown={onKeyDown}
     >
-      <div className="flex flex-shrink-0 flex-col gap-1 py-4">
+      {/* macOS titlebar drag region */}
+      <div className="min-h-8 w-full flex-shrink-0 [-webkit-app-region:drag]" />
+      <div className="flex flex-shrink-0 flex-col gap-1 pb-4 pt-2">
         <button
           onClick={(e) => {
             e.preventDefault();

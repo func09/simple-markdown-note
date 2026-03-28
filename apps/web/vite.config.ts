@@ -11,6 +11,7 @@ export default defineConfig({
     setupFiles: ['./vitest.setup.ts'],
   },
   plugins: [react()],
+  base: './',
   define: {
     'process.env': {},
   },
