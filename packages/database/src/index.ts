@@ -7,13 +7,11 @@ const adapter = new PrismaLibSql({
   url: process.env.DATABASE_URL || "file:../../storage/test.db",
 });
 
+const isTest = process.env.NODE_ENV === "test";
+
 export const prisma = new PrismaClient({
   adapter,
-  log: [
-    { emit: "stdout", level: "query" }, // これでSQLが出る
-    { emit: "stdout", level: "error" },
-    { emit: "stdout", level: "warn" },
-  ],
+  log: isTest ? ["error"] : ["query", "info", "warn", "error"],
 });
 
 export * from "@prisma/client";

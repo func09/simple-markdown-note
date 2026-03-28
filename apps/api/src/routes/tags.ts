@@ -4,10 +4,10 @@ import { prisma } from 'database';
 type Env = {
   Variables: {
     jwtPayload: {
-      userId: string
-    }
-  }
-}
+      userId: string;
+    };
+  };
+};
 
 const tagsRouter = new Hono<Env>();
 
