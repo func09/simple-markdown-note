@@ -33,12 +33,16 @@ docker compose run --rm api sh -c "npm install && npx prisma db seed --config pa
 ```
 
 ### 6. コードフォーマット (Prettier)
-プロジェクト全体のソースコードを自動フォーマットするには、ルートディレクトリで以下のコマンドを実行します。
+Docker コンテナ（`api` 等）の中から実行することで、ローカル環境に Node.js や Prettier が無くても自動フォーマットが可能です。
+
+プロジェクト全体:
 ```bash
-npm run format
+docker compose exec api npm run format
 ```
 
-特定のパッケージ（例: `web` のみ）をフォーマット対象にしたい場合は、ワークスペースを指定してください。
+特定のパッケージ（例: `api` や `web` のみ）:
 ```bash
-npm run format --workspace=web
+docker compose exec api npm run format --workspace=api
+# または
+docker compose exec api npm run format --workspace=web
 ```

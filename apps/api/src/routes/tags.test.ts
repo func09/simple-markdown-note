@@ -2,8 +2,9 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import { app } from '../index'
 import { execSync } from 'child_process'
 
-describe('Tags API', () => {
+describe('Tags API via Sync', () => {
   let token: string;
+  const testNoteId = 'tag-test-note-1';
 
   beforeAll(async () => {
     // テストデータベースの初期化
@@ -27,23 +28,32 @@ describe('Tags API', () => {
     await prisma.$disconnect()
   })
 
-  it('should create tags when creating a note', async () => {
-    const res = await app.request('/notes', {
+  it('should create tags when syncing a new note', async () => {
+    const res = await app.request('/notes/sync', {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify({ content: 'Note with tags', tags: ['Work', 'Important'] }),
+      body: JSON.stringify({ 
+        changes: [{
+          id: testNoteId,
+          content: 'Note with tags',
+          isPermanent: false,
+          clientUpdatedAt: new Date().toISOString(),
+          tags: ['Work', 'Important']
+        }] 
+      }),
     })
 
     expect(res.status).toBe(200)
     const body = await res.json()
-    expect(body.tags.length).toBe(2)
-    expect(body.tags.map((t: any) => t.name)).toContain('Work')
-    expect(body.tags.map((t: any) => t.name)).toContain('Important')
+    const syncedNote = body.updates.find((n: any) => n.id === testNoteId);
+    expect(syncedNote.tags.length).toBe(2)
+    expect(syncedNote.tags.map((t: any) => t.name)).toContain('Work')
+    expect(syncedNote.tags.map((t: any) => t.name)).toContain('Important')
 
-    // タグ一覧を確認
+    // タグ一覧をGETで確認
     const tagsRes = await app.request('/tags', {
       method: 'GET',
       headers: { 'Authorization': `Bearer ${token}` },
@@ -52,33 +62,34 @@ describe('Tags API', () => {
     expect(tags.length).toBe(2)
   })
 
-  it('should sync tags when updating a note', async () => {
-    // ノートを取得
-    const listRes = await app.request('/notes', {
-      method: 'GET',
-      headers: { 'Authorization': `Bearer ${token}` },
-    })
-    const notes = await listRes.json()
-    const noteId = notes[0].id
-
+  it('should sync tags when updating a note via sync', async () => {
     // タグを更新 (1つ削除、1つ追加)
-    const res = await app.request(`/notes/${noteId}`, {
-      method: 'PATCH',
+    const res = await app.request('/notes/sync', {
+      method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify({ tags: ['Work', 'Done'] }),
+      body: JSON.stringify({ 
+        changes: [{
+          id: testNoteId,
+          content: 'Note with updated tags',
+          isPermanent: false,
+          clientUpdatedAt: new Date(Date.now() + 60000).toISOString(),
+          tags: ['Work', 'Done']
+        }] 
+      }),
     })
 
     expect(res.status).toBe(200)
     const body = await res.json()
-    expect(body.tags.length).toBe(2)
-    expect(body.tags.map((t: any) => t.name)).toContain('Work')
-    expect(body.tags.map((t: any) => t.name)).toContain('Done')
-    expect(body.tags.map((t: any) => t.name)).not.toContain('Important')
+    const updatedNote = body.updates.find((n: any) => n.id === testNoteId);
+    expect(updatedNote.tags.length).toBe(2)
+    expect(updatedNote.tags.map((t: any) => t.name)).toContain('Work')
+    expect(updatedNote.tags.map((t: any) => t.name)).toContain('Done')
+    expect(updatedNote.tags.map((t: any) => t.name)).not.toContain('Important')
 
-    // タグ一覧を確認 (Important は削除されているはず)
+    // タグ一覧を確認 (Important は cleanupOrphanedTags で削除されているはず)
     const tagsRes = await app.request('/tags', {
       method: 'GET',
       headers: { 'Authorization': `Bearer ${token}` },
@@ -88,23 +99,23 @@ describe('Tags API', () => {
     expect(tags.map((t: any) => t.name)).not.toContain('Important')
   })
 
-  it('should cleanup orphaned tags when last note is deleted', async () => {
-    // ノートを取得
-    const listRes = await app.request('/notes', {
-      method: 'GET',
-      headers: { 'Authorization': `Bearer ${token}` },
-    })
-    const notes = await listRes.json()
-    const noteId = notes[0].id
-
+  it('should cleanup all tags when note tags are set to empty', async () => {
     // タグを空にする
-    await app.request(`/notes/${noteId}`, {
-      method: 'PATCH',
+    await app.request('/notes/sync', {
+      method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify({ tags: [] }),
+      body: JSON.stringify({ 
+        changes: [{
+          id: testNoteId,
+          content: 'No tags',
+          isPermanent: false,
+          clientUpdatedAt: new Date(Date.now() + 120000).toISOString(),
+          tags: []
+        }] 
+      }),
     })
 
     // タグ一覧を確認 (全て削除されているはず)
@@ -131,13 +142,21 @@ describe('Tags API', () => {
       })
       const { token: otherToken } = await loginRes.json()
 
-      await app.request('/notes', {
+      await app.request('/notes/sync', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${otherToken}`
         },
-        body: JSON.stringify({ content: 'Other note', tags: ['PrivateTag'] }),
+        body: JSON.stringify({ 
+          changes: [{
+            id: 'other-user-note',
+            content: 'Other note',
+            isPermanent: false,
+            clientUpdatedAt: new Date().toISOString(),
+            tags: ['PrivateTag']
+          }] 
+        }),
       })
 
       // 元のユーザーとしてタグ一覧を取得

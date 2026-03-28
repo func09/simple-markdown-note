@@ -11,7 +11,8 @@ const LoginPage: React.FC = () => {
   const handleLogin = async (data: any) => {
     setIsLoading(true);
     try {
-      await signin({ email: data.email, password: data.password });
+      const res = await signin({ email: data.email, password: data.password });
+      localStorage.setItem('token', res.token);
       toast.success('Logged in successfully');
       navigate('/');
     } catch (err: any) {

@@ -31,7 +31,7 @@ export const useCreateNote = () => {
     mutationFn: async (data: { content: string; tags?: string[] }) => {
       const id = crypto.randomUUID();
       const now = new Date().toISOString();
-      const newNote: Note = {
+      const newNote: Note & { isPermanent: boolean } = {
         id,
         content: data.content,
         tags:
@@ -41,14 +41,10 @@ export const useCreateNote = () => {
         createdAt: now,
         updatedAt: now,
         deletedAt: null,
+        isPermanent: false,
       };
 
       await db.notes.put(newNote);
-      await db.syncQueue.put({
-        action: 'create',
-        payload: { id, content: data.content, tags: data.tags },
-        createdAt: now,
-      });
       return newNote;
     },
     onSuccess: () => {
@@ -88,7 +84,7 @@ export const useUpdateNote = () => {
           }));
         }
 
-        const updatedNote: Note = {
+        const updatedNote: Note & { isPermanent?: boolean } = {
           ...existing,
           content: data.content ?? existing.content,
           tags: updatedTags,
@@ -97,16 +93,11 @@ export const useUpdateNote = () => {
         await db.notes.put(updatedNote);
       }
 
-      await db.syncQueue.put({
-        action: 'update',
-        payload: { id, data },
-        createdAt: now,
-      });
       return { id, data };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tags'] });
-      triggerSync();
+      triggerSync(); // 自動的に送信キューとしての役割を果たす
     },
   });
 };
@@ -122,11 +113,6 @@ export const useDeleteNote = () => {
     mutationFn: async (id: string) => {
       const now = new Date().toISOString();
       await db.notes.update(id, { deletedAt: now, updatedAt: now });
-      await db.syncQueue.put({
-        action: 'delete',
-        payload: { id },
-        createdAt: now,
-      });
       return id;
     },
     onSuccess: () => {
@@ -147,11 +133,6 @@ export const useRestoreNote = () => {
     mutationFn: async (id: string) => {
       const now = new Date().toISOString();
       await db.notes.update(id, { deletedAt: null, updatedAt: now });
-      await db.syncQueue.put({
-        action: 'restore',
-        payload: { id },
-        createdAt: now,
-      });
       return id;
     },
     onSuccess: () => {
@@ -170,12 +151,9 @@ export const usePermanentDeleteNote = () => {
   return useMutation({
     mutationFn: async (id: string) => {
       const now = new Date().toISOString();
-      await db.notes.delete(id);
-      await db.syncQueue.put({
-        action: 'permanentDelete',
-        payload: { id },
-        createdAt: now,
-      });
+      // 一旦 isPermanent フラグとして更新し、Unified Sync の際に API へ送信し他デバイスに適用させる
+      // ※ syncNotes 戻り値で delete するためローカルでは保留、もしくは即時非表示とするなら削除フラグを使用
+      await db.notes.update(id, { deletedAt: now, updatedAt: now, isPermanent: true });
       return id;
     },
     onSuccess: () => {
@@ -193,14 +171,12 @@ export const useEmptyTrash = () => {
   return useMutation({
     mutationFn: async () => {
       const now = new Date().toISOString();
+      // ゴミ箱のアイテムすべてを isPermanent = true にする
       const trashNotes = await db.notes.filter((n) => !!n.deletedAt).toArray();
-      const trashIds = trashNotes.map((n) => n.id);
-      await db.notes.bulkDelete(trashIds);
-
-      await db.syncQueue.put({
-        action: 'emptyTrash',
-        payload: {},
-        createdAt: now,
+      await db.transaction('rw', db.notes, async () => {
+        for (const note of trashNotes) {
+          await db.notes.update(note.id, { updatedAt: now, isPermanent: true });
+        }
       });
     },
     onSuccess: () => {
