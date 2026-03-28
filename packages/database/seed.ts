@@ -107,6 +107,7 @@ async function main() {
   const passwordHash = await bcrypt.hash('password', 10)
   const testUser = await prisma.user.create({
     data: {
+      id: 'test-user-id-12345', // 固定IDにする（シード実行のたびにトークンが無効になるのを防ぐ）
       email: 'user@example.com',
       passwordHash: passwordHash,
     }
@@ -153,21 +154,46 @@ async function main() {
     // ランダムな過去日付の生成 (1年前までの範囲)
     const pastDate = new Date(Date.now() - Math.floor(Math.random() * 365 * 24 * 60 * 60 * 1000))
 
+    // 作品に応じたタグを付与
+    const tags = source.name === 'CAT' ? ['novel', 'soseki', 'cat'] : ['novel', 'dazai', 'melos'];
+    // 少しランダム性を追加
+    if (Math.random() > 0.5) tags.push('favorite');
+
     notesData.push({
       content: fullContent,
       userId: testUser.id,
       createdAt: pastDate,
       updatedAt: new Date(),
+      tags,
     })
   }
 
-  console.log(`Inserting ${notesData.length} massive notes into database...`)
-  // 100件まとめて投入
-  await prisma.note.createMany({
-    data: notesData,
-  })
+  console.log(`Inserting ${notesData.length} massive notes into database with tags...`)
+  
+  // createMany ではネストしたリレーション(tags)を作成できないため、個別に create する
+  for (const data of notesData) {
+    await prisma.note.create({
+      data: {
+        content: data.content,
+        userId: data.userId,
+        createdAt: data.createdAt,
+        updatedAt: data.updatedAt,
+        tags: {
+          connectOrCreate: data.tags.map((tagName) => ({
+            where: {
+              name_userId: { name: tagName, userId: data.userId },
+            },
+            create: {
+              name: tagName,
+              userId: data.userId,
+            },
+          })),
+        },
+      },
+    })
+  }
 
-  console.log(`Successfully seeded 100 notes (target ~${3500} chars) using inline literary data.`)
+  console.log(`Successfully seeded 100 notes (target ~${3500} chars) with assigned tags.`)
   console.log('--- Seeding Completed (Clean) ---')
 }
 

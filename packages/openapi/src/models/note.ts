@@ -12,6 +12,7 @@ export const NoteSchema = z.object({
   createdAt: z.string().datetime().openapi({ example: '2026-03-25T12:00:00Z' }),
   updatedAt: z.string().datetime().openapi({ example: '2026-03-25T12:00:00Z' }),
   deletedAt: z.string().datetime().nullable().openapi({ example: null }),
+  isPermanent: z.boolean().openapi({ example: false }),
 }).openapi('Note');
 
 export type Note = z.infer<typeof NoteSchema>;
