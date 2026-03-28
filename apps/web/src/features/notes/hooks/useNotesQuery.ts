@@ -14,12 +14,12 @@ export const useNotes = () => {
     queryFn: async () => {
       const data = await noteApi.fetchNotes();
       const notes = data as Note[];
-      
+
       // Dexie にデータを保存することで、useLiveQuery が自動でUIを更新する
       if (notes.length > 0) {
         await db.notes.bulkPut(notes);
       }
-      
+
       return notes;
     },
     staleTime: 5 * 60 * 1000, // ★ 5分間は再取得せずにキャッシュを利用
@@ -150,8 +150,8 @@ export const useEmptyTrash = () => {
   return useMutation({
     mutationFn: () => noteApi.emptyTrash(),
     onSuccess: async () => {
-      const trashNotes = await db.notes.filter(n => !!n.deletedAt).toArray();
-      const trashIds = trashNotes.map(n => n.id);
+      const trashNotes = await db.notes.filter((n) => !!n.deletedAt).toArray();
+      const trashIds = trashNotes.map((n) => n.id);
       await db.notes.bulkDelete(trashIds);
       // ゴミ箱一覧を空にする
       queryClient.setQueryData(['notes'], []);

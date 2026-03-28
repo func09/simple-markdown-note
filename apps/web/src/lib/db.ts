@@ -11,5 +11,5 @@ export const db = new Dexie('SimplenoteCloneDB') as Dexie & {
 // deletedAt: ゴミ箱フラグのフィルタリングに使用
 // userId: ユーザーごとの分離に使用
 db.version(1).stores({
-  notes: 'id, userId, updatedAt, deletedAt'
+  notes: 'id, userId, updatedAt, deletedAt',
 });
