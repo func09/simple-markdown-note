@@ -7,9 +7,11 @@ export const TagService = {
    * 2. 新しいタグを connectOrCreate で一括処理
    * 3. 浮いたタグをクリーンアップ
    */
-  async syncTags(userId: string, noteId: string, tagNames: string[]) {
+  async syncTags(userId: string, noteId: string, tagNames: string[], txClient?: any) {
+    const client = txClient || prisma;
+
     // 1. 現在の紐付けを解除（タグ自体は削除しない）
-    await prisma.note.update({
+    await client.note.update({
       where: { 
         id: noteId,
         userId: userId // セキュリティ強化: userId による所有権の強制
@@ -23,7 +25,7 @@ export const TagService = {
 
     if (tagNames.length > 0) {
       // 2. 新しいタグを connectOrCreate で一括処理
-      await prisma.note.update({
+      await client.note.update({
         where: { 
           id: noteId,
           userId: userId // セキュリティ強化: userId による所有権の強制
@@ -48,14 +50,15 @@ export const TagService = {
     }
 
     // 3. 浮いたタグ（どのノートにも紐付いていないタグ）を削除
-    await this.cleanupOrphanedTags(userId);
+    await this.cleanupOrphanedTags(userId, client);
   },
 
   /**
    * どのノートにも紐付いていないタグを削除する
    */
-  async cleanupOrphanedTags(userId: string) {
-    await prisma.tag.deleteMany({
+  async cleanupOrphanedTags(userId: string, txClient?: any) {
+    const client = txClient || prisma;
+    await client.tag.deleteMany({
       where: {
         userId,
         notes: {
