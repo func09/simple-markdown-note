@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 
 import { logout } from '@/features/auth';
 import { TagList } from '@/features/notes/components/shared/TagList';
-import { useNoteStore } from '@/features/notes/store';
+import { useDashboardStore } from '@/features/dashboard/store';
 
 import { cn } from '@/lib/utils';
 
@@ -28,9 +28,9 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
   onKeyDown,
 }) => {
   const navigate = useNavigate();
-  const selectedTag = useNoteStore((state) => state.selectedTag);
-  const isTrashSelected = useNoteStore((state) => state.isTrashSelected);
-  const searchQuery = useNoteStore((state) => state.searchQuery);
+  const selectedTag = useDashboardStore((state) => state.selectedTag);
+  const isTrashSelected = useDashboardStore((state) => state.isTrashSelected);
+  const searchQuery = useDashboardStore((state) => state.searchQuery);
 
   const handleLogout = React.useCallback(() => {
     logout();

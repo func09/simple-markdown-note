@@ -1,6 +1,6 @@
 import React from 'react';
 import { Columns3, RotateCw, Trash2 } from 'lucide-react';
-import { useNoteStore } from '@/features/notes/store';
+import { useDashboardStore } from '@/features/dashboard/store';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 interface DesktopEditorHeaderProps {
@@ -20,7 +20,7 @@ export const DesktopEditorHeader: React.FC<DesktopEditorHeaderProps> = ({
   onRestore,
   onDelete,
 }) => {
-  const { toggleLayoutMode } = useNoteStore();
+  const { toggleLayoutMode } = useDashboardStore();
   const isMobile = useMediaQuery('(max-width: 1024px)');
 
   return (

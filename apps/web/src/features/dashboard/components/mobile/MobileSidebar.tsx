@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 
 import { logout } from '@/features/auth';
 import { TagList } from '@/features/notes/components/shared/TagList';
-import { useNoteStore } from '@/features/notes/store';
+import { useDashboardStore } from '@/features/dashboard/store';
 
 import { cn } from '@/lib/utils';
 
@@ -20,8 +20,8 @@ interface MobileSidebarProps {
  */
 export const MobileSidebar: React.FC<MobileSidebarProps> = ({ onSelectTag }) => {
   const navigate = useNavigate();
-  const selectedTag = useNoteStore((state) => state.selectedTag);
-  const isTrashSelected = useNoteStore((state) => state.isTrashSelected);
+  const selectedTag = useDashboardStore((state) => state.selectedTag);
+  const isTrashSelected = useDashboardStore((state) => state.isTrashSelected);
 
   const handleLogout = React.useCallback(() => {
     logout();

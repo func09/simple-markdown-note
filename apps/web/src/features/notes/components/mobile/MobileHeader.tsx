@@ -4,12 +4,12 @@ import { Menu, StickyNote } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 
-import { useNoteStore } from '@/features/notes/store';
+import { useDashboardStore } from '@/features/dashboard/store';
 
 export const MobileHeader: React.FC = () => {
-  const setIsSidebarOpen = useNoteStore((state) => state.setIsSidebarOpen);
-  const selectedTag = useNoteStore((state) => state.selectedTag);
-  const isTrashSelected = useNoteStore((state) => state.isTrashSelected);
+  const setIsSidebarOpen = useDashboardStore((state) => state.setIsSidebarOpen);
+  const selectedTag = useDashboardStore((state) => state.selectedTag);
+  const isTrashSelected = useDashboardStore((state) => state.isTrashSelected);
 
   const handleMenuClick = React.useCallback(() => {
     console.log('Menu clicked, opening sidebar');

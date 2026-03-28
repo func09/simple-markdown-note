@@ -11,6 +11,7 @@ import {
   useUpdateNote,
 } from '@/features/notes/hooks/useNotesQuery';
 import { useNoteStore } from '@/features/notes/store';
+import { useDashboardStore } from '@/features/dashboard/store';
 
 /**
  * ノートに関する各種アクション（作成、論理・物理削除、復元、タグ更新など）を処理するためのカスタムフック
@@ -22,9 +23,9 @@ import { useNoteStore } from '@/features/notes/store';
  * - ゴミ箱からの復元、及びゴミ箱を空にする処理
  * - モーダルの開閉状態の管理
  */
-export const useNoteActions = () => {
-  const { selectedNoteId, setSelectedNoteId, selectedTag, isTrashSelected, setActiveView } =
-    useNoteStore();
+export const useDashboardActions = () => {
+  const { selectedNoteId, setSelectedNoteId } = useNoteStore();
+  const { selectedTag, isTrashSelected, setActiveView } = useDashboardStore();
 
   const createNoteMutation = useCreateNote();
   const deleteNoteMutation = useDeleteNote();

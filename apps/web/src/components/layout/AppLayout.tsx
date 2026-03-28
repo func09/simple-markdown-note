@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNoteStore } from '@/features/notes/store';
+import { useDashboardStore } from '@/features/dashboard/store';
 import * as ResizablePrimitive from 'react-resizable-panels';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 
@@ -13,11 +13,11 @@ interface AppLayoutProps {
  * 3カラム構成のメインレイアウト (標準コンポーネント + 黄金比)
  */
 export const AppLayout: React.FC<AppLayoutProps> = React.memo(({ nav, list, main }) => {
-  const layoutMode = useNoteStore((state) => state.layoutMode);
-  const layoutAllSizesArr = useNoteStore((state) => state.layoutAllSizes);
-  const setLayoutAllSizes = useNoteStore((state) => state.setLayoutAllSizes);
-  const layoutSplitSizesArr = useNoteStore((state) => state.layoutSplitSizes);
-  const setLayoutSplitSizes = useNoteStore((state) => state.setLayoutSplitSizes);
+  const layoutMode = useDashboardStore((state) => state.layoutMode);
+  const layoutAllSizesArr = useDashboardStore((state) => state.layoutAllSizes);
+  const setLayoutAllSizes = useDashboardStore((state) => state.setLayoutAllSizes);
+  const layoutSplitSizesArr = useDashboardStore((state) => state.layoutSplitSizes);
+  const setLayoutSplitSizes = useDashboardStore((state) => state.setLayoutSplitSizes);
 
   // 初期の理想的なバランス [15%, 25%, 60%]
   const IDEAL_ALL = [15, 25, 60];
