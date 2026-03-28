@@ -1,10 +1,8 @@
 import { Hono } from 'hono';
-import { zValidator } from '@hono/zod-validator';
 import { prisma } from 'database';
 import { 
   CreateNoteRequestSchema, 
   UpdateNoteRequestSchema,
-  NoteListQuerySchema,
   type SuccessResponse
 } from 'openapi';
 import { TagService } from '../services/tags';
@@ -22,15 +20,13 @@ const notesRouter = new Hono<Env>();
 /**
  * ノート一覧の取得 (GET /notes)
  */
-notesRouter.get('/', zValidator('query', NoteListQuerySchema), async (c) => {
+notesRouter.get('/', async (c) => {
   const userId = c.get('jwtPayload').userId;
-  const { trash } = c.req.valid('query');
-  const isTrash = trash === 'true';
 
+  // 常に全ノート（ゴミ箱含む）を返し、フィルタリングはフロント側の Dexie に一任する
   const notes = await prisma.note.findMany({
     where: { 
       userId,
-      deletedAt: isTrash ? { not: null } : null,
     },
     include: { tags: true },
     orderBy: { updatedAt: 'desc' },
@@ -59,9 +55,10 @@ notesRouter.get('/:id', async (c) => {
 /**
  * ノートの作成 (POST /notes)
  */
-notesRouter.post('/', zValidator('json', CreateNoteRequestSchema), async (c) => {
+notesRouter.post('/', async (c) => {
   const userId = c.get('jwtPayload').userId;
-  const { content, tags } = c.req.valid('json');
+  const body = await c.req.json();
+  const { content, tags } = CreateNoteRequestSchema.parse(body);
 
   const note = await prisma.note.create({
     data: {
@@ -87,10 +84,11 @@ notesRouter.post('/', zValidator('json', CreateNoteRequestSchema), async (c) => 
 /**
  * ノートの更新 (PATCH /notes/:id)
  */
-notesRouter.patch('/:id', zValidator('json', UpdateNoteRequestSchema), async (c) => {
+notesRouter.patch('/:id', async (c) => {
   const userId = c.get('jwtPayload').userId;
   const id = c.req.param('id');
-  const { content, tags } = c.req.valid('json');
+  const body = await c.req.json();
+  const { content, tags } = UpdateNoteRequestSchema.parse(body);
 
   // 所有権の確認
   const existingNote = await prisma.note.findUnique({
