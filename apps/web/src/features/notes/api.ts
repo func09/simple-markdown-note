@@ -7,12 +7,11 @@ import api from '@/lib/api';
  */
 
 /**
- * ノート一覧を取得する（条件付きでゴミ箱のノートも取得可能）
- * @param params - 抽出オプション `{ trash?: boolean }`
+ * ノート一覧を取得する（ゴミ箱のノートもすべて取得）
  */
-export const fetchNotes = async (params?: { trash?: boolean }) => {
-  const query = params?.trash ? { trash: 'true' } : {};
-  const res = await api.notes.$get({ query });
+export const fetchNotes = async () => {
+  // 常に全件取得するためパラメータは渡さない
+  const res = await api.notes.$get({ query: {} });
   if (!res.ok) throw new Error('Failed to fetch notes');
   return res.json() as Promise<Note[]>;
 };
