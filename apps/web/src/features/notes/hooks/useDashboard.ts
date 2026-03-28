@@ -15,6 +15,9 @@ import {
 } from '@/features/notes/hooks/useNotesQuery';
 import { useSync } from '@/features/notes/hooks/useSync';
 import { useNoteStore } from '@/features/notes/store';
+import { create, insertMultiple, search } from '@orama/orama';
+import { createTokenizer } from '@orama/tokenizers/japanese';
+import { stopwords as japaneseStopwords } from '@orama/stopwords/japanese';
 
 /**
  * DesktopとMobileの両方のDashboardで共有されるビジネスロジックと状態を管理するカスタムフック
@@ -37,6 +40,29 @@ export const useDashboard = () => {
   // IndexedDB (Dexie) を Single Source of Truth として監視する
   const dexieNotes = useLiveQuery(() => db.notes.toArray(), []) || [];
 
+  const oramaDb = useMemo(() => {
+    const dbInstance = create({
+      schema: {
+        id: 'string',
+        content: 'string',
+      },
+      components: {
+        tokenizer: createTokenizer({
+          language: 'japanese',
+          stopWords: japaneseStopwords,
+        }),
+      },
+    });
+
+    if (dexieNotes.length > 0) {
+      insertMultiple(
+        dbInstance,
+        dexieNotes.map((n) => ({ id: n.id, content: n.content }))
+      );
+    }
+    return dbInstance;
+  }, [dexieNotes]);
+
   // 現在の「ゴミ箱か否か」のビューに基づいて Dexie のデータをフィルタリングする
   const notes = useMemo(() => {
     return dexieNotes.filter((n) => (isTrashSelected ? !!n.deletedAt : !n.deletedAt));
@@ -55,7 +81,7 @@ export const useDashboard = () => {
    * ノート一覧に対し、選択されたタグと検索クエリに基づいてフィルタリングを行い、更新日時順にソートして返します。
    */
   const getFilteredNotes = React.useCallback(
-    (allNotes: Note[], tag: string | null, query: string) => {
+    (allNotes: Note[], tag: string | null, query: string, dbInstance?: any) => {
       let result = [...allNotes];
 
       if (tag === '__untagged__') {
@@ -65,8 +91,14 @@ export const useDashboard = () => {
       }
 
       if (query) {
-        const q = query.toLowerCase();
-        result = result.filter((note) => note.content.toLowerCase().includes(q));
+        if (dbInstance) {
+          const searchResult = search(dbInstance, { term: query, properties: ['content'] });
+          const matchedSet = new Set((searchResult as any).hits.map((hit: any) => hit.document.id));
+          result = result.filter((note) => matchedSet.has(note.id));
+        } else {
+          const q = query.toLowerCase();
+          result = result.filter((note) => note.content.toLowerCase().includes(q));
+        }
       }
 
       result.sort((a, b) => {
@@ -81,8 +113,8 @@ export const useDashboard = () => {
   );
 
   const filteredNotes = useMemo(
-    () => getFilteredNotes(notes, selectedTag, searchQuery),
-    [notes, searchQuery, selectedTag, getFilteredNotes]
+    () => getFilteredNotes(notes, selectedTag, searchQuery, oramaDb),
+    [notes, searchQuery, selectedTag, getFilteredNotes, oramaDb]
   );
 
   const selectedNote = useMemo(
@@ -96,7 +128,7 @@ export const useDashboard = () => {
    */
   const updateSelection = React.useCallback(
     (tag: string | null, isTrash: boolean, query: string = searchQuery) => {
-      const nextFiltered = getFilteredNotes(notes, tag, query);
+      const nextFiltered = getFilteredNotes(notes, tag, query, oramaDb);
 
       useNoteStore.setState({
         selectedTag: tag,
@@ -108,7 +140,7 @@ export const useDashboard = () => {
       });
       setIsSidebarOpen(false);
     },
-    [notes, searchQuery, getFilteredNotes, setIsSidebarOpen]
+    [notes, searchQuery, getFilteredNotes, setIsSidebarOpen, oramaDb]
   );
 
   /**
