@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { DesktopDashboard } from '@/features/notes/components/desktop/DesktopDashboard';
-import { MobileDashboard } from '@/features/notes/components/mobile/MobileDashboard';
+import { DesktopDashboard } from '@/features/dashboard/components/desktop/DesktopDashboard';
+import { MobileDashboard } from '@/features/dashboard/components/mobile/MobileDashboard';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 const Dashboard: React.FC = () => {

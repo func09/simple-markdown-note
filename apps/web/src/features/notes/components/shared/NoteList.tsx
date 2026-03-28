@@ -11,6 +11,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 
 import { NoteListItem as NoteItem } from '@/features/notes/components/shared/NoteListItem';
 import { useNoteStore } from '@/features/notes/store';
+import { useDashboardStore } from '@/features/dashboard/store';
 
 interface NoteListProps {
   notes: Note[];
@@ -30,11 +31,11 @@ export const NoteList: React.FC<NoteListProps> = ({
 }) => {
   const selectedNoteId = useNoteStore((state) => state.selectedNoteId);
   const setSelectedNoteId = useNoteStore((state) => state.setSelectedNoteId);
-  const searchQuery = useNoteStore((state) => state.searchQuery);
-  const setSearchQuery = useNoteStore((state) => state.setSearchQuery);
-  const selectedTag = useNoteStore((state) => state.selectedTag);
-  const setSelectedTag = useNoteStore((state) => state.setSelectedTag);
-  const isTrashSelected = useNoteStore((state) => state.isTrashSelected);
+  const searchQuery = useDashboardStore((state) => state.searchQuery);
+  const setSearchQuery = useDashboardStore((state) => state.setSearchQuery);
+  const selectedTag = useDashboardStore((state) => state.selectedTag);
+  const setSelectedTag = useDashboardStore((state) => state.setSelectedTag);
+  const isTrashSelected = useDashboardStore((state) => state.isTrashSelected);
   const [isFocused, setIsFocused] = React.useState(false);
 
   return (
@@ -133,14 +134,16 @@ export const NoteList: React.FC<NoteListProps> = ({
         onKeyDown={(e) => {
           if (e.key === 'ArrowDown') {
             e.preventDefault();
+            if (notes.length === 0) return;
             const currentIndex = notes.findIndex((n) => n.id === selectedNoteId);
             const nextIndex = Math.min(currentIndex + 1, notes.length - 1);
             if (nextIndex >= 0) setSelectedNoteId(notes[nextIndex].id);
           } else if (e.key === 'ArrowUp') {
             e.preventDefault();
+            if (notes.length === 0) return;
             const currentIndex = notes.findIndex((n) => n.id === selectedNoteId);
             const prevIndex = Math.max(currentIndex - 1, 0);
-            if (prevIndex >= 0) setSelectedNoteId(notes[prevIndex].id);
+            if (prevIndex >= 0 && prevIndex < notes.length) setSelectedNoteId(notes[prevIndex].id);
           } else if (e.key === 'ArrowLeft') {
             e.preventDefault();
             document.getElementById('nav-container')?.focus();
