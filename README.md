@@ -68,3 +68,12 @@ docker compose exec api npm run format --workspace=api
 # または
 docker compose exec api npm run format --workspace=web
 ```
+
+### 7. デスクトップアプリ (Electron) の起動
+
+Web コンテナが起動している状態（`docker compose up` 状態）で、ローカルから以下のコマンドを実行すると、デスクトップネイティブアプリとして起動します。
+ローカルに Node.js インストール環境が必要です。
+
+```bash
+npm run dev --workspace=apps/desktop
+```
