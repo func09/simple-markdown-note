@@ -1,20 +1,23 @@
 import React, { useMemo } from 'react';
 
-import { MobileEditorHeader } from '@/features/notes/components/mobile/MobileEditorHeader';
-import { MobileHeader } from '@/features/notes/components/mobile/MobileHeader';
-import { MobileSidebar } from '@/features/notes/components/mobile/MobileSidebar';
-import { DeleteConfirmModal } from '@/features/notes/components/shared/DeleteConfirmModal';
-import { EditorCore } from '@/features/notes/components/shared/EditorCore';
-import { NoteList } from '@/features/notes/components/shared/NoteList';
-import { useDashboard } from '@/features/notes/hooks/useDashboard';
-import { useNoteStore } from '@/features/notes/store';
+import { MobileSidebar } from '@/features/dashboard/components';
+import {
+  MobileEditorHeader,
+  MobileHeader,
+  DeleteConfirmModal,
+  EditorCore,
+  NoteList,
+} from '@/features/notes/components';
+import { useDashboardState } from '@/features/dashboard/hooks';
+
+import { useDashboardStore } from '@/features/dashboard/store';
 
 /**
  * モバイル向けのメインダッシュボードコンポーネント
  * ドロワー形式のサイドバー、リスト画面、エディタ画面を切り替えて表示し、`useDashboard` で状態を管理します。
  */
 export const MobileDashboard: React.FC = () => {
-  const { activeView, setActiveView, isSidebarOpen, setIsSidebarOpen } = useNoteStore();
+  const { activeView, setActiveView, isSidebarOpen, setIsSidebarOpen } = useDashboardStore();
 
   const {
     filteredNotes,
@@ -30,7 +33,7 @@ export const MobileDashboard: React.FC = () => {
     handleRestoreNote,
     handleEmptyTrash,
     handleUpdateTags,
-  } = useDashboard();
+  } = useDashboardState();
 
   /**
    * ノート一覧（リストビュー）のメモ化

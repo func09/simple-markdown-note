@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import { Tag as TagIcon, X } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
+
+import { useTagInput } from '@/features/notes/hooks';
 
 interface TagInputProps {
   tags: string[];
@@ -19,46 +21,7 @@ export const TagInput: React.FC<TagInputProps> = ({
   onChange,
   placeholder = 'Add tags...',
 }) => {
-  const [inputValue, setInputValue] = useState('');
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-
-    // カンマまたはスペースが含まれているかチェック
-    if (value.includes(',') || value.includes(' ')) {
-      const newTags = value
-        .split(/[,\s]+/)
-        .map((t) => t.trim())
-        .filter((t) => t !== '' && !tags.includes(t));
-
-      if (newTags.length > 0) {
-        onChange([...tags, ...newTags]);
-        setInputValue('');
-      } else {
-        setInputValue(value.replace(/[,\s]+$/, ''));
-      }
-    } else {
-      setInputValue(value);
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      const trimmedValue = inputValue.trim();
-      if (trimmedValue && !tags.includes(trimmedValue)) {
-        onChange([...tags, trimmedValue]);
-        setInputValue('');
-      }
-    } else if (e.key === 'Backspace' && !inputValue && tags.length > 0) {
-      // 最後のタグを削除
-      onChange(tags.slice(0, -1));
-    }
-  };
-
-  const removeTag = (tagToRemove: string) => {
-    onChange(tags.filter((tag) => tag !== tagToRemove));
-  };
+  const { inputValue, handleInputChange, handleKeyDown, removeTag } = useTagInput(tags, onChange);
 
   return (
     <div className="flex min-h-[40px] flex-wrap items-center gap-2 border-t border-slate-800/50 px-1 py-2">

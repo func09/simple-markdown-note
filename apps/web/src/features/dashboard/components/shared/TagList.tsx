@@ -2,8 +2,8 @@ import React from 'react';
 
 import { Skeleton } from '@/components/ui/skeleton';
 
-import { useTags } from '@/features/notes/hooks/useNotesQuery';
-import { useNoteStore } from '@/features/notes/store';
+import { useTags } from '@/features/notes/hooks';
+import { useDashboardStore } from '@/features/dashboard/store';
 
 interface TagListProps {
   isPanelFocused?: boolean;
@@ -18,8 +18,8 @@ import { TagItem } from './TagItem';
  */
 export const TagList: React.FC<TagListProps> = ({ isPanelFocused = false, onSelectTag }) => {
   const { data: tags, isLoading } = useTags();
-  const selectedTag = useNoteStore((state) => state.selectedTag);
-  const setSelectedTag = useNoteStore((state) => state.setSelectedTag);
+  const selectedTag = useDashboardStore((state) => state.selectedTag);
+  const setSelectedTag = useDashboardStore((state) => state.setSelectedTag);
 
   const handleTagClick = React.useCallback(
     (name: string | null) => {
