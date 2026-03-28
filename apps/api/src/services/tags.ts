@@ -12,9 +12,9 @@ export const TagService = {
 
     // 1. 現在の紐付けを解除（タグ自体は削除しない）
     await client.note.update({
-      where: { 
+      where: {
         id: noteId,
-        userId: userId // セキュリティ強化: userId による所有権の強制
+        userId: userId, // セキュリティ強化: userId による所有権の強制
       },
       data: {
         tags: {
@@ -26,9 +26,9 @@ export const TagService = {
     if (tagNames.length > 0) {
       // 2. 新しいタグを connectOrCreate で一括処理
       await client.note.update({
-        where: { 
+        where: {
           id: noteId,
-          userId: userId // セキュリティ強化: userId による所有権の強制
+          userId: userId, // セキュリティ強化: userId による所有権の強制
         },
         data: {
           tags: {
