@@ -2,12 +2,9 @@ import React, { useMemo, useState } from 'react';
 
 import { AppLayout } from '@/components/layout/AppLayout';
 
-import { DesktopEditor } from '@/features/notes/components/desktop/DesktopEditor';
-import { DesktopSidebar } from '@/features/dashboard/components/desktop/DesktopSidebar';
-import { DeleteConfirmModal } from '@/features/notes/components/shared/DeleteConfirmModal';
-import { NoteList } from '@/features/notes/components/shared/NoteList';
-import { useDashboardState } from '@/features/dashboard/hooks/useDashboardState';
-import { useSidebarNavigation } from '@/features/dashboard/hooks/useSidebarNavigation';
+import { DesktopSidebar } from '@/features/dashboard/components';
+import { DesktopEditor, DeleteConfirmModal, NoteList } from '@/features/notes/components';
+import { useDashboardState, useSidebarNavigation } from '@/features/dashboard/hooks';
 
 import { useDashboardStore } from '@/features/dashboard/store';
 

@@ -1,12 +1,14 @@
 import React, { useMemo } from 'react';
 
-import { MobileEditorHeader } from '@/features/notes/components/mobile/MobileEditorHeader';
-import { MobileHeader } from '@/features/notes/components/mobile/MobileHeader';
-import { MobileSidebar } from '@/features/dashboard/components/mobile/MobileSidebar';
-import { DeleteConfirmModal } from '@/features/notes/components/shared/DeleteConfirmModal';
-import { EditorCore } from '@/features/notes/components/shared/EditorCore';
-import { NoteList } from '@/features/notes/components/shared/NoteList';
-import { useDashboardState } from '@/features/dashboard/hooks/useDashboardState';
+import { MobileSidebar } from '@/features/dashboard/components';
+import {
+  MobileEditorHeader,
+  MobileHeader,
+  DeleteConfirmModal,
+  EditorCore,
+  NoteList,
+} from '@/features/notes/components';
+import { useDashboardState } from '@/features/dashboard/hooks';
 
 import { useDashboardStore } from '@/features/dashboard/store';
 

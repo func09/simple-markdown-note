@@ -5,7 +5,7 @@ import type { Note } from 'openapi';
 
 import { Textarea } from '@/components/ui/textarea';
 
-import { TagInput } from '@/features/notes/components/shared/TagInput';
+import { TagInput } from '@/features/notes/components';
 import { useUpdateNote } from '@/features/notes/hooks';
 
 import { cn } from '@/lib/utils';
