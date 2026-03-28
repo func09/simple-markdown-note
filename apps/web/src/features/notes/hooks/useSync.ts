@@ -30,7 +30,7 @@ export const useSync = () => {
             deletedAt: note.deletedAt,
             isPermanent: note.isPermanent || false,
             clientUpdatedAt: note.updatedAt,
-            tags: note.tags?.map((t) => (typeof t === 'string' ? t : t.id)),
+            tags: note.tags?.map((t) => (typeof t === 'string' ? t : (t as any).name)),
           }));
         } else {
           // 初回同期時はローカルデータを全て送付
@@ -41,7 +41,7 @@ export const useSync = () => {
             deletedAt: note.deletedAt,
             isPermanent: note.isPermanent || false,
             clientUpdatedAt: note.updatedAt,
-            tags: note.tags?.map((t) => (typeof t === 'string' ? t : t.id)),
+            tags: note.tags?.map((t) => (typeof t === 'string' ? t : (t as any).name)),
           }));
         }
 
