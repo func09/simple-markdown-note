@@ -9,7 +9,7 @@ import {
   usePermanentDeleteNote,
   useRestoreNote,
   useUpdateNote,
-} from '@/features/notes/hooks/useNotesQuery';
+} from '@/features/notes/hooks';
 import { useNoteStore } from '@/features/notes/store';
 import { useDashboardStore } from '@/features/dashboard/store';
 

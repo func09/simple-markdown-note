@@ -2,10 +2,9 @@ import React, { useMemo } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '@/lib/db';
 
-import { useSync } from '@/features/notes/hooks/useSync';
+import { useSync, useOramaSearch } from '@/features/notes/hooks';
 import { useNoteStore } from '@/features/notes/store';
 import { useDashboardStore } from '@/features/dashboard/store';
-import { useOramaSearch } from '@/features/notes/hooks/useOramaSearch';
 import { useDashboardActions } from './useDashboardActions';
 
 /**
