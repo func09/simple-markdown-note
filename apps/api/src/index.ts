@@ -22,8 +22,6 @@ app.use("*", async (c, next) => {
   const method = c.req.method;
   const url = c.req.path;
   const queryObj = c.req.query();
-  const query =
-    Object.keys(queryObj).length > 0 ? JSON.stringify(queryObj) : "{}";
 
   logger.info(
     { req: { method, url, query: queryObj } },
