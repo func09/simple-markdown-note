@@ -5,7 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useTags } from '@/features/notes/hooks/useNotesQuery';
 import { useNoteStore } from '@/features/notes/store';
 
-import { cn } from '@/lib/utils';
+
 
 interface TagListProps {
   isPanelFocused?: boolean;
