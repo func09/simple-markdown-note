@@ -11,7 +11,8 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "docker-compose up"
+    "dev": "docker-compose up",
+    "format": "npx prettier --write ."
   },
   "keywords": [],
   "author": "",

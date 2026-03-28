@@ -31,3 +31,14 @@ docker compose exec api sh -c "cd packages/database && npx prisma db push"
 ```bash
 docker compose run --rm api sh -c "npm install && npx prisma db seed --config packages/database/prisma.config.ts"
 ```
+
+### 6. コードフォーマット (Prettier)
+プロジェクト全体のソースコードを自動フォーマットするには、ルートディレクトリで以下のコマンドを実行します。
+```bash
+npm run format
+```
+
+特定のパッケージ（例: `web` のみ）をフォーマット対象にしたい場合は、ワークスペースを指定してください。
+```bash
+npm run format --workspace=web
+```
