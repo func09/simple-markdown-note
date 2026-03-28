@@ -21,7 +21,7 @@ export const fetchNotes = async (params?: { updatedAfter?: string }) => {
  * 新規ノートを作成する
  * @param data - サインアップなどの初期データ `{ content: string, tags?: string[] }`
  */
-export const createNote = async (data: { content: string; tags?: string[] }) => {
+export const createNote = async (data: { id?: string; content: string; tags?: string[] }) => {
   const res = await api.notes.$post({ json: data });
   if (!res.ok) throw new Error('Failed to create note');
   return res.json() as Promise<Note>;

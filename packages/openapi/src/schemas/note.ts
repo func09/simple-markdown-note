@@ -6,6 +6,7 @@ import { NoteSchema } from "../models/note";
  */
 export const CreateNoteRequestSchema = z
   .object({
+    id: z.string().optional().openapi({ example: "cuid123" }),
     content: z.string().openapi({ example: "New note content" }),
     tags: z
       .array(z.string())

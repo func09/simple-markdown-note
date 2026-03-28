@@ -61,10 +61,11 @@ notesRouter.get("/:id", async (c) => {
 notesRouter.post("/", async (c) => {
   const userId = c.get("jwtPayload").userId;
   const body = await c.req.json();
-  const { content, tags } = CreateNoteRequestSchema.parse(body);
+  const { id, content, tags } = CreateNoteRequestSchema.parse(body);
 
   const note = await prisma.note.create({
     data: {
+      id: id || undefined,
       content: content || "",
       userId,
     },
