@@ -5,42 +5,64 @@
 Docker を用いて、API と Web フロントエンドを一括で起動できます。
 
 ### 1. コンテナの起動
+
 ```bash
 docker compose up -d --build
 ```
 
 ### 2. 各サービスへのアクセス
+
 - **Web UI**: [http://localhost:5173](http://localhost:5173)
 - **API**: [http://localhost:3000](http://localhost:3000)
 - **Prisma Studio**: [http://localhost:5555](http://localhost:5555) (DB の中身をブラウザで見れます)
 
-### 3. テストの実行 (API)
-起動中のコンテナ内で API のテストを実行できます。
+### 3. テストの実行
+
+各パッケージのテストを実行できます。
+
+**API のテスト (起動中)**
+
 ```bash
 docker compose exec api npm run test -w apps/api
 ```
 
+**Web のテスト (単発実行)**
+依存関係（`node_modules`）を確実に反映させるため、コンテナ起動と同時にインストールを挟んでテストを走らせます。
+
+```bash
+docker compose run --rm web sh -c "npm install && npm run test -w apps/web"
+```
+
+※既に `docker compose up` でWebコンテナが起動済みの場合は、`docker compose exec web npm run test -w apps/web` で実行可能です。
+
 ### 4. データベースの初期化・同期
+
 初回起動時やスキーマ変更時には、以下のコマンドでデータベースを同期してください。
+
 ```bash
 docker compose exec api sh -c "cd packages/database && npx prisma db push"
 ```
 
 ### 5. シードデータの投入
+
 開発用の初期データ（テストユーザーやノート）を投入します。
+
 ```bash
 docker compose run --rm api sh -c "npm install && npx prisma db seed --config packages/database/prisma.config.ts"
 ```
 
 ### 6. コードフォーマット (Prettier)
+
 Docker コンテナ（`api` 等）の中から実行することで、ローカル環境に Node.js や Prettier が無くても自動フォーマットが可能です。
 
 プロジェクト全体:
+
 ```bash
 docker compose exec api npm run format
 ```
 
 特定のパッケージ（例: `api` や `web` のみ）:
+
 ```bash
 docker compose exec api npm run format --workspace=api
 # または
