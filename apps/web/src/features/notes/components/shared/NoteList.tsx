@@ -9,7 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
-import { NoteListItem as NoteItem } from '@/features/notes/components/shared/NoteListItem';
+import { NoteListItem as NoteItem } from '@/features/notes/components';
 import { useNoteStore } from '@/features/notes/store';
 import { useDashboardStore } from '@/features/dashboard/store';
 

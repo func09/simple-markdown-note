@@ -2,8 +2,7 @@ import React from 'react';
 
 import type { Note } from 'openapi';
 
-import { DesktopEditorHeader } from '@/features/notes/components/desktop/DesktopEditorHeader';
-import { EditorCore } from '@/features/notes/components/shared/EditorCore';
+import { DesktopEditorHeader, EditorCore } from '@/features/notes/components';
 import { useDashboardStore } from '@/features/dashboard/store';
 
 interface EditorProps {
