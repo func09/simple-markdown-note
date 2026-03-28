@@ -4,7 +4,7 @@ import { Tag as TagIcon, X } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 
-import { useTagInput } from '@/features/notes/hooks/useTagInput';
+import { useTagInput } from '@/features/notes/hooks';
 
 interface TagInputProps {
   tags: string[];

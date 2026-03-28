@@ -1,12 +1,13 @@
 import { renderHook, act } from '@testing-library/react';
 import { useSidebarNavigation } from './useSidebarNavigation';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import * as useNotesQuery from '@/features/notes/hooks/useNotesQuery';
+import * as useNotesQuery from '@/features/notes/hooks';
 import { useDashboardStore } from '@/features/dashboard/store';
+import { useNoteStore } from '@/features/notes/store';
 import React from 'react';
 
 // Mock dependencies
-vi.mock('@/features/notes/hooks/useNotesQuery');
+vi.mock('@/features/notes/hooks');
 
 const setupMockStore = (initialState: any = {}) => {
   useDashboardStore.setState({

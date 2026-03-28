@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Skeleton } from '@/components/ui/skeleton';
 
-import { useTags } from '@/features/notes/hooks/useNotesQuery';
+import { useTags } from '@/features/notes/hooks';
 import { useDashboardStore } from '@/features/dashboard/store';
 
 interface TagListProps {

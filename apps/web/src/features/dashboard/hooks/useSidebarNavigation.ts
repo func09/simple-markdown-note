@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import type { Tag } from 'openapi';
 
 import { useDashboardStore } from '@/features/dashboard/store';
-import { useTags } from '@/features/notes/hooks/useNotesQuery';
+import { useTags } from '@/features/notes/hooks';
 
 export const useSidebarNavigation = (
   updateSelection: (tag: string | null, isTrash: boolean, query?: string) => void

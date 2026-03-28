@@ -4,13 +4,12 @@ import { useDashboardStore } from '@/features/dashboard/store';
 import { useNoteStore } from '@/features/notes/store';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as dexieHooks from 'dexie-react-hooks';
-import * as useSyncHook from '@/features/notes/hooks/useSync';
-import * as useOramaSearchHook from '@/features/notes/hooks/useOramaSearch';
+import * as hooks from '@/features/notes/hooks';
 import * as useDashboardActionsHook from './useDashboardActions';
+import React from 'react';
 
 vi.mock('dexie-react-hooks');
-vi.mock('@/features/notes/hooks/useSync');
-vi.mock('@/features/notes/hooks/useOramaSearch');
+vi.mock('@/features/notes/hooks');
 vi.mock('./useDashboardActions');
 
 const setupStores = (dashboardState: any = {}, noteState: any = {}) => {
@@ -39,28 +38,31 @@ describe('useDashboardState', () => {
       { id: 'trash-1', content: 'trash 1', deletedAt: '2023-01-01' },
     ]);
 
-    vi.mocked(useSyncHook.useSync).mockReturnValue({ isLoading: false } as any);
+    vi.mocked(hooks.useSync).mockReturnValue({ isLoading: false } as any);
 
-    vi.mocked(useOramaSearchHook.useOramaSearch).mockReturnValue({
-      filteredNotes: [{ id: '1', content: 'note 1', deletedAt: null }],
+    vi.mocked(hooks.useOramaSearch).mockReturnValue({
+      filteredNotes: [{ id: '1', content: 'note 1', deletedAt: null } as any],
       searchNotes: vi.fn().mockReturnValue([{ id: '1', content: 'note 1', deletedAt: null }]),
       oramaDb: {} as any,
     });
 
     vi.mocked(useDashboardActionsHook.useDashboardActions).mockReturnValue({
+      isDeleteModalOpen: false,
+      setIsDeleteModalOpen: vi.fn(),
+      noteToDelete: null,
       handleCreateNote: vi.fn(),
-      handleDeleteNote: vi.fn(),
-      handleRestoreNote: vi.fn(),
-      handlePermanentDeleteNote: vi.fn(),
+      handleDeleteClick: vi.fn(),
+      confirmDeleteNote: vi.fn(),
+      handleCancelDelete: vi.fn(),
       handleEmptyTrash: vi.fn(),
-    });
+    } as any);
   });
 
   it('selects correct notes and delegates to oramaSearch based on isTrashSelected', () => {
     setupStores({ isTrashSelected: false });
     const { result } = renderHook(() => useDashboardState());
 
-    expect(useOramaSearchHook.useOramaSearch).toHaveBeenCalledWith(
+    expect(hooks.useOramaSearch).toHaveBeenCalledWith(
       expect.arrayContaining([
         expect.objectContaining({ id: '1' }),
         expect.objectContaining({ id: '2' }),
@@ -77,7 +79,7 @@ describe('useDashboardState', () => {
     renderHook(() => useDashboardState());
 
     // oramaSearch should receive only the trash-1 note
-    expect(useOramaSearchHook.useOramaSearch).toHaveBeenCalledWith(
+    expect(hooks.useOramaSearch).toHaveBeenCalledWith(
       expect.arrayContaining([expect.objectContaining({ id: 'trash-1' })]),
       null,
       ''
@@ -119,7 +121,7 @@ describe('useDashboardState', () => {
   });
 
   it('clears selection if filtered notes is empty', () => {
-    vi.mocked(useOramaSearchHook.useOramaSearch).mockReturnValue({
+    vi.mocked(hooks.useOramaSearch).mockReturnValue({
       filteredNotes: [],
       searchNotes: vi.fn().mockReturnValue([]),
       oramaDb: {} as any,

@@ -1,13 +1,13 @@
 import { renderHook, act } from '@testing-library/react';
 import { useDashboardActions } from './useDashboardActions';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import * as useNotesQuery from '@/features/notes/hooks/useNotesQuery';
+import * as useNotesQuery from '@/features/notes/hooks';
 import { useNoteStore } from '@/features/notes/store';
 import { useDashboardStore } from '@/features/dashboard/store';
 import { toast } from 'sonner';
 
 // Mock dependencies
-vi.mock('@/features/notes/hooks/useNotesQuery');
+vi.mock('@/features/notes/hooks');
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
 const setupMockStore = (initialState: any = {}) => {
