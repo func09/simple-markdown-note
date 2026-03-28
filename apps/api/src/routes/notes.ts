@@ -1,9 +1,7 @@
 import { Hono } from "hono";
 import { prisma } from "database";
 import {
-  NoteListQuerySchema,
   SyncRequestSchema,
-  type SuccessResponse,
 } from "openapi";
 import { TagService } from "../services/tags";
 
@@ -83,43 +81,6 @@ notesRouter.post("/sync", async (c) => {
     newSyncTime,
     updates,
   });
-});
-
-/**
- * ノート一覧の取得 (GET /notes)
- * ※初回フェッチ用やレガシー互換用
- */
-notesRouter.get("/", async (c) => {
-  const userId = c.get("jwtPayload").userId;
-  const { updatedAfter } = NoteListQuerySchema.parse(c.req.query());
-
-  const notes = await prisma.note.findMany({
-    where: {
-      userId,
-      ...(updatedAfter ? { updatedAt: { gt: new Date(updatedAfter) } } : {}),
-    },
-    include: { tags: true },
-    orderBy: { updatedAt: "desc" },
-  });
-  return c.json(notes);
-});
-
-/**
- * ノートの個別取得 (GET /notes/:id)
- */
-notesRouter.get("/:id", async (c) => {
-  const userId = c.get("jwtPayload").userId;
-  const id = c.req.param("id");
-  const note = await prisma.note.findUnique({
-    where: { id },
-    include: { tags: true },
-  });
-
-  if (!note || note.userId !== userId) {
-    return c.json({ error: "Note not found" }, 404);
-  }
-
-  return c.json(note);
 });
 
 export { notesRouter };
