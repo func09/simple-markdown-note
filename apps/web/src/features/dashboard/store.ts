@@ -22,6 +22,12 @@ interface DashboardState {
   setActiveView: (view: 'list' | 'editor') => void;
   isSidebarOpen: boolean;
   setIsSidebarOpen: (isOpen: boolean) => void;
+
+  // モーダル管理用の状態
+  isDeleteModalOpen: boolean;
+  setIsDeleteModalOpen: (isOpen: boolean) => void;
+  noteToDelete: string | null;
+  setNoteToDelete: (noteId: string | null) => void;
 }
 
 /**
@@ -58,4 +64,10 @@ export const useDashboardStore = create<DashboardState>((set) => ({
 
   isSidebarOpen: false,
   setIsSidebarOpen: (isOpen) => set({ isSidebarOpen: isOpen }),
+
+  // モーダル管理用の状態
+  isDeleteModalOpen: false,
+  setIsDeleteModalOpen: (isOpen) => set({ isDeleteModalOpen: isOpen }),
+  noteToDelete: null,
+  setNoteToDelete: (noteId) => set({ noteToDelete: noteId }),
 }));
