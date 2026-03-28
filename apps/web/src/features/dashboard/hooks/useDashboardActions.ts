@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
 import type { Note } from 'openapi';
 import { toast } from 'sonner';
 
@@ -25,7 +25,15 @@ import { useDashboardStore } from '@/features/dashboard/store';
  */
 export const useDashboardActions = () => {
   const { selectedNoteId, setSelectedNoteId } = useNoteStore();
-  const { selectedTag, isTrashSelected, setActiveView } = useDashboardStore();
+  const {
+    selectedTag,
+    isTrashSelected,
+    setActiveView,
+    isDeleteModalOpen,
+    setIsDeleteModalOpen,
+    noteToDelete,
+    setNoteToDelete,
+  } = useDashboardStore();
 
   const createNoteMutation = useCreateNote();
   const deleteNoteMutation = useDeleteNote();
@@ -33,9 +41,6 @@ export const useDashboardActions = () => {
   const permanentDeleteNoteMutation = usePermanentDeleteNote();
   const emptyTrashMutation = useEmptyTrash();
   const updateNoteMutation = useUpdateNote();
-
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [noteToDelete, setNoteToDelete] = useState<string | null>(null);
 
   /**
    * 新規ノートを作成し、エディタ（モバイル時は該当ビュー）へ遷移するハンドラー
