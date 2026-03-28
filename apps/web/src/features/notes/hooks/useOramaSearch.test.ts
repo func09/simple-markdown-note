@@ -50,6 +50,14 @@ describe('useOramaSearch', () => {
     expect(result.current.filteredNotes[0].id).toBe('1');
   });
 
+  it('should not match completely unrelated words due to fuzzy search', () => {
+    // "私はバカです" has zero actual token overlap with the notes, but fuzzy matching might falsely hit.
+    // Ensure tolerance: 0 prevents this.
+    const { result } = renderHook(() => useOramaSearch(MOCK_NOTES, null, '私はバカです'));
+
+    expect(result.current.filteredNotes).toHaveLength(0);
+  });
+
   it('should find notes correctly considering Japanese tokens', () => {
     const { result } = renderHook(() => useOramaSearch(MOCK_NOTES, null, '移動'));
 
