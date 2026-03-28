@@ -2,9 +2,8 @@ import React from 'react';
 
 import type { Note } from 'openapi';
 
-import { DesktopEditorHeader } from '@/features/notes/components/desktop/DesktopEditorHeader';
-import { EditorCore } from '@/features/notes/components/shared/EditorCore';
-import { useNoteStore } from '@/features/notes/store';
+import { DesktopEditorHeader, EditorCore } from '@/features/notes/components';
+import { useDashboardStore } from '@/features/dashboard/store';
 
 interface EditorProps {
   note: Note | null;
@@ -22,7 +21,7 @@ export const DesktopEditor: React.FC<EditorProps> = ({
   onRestore,
   onDelete,
 }) => {
-  const { isTrashSelected } = useNoteStore();
+  const { isTrashSelected } = useDashboardStore();
 
   // 保存中などのグローバルな状態管理が必要な場合はここでフックを使用
   // updateNoteMutation は EditorCore 内で完結している想定

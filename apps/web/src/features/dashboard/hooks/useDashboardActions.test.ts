@@ -1,24 +1,27 @@
 import { renderHook, act } from '@testing-library/react';
-import { useNoteActions } from './useNoteActions';
+import { useDashboardActions } from './useDashboardActions';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import * as useNotesQuery from '@/features/notes/hooks/useNotesQuery';
+import * as useNotesQuery from '@/features/notes/hooks';
 import { useNoteStore } from '@/features/notes/store';
+import { useDashboardStore } from '@/features/dashboard/store';
 import { toast } from 'sonner';
 
 // Mock dependencies
-vi.mock('@/features/notes/hooks/useNotesQuery');
+vi.mock('@/features/notes/hooks');
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
-const setupMockStore = (initialState = {}) => {
+const setupMockStore = (initialState: any = {}) => {
   useNoteStore.setState({
-    selectedNoteId: null,
-    selectedTag: null,
-    isTrashSelected: false,
-    ...initialState,
+    selectedNoteId: initialState.selectedNoteId ?? null,
+  });
+  useDashboardStore.setState({
+    selectedTag: initialState.selectedTag ?? null,
+    isTrashSelected: initialState.isTrashSelected ?? false,
+    activeView: initialState.activeView ?? 'list',
   });
 };
 
-describe('useNoteActions', () => {
+describe('useDashboardActions', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     setupMockStore();
@@ -42,20 +45,21 @@ describe('useNoteActions', () => {
   });
 
   it('handleCreateNote should create a note, select it, and show success toast', async () => {
-    const { result } = renderHook(() => useNoteActions());
+    const { result } = renderHook(() => useDashboardActions());
 
     await act(async () => {
       await result.current.handleCreateNote();
     });
 
     const storeState = useNoteStore.getState();
+    const dashboardState = useDashboardStore.getState();
     expect(storeState.selectedNoteId).toBe('new-note-1');
-    expect(storeState.activeView).toBe('editor');
+    expect(dashboardState.activeView).toBe('editor');
     expect(toast.success).toHaveBeenCalledWith('Note created');
   });
 
   it('handleDeleteClick should open delete modal', () => {
-    const { result } = renderHook(() => useNoteActions());
+    const { result } = renderHook(() => useDashboardActions());
 
     act(() => {
       result.current.handleDeleteClick('note-to-del');
@@ -69,7 +73,7 @@ describe('useNoteActions', () => {
     const mockDelete = vi.fn().mockResolvedValue({});
     vi.mocked(useNotesQuery.useDeleteNote).mockReturnValue({ mutateAsync: mockDelete } as any);
 
-    const { result } = renderHook(() => useNoteActions());
+    const { result } = renderHook(() => useDashboardActions());
 
     // 1. Open modal
     act(() => {
@@ -92,7 +96,7 @@ describe('useNoteActions', () => {
     vi.mocked(useNotesQuery.useEmptyTrash).mockReturnValue({ mutateAsync: mockEmpty } as any);
     setupMockStore({ selectedNoteId: 'trash-note' });
 
-    const { result } = renderHook(() => useNoteActions());
+    const { result } = renderHook(() => useDashboardActions());
 
     await act(async () => {
       await result.current.handleEmptyTrash();
@@ -100,8 +104,9 @@ describe('useNoteActions', () => {
 
     expect(mockEmpty).toHaveBeenCalled();
     const storeState = useNoteStore.getState();
+    const dashboardState = useDashboardStore.getState();
     expect(storeState.selectedNoteId).toBe(null);
-    expect(storeState.activeView).toBe('list');
+    expect(dashboardState.activeView).toBe('list');
     expect(toast.success).toHaveBeenCalledWith('Trash emptied');
   });
 });

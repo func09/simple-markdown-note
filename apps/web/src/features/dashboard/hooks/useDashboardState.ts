@@ -2,24 +2,19 @@ import React, { useMemo } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '@/lib/db';
 
-import { useSync } from '@/features/notes/hooks/useSync';
+import { useSync, useOramaSearch } from '@/features/notes/hooks';
 import { useNoteStore } from '@/features/notes/store';
-import { useOramaSearch } from './useOramaSearch';
-import { useNoteActions } from './useNoteActions';
+import { useDashboardStore } from '@/features/dashboard/store';
+import { useDashboardActions } from './useDashboardActions';
 
 /**
  * DesktopとMobileの両方のDashboardで共有されるビジネスロジックと状態を管理するカスタムフック
  * ノートのフィルタリング、検索、アクションハンドラー（作成・削除・復元など）を提供します。
  */
-export const useDashboard = () => {
-  const {
-    selectedNoteId,
-    searchQuery,
-    selectedTag,
-    isTrashSelected,
-    setActiveView,
-    setIsSidebarOpen,
-  } = useNoteStore();
+export const useDashboardState = () => {
+  const selectedNoteId = useNoteStore((state) => state.selectedNoteId);
+  const { searchQuery, selectedTag, isTrashSelected, setActiveView, setIsSidebarOpen } =
+    useDashboardStore();
 
   // サーバーからの同期状態を追跡するためフック自体は残すが、UIが直接参照する状態は Dexie から取得する
   const { isLoading: notesLoading } = useSync();
@@ -34,7 +29,7 @@ export const useDashboard = () => {
 
   // 分割したフックから検索機能とアクション群を取得
   const { filteredNotes, searchNotes, oramaDb } = useOramaSearch(notes, selectedTag, searchQuery);
-  const actions = useNoteActions();
+  const actions = useDashboardActions();
 
   const selectedNote = useMemo(
     () => notes.find((n) => n.id === selectedNoteId) || null,
@@ -50,13 +45,15 @@ export const useDashboard = () => {
       // 選択時点での最新のフィルタリング結果を同期的に取得し、先頭ノートを選択する
       const nextFiltered = searchNotes(notes, tag, query, oramaDb);
 
-      useNoteStore.setState({
+      useDashboardStore.setState({
         selectedTag: tag,
         searchQuery: query,
         isTrashSelected: isTrash,
-        selectedNoteId: nextFiltered.length > 0 ? nextFiltered[0].id : null,
         activeView: 'list',
         isSidebarOpen: false,
+      });
+      useNoteStore.setState({
+        selectedNoteId: nextFiltered.length > 0 ? nextFiltered[0].id : null,
       });
       setIsSidebarOpen(false);
     },
@@ -68,7 +65,7 @@ export const useDashboard = () => {
     if (filteredNotes.length === 0) {
       if (selectedNoteId !== null) {
         useNoteStore.setState({ selectedNoteId: null });
-        setActiveView('list');
+        useDashboardStore.getState().setActiveView('list');
       }
       return;
     }
