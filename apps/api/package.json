@@ -8,7 +8,8 @@
   },
   "scripts": {
     "dev": "tsx watch --env-file=../../.env src/index.ts",
-    "test": "vitest run"
+    "test": "vitest run",
+    "format": "prettier --write ."
   },
   "keywords": [],
   "author": "",
@@ -27,6 +28,7 @@
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/supertest": "^6.0.2",
+    "prettier": "^3.8.1",
     "tsx": "^4.21.0",
     "vitest": "^3.0.7"
   }
