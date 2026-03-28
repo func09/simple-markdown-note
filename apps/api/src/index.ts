@@ -1,7 +1,6 @@
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
-import { logger } from 'hono/logger'
 import { jwt } from 'hono/jwt'
 import authRouter from './routes/auth'
 import { notesRouter } from './routes/notes'
@@ -17,7 +16,22 @@ type Env = {
 // Honoアプリケーションのインスタンス化
 export const app = new Hono<Env>()
 
-app.use('*', logger())
+// カスタムロガー
+app.use('*', async (c, next) => {
+  const method = c.req.method
+  const url = c.req.path
+  const queryObj = c.req.query()
+  const query = Object.keys(queryObj).length > 0 ? JSON.stringify(queryObj) : '{}'
+  
+  console.log(`\x1b[36m[Request ]\x1b[0m ${method} ${url} - Query: ${query}`)
+  
+  const start = Date.now()
+  await next()
+  const ms = Date.now() - start
+  
+  const statusColor = c.res.status >= 500 ? '\x1b[31m' : c.res.status >= 400 ? '\x1b[33m' : '\x1b[32m'
+  console.log(`${statusColor}[Response]\x1b[0m ${method} ${url} - Status: ${c.res.status} (${ms}ms)`)
+})
 app.use('*', cors())
 
 // JWT秘密鍵（auth.tsと共有）
