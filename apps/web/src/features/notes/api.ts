@@ -7,11 +7,12 @@ import api from '@/lib/api';
  */
 
 /**
- * ノート一覧を取得する（ゴミ箱のノートもすべて取得）
+ * ノート一覧を取得する（差分同期対応）
+ * @param params - { updatedAfter?: string } (ISO8601日時)
  */
-export const fetchNotes = async () => {
-  // 常に全件取得するためパラメータは渡さない
-  const res = await api.notes.$get({ query: {} });
+export const fetchNotes = async (params?: { updatedAfter?: string }) => {
+  const query = params?.updatedAfter ? { updatedAfter: params.updatedAfter } : {};
+  const res = await api.notes.$get({ query });
   if (!res.ok) throw new Error('Failed to fetch notes');
   return res.json() as Promise<Note[]>;
 };
@@ -20,7 +21,7 @@ export const fetchNotes = async () => {
  * 新規ノートを作成する
  * @param data - サインアップなどの初期データ `{ content: string, tags?: string[] }`
  */
-export const createNote = async (data: { content: string; tags?: string[] }) => {
+export const createNote = async (data: { id?: string; content: string; tags?: string[] }) => {
   const res = await api.notes.$post({ json: data });
   if (!res.ok) throw new Error('Failed to create note');
   return res.json() as Promise<Note>;

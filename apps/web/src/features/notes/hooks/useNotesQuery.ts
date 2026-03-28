@@ -5,28 +5,6 @@ import * as noteApi from '@/features/notes/api';
 import { db } from '@/lib/db';
 
 /**
- * ノート一覧を取得するためのクエリフック
- * API経由で全ノートを取得し、IndexedDB に同期保存する
- */
-export const useNotes = () => {
-  return useQuery<Note[]>({
-    queryKey: ['notes'], // 引数が消えたのでキーは固定の['notes']のみ
-    queryFn: async () => {
-      const data = await noteApi.fetchNotes();
-      const notes = data as Note[];
-
-      // Dexie にデータを保存することで、useLiveQuery が自動でUIを更新する
-      if (notes.length > 0) {
-        await db.notes.bulkPut(notes);
-      }
-
-      return notes;
-    },
-    staleTime: 5 * 60 * 1000, // ★ 5分間は再取得せずにキャッシュを利用
-  });
-};
-
-/**
  * タグ一覧を取得するためのクエリフック
  */
 export const useTags = () => {
@@ -40,18 +18,42 @@ export const useTags = () => {
   });
 };
 
+import { useTriggerSync } from './useSync';
+
 /**
  * ノートを作成するためのミューテーションフック
  */
 export const useCreateNote = () => {
   const queryClient = useQueryClient();
+  const triggerSync = useTriggerSync();
 
   return useMutation({
-    mutationFn: (data: { content: string; tags?: string[] }) => noteApi.createNote(data),
-    onSuccess: async (newNote) => {
-      await db.notes.put(newNote as Note);
-      queryClient.invalidateQueries({ queryKey: ['notes'] });
+    mutationFn: async (data: { content: string; tags?: string[] }) => {
+      const id = crypto.randomUUID();
+      const now = new Date().toISOString();
+      const newNote: Note = {
+        id,
+        content: data.content,
+        tags:
+          data.tags?.map((t) => ({ id: t, name: t, userId: '', createdAt: now, updatedAt: now })) ||
+          [],
+        userId: '',
+        createdAt: now,
+        updatedAt: now,
+        deletedAt: null,
+      };
+
+      await db.notes.put(newNote);
+      await db.syncQueue.put({
+        action: 'create',
+        payload: { id, content: data.content, tags: data.tags },
+        createdAt: now,
+      });
+      return newNote;
+    },
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tags'] });
+      triggerSync(); // バックグラウンド同期キューをキック
     },
   });
 };
@@ -61,18 +63,50 @@ export const useCreateNote = () => {
  */
 export const useUpdateNote = () => {
   const queryClient = useQueryClient();
+  const triggerSync = useTriggerSync();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: { content?: string; tags?: string[] } }) =>
-      noteApi.updateNote(id, data),
-    onSuccess: async (updatedNote) => {
-      await db.notes.put(updatedNote as Note);
-      queryClient.setQueryData(['notes'], (oldNotes: Note[] | undefined) => {
-        if (!oldNotes) return [];
-        return oldNotes.map((note) => (note.id === (updatedNote as Note).id ? updatedNote : note));
+    mutationFn: async ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: { content?: string; tags?: string[] };
+    }) => {
+      const existing = await db.notes.get(id);
+      const now = new Date().toISOString();
+
+      if (existing) {
+        let updatedTags = existing.tags;
+        if (data.tags) {
+          updatedTags = data.tags.map((t) => ({
+            id: t,
+            name: t,
+            userId: '',
+            createdAt: now,
+            updatedAt: now,
+          }));
+        }
+
+        const updatedNote: Note = {
+          ...existing,
+          content: data.content ?? existing.content,
+          tags: updatedTags,
+          updatedAt: now,
+        };
+        await db.notes.put(updatedNote);
+      }
+
+      await db.syncQueue.put({
+        action: 'update',
+        payload: { id, data },
+        createdAt: now,
       });
-      // タグ一覧も再取得（クリーンアップの可能性があるため）
+      return { id, data };
+    },
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tags'] });
+      triggerSync();
     },
   });
 };
@@ -82,20 +116,22 @@ export const useUpdateNote = () => {
  */
 export const useDeleteNote = () => {
   const queryClient = useQueryClient();
+  const triggerSync = useTriggerSync();
 
   return useMutation({
-    mutationFn: (id: string) => noteApi.deleteNote(id),
-    onSuccess: async (_, deletedId) => {
-      await db.notes.update(deletedId, { deletedAt: new Date().toISOString() });
-      // 全ノート一覧から削除
-      queryClient.setQueryData(['notes'], (oldNotes: Note[] | undefined) => {
-        if (!oldNotes) return [];
-        return oldNotes.filter((note) => note.id !== deletedId);
+    mutationFn: async (id: string) => {
+      const now = new Date().toISOString();
+      await db.notes.update(id, { deletedAt: now, updatedAt: now });
+      await db.syncQueue.put({
+        action: 'delete',
+        payload: { id },
+        createdAt: now,
       });
-      // ゴミ箱一覧を無効化（削除されたノートが入るため）
-      queryClient.invalidateQueries({ queryKey: ['notes'] });
-      // タグ一覧も再取得
+      return id;
+    },
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tags'] });
+      triggerSync();
     },
   });
 };
@@ -105,20 +141,22 @@ export const useDeleteNote = () => {
  */
 export const useRestoreNote = () => {
   const queryClient = useQueryClient();
+  const triggerSync = useTriggerSync();
 
   return useMutation({
-    mutationFn: (id: string) => noteApi.restoreNote(id),
-    onSuccess: async (_, restoredId) => {
-      await db.notes.update(restoredId, { deletedAt: null });
-      // ゴミ箱一覧から削除
-      queryClient.setQueryData(['notes'], (oldNotes: Note[] | undefined) => {
-        if (!oldNotes) return [];
-        return oldNotes.filter((note) => note.id !== restoredId);
+    mutationFn: async (id: string) => {
+      const now = new Date().toISOString();
+      await db.notes.update(id, { deletedAt: null, updatedAt: now });
+      await db.syncQueue.put({
+        action: 'restore',
+        payload: { id },
+        createdAt: now,
       });
-      // 全ノート一覧を無効化（復元されたノートが戻るため）
-      queryClient.invalidateQueries({ queryKey: ['notes'] });
-      // タグ一覧も再取得
+      return id;
+    },
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tags'] });
+      triggerSync();
     },
   });
 };
@@ -127,16 +165,21 @@ export const useRestoreNote = () => {
  * ノートを永久削除するためのミューテーションフック
  */
 export const usePermanentDeleteNote = () => {
-  const queryClient = useQueryClient();
+  const triggerSync = useTriggerSync();
 
   return useMutation({
-    mutationFn: (id: string) => noteApi.permanentDeleteNote(id),
-    onSuccess: async (_, deletedId) => {
-      await db.notes.delete(deletedId);
-      queryClient.setQueryData(['notes'], (oldNotes: Note[] | undefined) => {
-        if (!oldNotes) return [];
-        return oldNotes.filter((note) => note.id !== deletedId);
+    mutationFn: async (id: string) => {
+      const now = new Date().toISOString();
+      await db.notes.delete(id);
+      await db.syncQueue.put({
+        action: 'permanentDelete',
+        payload: { id },
+        createdAt: now,
       });
+      return id;
+    },
+    onSuccess: () => {
+      triggerSync();
     },
   });
 };
@@ -145,16 +188,23 @@ export const usePermanentDeleteNote = () => {
  * ゴミ箱を空にするためのミューテーションフック
  */
 export const useEmptyTrash = () => {
-  const queryClient = useQueryClient();
+  const triggerSync = useTriggerSync();
 
   return useMutation({
-    mutationFn: () => noteApi.emptyTrash(),
-    onSuccess: async () => {
+    mutationFn: async () => {
+      const now = new Date().toISOString();
       const trashNotes = await db.notes.filter((n) => !!n.deletedAt).toArray();
       const trashIds = trashNotes.map((n) => n.id);
       await db.notes.bulkDelete(trashIds);
-      // ゴミ箱一覧を空にする
-      queryClient.setQueryData(['notes'], []);
+
+      await db.syncQueue.put({
+        action: 'emptyTrash',
+        payload: {},
+        createdAt: now,
+      });
+    },
+    onSuccess: () => {
+      triggerSync();
     },
   });
 };
