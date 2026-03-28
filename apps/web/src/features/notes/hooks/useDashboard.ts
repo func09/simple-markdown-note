@@ -36,7 +36,7 @@ export const useDashboard = () => {
 
   // IndexedDB (Dexie) を Single Source of Truth として監視する
   const dexieNotes = useLiveQuery(() => db.notes.toArray(), []) || [];
-  
+
   // 現在の「ゴミ箱か否か」のビューに基づいて Dexie のデータをフィルタリングする
   const notes = useMemo(() => {
     return dexieNotes.filter((n) => (isTrashSelected ? !!n.deletedAt : !n.deletedAt));
