@@ -2,6 +2,7 @@ import type React from "react";
 
 import {
   MobileEditorView,
+  MobileLayout,
   MobileListView,
   MobileSidebar,
 } from "@/features/dashboard/components";
@@ -34,54 +35,41 @@ export const MobileDashboard: React.FC = () => {
   } = useDashboardState();
 
   return (
-    <div className="relative flex h-screen w-full flex-col overflow-hidden bg-[#0f172a]">
-      {/* メインビュー */}
-      <div className="h-full flex-1">
-        {activeView === "list" ? (
-          <MobileListView
-            filteredNotes={filteredNotes}
-            handleCreateNote={handleCreateNote}
-            handleEmptyTrash={handleEmptyTrash}
-            notesLoading={notesLoading}
-          />
-        ) : (
-          <MobileEditorView
-            selectedNote={selectedNote}
-            isTrashSelected={isTrashSelected}
-            setActiveView={setActiveView}
-            handleRestoreNote={handleRestoreNote}
-            handleDeleteClick={handleDeleteClick}
-            handleUpdateTags={handleUpdateTags}
-          />
-        )}
-      </div>
-
-      {/* サイドバー（ドロワー） */}
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 z-100 bg-slate-950/80 backdrop-blur-xs"
-          onClick={() => setIsSidebarOpen(false)}
-        >
-          <div
-            className="flex h-full w-[280px] flex-col border-r border-slate-800 bg-slate-900 shadow-2xl duration-300 animate-in slide-in-from-left"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* サイドバー内のナビゲーション */}
-            <MobileSidebar
-              onSelectTag={(tag, isTrash) => updateSelection(tag, isTrash)}
-            />
-          </div>
-        </div>
+    <MobileLayout
+      isSidebarOpen={isSidebarOpen}
+      onCloseSidebar={() => setIsSidebarOpen(false)}
+      sidebar={
+        <MobileSidebar
+          onSelectTag={(tag, isTrash) => updateSelection(tag, isTrash)}
+        />
+      }
+      modals={
+        <DeleteConfirmModal
+          isOpen={isDeleteModalOpen}
+          onOpenChange={setIsDeleteModalOpen}
+          isTrashSelected={isTrashSelected}
+          onConfirm={confirmDeleteNote}
+        />
+      }
+    >
+      {activeView === "list" ? (
+        <MobileListView
+          filteredNotes={filteredNotes}
+          handleCreateNote={handleCreateNote}
+          handleEmptyTrash={handleEmptyTrash}
+          notesLoading={notesLoading}
+        />
+      ) : (
+        <MobileEditorView
+          selectedNote={selectedNote}
+          isTrashSelected={isTrashSelected}
+          setActiveView={setActiveView}
+          handleRestoreNote={handleRestoreNote}
+          handleDeleteClick={handleDeleteClick}
+          handleUpdateTags={handleUpdateTags}
+        />
       )}
-
-      {/* 削除確認モーダル */}
-      <DeleteConfirmModal
-        isOpen={isDeleteModalOpen}
-        onOpenChange={setIsDeleteModalOpen}
-        isTrashSelected={isTrashSelected}
-        onConfirm={confirmDeleteNote}
-      />
-    </div>
+    </MobileLayout>
   );
 };
 
