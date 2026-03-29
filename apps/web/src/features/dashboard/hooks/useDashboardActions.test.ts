@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
-import { useDashboardActions } from './useDashboardActions';
+import { useDashboardActions } from '@/features/dashboard/hooks/useDashboardActions';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as useNotesQuery from '@/features/notes/hooks';
 import { useNoteStore } from '@/features/notes/store';
