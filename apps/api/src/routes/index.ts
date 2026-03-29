@@ -1,8 +1,8 @@
 import { Hono } from "hono";
-import { authRouter } from "@/routes/auth";
-import { notesRouter } from "@/routes/notes";
-import { tagsRouter } from "@/routes/tags";
-import type { AppEnv } from "@/types";
+import type { AppEnv } from "../types";
+import { authRouter } from "./auth";
+import { notesRouter } from "./notes";
+import { tagsRouter } from "./tags";
 
 export const apiRouter = new Hono<AppEnv>();
 
