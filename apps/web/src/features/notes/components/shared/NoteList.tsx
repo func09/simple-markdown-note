@@ -60,6 +60,7 @@ export const NoteList: React.FC<NoteListProps> = ({
                 <TagIcon size={8} />
                 {selectedTag === "__untagged__" ? "Untagged" : selectedTag}
                 <button
+                  type="button"
                   onClick={() => setSelectedTag(null)}
                   className="transition-colors hover:text-white"
                 >
@@ -116,6 +117,7 @@ export const NoteList: React.FC<NoteListProps> = ({
           />
           {searchQuery && (
             <button
+              type="button"
               onClick={() => setSearchQuery("")}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-600 hover:text-slate-400"
             >
@@ -129,7 +131,6 @@ export const NoteList: React.FC<NoteListProps> = ({
       <div
         id="note-list-container"
         className="min-h-0 flex-1 focus:outline-none"
-        tabIndex={0}
         onFocus={() => setIsFocused(true)}
         onBlur={(e) => {
           if (!e.currentTarget.contains(e.relatedTarget as Node)) {

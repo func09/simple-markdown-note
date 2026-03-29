@@ -16,6 +16,17 @@ interface AppLayoutProps {
 /**
  * 3カラム構成のメインレイアウト (標準コンポーネント + 黄金比)
  */
+// 初期の理想的なバランス [15%, 25%, 60%]
+const IDEAL_ALL = [15, 25, 60];
+const IDEAL_SPLIT = [32, 68];
+
+// ID を刷新してキャッシュを回避 (v100)
+const IDS = {
+  NAV: "nav-v100",
+  LIST: "list-v100",
+  EDITOR: "editor-v100",
+};
+
 export const AppLayout: React.FC<AppLayoutProps> = React.memo(
   ({ nav, list, main }) => {
     const layoutMode = useDashboardStore((state) => state.layoutMode);
@@ -32,10 +43,6 @@ export const AppLayout: React.FC<AppLayoutProps> = React.memo(
       (state) => state.setLayoutSplitSizes
     );
 
-    // 初期の理想的なバランス [15%, 25%, 60%]
-    const IDEAL_ALL = [15, 25, 60];
-    const IDEAL_SPLIT = [32, 68];
-
     // ストアの値をサニタイズ（極端な値は初期値に戻す）
     const sanitizedAll = React.useMemo(() => {
       const [n, l, e] = layoutAllSizesArr;
@@ -49,13 +56,6 @@ export const AppLayout: React.FC<AppLayoutProps> = React.memo(
       if (l < 10 || e < 10) return IDEAL_SPLIT;
       return layoutSplitSizesArr;
     }, [layoutSplitSizesArr]);
-
-    // ID を刷新してキャッシュを回避 (v100)
-    const IDS = {
-      NAV: "nav-v100",
-      LIST: "list-v100",
-      EDITOR: "editor-v100",
-    };
 
     const handleLayoutChange = React.useCallback(
       (layout: ResizablePrimitive.Layout) => {
@@ -76,7 +76,7 @@ export const AppLayout: React.FC<AppLayoutProps> = React.memo(
           }
         }
       },
-      [layoutMode, setLayoutAllSizes, setLayoutSplitSizes, IDS]
+      [layoutMode, setLayoutAllSizes, setLayoutSplitSizes]
     );
 
     return (

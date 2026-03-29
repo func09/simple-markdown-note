@@ -67,10 +67,13 @@ export const useDashboardActions = () => {
    * 即時削除せず、削除確認モーダルを表示させるための状態をセットします
    * @param id 削除対象のノートID
    */
-  const handleDeleteClick = useCallback((id: string) => {
-    setNoteToDelete(id);
-    setIsDeleteModalOpen(true);
-  }, []);
+  const handleDeleteClick = useCallback(
+    (id: string) => {
+      setNoteToDelete(id);
+      setIsDeleteModalOpen(true);
+    },
+    [setIsDeleteModalOpen, setNoteToDelete]
+  );
 
   /**
    * モーダルでの削除確定処理
@@ -110,6 +113,8 @@ export const useDashboardActions = () => {
     selectedNoteId,
     setSelectedNoteId,
     setActiveView,
+    setIsDeleteModalOpen,
+    setNoteToDelete,
   ]);
 
   /**

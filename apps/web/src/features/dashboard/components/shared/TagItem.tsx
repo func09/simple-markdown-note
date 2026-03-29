@@ -12,6 +12,7 @@ export interface TagItemProps {
 export const TagItem = React.memo<TagItemProps>(
   ({ name, isSelected, isPanelFocused, onClick, label }) => (
     <button
+      type="button"
       onClick={() => onClick(name)}
       className={cn(
         "group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm",
