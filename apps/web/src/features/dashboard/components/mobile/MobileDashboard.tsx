@@ -100,7 +100,7 @@ export const MobileDashboard: React.FC = () => {
       {/* サイドバー（ドロワー） */}
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur-sm"
+          className="fixed inset-0 z-100 bg-slate-950/80 backdrop-blur-xs"
           onClick={() => setIsSidebarOpen(false)}
         >
           <div

@@ -39,7 +39,7 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
     <nav
       id="nav-container"
       aria-label="Sidebar Navigation"
-      className="custom-scrollbar flex h-full flex-col overflow-y-auto px-2 focus:outline-none"
+      className="custom-scrollbar flex h-full flex-col overflow-y-auto px-2 focus:outline-hidden"
       onFocus={() => onFocusChange(true)}
       onBlur={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget as Node)) {
@@ -49,8 +49,8 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
       onKeyDown={onKeyDown}
     >
       {/* macOS titlebar drag region */}
-      <div className="min-h-8 w-full flex-shrink-0 [-webkit-app-region:drag]" />
-      <div className="flex flex-shrink-0 flex-col gap-1 pb-4 pt-2">
+      <div className="min-h-8 w-full shrink-0 [-webkit-app-region:drag]" />
+      <div className="flex shrink-0 flex-col gap-1 pb-4 pt-2">
         <button
           type="button"
           onClick={(e) => {
@@ -128,7 +128,7 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
         />
       </div>
 
-      <div className="mt-auto flex flex-shrink-0 flex-col gap-1 pb-4 pt-6">
+      <div className="mt-auto flex shrink-0 flex-col gap-1 pb-4 pt-6">
         <button
           type="button"
           onClick={handleLogout}
