@@ -20,27 +20,35 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: 'pnpm'
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Generate Drizzle Schema & OpenAPI types
         run: |
-          npm run --workspace=packages/database generate --if-present
-          npm run --workspace=packages/openapi generate --if-present
+          pnpm -F database run generate --if-present
+          pnpm -F openapi build --if-present
 
-      - name: Verify formatting
-        run: npm run format:check --workspaces --if-present
+      - name: Verify code style & Lint
+        run: pnpm check
+
+      - name: Type check
+        run: pnpm typecheck
 
       - name: Setup test database
-        run: npm run --workspace=packages/database db:push
+        run: pnpm -F database db:push
         env:
-          DATABASE_URL: "file:../../storage/test.db"
+          DATABASE_URL: "file:./test.db"
 
       - name: Run tests
-        run: npm test
+        run: pnpm test
