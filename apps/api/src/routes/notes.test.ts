@@ -1,4 +1,5 @@
 import { execSync } from "child_process";
+import { getLibsqlDb, users } from "database";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { app } from "../index";
 
@@ -14,8 +15,11 @@ describe("Unified Sync API (/notes/sync)", () => {
       env: { ...process.env, DATABASE_URL: dbUrl },
     });
 
+    const testDb = getLibsqlDb();
+    await testDb.delete(users);
+
     // テスト用ユーザーの作成とログイン
-    const signupRes = await app.request("/auth/signup", {
+    const signupRes = await app.request("/api/auth/signup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -34,7 +38,7 @@ describe("Unified Sync API (/notes/sync)", () => {
   it("should create a new note via sync", async () => {
     const clientUpdatedAt = new Date().toISOString();
 
-    const res = await app.request("/notes/sync", {
+    const res = await app.request("/api/notes/sync", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -63,7 +67,7 @@ describe("Unified Sync API (/notes/sync)", () => {
   });
 
   it("should fetch notes via lastSyncedAt", async () => {
-    const res = await app.request("/notes/sync", {
+    const res = await app.request("/api/notes/sync", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -81,9 +85,11 @@ describe("Unified Sync API (/notes/sync)", () => {
   });
 
   it("should update a note using LWW (Last-Write-Wins)", async () => {
-    const newerUpdatedAt = new Date(Date.now() + 60000).toISOString(); // 1 minute in the future
+    const date = new Date(Date.now() + 60000); // 1 minute in the future
+    date.setMilliseconds(0);
+    const newerUpdatedAt = date.toISOString();
 
-    const res = await app.request("/notes/sync", {
+    const res = await app.request("/api/notes/sync", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -114,7 +120,7 @@ describe("Unified Sync API (/notes/sync)", () => {
   it("should reject outdated updates (older clientUpdatedAt)", async () => {
     const olderUpdatedAt = new Date(Date.now() - 60000).toISOString(); // 1 minute in the past
 
-    const res = await app.request("/notes/sync", {
+    const res = await app.request("/api/notes/sync", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -136,7 +142,7 @@ describe("Unified Sync API (/notes/sync)", () => {
     const body: any = await res.json();
 
     // DB に現在存在する最新のノート情報をチェック
-    const checkRes = await app.request("/notes/sync", {
+    const checkRes = await app.request("/api/notes/sync", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -151,10 +157,12 @@ describe("Unified Sync API (/notes/sync)", () => {
   });
 
   it("should soft delete and permanently delete via isPermanent flag", async () => {
-    const deletedUpdatedAt = new Date(Date.now() + 120000).toISOString(); // Future
+    const softDelDate = new Date(Date.now() + 120000); // Future
+    softDelDate.setMilliseconds(0);
+    const deletedUpdatedAt = softDelDate.toISOString();
 
     // Soft Delete (deletedAt is set)
-    const softDelRes = await app.request("/notes/sync", {
+    const softDelRes = await app.request("/api/notes/sync", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -179,10 +187,12 @@ describe("Unified Sync API (/notes/sync)", () => {
     expect(dbNote.deletedAt).not.toBeNull();
     expect(dbNote.isPermanent).toBe(false);
 
-    const permanentUpdatedAt = new Date(Date.now() + 180000).toISOString(); // Future Further
+    const permDate = new Date(Date.now() + 180000); // Future Further
+    permDate.setMilliseconds(0);
+    const permanentUpdatedAt = permDate.toISOString();
 
     // Permanent Delete (isPermanent is true)
-    const permDelRes = await app.request("/notes/sync", {
+    const permDelRes = await app.request("/api/notes/sync", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -211,7 +221,7 @@ describe("Unified Sync API (/notes/sync)", () => {
     const otherNoteId = "other-user-note-1";
 
     beforeAll(async () => {
-      const signupRes = await app.request("/auth/signup", {
+      const signupRes = await app.request("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -222,7 +232,7 @@ describe("Unified Sync API (/notes/sync)", () => {
       const body: any = await signupRes.json();
       otherToken = body.token;
 
-      await app.request("/notes/sync", {
+      await app.request("/api/notes/sync", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -242,7 +252,7 @@ describe("Unified Sync API (/notes/sync)", () => {
     });
 
     it("should not return other user's notes in updates", async () => {
-      const res = await app.request("/notes/sync", {
+      const res = await app.request("/api/notes/sync", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -256,7 +266,7 @@ describe("Unified Sync API (/notes/sync)", () => {
     });
 
     it("should silently quarantine other user's update if attempted with manipulated payload", async () => {
-      const res = await app.request("/notes/sync", {
+      const res = await app.request("/api/notes/sync", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -278,7 +288,7 @@ describe("Unified Sync API (/notes/sync)", () => {
       // because db.insert(notes).onConflictDoUpdate() uses { where: { id } } but the rest is driven by the backend assigning userId.
       // Wait... upsert in notes.ts enforces userId during create, but on update it just updates where id match!
       // Let's verify if user 2's note was actually overwritten!
-      const checkRes = await app.request("/notes/sync", {
+      const checkRes = await app.request("/api/notes/sync", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

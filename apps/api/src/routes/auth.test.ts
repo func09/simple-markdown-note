@@ -1,5 +1,5 @@
 import { execSync } from "node:child_process";
-import { db, users } from "database";
+import { getLibsqlDb, users } from "database";
 import { beforeAll, describe, expect, it } from "vitest";
 import { app } from "../index";
 
@@ -11,12 +11,13 @@ describe("Auth API", () => {
       env: { ...process.env, DATABASE_URL: dbUrl },
     });
     // テーブルのクリーンアップ
-    await db.delete(users);
+    const testDb = getLibsqlDb();
+    await testDb.delete(users);
   });
 
   // ユーザー登録のテスト
   it("should signup a new user", async () => {
-    const res = await app.request("/auth/signup", {
+    const res = await app.request("/api/auth/signup", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -34,7 +35,7 @@ describe("Auth API", () => {
   });
 
   it("should signin an existing user", async () => {
-    const res = await app.request("/auth/signin", {
+    const res = await app.request("/api/auth/signin", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -52,7 +53,7 @@ describe("Auth API", () => {
   });
 
   it("should return error for invalid credentials", async () => {
-    const res = await app.request("/auth/signin", {
+    const res = await app.request("/api/auth/signin", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

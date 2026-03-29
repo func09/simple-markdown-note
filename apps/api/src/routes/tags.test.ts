@@ -1,4 +1,5 @@
 import { execSync } from "node:child_process";
+import { getLibsqlDb, users } from "database";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { app } from "../index";
 
@@ -14,7 +15,7 @@ describe("Tags API via Sync", () => {
     });
 
     // テスト用ユーザーの作成とログイン
-    const signupRes = await app.request("/auth/signup", {
+    const signupRes = await app.request("/api/auth/signup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -31,7 +32,7 @@ describe("Tags API via Sync", () => {
   });
 
   it("should create tags when syncing a new note", async () => {
-    const res = await app.request("/notes/sync", {
+    const res = await app.request("/api/notes/sync", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -58,7 +59,7 @@ describe("Tags API via Sync", () => {
     expect(syncedNote.tags.map((t: any) => t.name)).toContain("Important");
 
     // タグ一覧をGETで確認
-    const tagsRes = await app.request("/tags", {
+    const tagsRes = await app.request("/api/tags", {
       method: "GET",
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -68,7 +69,7 @@ describe("Tags API via Sync", () => {
 
   it("should sync tags when updating a note via sync", async () => {
     // タグを更新 (1つ削除、1つ追加)
-    const res = await app.request("/notes/sync", {
+    const res = await app.request("/api/notes/sync", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -96,7 +97,7 @@ describe("Tags API via Sync", () => {
     expect(updatedNote.tags.map((t: any) => t.name)).not.toContain("Important");
 
     // タグ一覧を確認 (Important は cleanupOrphanedTags で削除されているはず)
-    const tagsRes = await app.request("/tags", {
+    const tagsRes = await app.request("/api/tags", {
       method: "GET",
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -107,7 +108,7 @@ describe("Tags API via Sync", () => {
 
   it("should cleanup all tags when note tags are set to empty", async () => {
     // タグを空にする
-    await app.request("/notes/sync", {
+    await app.request("/api/notes/sync", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -127,7 +128,7 @@ describe("Tags API via Sync", () => {
     });
 
     // タグ一覧を確認 (全て削除されているはず)
-    const tagsRes = await app.request("/tags", {
+    const tagsRes = await app.request("/api/tags", {
       method: "GET",
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -138,7 +139,7 @@ describe("Tags API via Sync", () => {
   describe("Authorization", () => {
     it("should not include other user's tags in list", async () => {
       // 別のユーザーを作成してノートを作成（タグ付き）
-      await app.request("/auth/signup", {
+      await app.request("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -146,7 +147,7 @@ describe("Tags API via Sync", () => {
           password: "password123",
         }),
       });
-      const loginRes = await app.request("/auth/signin", {
+      const loginRes = await app.request("/api/auth/signin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -156,7 +157,7 @@ describe("Tags API via Sync", () => {
       });
       const { token: otherToken }: any = await loginRes.json();
 
-      await app.request("/notes/sync", {
+      await app.request("/api/notes/sync", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -176,7 +177,7 @@ describe("Tags API via Sync", () => {
       });
 
       // 元のユーザーとしてタグ一覧を取得
-      const res = await app.request("/tags", {
+      const res = await app.request("/api/tags", {
         method: "GET",
         headers: { Authorization: `Bearer ${token}` },
       });

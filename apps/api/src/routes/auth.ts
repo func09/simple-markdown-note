@@ -34,7 +34,7 @@ authRouter.post(
       })
       .returning();
 
-    const secret = c.env.JWT_SECRET || "dev-secret";
+    const secret = c.env?.JWT_SECRET || "dev-secret";
     const token = await sign({ userId: user.id }, secret);
 
     return c.json({
@@ -70,7 +70,7 @@ authRouter.post(
       return c.json({ error: "Invalid credentials" }, 401);
     }
 
-    const secret = c.env.JWT_SECRET || "dev-secret";
+    const secret = c.env?.JWT_SECRET || "dev-secret";
     const token = await sign({ userId: user.id }, secret);
 
     return c.json({
