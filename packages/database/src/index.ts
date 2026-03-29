@@ -5,7 +5,6 @@ const { PrismaClient } = PrismaPkg;
 import { PrismaLibSql } from "@prisma/adapter-libsql";
 
 const adapter = new PrismaLibSql({
-  // @ts-expect-error
   url:
     (globalThis as any).process?.env?.DATABASE_URL ||
     "file:../../storage/test.db",

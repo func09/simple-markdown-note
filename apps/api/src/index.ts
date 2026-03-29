@@ -44,7 +44,6 @@ app.use("*", async (c, next) => {
 app.use("*", cors());
 
 // JWT秘密鍵（auth.tsと共有）
-// @ts-expect-error
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret";
 
 // ヘルスチェック用エンドポイント
@@ -63,7 +62,6 @@ app.route("/auth", authRouter);
 
 const port = 3000;
 
-// @ts-expect-error
 if (process.env.NODE_ENV !== "test") {
   console.log(`Server is running on port ${port}`);
   serve({

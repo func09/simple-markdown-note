@@ -15,6 +15,7 @@
     "format": "pnpm -F '*' format",
     "lint": "pnpm -F '*' lint",
     "check": "pnpm -F '*' check",
+    "typecheck": "pnpm -r --if-present typecheck",
     "test": "pnpm -r --if-present test",
     "prepare": "husky"
   },

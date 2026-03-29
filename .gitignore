@@ -31,3 +31,5 @@ Thumbs.db
 
 # IDEs
 .idea/
+# typescript
+*.tsbuildinfo
