@@ -29,7 +29,7 @@
     "@paralleldrive/cuid2": "^2.2.2",
     "bcryptjs": "^3.0.3",
     "drizzle-orm": "^0.40.0",
-    "openapi": "^1.0.0",
+    "openapi": "workspace:*",
     "zod": "^4.3.6"
   }
 }
