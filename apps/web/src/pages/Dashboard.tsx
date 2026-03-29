@@ -1,9 +1,7 @@
 import type React from "react";
 
-import {
-  DesktopDashboard,
-  MobileDashboard,
-} from "@/features/dashboard/components";
+import { DesktopDashboard } from "@/features/dashboard/components/desktop/DesktopDashboard";
+import { MobileDashboard } from "@/features/dashboard/components/mobile/MobileDashboard";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 const Dashboard: React.FC = () => {
