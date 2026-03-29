@@ -2,7 +2,7 @@ import { serve } from "@hono/node-server";
 import { createDb, type DrizzleDB, db as staticDb } from "database";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { jwt } from "hono/jwt";
+import { authContextExtractor, jwtAuth } from "./middlewares/auth";
 import { requestLogger } from "./middlewares/logger";
 import authRouter from "./routes/auth";
 import { notesRouter } from "./routes/notes";
@@ -40,31 +40,10 @@ app.use("*", requestLogger());
 app.use("*", cors());
 
 // JWT 認証ミドルウェア (秘密鍵は環境変数から取得)
-app.use("/api/*", async (c, next) => {
-  // 認証不要ルートの除外
-  if (c.req.path.startsWith("/api/auth") || c.req.path === "/health") {
-    return next();
-  }
-  const secret = c.env?.JWT_SECRET || "dev-secret";
-  return jwt({ secret, alg: "HS256" })(c, next);
-});
+app.use("/api/*", jwtAuth());
 
 // userId 抽出ミドルウェア (認証後に payload から ID をコンテキストにセット)
-app.use("/api/*", async (c, next) => {
-  if (c.req.path.startsWith("/api/auth") || c.req.path === "/health") {
-    return next();
-  }
-  const payload = c.get("jwtPayload") as Record<string, unknown> | undefined;
-  // userId と id（以前のトークン形式）の両方に対応
-  const userId = payload?.userId || payload?.id;
-
-  if (!userId) {
-    return c.json({ error: "Unauthorized" }, 401);
-  }
-
-  c.set("userId", String(userId));
-  await next();
-});
+app.use("/api/*", authContextExtractor());
 
 // 各ルートの登録 (/api プレフィックスを Hono 側で持つように変更)
 app.route("/api/notes", notesRouter);
