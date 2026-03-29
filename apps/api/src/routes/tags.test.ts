@@ -1,4 +1,4 @@
-import { execSync } from "child_process";
+import { execSync } from "node:child_process";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { app } from "../index";
 
@@ -9,12 +9,9 @@ describe("Tags API via Sync", () => {
   beforeAll(async () => {
     // テストデータベースの初期化
     const dbUrl = process.env.DATABASE_URL || "file:./test.db";
-    execSync(
-      `npx prisma db push --force-reset --schema=../../packages/database/prisma/schema.prisma --config=../../packages/database/prisma.config.ts`,
-      {
-        env: { ...process.env, DATABASE_URL: dbUrl },
-      }
-    );
+    execSync(`pnpm -F database db:push`, {
+      env: { ...process.env, DATABASE_URL: dbUrl },
+    });
 
     // テスト用ユーザーの作成とログイン
     const signupRes = await app.request("/auth/signup", {
@@ -30,8 +27,7 @@ describe("Tags API via Sync", () => {
   });
 
   afterAll(async () => {
-    const { prisma } = await import("database");
-    await prisma.$disconnect();
+    // 必要に応じて後処理を追加
   });
 
   it("should create tags when syncing a new note", async () => {

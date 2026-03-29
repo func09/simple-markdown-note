@@ -6,8 +6,9 @@
   "scripts": {
     "lint": "biome lint .",
     "format": "biome format --write .",
-    "db:push": "prisma db push",
-    "generate": "prisma generate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "generate": "drizzle-kit generate",
     "typecheck": "tsc --noEmit"
   },
   "keywords": [],
@@ -15,14 +16,13 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "@types/bcryptjs": "^2.4.6",
-    "prisma": "^7.5.0"
+    "@types/bcryptjs": "^2.4.6"
   },
   "dependencies": {
     "@libsql/client": "^0.17.2",
-    "@prisma/adapter-libsql": "^7.5.0",
-    "@prisma/client": "^7.5.0",
     "bcryptjs": "^3.0.3",
+    "@paralleldrive/cuid2": "^2.2.2",
+    "drizzle-orm": "^0.40.0",
     "openapi": "^1.0.0",
     "zod": "^4.3.6"
   }

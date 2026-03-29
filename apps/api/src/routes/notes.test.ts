@@ -10,12 +10,9 @@ describe("Unified Sync API (/notes/sync)", () => {
   beforeAll(async () => {
     // テストデータベースの初期化
     const dbUrl = process.env.DATABASE_URL || "file:./test.db";
-    execSync(
-      `npx prisma db push --force-reset --schema=../../packages/database/prisma/schema.prisma --config=../../packages/database/prisma.config.ts`,
-      {
-        env: { ...process.env, DATABASE_URL: dbUrl },
-      }
-    );
+    execSync(`pnpm -F database db:push`, {
+      env: { ...process.env, DATABASE_URL: dbUrl },
+    });
 
     // テスト用ユーザーの作成とログイン
     const signupRes = await app.request("/auth/signup", {
@@ -31,8 +28,7 @@ describe("Unified Sync API (/notes/sync)", () => {
   });
 
   afterAll(async () => {
-    const { prisma } = await import("database");
-    await prisma.$disconnect();
+    // Drizzle では明示的な disconnect は不要な場合が多いですが、必要に応じて追加
   });
 
   it("should create a new note via sync", async () => {

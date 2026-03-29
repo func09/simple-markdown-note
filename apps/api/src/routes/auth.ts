@@ -1,6 +1,6 @@
 import { zValidator } from "@hono/zod-validator";
 import bcrypt from "bcryptjs";
-import { prisma } from "database";
+import { db, eq, users } from "database";
 import { Hono } from "hono";
 import { sign } from "hono/jwt";
 import { SigninRequestSchema, SignupRequestSchema } from "openapi";
@@ -16,18 +16,23 @@ authRouter.post(
   async (c: any) => {
     const { email, password } = c.req.valid("json");
 
-    const existingUser = await prisma.user.findUnique({ where: { email } });
+    const existingUser = await db.query.users.findFirst({
+      where: eq(users.email, email),
+    });
+
     if (existingUser) {
       return c.json({ error: "User already exists" }, 400);
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const user = await prisma.user.create({
-      data: {
+
+    const [user] = await db
+      .insert(users)
+      .values({
         email,
         passwordHash,
-      },
-    });
+      })
+      .returning();
 
     const token = await sign({ userId: user.id }, JWT_SECRET);
 
@@ -50,7 +55,10 @@ authRouter.post(
   async (c: any) => {
     const { email, password } = c.req.valid("json");
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await db.query.users.findFirst({
+      where: eq(users.email, email),
+    });
+
     if (!user) {
       return c.json({ error: "Invalid credentials" }, 401);
     }
