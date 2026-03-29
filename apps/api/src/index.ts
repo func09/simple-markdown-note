@@ -2,9 +2,12 @@ import { serve } from "@hono/node-server";
 import type { DrizzleDB } from "database";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { authContextExtractor, jwtAuth } from "./middlewares/auth";
-import { dbInjector } from "./middlewares/db";
-import { requestLogger } from "./middlewares/logger";
+import {
+  authContextExtractor,
+  dbInjector,
+  jwtAuth,
+  requestLogger,
+} from "./middlewares";
 import authRouter from "./routes/auth";
 import { notesRouter } from "./routes/notes";
 import { tagsRouter } from "./routes/tags";
