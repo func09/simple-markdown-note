@@ -4,15 +4,6 @@ dist/
 build/
 .turbo/
 
-# Databases
-*.db
-*.db-journal
-*.db-shm
-*.db-wal
-
-# MinIO data
-storage/minio/
-
 # Logs
 npm-debug.log*
 yarn-debug.log*
