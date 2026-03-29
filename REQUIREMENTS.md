@@ -2,12 +2,11 @@
 
 ## 🎯 プロジェクト目標
 特定のクラウドベンダーに依存しない（脱ロックイン）、SQLite ファイルベースの堅牢な個人用ノートアプリ。
-Docker Compose による再現性の高い環境と、OpenAPI によるスキーマ駆動開発を徹底する。
+pnpm ワークスペースによる再現性の高い環境と、OpenAPI によるスキーマ駆動開発を徹底する。
 
 ## 📅 開発ロードマップ（細分化フェーズ）
 
-### フェーズ 1: 開発環境構築 & スキーマ設計 (Docker / Drizzle / OpenAPI)
-* **Docker Setup**: `docker-compose.yml` の作成。Node.js (API/Web), MinIO (S3互換ストレージ), Drizzle Studio のコンテナ化。
+### フェーズ 1: 開発環境構築 & スキーマ設計 (pnpm / Drizzle / OpenAPI)
 * **DB/API Schema**: 
     - `packages/database` で Drizzle による SQLite テーブル定義。
     - `packages/openapi` で Zod による API 仕様定義。
@@ -49,7 +48,5 @@ Docker Compose による再現性の高い環境と、OpenAPI によるスキー
 │   ├── database/           # Drizzle Schema & Migrations
 │   ├── openapi/            # OpenAPI (Zod) Definitions
 │   └── common/             # Shared Types & Logic
-├── docker/                 # 各アプリの Dockerfile
 ├── storage/                # SQLite (.db) & MinIO データの永続化領域
-├── docker-compose.yml      # 全体環境定義
 └── package.json
