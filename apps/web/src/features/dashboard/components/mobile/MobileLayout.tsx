@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 
 interface MobileLayoutProps {
   children: React.ReactNode;
@@ -27,7 +27,7 @@ export const MobileLayout: React.FC<MobileLayoutProps> = ({
       {/* サイドバー（ドロワー） */}
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 z-100 bg-slate-950/80 backdrop-blur-xs"
+          className="fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur-xs"
           onClick={onCloseSidebar}
         >
           <div
