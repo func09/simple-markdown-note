@@ -12,8 +12,7 @@ export const createDb = (d1: any) => {
 // LibSQL 用の型（ローカル開発/テスト用）
 export const getLibsqlDb = () => {
   const url =
-    (globalThis as any).process?.env?.DATABASE_URL ||
-    "file:../../storage/test.db";
+    (globalThis as any).process?.env?.DATABASE_URL || "file:./local.db";
   const client = createClient({ url });
   return drizzleLibsql({ client, schema });
 };

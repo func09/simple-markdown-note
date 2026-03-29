@@ -5,10 +5,10 @@ build/
 .turbo/
 
 # Databases
-storage/*.db
-storage/*.db-journal
-storage/*.db-shm
-storage/*.db-wal
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
 
 # MinIO data
 storage/minio/
