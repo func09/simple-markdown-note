@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -8,7 +8,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+} from "@/components/ui/alert-dialog";
 
 interface DeleteConfirmModalProps {
   isOpen: boolean;
@@ -32,19 +32,22 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
       <AlertDialogContent className="border-slate-800 bg-slate-900 text-slate-200">
         <AlertDialogHeader>
           <AlertDialogTitle className="text-white">
-            {isTrashSelected ? 'Delete Permanently?' : 'Delete Note?'}
+            {isTrashSelected ? "Delete Permanently?" : "Delete Note?"}
           </AlertDialogTitle>
           <AlertDialogDescription className="text-slate-400">
             {isTrashSelected
-              ? 'This action is final and cannot be undone.'
-              : 'This note will be moved to the trash.'}
+              ? "This action is final and cannot be undone."
+              : "This note will be moved to the trash."}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel className="border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white">
             Cancel
           </AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm} className="bg-red-600 text-white hover:bg-red-500">
+          <AlertDialogAction
+            onClick={onConfirm}
+            className="bg-red-600 text-white hover:bg-red-500"
+          >
             Delete
           </AlertDialogAction>
         </AlertDialogFooter>
@@ -53,4 +56,4 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
   );
 };
 
-DeleteConfirmModal.displayName = 'DeleteConfirmModal';
+DeleteConfirmModal.displayName = "DeleteConfirmModal";

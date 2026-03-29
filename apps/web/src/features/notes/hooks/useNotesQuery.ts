@@ -1,15 +1,15 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import type { Note, Tag } from 'openapi';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { Note, Tag } from "openapi";
 
-import * as noteApi from '@/features/notes/api';
-import { db } from '@/lib/db';
+import * as noteApi from "@/features/notes/api";
+import { db } from "@/lib/db";
 
 /**
  * タグ一覧を取得するためのクエリフック
  */
 export const useTags = () => {
   return useQuery<Tag[]>({
-    queryKey: ['tags'],
+    queryKey: ["tags"],
     queryFn: async () => {
       const data = await noteApi.fetchTags();
       return data as Tag[];
@@ -18,7 +18,7 @@ export const useTags = () => {
   });
 };
 
-import { useTriggerSync } from '@/features/notes/hooks/useSync';
+import { useTriggerSync } from "@/features/notes/hooks/useSync";
 
 /**
  * ノートを作成するためのミューテーションフック
@@ -35,9 +35,14 @@ export const useCreateNote = () => {
         id,
         content: data.content,
         tags:
-          data.tags?.map((t) => ({ id: t, name: t, userId: '', createdAt: now, updatedAt: now })) ||
-          [],
-        userId: '',
+          data.tags?.map((t) => ({
+            id: t,
+            name: t,
+            userId: "",
+            createdAt: now,
+            updatedAt: now,
+          })) || [],
+        userId: "",
         createdAt: now,
         updatedAt: now,
         deletedAt: null,
@@ -48,7 +53,7 @@ export const useCreateNote = () => {
       return newNote;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tags'] });
+      queryClient.invalidateQueries({ queryKey: ["tags"] });
       triggerSync(); // バックグラウンド同期キューをキック
     },
   });
@@ -78,7 +83,7 @@ export const useUpdateNote = () => {
           updatedTags = data.tags.map((t) => ({
             id: t,
             name: t,
-            userId: '',
+            userId: "",
             createdAt: now,
             updatedAt: now,
           }));
@@ -96,7 +101,7 @@ export const useUpdateNote = () => {
       return { id, data };
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tags'] });
+      queryClient.invalidateQueries({ queryKey: ["tags"] });
       triggerSync(); // 自動的に送信キューとしての役割を果たす
     },
   });
@@ -116,7 +121,7 @@ export const useDeleteNote = () => {
       return id;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tags'] });
+      queryClient.invalidateQueries({ queryKey: ["tags"] });
       triggerSync();
     },
   });
@@ -136,7 +141,7 @@ export const useRestoreNote = () => {
       return id;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tags'] });
+      queryClient.invalidateQueries({ queryKey: ["tags"] });
       triggerSync();
     },
   });
@@ -153,7 +158,11 @@ export const usePermanentDeleteNote = () => {
       const now = new Date().toISOString();
       // 一旦 isPermanent フラグとして更新し、Unified Sync の際に API へ送信し他デバイスに適用させる
       // ※ syncNotes 戻り値で delete するためローカルでは保留、もしくは即時非表示とするなら削除フラグを使用
-      await db.notes.update(id, { deletedAt: now, updatedAt: now, isPermanent: true });
+      await db.notes.update(id, {
+        deletedAt: now,
+        updatedAt: now,
+        isPermanent: true,
+      });
       return id;
     },
     onSuccess: () => {
@@ -173,7 +182,7 @@ export const useEmptyTrash = () => {
       const now = new Date().toISOString();
       // ゴミ箱のアイテムすべてを isPermanent = true にする
       const trashNotes = await db.notes.filter((n) => !!n.deletedAt).toArray();
-      await db.transaction('rw', db.notes, async () => {
+      await db.transaction("rw", db.notes, async () => {
         for (const note of trashNotes) {
           await db.notes.update(note.id, { updatedAt: now, isPermanent: true });
         }

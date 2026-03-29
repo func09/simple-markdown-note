@@ -1,8 +1,8 @@
-import { useMemo, useCallback } from 'react';
-import type { Note, Tag } from 'openapi';
-import { create, insertMultiple, search } from '@orama/orama';
-import { createTokenizer } from '@orama/tokenizers/japanese';
-import { stopwords as japaneseStopwords } from '@orama/stopwords/japanese';
+import { type AnyOrama, create, insertMultiple, search } from "@orama/orama";
+import { stopwords as japaneseStopwords } from "@orama/stopwords/japanese";
+import { createTokenizer } from "@orama/tokenizers/japanese";
+import type { Note, Tag } from "openapi";
+import { useCallback, useMemo } from "react";
 
 /**
  * クライアントサイドでの高速な全文検索を提供するカスタムフック
@@ -13,7 +13,11 @@ import { stopwords as japaneseStopwords } from '@orama/stopwords/japanese';
  * @param searchQuery ユーザーが入力した検索キーワード
  * @returns { oramaDb, filteredNotes, searchNotes } 検索エンジンインスタンス、検索結果、およひ同期検索関数
  */
-export const useOramaSearch = (notes: Note[], selectedTag: string | null, searchQuery: string) => {
+export const useOramaSearch = (
+  notes: Note[],
+  selectedTag: string | null,
+  searchQuery: string
+) => {
   // Oramaインメモリデータベースの同期構築
   /**
    * Oramaベースのインメモリ検索エンジンインスタンス
@@ -22,12 +26,12 @@ export const useOramaSearch = (notes: Note[], selectedTag: string | null, search
   const oramaDb = useMemo(() => {
     const dbInstance = create({
       schema: {
-        id: 'string',
-        content: 'string',
+        id: "string",
+        content: "string",
       },
       components: {
         tokenizer: createTokenizer({
-          language: 'japanese',
+          language: "japanese",
           stopWords: japaneseStopwords,
         }),
       },
@@ -53,24 +57,37 @@ export const useOramaSearch = (notes: Note[], selectedTag: string | null, search
    * @returns フィルタリングおよび更新日時（降順）でソートされたノートの配列
    */
   const searchNotes = useCallback(
-    (targetNotes: Note[], tag: string | null, query: string, dbInstance?: any) => {
+    (
+      targetNotes: Note[],
+      tag: string | null,
+      query: string,
+      dbInstance?: AnyOrama
+    ) => {
       let result = [...targetNotes];
 
-      if (tag === '__untagged__') {
+      if (tag === "__untagged__") {
         result = result.filter((note) => !note.tags || note.tags.length === 0);
       } else if (tag) {
-        result = result.filter((note) => note.tags?.some((t: Tag) => t.name === tag));
+        result = result.filter((note) =>
+          note.tags?.some((t: Tag) => t.name === tag)
+        );
       }
 
       if (query) {
         if (dbInstance) {
           const searchResult = search(dbInstance, {
             term: query,
-            properties: ['content'],
+            properties: ["content"],
             tolerance: 0, // 無関係な文字がヒットするタイポ許容(Fuzzy Search)を無効化
             limit: 100000, // クライアントサイドでの全ての候補を取得する
           });
-          const matchedSet = new Set((searchResult as any).hits.map((hit: any) => hit.document.id));
+          const matchedSet = new Set(
+            (
+              searchResult as unknown as {
+                hits: { document: { id: string } }[];
+              }
+            ).hits.map((hit) => hit.document.id)
+          );
 
           // OramaはデフォルトでOR検索的にヒットを集めるため（助詞の「です」などでヒットしてしまう）、
           // 最終的に入力された検索キーワード（スペース区切り）がすべて含まれるか（AND検索）を保証する
@@ -82,7 +99,9 @@ export const useOramaSearch = (notes: Note[], selectedTag: string | null, search
           });
         } else {
           const q = query.toLowerCase();
-          result = result.filter((note) => note.content.toLowerCase().includes(q));
+          result = result.filter((note) =>
+            note.content.toLowerCase().includes(q)
+          );
         }
       }
 

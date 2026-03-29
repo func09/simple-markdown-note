@@ -1,7 +1,7 @@
-import { useCallback } from 'react';
-import type { Note } from 'openapi';
-import { toast } from 'sonner';
-
+import type { Note } from "openapi";
+import { useCallback } from "react";
+import { toast } from "sonner";
+import { useDashboardStore } from "@/features/dashboard/store";
 import {
   useCreateNote,
   useDeleteNote,
@@ -9,9 +9,8 @@ import {
   usePermanentDeleteNote,
   useRestoreNote,
   useUpdateNote,
-} from '@/features/notes/hooks';
-import { useNoteStore } from '@/features/notes/store';
-import { useDashboardStore } from '@/features/dashboard/store';
+} from "@/features/notes/hooks";
+import { useNoteStore } from "@/features/notes/store";
 
 /**
  * ノートに関する各種アクション（作成、論理・物理削除、復元、タグ更新など）を処理するためのカスタムフック
@@ -49,16 +48,17 @@ export const useDashboardActions = () => {
   const handleCreateNote = useCallback(async () => {
     try {
       const resp = await createNoteMutation.mutateAsync({
-        content: '',
-        tags: selectedTag && selectedTag !== '__untagged__' ? [selectedTag] : [],
+        content: "",
+        tags:
+          selectedTag && selectedTag !== "__untagged__" ? [selectedTag] : [],
       });
       const newNote = resp as Note;
       setSelectedNoteId(newNote.id);
-      setActiveView('editor');
-      toast.success('Note created');
+      setActiveView("editor");
+      toast.success("Note created");
     } catch (err) {
       console.error(err);
-      toast.error('Failed to create note');
+      toast.error("Failed to create note");
     }
   }, [createNoteMutation, selectedTag, setSelectedNoteId, setActiveView]);
 
@@ -67,10 +67,13 @@ export const useDashboardActions = () => {
    * 即時削除せず、削除確認モーダルを表示させるための状態をセットします
    * @param id 削除対象のノートID
    */
-  const handleDeleteClick = useCallback((id: string) => {
-    setNoteToDelete(id);
-    setIsDeleteModalOpen(true);
-  }, []);
+  const handleDeleteClick = useCallback(
+    (id: string) => {
+      setNoteToDelete(id);
+      setIsDeleteModalOpen(true);
+    },
+    [setIsDeleteModalOpen, setNoteToDelete]
+  );
 
   /**
    * モーダルでの削除確定処理
@@ -81,19 +84,23 @@ export const useDashboardActions = () => {
     try {
       if (isTrashSelected) {
         await permanentDeleteNoteMutation.mutateAsync(noteToDelete);
-        toast.success('Note permanently deleted');
+        toast.success("Note permanently deleted");
       } else {
         await deleteNoteMutation.mutateAsync(noteToDelete);
-        toast.success('Note moved to trash');
+        toast.success("Note moved to trash");
       }
 
       if (selectedNoteId === noteToDelete) {
         setSelectedNoteId(null);
-        setActiveView('list');
+        setActiveView("list");
       }
     } catch (err) {
       console.error(err);
-      toast.error(isTrashSelected ? 'Failed to permanently delete note' : 'Failed to delete note');
+      toast.error(
+        isTrashSelected
+          ? "Failed to permanently delete note"
+          : "Failed to delete note"
+      );
     } finally {
       setIsDeleteModalOpen(false);
       setNoteToDelete(null);
@@ -106,6 +113,8 @@ export const useDashboardActions = () => {
     selectedNoteId,
     setSelectedNoteId,
     setActiveView,
+    setIsDeleteModalOpen,
+    setNoteToDelete,
   ]);
 
   /**
@@ -116,10 +125,10 @@ export const useDashboardActions = () => {
     async (id: string) => {
       try {
         await restoreNoteMutation.mutateAsync(id);
-        toast.success('Note restored');
+        toast.success("Note restored");
       } catch (err) {
         console.error(err);
-        toast.error('Failed to restore note');
+        toast.error("Failed to restore note");
       }
     },
     [restoreNoteMutation]
@@ -132,11 +141,11 @@ export const useDashboardActions = () => {
     try {
       await emptyTrashMutation.mutateAsync();
       setSelectedNoteId(null);
-      setActiveView('list');
-      toast.success('Trash emptied');
+      setActiveView("list");
+      toast.success("Trash emptied");
     } catch (err) {
       console.error(err);
-      toast.error('Failed to empty trash');
+      toast.error("Failed to empty trash");
     }
   }, [emptyTrashMutation, setSelectedNoteId, setActiveView]);
 
@@ -154,7 +163,7 @@ export const useDashboardActions = () => {
         });
       } catch (err) {
         console.error(err);
-        toast.error('Failed to sync tags');
+        toast.error("Failed to sync tags");
       }
     },
     [updateNoteMutation]

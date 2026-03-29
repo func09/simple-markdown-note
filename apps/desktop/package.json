@@ -1,13 +1,17 @@
 {
-  "name": "@simplenote-clone/desktop",
+  "name": "desktop",
   "version": "1.0.0",
   "description": "Electron shell for Simplenote Clone",
   "main": "dist/main.js",
   "scripts": {
     "start": "electron .",
-    "dev": "npm run build && electron .",
+    "dev": "pnpm run build && electron .",
     "build": "tsc",
-    "package": "electron-builder"
+    "package": "electron-builder",
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "check": "biome check .",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "electron": "^33.0.0",

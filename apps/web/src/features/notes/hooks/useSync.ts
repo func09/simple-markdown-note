@@ -1,8 +1,9 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import * as noteApi from '@/features/notes/api';
-import { db } from '@/lib/db';
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import type { Note } from "openapi";
+import * as noteApi from "@/features/notes/api";
+import { db } from "@/lib/db";
 
-const LAST_SYNC_KEY = 'simplenote_last_sync';
+const LAST_SYNC_KEY = "simplenote_last_sync";
 
 /**
  * サーバーと Dexie 間の完全同期 (Unified Sync) を実行するクエリ
@@ -10,19 +11,22 @@ const LAST_SYNC_KEY = 'simplenote_last_sync';
  */
 export const useSync = () => {
   return useQuery({
-    queryKey: ['sync'],
+    queryKey: ["sync"],
     queryFn: async () => {
       if (!navigator.onLine) {
-        return { status: 'offline', updatesCount: 0 };
+        return { status: "offline", updatesCount: 0 };
       }
 
       const lastSyncedAt = localStorage.getItem(LAST_SYNC_KEY) || undefined;
 
       // 1. 送信処理: 未同期データの抽出
-      let changes: any[] = [];
+      let changes: Parameters<typeof noteApi.syncNotes>[0]["changes"] = [];
       try {
         if (lastSyncedAt) {
-          const localUpdates = await db.notes.where('updatedAt').above(lastSyncedAt).toArray();
+          const localUpdates = await db.notes
+            .where("updatedAt")
+            .above(lastSyncedAt)
+            .toArray();
 
           changes = localUpdates.map((note) => ({
             id: note.id,
@@ -30,7 +34,9 @@ export const useSync = () => {
             deletedAt: note.deletedAt,
             isPermanent: note.isPermanent || false,
             clientUpdatedAt: note.updatedAt,
-            tags: note.tags?.map((t) => (typeof t === 'string' ? t : (t as any).name)),
+            tags: note.tags?.map((t: unknown) =>
+              typeof t === "string" ? t : (t as { name: string }).name
+            ),
           }));
         } else {
           // 初回同期時はローカルデータを全て送付
@@ -41,7 +47,9 @@ export const useSync = () => {
             deletedAt: note.deletedAt,
             isPermanent: note.isPermanent || false,
             clientUpdatedAt: note.updatedAt,
-            tags: note.tags?.map((t) => (typeof t === 'string' ? t : (t as any).name)),
+            tags: note.tags?.map((t: unknown) =>
+              typeof t === "string" ? t : (t as { name: string }).name
+            ),
           }));
         }
 
@@ -54,9 +62,9 @@ export const useSync = () => {
         // 3. 受信データのローカル反映
         if (updates.length > 0) {
           const toDeleteIds: string[] = [];
-          const toPut: any[] = [];
+          const toPut: Note[] = [];
 
-          updates.forEach((serverNote: any) => {
+          updates.forEach((serverNote: Note) => {
             if (serverNote.isPermanent) {
               toDeleteIds.push(serverNote.id);
             } else {
@@ -64,7 +72,7 @@ export const useSync = () => {
             }
           });
 
-          await db.transaction('rw', db.notes, async () => {
+          await db.transaction("rw", db.notes, async () => {
             if (toDeleteIds.length > 0) {
               await db.notes.bulkDelete(toDeleteIds);
             }
@@ -77,10 +85,10 @@ export const useSync = () => {
         // 4. 同期日時の更新
         localStorage.setItem(LAST_SYNC_KEY, newSyncTime);
 
-        return { status: 'success', newSyncTime, updatesCount: updates.length };
+        return { status: "success", newSyncTime, updatesCount: updates.length };
       } catch (e) {
-        console.error('Unified Sync failed:', e);
-        return { status: 'error', updatesCount: 0 };
+        console.error("Unified Sync failed:", e);
+        return { status: "error", updatesCount: 0 };
       }
     },
     // デフォルトで5分に1回自動的に同期
@@ -95,6 +103,6 @@ export const useSync = () => {
 export const useTriggerSync = () => {
   const queryClient = useQueryClient();
   return () => {
-    queryClient.invalidateQueries({ queryKey: ['sync'] });
+    queryClient.invalidateQueries({ queryKey: ["sync"] });
   };
 };

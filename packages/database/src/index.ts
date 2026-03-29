@@ -1,19 +1,35 @@
-import PrismaPkg from "@prisma/client";
-const { PrismaClient } = PrismaPkg;
-import { PrismaLibSql } from "@prisma/adapter-libsql";
+import { createClient } from "@libsql/client";
+import { drizzle as drizzleD1 } from "drizzle-orm/d1";
+import { drizzle as drizzleLibsql } from "drizzle-orm/libsql";
+import * as schema from "./schema";
 
-const adapter = new PrismaLibSql({
-  // @ts-ignore
-  url:
-    (globalThis as any).process?.env?.DATABASE_URL ||
-    "file:../../storage/test.db",
-});
+// D1 用のDBインスタンス作成関数
+export const createDb = (d1: any) => {
+  return drizzleD1(d1, { schema });
+};
 
-const isTest = (globalThis as any).process?.env?.NODE_ENV === "test";
+// LibSQL 用の型（ローカル開発/テスト用）
+export const getLibsqlDb = () => {
+  const url =
+    (globalThis as any).process?.env?.DATABASE_URL || "file:./local.db";
+  const client = createClient({ url });
+  return drizzleLibsql({ client, schema });
+};
 
-export const prisma = new PrismaClient({
-  adapter,
-  log: isTest ? ["error"] : ["query", "info", "warn", "error"],
-});
+// Drizzle ORM のインスタンス（静的エクスポート: 主にテスト/シード用）
+// Workers環境ではトップレベルでの初期化を避けるため、セーフガードを追加
+export const db =
+  (globalThis as any).process?.env?.DATABASE_URL || !(globalThis as any).caches
+    ? getLibsqlDb()
+    : (null as any);
 
-export * from "@prisma/client";
+export type DrizzleDB = ReturnType<typeof createDb>;
+
+import bcryptjs from "bcryptjs";
+
+export * from "drizzle-orm";
+
+import { migrate } from "drizzle-orm/libsql/migrator";
+export const migrateLibsql = migrate;
+export * from "./schema";
+export { bcryptjs };

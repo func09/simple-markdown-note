@@ -1,23 +1,24 @@
-import React, { useMemo } from 'react';
+import type React from "react";
+import { useMemo } from "react";
 
-import { MobileSidebar } from '@/features/dashboard/components';
+import { MobileSidebar } from "@/features/dashboard/components";
+import { useDashboardState } from "@/features/dashboard/hooks";
+import { useDashboardStore } from "@/features/dashboard/store";
 import {
-  MobileEditorHeader,
-  MobileHeader,
   DeleteConfirmModal,
   EditorCore,
+  MobileEditorHeader,
+  MobileHeader,
   NoteList,
-} from '@/features/notes/components';
-import { useDashboardState } from '@/features/dashboard/hooks';
-
-import { useDashboardStore } from '@/features/dashboard/store';
+} from "@/features/notes/components";
 
 /**
  * モバイル向けのメインダッシュボードコンポーネント
  * ドロワー形式のサイドバー、リスト画面、エディタ画面を切り替えて表示し、`useDashboard` で状態を管理します。
  */
 export const MobileDashboard: React.FC = () => {
-  const { activeView, setActiveView, isSidebarOpen, setIsSidebarOpen } = useDashboardStore();
+  const { activeView, setActiveView, isSidebarOpen, setIsSidebarOpen } =
+    useDashboardStore();
 
   const {
     filteredNotes,
@@ -66,7 +67,7 @@ export const MobileDashboard: React.FC = () => {
         <MobileEditorHeader
           selectedNoteId={selectedNote?.id || null}
           isTrashSelected={isTrashSelected}
-          onBack={() => setActiveView('list')}
+          onBack={() => setActiveView("list")}
           onRestore={handleRestoreNote}
           onDelete={handleDeleteClick}
         />
@@ -92,7 +93,9 @@ export const MobileDashboard: React.FC = () => {
   return (
     <div className="relative flex h-screen w-full flex-col overflow-hidden bg-[#0f172a]">
       {/* メインビュー */}
-      <div className="h-full flex-1">{activeView === 'list' ? memoizedList : memoizedMain}</div>
+      <div className="h-full flex-1">
+        {activeView === "list" ? memoizedList : memoizedMain}
+      </div>
 
       {/* サイドバー（ドロワー） */}
       {isSidebarOpen && (
@@ -105,7 +108,9 @@ export const MobileDashboard: React.FC = () => {
             onClick={(e) => e.stopPropagation()}
           >
             {/* サイドバー内のナビゲーション */}
-            <MobileSidebar onSelectTag={(tag, isTrash) => updateSelection(tag, isTrash)} />
+            <MobileSidebar
+              onSelectTag={(tag, isTrash) => updateSelection(tag, isTrash)}
+            />
           </div>
         </div>
       )}
@@ -121,4 +126,4 @@ export const MobileDashboard: React.FC = () => {
   );
 };
 
-MobileDashboard.displayName = 'MobileDashboard';
+MobileDashboard.displayName = "MobileDashboard";
