@@ -1,7 +1,7 @@
 import React from "react";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import { useDashboardStore } from "@/features/dashboard/store";
+import { useDashboardStore } from "@/features/dashboard/stores";
 import { useTags } from "@/features/notes/hooks";
 
 interface TagListProps {

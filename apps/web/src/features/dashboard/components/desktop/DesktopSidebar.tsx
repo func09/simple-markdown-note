@@ -1,10 +1,9 @@
 import { LogOut, StickyNote, Tag as TagIcon, Trash2 } from "lucide-react";
-import React from "react";
-import { toast } from "sonner";
+import type React from "react";
 
-import { logout } from "@/features/auth";
+import { useAuthActions } from "@/features/auth";
 import { TagList } from "@/features/dashboard/components";
-import { useDashboardStore } from "@/features/dashboard/store";
+import { useDashboardStore } from "@/features/dashboard/stores";
 
 import { cn } from "@/lib/utils";
 
@@ -29,17 +28,13 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
   const isTrashSelected = useDashboardStore((state) => state.isTrashSelected);
   const searchQuery = useDashboardStore((state) => state.searchQuery);
 
-  const handleLogout = React.useCallback(async () => {
-    await logout();
-    window.location.href = "/login";
-    toast.success("Logged out successfully");
-  }, []);
+  const { handleLogout } = useAuthActions();
 
   return (
     <nav
       id="nav-container"
       aria-label="Sidebar Navigation"
-      className="custom-scrollbar flex h-full flex-col overflow-y-auto px-2 focus:outline-none"
+      className="custom-scrollbar flex h-full flex-col overflow-y-auto px-2 focus:outline-hidden"
       onFocus={() => onFocusChange(true)}
       onBlur={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget as Node)) {
@@ -49,8 +44,8 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
       onKeyDown={onKeyDown}
     >
       {/* macOS titlebar drag region */}
-      <div className="min-h-8 w-full flex-shrink-0 [-webkit-app-region:drag]" />
-      <div className="flex flex-shrink-0 flex-col gap-1 pb-4 pt-2">
+      <div className="min-h-8 w-full shrink-0 [-webkit-app-region:drag]" />
+      <div className="flex shrink-0 flex-col gap-1 pb-4 pt-2">
         <button
           type="button"
           onClick={(e) => {
@@ -128,7 +123,7 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
         />
       </div>
 
-      <div className="mt-auto flex flex-shrink-0 flex-col gap-1 pb-4 pt-6">
+      <div className="mt-auto flex shrink-0 flex-col gap-1 pb-4 pt-6">
         <button
           type="button"
           onClick={handleLogout}

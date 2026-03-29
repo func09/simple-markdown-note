@@ -2,9 +2,9 @@ import { act, renderHook } from "@testing-library/react";
 import { toast } from "sonner";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useDashboardActions } from "@/features/dashboard/hooks/useDashboardActions";
-import { useDashboardStore } from "@/features/dashboard/store";
+import { useDashboardStore } from "@/features/dashboard/stores";
 import * as useNotesQuery from "@/features/notes/hooks";
-import { useNoteStore } from "@/features/notes/store";
+import { useNoteStore } from "@/features/notes/stores";
 
 // Mock dependencies
 vi.mock("@/features/notes/hooks");

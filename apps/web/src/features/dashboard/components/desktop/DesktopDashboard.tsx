@@ -1,13 +1,11 @@
 import React, { useMemo, useState } from "react";
 
-import { AppLayout } from "@/components/layout/AppLayout";
-
-import { DesktopSidebar } from "@/features/dashboard/components";
+import { DesktopLayout, DesktopSidebar } from "@/features/dashboard/components";
 import {
   useDashboardState,
   useSidebarNavigation,
 } from "@/features/dashboard/hooks";
-import { useDashboardStore } from "@/features/dashboard/store";
+import { useDashboardStore } from "@/features/dashboard/stores";
 import {
   DeleteConfirmModal,
   DesktopEditor,
@@ -87,7 +85,7 @@ export const DesktopDashboard: React.FC = () => {
 
   return (
     <>
-      <AppLayout
+      <DesktopLayout
         nav={navigationContent}
         list={memoizedList}
         main={memoizedMain}
