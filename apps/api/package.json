@@ -9,8 +9,8 @@
   "scripts": {
     "dev": "tsx watch --env-file=../../.env src/index.ts",
     "test": "vitest run",
-    "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format": "biome format --write .",
+    "format:check": "biome format ."
   },
   "keywords": [],
   "author": "",
