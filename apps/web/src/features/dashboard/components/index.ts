@@ -4,6 +4,8 @@ export * from "./desktop/DesktopSidebar";
 
 // Mobile components
 export * from "./mobile/MobileDashboard";
+export * from "./mobile/MobileEditorView";
+export * from "./mobile/MobileListView";
 export * from "./mobile/MobileSidebar";
 
 // Shared components
