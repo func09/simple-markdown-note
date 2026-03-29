@@ -7,7 +7,7 @@ import {
   MobileSidebar,
 } from "@/features/dashboard/components";
 import { useDashboardState } from "@/features/dashboard/hooks";
-import { useDashboardStore } from "@/features/dashboard/store";
+import { useDashboardStore } from "@/features/dashboard/stores";
 import { DeleteConfirmModal } from "@/features/notes/components";
 
 /**

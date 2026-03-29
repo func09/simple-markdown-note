@@ -2,7 +2,7 @@ import { act, renderHook } from "@testing-library/react";
 import type React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useSidebarNavigation } from "@/features/dashboard/hooks/useSidebarNavigation";
-import { useDashboardStore } from "@/features/dashboard/store";
+import { useDashboardStore } from "@/features/dashboard/stores";
 import * as useNotesQuery from "@/features/notes/hooks";
 
 // Mock dependencies
