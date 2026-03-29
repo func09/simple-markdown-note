@@ -1,5 +1,4 @@
-import { execSync } from "node:child_process";
-import { getLibsqlDb, users } from "database";
+import { db, users } from "database";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { app } from "../index";
 
@@ -8,11 +7,8 @@ describe("Tags API via Sync", () => {
   const testNoteId = "tag-test-note-1";
 
   beforeAll(async () => {
-    // テストデータベースの初期化
-    const dbUrl = process.env.DATABASE_URL || "file:./test.db";
-    execSync(`pnpm -F database db:push`, {
-      env: { ...process.env, DATABASE_URL: dbUrl },
-    });
+    // setupFiles (vitest.setup.ts) にてマイグレーション済み
+    await db.delete(users);
 
     // テスト用ユーザーの作成とログイン
     const signupRes = await app.request("/api/auth/signup", {

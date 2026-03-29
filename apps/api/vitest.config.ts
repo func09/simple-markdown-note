@@ -1,4 +1,3 @@
-import path from "node:path";
 import tsconfigPaths from "vite-tsconfig-paths";
 import { defineConfig } from "vitest/config";
 
@@ -8,10 +7,11 @@ export default defineConfig({
     // SQLiteのロックを避けるため
     fileParallelism: false,
     env: {
-      DATABASE_URL: `file:${path.resolve(__dirname, "./test.db")}`,
+      DATABASE_URL: ":memory:",
       NODE_ENV: "test",
       JWT_SECRET: "test-secret",
     },
     globals: true,
+    setupFiles: ["./vitest.setup.ts"],
   },
 });
