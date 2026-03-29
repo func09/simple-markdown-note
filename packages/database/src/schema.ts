@@ -23,6 +23,9 @@ export const users = sqliteTable("users", {
     .default(sql`(unixepoch())`),
 });
 
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
+
 // ノート情報を管理するテーブル
 export const notes = sqliteTable("notes", {
   id: text("id")
@@ -43,6 +46,9 @@ export const notes = sqliteTable("notes", {
     .notNull()
     .default(false),
 });
+
+export type Note = typeof notes.$inferSelect;
+export type NewNote = typeof notes.$inferInsert;
 
 // タグ情報を管理するテーブル
 export const tags = sqliteTable(
@@ -66,6 +72,9 @@ export const tags = sqliteTable(
     unq: unique().on(table.name, table.userId),
   })
 );
+
+export type Tag = typeof tags.$inferSelect;
+export type NewTag = typeof tags.$inferInsert;
 
 // ノートとタグの多対多リレーション用中間テーブル
 export const notesToTags = sqliteTable(

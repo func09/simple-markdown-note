@@ -1,6 +1,6 @@
-import { eq, tags } from "database";
 import { Hono } from "hono";
-import type { AppEnv } from "../index";
+import { TagService } from "../services/tags";
+import type { AppEnv } from "../types";
 
 const tagsRouter = new Hono<AppEnv>();
 
@@ -9,20 +9,7 @@ tagsRouter.get("/", async (c) => {
   const userId = c.get("userId");
   const db = c.var.db;
 
-  const tagsRaw = await db.query.tags.findMany({
-    where: eq(tags.userId, userId),
-    with: {
-      notesToTags: true,
-    },
-  });
-
-  // レスポンス形成: 各タグに紐付くノートの数を算出
-  const results = tagsRaw.map((tag) => ({
-    id: tag.id,
-    name: tag.name,
-    count: tag.notesToTags.length,
-    updatedAt: tag.updatedAt,
-  }));
+  const results = await TagService.getTagsWithNoteCount(userId, db);
 
   return c.json(results);
 });

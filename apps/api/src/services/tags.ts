@@ -1,4 +1,4 @@
-import { and, type DrizzleDB, eq, notesToTags, sql, tags } from "database";
+import { createTagRepository, type DrizzleDB } from "database";
 
 export const TagService = {
   /**
@@ -11,37 +11,24 @@ export const TagService = {
     userId: string,
     noteId: string,
     tagNames: string[],
-    client: DrizzleDB | any
+    client: DrizzleDB
   ) {
+    const repo = createTagRepository(client);
+
     // 1. 現在の紐付けを解除
-    await client.delete(notesToTags).where(eq(notesToTags.noteId, noteId));
+    await repo.unlinkAllFromNote(noteId);
 
     if (tagNames.length > 0) {
       const tagIds: string[] = [];
 
       for (const name of tagNames) {
         // タグを作成（または既存取得）
-        const [tag] = await client
-          .insert(tags)
-          .values({ name, userId })
-          .onConflictDoUpdate({
-            target: [tags.name, tags.userId],
-            set: { updatedAt: new Date() },
-          })
-          .returning();
-
+        const tag = await repo.upsert({ name, userId });
         tagIds.push(tag.id);
       }
 
       // 2. 中間テーブルに紐付けを作成
-      if (tagIds.length > 0) {
-        await client.insert(notesToTags).values(
-          tagIds.map((tagId) => ({
-            noteId,
-            tagId,
-          }))
-        );
-      }
+      await repo.linkToNote(noteId, tagIds);
     }
 
     // 3. 浮いたタグをクリーンアップ
@@ -51,16 +38,24 @@ export const TagService = {
   /**
    * どのノートにも紐付いていないタグを削除する
    */
-  async cleanupOrphanedTags(userId: string, client: DrizzleDB | any) {
-    // どのノートにも紐付いていない（notes_to_tags に存在しない）タグを特定して削除
-    await client.delete(tags).where(
-      and(
-        eq(tags.userId, userId),
-        sql`NOT EXISTS (
-          SELECT 1 FROM ${notesToTags} 
-          WHERE ${notesToTags.tagId} = ${tags.id}
-        )`
-      )
-    );
+  async cleanupOrphanedTags(userId: string, client: DrizzleDB) {
+    const repo = createTagRepository(client);
+    await repo.deleteOrphaned(userId);
+  },
+
+  /**
+   * ユーザーのタグ一覧と、各タグに紐付くノート数を取得する
+   */
+  async getTagsWithNoteCount(userId: string, client: DrizzleDB) {
+    const repo = createTagRepository(client);
+    const tagsRaw = await repo.findAllWithNotesByUserId(userId);
+
+    // レスポンス形成: 各タグに紐付くノートの数を算出
+    return tagsRaw.map((tag) => ({
+      id: tag.id,
+      name: tag.name,
+      count: tag.notesToTags.length,
+      updatedAt: tag.updatedAt,
+    }));
   },
 };

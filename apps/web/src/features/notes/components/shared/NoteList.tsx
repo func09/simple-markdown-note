@@ -11,9 +11,9 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useDashboardStore } from "@/features/dashboard/store";
+import { useDashboardStore } from "@/features/dashboard/stores";
 import { NoteListItem as NoteItem } from "@/features/notes/components";
-import { useNoteStore } from "@/features/notes/store";
+import { useNoteStore } from "@/features/notes/stores";
 
 interface NoteListProps {
   notes: Note[];
@@ -130,7 +130,7 @@ export const NoteList: React.FC<NoteListProps> = ({
       {/* Note List with ScrollArea */}
       <div
         id="note-list-container"
-        className="min-h-0 flex-1 focus:outline-none"
+        className="min-h-0 flex-1 focus:outline-hidden"
         onFocus={() => setIsFocused(true)}
         onBlur={(e) => {
           if (!e.currentTarget.contains(e.relatedTarget as Node)) {

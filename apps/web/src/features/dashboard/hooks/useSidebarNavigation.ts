@@ -1,7 +1,7 @@
 import type { Tag } from "openapi";
 import React, { useMemo } from "react";
 
-import { useDashboardStore } from "@/features/dashboard/store";
+import { useDashboardStore } from "@/features/dashboard/stores";
 import { useTags } from "@/features/notes/hooks";
 
 export const useSidebarNavigation = (
