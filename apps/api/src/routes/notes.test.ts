@@ -23,7 +23,7 @@ describe("Unified Sync API (/notes/sync)", () => {
         password: "password123",
       }),
     });
-    const body = await signupRes.json();
+    const body: any = await signupRes.json();
     token = body.token;
   });
 
@@ -53,7 +53,7 @@ describe("Unified Sync API (/notes/sync)", () => {
     });
 
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body: any = await res.json();
     expect(body.newSyncTime).toBeDefined();
     expect(body.updates.length).toBe(1);
     expect(body.updates[0].id).toBe(testNoteId);
@@ -76,7 +76,7 @@ describe("Unified Sync API (/notes/sync)", () => {
     });
 
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body: any = await res.json();
     expect(body.updates.length).toBeGreaterThan(0);
   });
 
@@ -102,7 +102,7 @@ describe("Unified Sync API (/notes/sync)", () => {
     });
 
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body: any = await res.json();
     const updatedNote = body.updates.find((n: any) => n.id === testNoteId);
     expect(updatedNote.content).toBe("Updated via LWW");
     // 保存時のサーバー時刻ではなく、クライアント申告の時刻がDBに反映されているべき
@@ -133,7 +133,7 @@ describe("Unified Sync API (/notes/sync)", () => {
     });
 
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body: any = await res.json();
 
     // DB に現在存在する最新のノート情報をチェック
     const checkRes = await app.request("/notes/sync", {
@@ -145,7 +145,7 @@ describe("Unified Sync API (/notes/sync)", () => {
       body: JSON.stringify({ changes: [] }),
     });
 
-    const checkBody = await checkRes.json();
+    const checkBody: any = await checkRes.json();
     const note = checkBody.updates.find((n: any) => n.id === testNoteId);
     expect(note.content).toBe("Updated via LWW"); // 古い更新は無視され、新しい内容が維持されている
   });
@@ -173,7 +173,7 @@ describe("Unified Sync API (/notes/sync)", () => {
       }),
     });
 
-    let dbNote = (await softDelRes.json()).updates.find(
+    let dbNote = ((await softDelRes.json()) as any).updates.find(
       (n: any) => n.id === testNoteId
     );
     expect(dbNote.deletedAt).not.toBeNull();
@@ -200,7 +200,7 @@ describe("Unified Sync API (/notes/sync)", () => {
       }),
     });
 
-    dbNote = (await permDelRes.json()).updates.find(
+    dbNote = ((await permDelRes.json()) as any).updates.find(
       (n: any) => n.id === testNoteId
     );
     expect(dbNote.isPermanent).toBe(true); // The frontend handles removing it from Dexie locally based on this flag
@@ -219,7 +219,7 @@ describe("Unified Sync API (/notes/sync)", () => {
           password: "password123",
         }),
       });
-      const body = await signupRes.json();
+      const body: any = await signupRes.json();
       otherToken = body.token;
 
       await app.request("/notes/sync", {
@@ -251,7 +251,7 @@ describe("Unified Sync API (/notes/sync)", () => {
         body: JSON.stringify({ changes: [] }),
       });
 
-      const body = await res.json();
+      const body: any = await res.json();
       expect(body.updates.some((n: any) => n.id === otherNoteId)).toBe(false);
     });
 
@@ -287,7 +287,7 @@ describe("Unified Sync API (/notes/sync)", () => {
         body: JSON.stringify({ changes: [] }),
       });
 
-      const checkBody = await checkRes.json();
+      const checkBody: any = await checkRes.json();
       const note = checkBody.updates.find((n: any) => n.id === otherNoteId);
       // It should NOT be overwritten as 'Hacked Content' if we fix the query,
       // ACTUALLY, if Drizzle upsert was insecure, it would be overwritten.

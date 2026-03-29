@@ -1,4 +1,5 @@
 import { serve } from "@hono/node-server";
+import { createDb, type DrizzleDB } from "database";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { jwt } from "hono/jwt";
@@ -8,16 +9,31 @@ import { notesRouter } from "./routes/notes";
 import { tagsRouter } from "./routes/tags";
 
 // アプリケーション共通の環境変数型定義
-type Env = {
+export type AppEnv = {
+  Bindings: {
+    DB: D1Database;
+    JWT_SECRET: string;
+  };
   Variables: {
     userId: string;
+    db: DrizzleDB;
   };
 };
 
 // Honoアプリケーションのインスタンス化
-export const app = new Hono<Env>();
+export const app = new Hono<AppEnv>();
 
-// シンプルで情報密度の高いロガー
+// 1. データベース注入ミドルウェア
+app.use("*", async (c, next) => {
+  // c.env.DB が無い場合（テスト環境など）は、静的な db (LibSQL) を使うフォールバックも検討可能ですが、
+  // Wrangler環境では常に c.env.DB が存在することを期待します。
+  if (c.env?.DB) {
+    c.set("db", createDb(c.env.DB));
+  }
+  await next();
+});
+
+// 2. シンプルで情報密度の高いロガー
 app.use("*", async (c, next) => {
   const start = Date.now();
   const { method, path } = c.req;
@@ -31,7 +47,6 @@ app.use("*", async (c, next) => {
   const ms = Date.now() - start;
   const status = c.res.status;
 
-  // ステータスコードによって色を変える（ANSI escape codes）
   const color =
     status >= 400 ? "\x1b[31m" : status >= 300 ? "\x1b[33m" : "\x1b[32m";
   const reset = "\x1b[0m";
@@ -43,26 +58,47 @@ app.use("*", async (c, next) => {
 
 app.use("*", cors());
 
-// JWT秘密鍵（auth.tsと共有）
-const JWT_SECRET = process.env.JWT_SECRET || "dev-secret";
+// JWT 認証ミドルウェア (秘密鍵は環境変数から取得)
+app.use("/api/*", async (c, next) => {
+  // 認証不要ルートの除外
+  if (c.req.path.startsWith("/api/auth") || c.req.path === "/health") {
+    return next();
+  }
+  const secret = c.env.JWT_SECRET || "dev-secret";
+  return jwt({ secret, alg: "HS256" })(c, next);
+});
+
+// userId 抽出ミドルウェア (認証後に payload から ID をコンテキストにセット)
+app.use("/api/*", async (c, next) => {
+  if (c.req.path.startsWith("/api/auth") || c.req.path === "/health") {
+    return next();
+  }
+  const payload = c.get("jwtPayload") as Record<string, any> | undefined;
+  // userId と id（以前のトークン形式）の両方に対応
+  const userId = payload?.userId || payload?.id;
+
+  if (!userId) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  c.set("userId", String(userId));
+  await next();
+});
+
+// 各ルートの登録 (/api プレフィックスを Hono 側で持つように変更)
+app.route("/api/notes", notesRouter);
+app.route("/api/tags", tagsRouter);
+app.route("/api/auth", authRouter);
 
 // ヘルスチェック用エンドポイント
 app.get("/health", (c) => c.json({ status: "ok" }));
 
-// ノート管理エンドポイント（認証が必要）
-app.use("/notes/*", jwt({ secret: JWT_SECRET, alg: "HS256" }));
-app.route("/notes", notesRouter);
-
-// タグ管理エンドポイント（認証が必要）
-app.use("/tags/*", jwt({ secret: JWT_SECRET, alg: "HS256" }));
-app.route("/tags", tagsRouter);
-
-// 認証エンドポイント
-app.route("/auth", authRouter);
-
-const port = 3000;
-
-if (process.env.NODE_ENV !== "test") {
+// Node.js 環境（ローカルテスト等）での起動を維持
+if (
+  (globalThis as any).process?.env?.NODE_ENV !== "test" &&
+  !(globalThis as any).caches
+) {
+  const port = 3000;
   console.log(`Server is running on port ${port}`);
   serve({
     fetch: app.fetch,
@@ -71,3 +107,4 @@ if (process.env.NODE_ENV !== "test") {
 }
 
 export type AppType = typeof app;
+export default app;

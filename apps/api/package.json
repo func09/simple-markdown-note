@@ -7,7 +7,7 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "dev": "tsx watch --env-file=../../.env src/index.ts",
+    "dev": "wrangler dev",
     "test": "vitest run",
     "lint": "biome lint .",
     "format": "biome format --write .",
@@ -29,6 +29,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260329.1",
     "@types/bcryptjs": "^2.4.6",
     "@types/supertest": "^6.0.2",
     "tsx": "^4.21.0",

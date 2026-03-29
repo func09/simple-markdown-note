@@ -1,11 +1,13 @@
-import { db, eq, tags } from "database";
+import { eq, tags } from "database";
 import { Hono } from "hono";
+import type { AppEnv } from "../index";
 
-const tagsRouter = new Hono<{ Variables: { userId: string } }>();
+const tagsRouter = new Hono<AppEnv>();
 
 // タグ一覧取得エンドポイント
 tagsRouter.get("/", async (c) => {
   const userId = c.get("userId");
+  const db = c.var.db;
 
   const tagsRaw = await db.query.tags.findMany({
     where: eq(tags.userId, userId),
