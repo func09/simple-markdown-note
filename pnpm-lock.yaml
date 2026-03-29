@@ -9,25 +9,6 @@ pnpmfileChecksum: sha256-IqjtWW1okRxv1Yovs1LEoITNnAmk7VFeU5tIOX+Q49o=
 importers:
 
   .:
-    dependencies:
-      '@libsql/client':
-        specifier: ^0.17.2
-        version: 0.17.2(encoding@0.1.13)
-      '@paralleldrive/cuid2':
-        specifier: ^2.2.2
-        version: 2.3.1
-      bcryptjs:
-        specifier: ^3.0.3
-        version: 3.0.3
-      dotenv:
-        specifier: ^17.3.1
-        version: 17.3.1
-      drizzle-orm:
-        specifier: ^0.40.0
-        version: 0.40.1(@cloudflare/workers-types@4.20260329.1)(@electric-sql/pglite@0.4.1)(@libsql/client@0.17.2(encoding@0.1.13))(gel@2.2.0)(mysql2@3.15.3)(postgres@3.4.7)
-      uuid:
-        specifier: ^13.0.0
-        version: 13.0.0
     devDependencies:
       '@biomejs/biome':
         specifier: ^2.4.9
@@ -44,6 +25,9 @@ importers:
       chai:
         specifier: ^5.2.0
         version: 5.3.3
+      dotenv:
+        specifier: ^17.3.1
+        version: 17.3.1
       husky:
         specifier: ^9.1.7
         version: 9.1.7
@@ -6260,10 +6244,6 @@ packages:
 
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
-
-  uuid@13.0.0:
-    resolution: {integrity: sha512-XQegIaBTVUjSHliKqcnFqYypAd4S+WCYt5NIeRs6w/UAry7z8Y9j5ZwRRL4kzq9U3sD6v+85er9FvkEaBpji2w==}
-    hasBin: true
 
   validate-npm-package-name@5.0.1:
     resolution: {integrity: sha512-OljLrQ9SQdOUqTaQxqL5dEfZWrXExyyWsozYlAWFawPVNuD83igl7uJD2RTkNMbniIYgt8l81eCJGIdQF7avLQ==}
@@ -12828,8 +12808,6 @@ snapshots:
   utf8-byte-length@1.0.5: {}
 
   util-deprecate@1.0.2: {}
-
-  uuid@13.0.0: {}
 
   validate-npm-package-name@5.0.1: {}
 
