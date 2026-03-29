@@ -1,9 +1,10 @@
 import { LogOut, StickyNote, Tag as TagIcon, Trash2 } from "lucide-react";
-import React from "react";
+import type React from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import { logout } from "@/features/auth";
-import { TagList } from "@/features/dashboard/components";
+import { TagList } from "@/features/dashboard/components/shared/TagList";
 import { useDashboardStore } from "@/features/dashboard/store";
 
 import { cn } from "@/lib/utils";
@@ -22,11 +23,7 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
   const selectedTag = useDashboardStore((state) => state.selectedTag);
   const isTrashSelected = useDashboardStore((state) => state.isTrashSelected);
 
-  const handleLogout = React.useCallback(async () => {
-    await logout();
-    window.location.href = "/login";
-    toast.success("Logged out successfully");
-  }, []);
+  const { handleLogout } = useAuthActions();
 
   return (
     <div className="flex h-full flex-col bg-slate-900">
