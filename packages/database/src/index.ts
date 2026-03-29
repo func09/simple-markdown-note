@@ -1,20 +1,17 @@
-import PrismaPkg from "@prisma/client";
+import { createClient } from "@libsql/client";
+import { drizzle } from "drizzle-orm/libsql";
+import * as schema from "./schema";
 
-const { PrismaClient } = PrismaPkg;
+// データベースURLの取得
+const url =
+  (globalThis as any).process?.env?.DATABASE_URL ||
+  "file:../../storage/test.db";
 
-import { PrismaLibSql } from "@prisma/adapter-libsql";
+// LibSQL クライアントの作成
+const client = createClient({ url });
 
-const adapter = new PrismaLibSql({
-  url:
-    (globalThis as any).process?.env?.DATABASE_URL ||
-    "file:../../storage/test.db",
-});
+// Drizzle ORM のインスタンス化
+export const db = drizzle({ client, schema });
 
-const isTest = (globalThis as any).process?.env?.NODE_ENV === "test";
-
-export const prisma = new PrismaClient({
-  adapter,
-  log: isTest ? ["error"] : ["query", "info", "warn", "error"],
-});
-
-export * from "@prisma/client";
+export * from "drizzle-orm";
+export * from "./schema";

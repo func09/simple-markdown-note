@@ -1,23 +1,17 @@
-import { execSync } from "child_process";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { execSync } from "node:child_process";
+import { db, users } from "database";
+import { beforeAll, describe, expect, it } from "vitest";
 import { app } from "../index";
 
-// 認証APIのリクエストテスト
 describe("Auth API", () => {
   beforeAll(async () => {
-    // テストデータベースの初期化
+    // テストデータベースの初期化 (Drizzle Kit を使用)
     const dbUrl = process.env.DATABASE_URL || "file:./test.db";
-    execSync(
-      `npx prisma db push --force-reset --schema=../../packages/database/prisma/schema.prisma --config=../../packages/database/prisma.config.ts`,
-      {
-        env: { ...process.env, DATABASE_URL: dbUrl },
-      }
-    );
-  });
-
-  afterAll(async () => {
-    const { prisma } = await import("database");
-    await prisma.$disconnect();
+    execSync(`pnpm -F database db:push`, {
+      env: { ...process.env, DATABASE_URL: dbUrl },
+    });
+    // テーブルのクリーンアップ
+    await db.delete(users);
   });
 
   // ユーザー登録のテスト
