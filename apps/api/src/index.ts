@@ -10,17 +10,7 @@ import {
 } from "./middlewares";
 import { authRouter, notesRouter, tagsRouter } from "./routes";
 
-// アプリケーション共通の環境変数型定義
-export type AppEnv = {
-  Bindings: {
-    DB: D1Database;
-    JWT_SECRET: string;
-  };
-  Variables: {
-    userId: string;
-    db: DrizzleDB;
-  };
-};
+import type { AppEnv } from "./types";
 
 // Honoアプリケーションのインスタンス化
 export const app = new Hono<AppEnv>();
