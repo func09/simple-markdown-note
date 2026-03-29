@@ -10,7 +10,14 @@ import { useNoteStore } from "@/features/notes/store";
 vi.mock("@/features/notes/hooks");
 vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
-const setupMockStore = (initialState: any = {}) => {
+const setupMockStore = (
+  initialState: {
+    selectedNoteId?: string | null;
+    selectedTag?: string | null;
+    isTrashSelected?: boolean;
+    activeView?: "list" | "editor";
+  } = {}
+) => {
   useNoteStore.setState({
     selectedNoteId: initialState.selectedNoteId ?? null,
   });
@@ -29,19 +36,19 @@ describe("useDashboardActions", () => {
     // Default mocks for queries
     vi.mocked(useNotesQuery.useCreateNote).mockReturnValue({
       mutateAsync: vi.fn().mockResolvedValue({ id: "new-note-1", content: "" }),
-    } as any);
+    } as unknown as ReturnType<typeof useNotesQuery.useCreateNote>);
 
     vi.mocked(useNotesQuery.useDeleteNote).mockReturnValue({
       mutateAsync: vi.fn(),
-    } as any);
+    } as unknown as ReturnType<typeof useNotesQuery.useDeleteNote>);
 
     vi.mocked(useNotesQuery.usePermanentDeleteNote).mockReturnValue({
       mutateAsync: vi.fn(),
-    } as any);
+    } as unknown as ReturnType<typeof useNotesQuery.usePermanentDeleteNote>);
 
     vi.mocked(useNotesQuery.useEmptyTrash).mockReturnValue({
       mutateAsync: vi.fn(),
-    } as any);
+    } as unknown as ReturnType<typeof useNotesQuery.useEmptyTrash>);
   });
 
   it("handleCreateNote should create a note, select it, and show success toast", async () => {
@@ -73,7 +80,7 @@ describe("useDashboardActions", () => {
     const mockDelete = vi.fn().mockResolvedValue({});
     vi.mocked(useNotesQuery.useDeleteNote).mockReturnValue({
       mutateAsync: mockDelete,
-    } as any);
+    } as unknown as ReturnType<typeof useNotesQuery.useDeleteNote>);
 
     const { result } = renderHook(() => useDashboardActions());
 
@@ -97,7 +104,7 @@ describe("useDashboardActions", () => {
     const mockEmpty = vi.fn().mockResolvedValue({});
     vi.mocked(useNotesQuery.useEmptyTrash).mockReturnValue({
       mutateAsync: mockEmpty,
-    } as any);
+    } as unknown as ReturnType<typeof useNotesQuery.useEmptyTrash>);
     setupMockStore({ selectedNoteId: "trash-note" });
 
     const { result } = renderHook(() => useDashboardActions());

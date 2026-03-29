@@ -1,4 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import type { Note } from "openapi";
 import * as noteApi from "@/features/notes/api";
 import { db } from "@/lib/db";
 
@@ -19,7 +20,7 @@ export const useSync = () => {
       const lastSyncedAt = localStorage.getItem(LAST_SYNC_KEY) || undefined;
 
       // 1. 送信処理: 未同期データの抽出
-      let changes: any[] = [];
+      let changes: Parameters<typeof noteApi.syncNotes>[0]["changes"] = [];
       try {
         if (lastSyncedAt) {
           const localUpdates = await db.notes
@@ -33,8 +34,8 @@ export const useSync = () => {
             deletedAt: note.deletedAt,
             isPermanent: note.isPermanent || false,
             clientUpdatedAt: note.updatedAt,
-            tags: note.tags?.map((t) =>
-              typeof t === "string" ? t : (t as any).name
+            tags: note.tags?.map((t: unknown) =>
+              typeof t === "string" ? t : (t as { name: string }).name
             ),
           }));
         } else {
@@ -46,8 +47,8 @@ export const useSync = () => {
             deletedAt: note.deletedAt,
             isPermanent: note.isPermanent || false,
             clientUpdatedAt: note.updatedAt,
-            tags: note.tags?.map((t) =>
-              typeof t === "string" ? t : (t as any).name
+            tags: note.tags?.map((t: unknown) =>
+              typeof t === "string" ? t : (t as { name: string }).name
             ),
           }));
         }
@@ -61,9 +62,9 @@ export const useSync = () => {
         // 3. 受信データのローカル反映
         if (updates.length > 0) {
           const toDeleteIds: string[] = [];
-          const toPut: any[] = [];
+          const toPut: Note[] = [];
 
-          updates.forEach((serverNote: any) => {
+          updates.forEach((serverNote: Note) => {
             if (serverNote.isPermanent) {
               toDeleteIds.push(serverNote.id);
             } else {

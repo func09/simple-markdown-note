@@ -1,4 +1,4 @@
-import { create, insertMultiple, search } from "@orama/orama";
+import { type AnyOrama, create, insertMultiple, search } from "@orama/orama";
 import { stopwords as japaneseStopwords } from "@orama/stopwords/japanese";
 import { createTokenizer } from "@orama/tokenizers/japanese";
 import type { Note, Tag } from "openapi";
@@ -61,7 +61,7 @@ export const useOramaSearch = (
       targetNotes: Note[],
       tag: string | null,
       query: string,
-      dbInstance?: any
+      dbInstance?: AnyOrama
     ) => {
       let result = [...targetNotes];
 
@@ -82,7 +82,11 @@ export const useOramaSearch = (
             limit: 100000, // クライアントサイドでの全ての候補を取得する
           });
           const matchedSet = new Set(
-            (searchResult as any).hits.map((hit: any) => hit.document.id)
+            (
+              searchResult as unknown as {
+                hits: { document: { id: string } }[];
+              }
+            ).hits.map((hit) => hit.document.id)
           );
 
           // OramaはデフォルトでOR検索的にヒットを集めるため（助詞の「です」などでヒットしてしまう）、

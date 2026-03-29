@@ -21,7 +21,7 @@ vi.mock("@/lib/db", () => ({
       update: vi.fn(),
       filter: vi.fn().mockReturnValue({ toArray: vi.fn() }),
     },
-    transaction: vi.fn((mode, tables, cb) => cb()),
+    transaction: vi.fn((_mode, _tables, cb) => cb()),
   },
 }));
 
@@ -55,7 +55,7 @@ describe("useNotesQuery", () => {
     it("should fetch tags from api", async () => {
       vi.mocked(noteApi.fetchTags).mockResolvedValue([
         { id: "1", name: "Work" },
-      ] as any);
+      ] as unknown as Awaited<ReturnType<typeof noteApi.fetchTags>>);
       const { result } = renderWithClient(() => useTags());
 
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
@@ -87,7 +87,7 @@ describe("useNotesQuery", () => {
         id: "note-1",
         content: "Old",
         tags: [],
-      } as any);
+      } as unknown as Awaited<ReturnType<typeof db.notes.get>>);
 
       const { result } = renderWithClient(() => useUpdateNote());
 
@@ -157,7 +157,7 @@ describe("useNotesQuery", () => {
         toArray: vi
           .fn()
           .mockResolvedValue([{ id: "trash-1" }, { id: "trash-2" }]),
-      } as any);
+      } as unknown as ReturnType<typeof db.notes.filter>);
 
       const { result } = renderWithClient(() => useEmptyTrash());
 
