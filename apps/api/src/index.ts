@@ -3,7 +3,7 @@ import { createDb, type DrizzleDB, db as staticDb } from "database";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { jwt } from "hono/jwt";
-
+import { requestLogger } from "./middlewares/logger";
 import authRouter from "./routes/auth";
 import { notesRouter } from "./routes/notes";
 import { tagsRouter } from "./routes/tags";
@@ -35,27 +35,7 @@ app.use("*", async (c, next) => {
 });
 
 // 2. シンプルで情報密度の高いロガー
-app.use("*", async (c, next) => {
-  const start = Date.now();
-  const { method, path } = c.req;
-  const query = c.req.query();
-  const queryStr = Object.keys(query).length
-    ? `?${new URLSearchParams(query)}`
-    : "";
-
-  await next();
-
-  const ms = Date.now() - start;
-  const status = c.res.status;
-
-  const color =
-    status >= 400 ? "\x1b[31m" : status >= 300 ? "\x1b[33m" : "\x1b[32m";
-  const reset = "\x1b[0m";
-
-  console.log(
-    `${color}${method}${reset} ${path}${queryStr} ${color}${status}${reset} - ${ms}ms`
-  );
-});
+app.use("*", requestLogger());
 
 app.use("*", cors());
 
@@ -74,7 +54,7 @@ app.use("/api/*", async (c, next) => {
   if (c.req.path.startsWith("/api/auth") || c.req.path === "/health") {
     return next();
   }
-  const payload = c.get("jwtPayload") as Record<string, any> | undefined;
+  const payload = c.get("jwtPayload") as Record<string, unknown> | undefined;
   // userId と id（以前のトークン形式）の両方に対応
   const userId = payload?.userId || payload?.id;
 
