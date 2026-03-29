@@ -1,7 +1,7 @@
-import { Hono } from 'hono';
-import { prisma } from 'database';
-import { SyncRequestSchema } from 'openapi';
-import { TagService } from '../services/tags';
+import { prisma } from "database";
+import { Hono } from "hono";
+import { SyncRequestSchema } from "openapi";
+import { TagService } from "../services/tags";
 
 type Env = {
   Variables: {
@@ -17,8 +17,8 @@ const notesRouter = new Hono<Env>();
  * 統合同期エンドポイント (Unified Sync)
  * クライアントの変更を LWW でアップロードし、他デバイスの変更をダウンロードして一括返却する
  */
-notesRouter.post('/sync', async (c) => {
-  const userId = c.get('jwtPayload').userId;
+notesRouter.post("/sync", async (c) => {
+  const userId = c.get("jwtPayload").userId;
   const body = await c.req.json();
   const { lastSyncedAt, changes } = SyncRequestSchema.parse(body);
 
@@ -36,7 +36,7 @@ notesRouter.post('/sync', async (c) => {
           const upsertParams = {
             id: change.id,
             userId,
-            content: change.content || '',
+            content: change.content || "",
             createdAt: clientTime,
             updatedAt: clientTime,
             deletedAt: change.deletedAt ? new Date(change.deletedAt) : null,

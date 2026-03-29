@@ -1,11 +1,16 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import LoginPage from '@/pages/Login';
-import SignupPage from '@/pages/Signup';
-import Dashboard from '@/pages/Dashboard';
+import type React from "react";
+import {
+  Navigate,
+  Route,
+  BrowserRouter as Router,
+  Routes,
+} from "react-router-dom";
+import Dashboard from "@/pages/Dashboard";
+import LoginPage from "@/pages/Login";
+import SignupPage from "@/pages/Signup";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
   if (!token) {
     return <Navigate to="/login" replace />;
   }
@@ -13,7 +18,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 function App() {
-  console.log('App: Rendering...');
+  console.log("App: Rendering...");
   return (
     <Router>
       <Routes>

@@ -1,11 +1,15 @@
-import React, { useMemo } from 'react';
-import type { Tag } from 'openapi';
+import type { Tag } from "openapi";
+import React, { useMemo } from "react";
 
-import { useDashboardStore } from '@/features/dashboard/store';
-import { useTags } from '@/features/notes/hooks';
+import { useDashboardStore } from "@/features/dashboard/store";
+import { useTags } from "@/features/notes/hooks";
 
 export const useSidebarNavigation = (
-  updateSelection: (tag: string | null, isTrash: boolean, query?: string) => void
+  updateSelection: (
+    tag: string | null,
+    isTrash: boolean,
+    query?: string
+  ) => void
 ) => {
   const { data: tags = [] } = useTags();
   const { selectedTag, isTrashSelected } = useDashboardStore();
@@ -16,10 +20,10 @@ export const useSidebarNavigation = (
    */
   const navItems = useMemo(() => {
     return [
-      { id: 'all', value: null, type: 'all' },
-      { id: 'trash', value: '__trash__', type: 'trash' },
-      { id: 'untagged', value: '__untagged__', type: 'tag' },
-      ...tags.map((tag: Tag) => ({ id: tag.id, value: tag.name, type: 'tag' })),
+      { id: "all", value: null, type: "all" },
+      { id: "trash", value: "__trash__", type: "trash" },
+      { id: "untagged", value: "__untagged__", type: "tag" },
+      ...tags.map((tag: Tag) => ({ id: tag.id, value: tag.name, type: "tag" })),
     ];
   }, [tags]);
 
@@ -29,43 +33,43 @@ export const useSidebarNavigation = (
    */
   const handleNavKeyDown = React.useCallback(
     (e: React.KeyboardEvent) => {
-      if (e.key === 'ArrowDown') {
+      if (e.key === "ArrowDown") {
         e.preventDefault();
         const currentIndex = navItems.findIndex((item) => {
-          if (isTrashSelected) return item.type === 'trash';
-          if (selectedTag === null) return item.type === 'all';
+          if (isTrashSelected) return item.type === "trash";
+          if (selectedTag === null) return item.type === "all";
           return item.value === selectedTag;
         });
         const nextIndex = Math.min(currentIndex + 1, navItems.length - 1);
 
         const nextItem = navItems[nextIndex];
-        if (nextItem.type === 'all') {
-          updateSelection(null, false, '');
-        } else if (nextItem.type === 'trash') {
+        if (nextItem.type === "all") {
+          updateSelection(null, false, "");
+        } else if (nextItem.type === "trash") {
           updateSelection(null, true);
         } else {
           updateSelection(nextItem.value, false);
         }
-      } else if (e.key === 'ArrowUp') {
+      } else if (e.key === "ArrowUp") {
         e.preventDefault();
         const currentIndex = navItems.findIndex((item) => {
-          if (isTrashSelected) return item.type === 'trash';
-          if (selectedTag === null) return item.type === 'all';
+          if (isTrashSelected) return item.type === "trash";
+          if (selectedTag === null) return item.type === "all";
           return item.value === selectedTag;
         });
         const prevIndex = Math.max(currentIndex - 1, 0);
 
         const prevItem = navItems[prevIndex];
-        if (prevItem.type === 'all') {
-          updateSelection(null, false, '');
-        } else if (prevItem.type === 'trash') {
+        if (prevItem.type === "all") {
+          updateSelection(null, false, "");
+        } else if (prevItem.type === "trash") {
           updateSelection(null, true);
         } else {
           updateSelection(prevItem.value, false);
         }
-      } else if (e.key === 'ArrowRight') {
+      } else if (e.key === "ArrowRight") {
         e.preventDefault();
-        document.getElementById('note-list-container')?.focus();
+        document.getElementById("note-list-container")?.focus();
       }
     },
     [navItems, isTrashSelected, selectedTag, updateSelection]

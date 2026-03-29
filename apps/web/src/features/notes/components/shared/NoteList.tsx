@@ -1,17 +1,19 @@
-import React from 'react';
+import { Plus, Search, Tag as TagIcon, X } from "lucide-react";
+import type { Note } from "openapi";
+import React from "react";
 
-import { Plus, Search, Tag as TagIcon, X } from 'lucide-react';
-import type { Note } from 'openapi';
-
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-
-import { NoteListItem as NoteItem } from '@/features/notes/components';
-import { useNoteStore } from '@/features/notes/store';
-import { useDashboardStore } from '@/features/dashboard/store';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useDashboardStore } from "@/features/dashboard/store";
+import { NoteListItem as NoteItem } from "@/features/notes/components";
+import { useNoteStore } from "@/features/notes/store";
 
 interface NoteListProps {
   notes: Note[];
@@ -45,18 +47,18 @@ export const NoteList: React.FC<NoteListProps> = ({
         <div className="flex flex-col">
           <h2 className="font-outfit text-xl font-bold tracking-tight text-white">
             {isTrashSelected
-              ? 'Trash'
-              : selectedTag === '__untagged__'
-                ? 'Untagged'
+              ? "Trash"
+              : selectedTag === "__untagged__"
+                ? "Untagged"
                 : selectedTag
-                  ? 'Tagged Notes'
-                  : 'All Notes'}
+                  ? "Tagged Notes"
+                  : "All Notes"}
           </h2>
           {selectedTag && (
             <div className="mt-1 flex items-center gap-1.5">
               <span className="flex items-center gap-1 rounded-full border border-blue-500/20 bg-blue-600/20 px-2 py-0.5 text-[10px] text-blue-400">
                 <TagIcon size={8} />
-                {selectedTag === '__untagged__' ? 'Untagged' : selectedTag}
+                {selectedTag === "__untagged__" ? "Untagged" : selectedTag}
                 <button
                   onClick={() => setSelectedTag(null)}
                   className="transition-colors hover:text-white"
@@ -79,7 +81,10 @@ export const NoteList: React.FC<NoteListProps> = ({
                 <Plus size={18} />
               </Button>
             </TooltipTrigger>
-            <TooltipContent side="bottom" className="border-slate-700 bg-slate-800 text-slate-200">
+            <TooltipContent
+              side="bottom"
+              className="border-slate-700 bg-slate-800 text-slate-200"
+            >
               Create New Note
             </TooltipContent>
           </Tooltip>
@@ -111,7 +116,7 @@ export const NoteList: React.FC<NoteListProps> = ({
           />
           {searchQuery && (
             <button
-              onClick={() => setSearchQuery('')}
+              onClick={() => setSearchQuery("")}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-600 hover:text-slate-400"
             >
               <X size={12} />
@@ -132,25 +137,30 @@ export const NoteList: React.FC<NoteListProps> = ({
           }
         }}
         onKeyDown={(e) => {
-          if (e.key === 'ArrowDown') {
+          if (e.key === "ArrowDown") {
             e.preventDefault();
             if (notes.length === 0) return;
-            const currentIndex = notes.findIndex((n) => n.id === selectedNoteId);
+            const currentIndex = notes.findIndex(
+              (n) => n.id === selectedNoteId
+            );
             const nextIndex = Math.min(currentIndex + 1, notes.length - 1);
             if (nextIndex >= 0) setSelectedNoteId(notes[nextIndex].id);
-          } else if (e.key === 'ArrowUp') {
+          } else if (e.key === "ArrowUp") {
             e.preventDefault();
             if (notes.length === 0) return;
-            const currentIndex = notes.findIndex((n) => n.id === selectedNoteId);
+            const currentIndex = notes.findIndex(
+              (n) => n.id === selectedNoteId
+            );
             const prevIndex = Math.max(currentIndex - 1, 0);
-            if (prevIndex >= 0 && prevIndex < notes.length) setSelectedNoteId(notes[prevIndex].id);
-          } else if (e.key === 'ArrowLeft') {
+            if (prevIndex >= 0 && prevIndex < notes.length)
+              setSelectedNoteId(notes[prevIndex].id);
+          } else if (e.key === "ArrowLeft") {
             e.preventDefault();
-            document.getElementById('nav-container')?.focus();
-          } else if (e.key === 'ArrowRight') {
+            document.getElementById("nav-container")?.focus();
+          } else if (e.key === "ArrowRight") {
             e.preventDefault();
             // Desktopエディタにはタイトルがない可能性があるが、ひとまずEditorCoreへフォーカス
-            document.getElementById('note-editor')?.focus();
+            document.getElementById("note-editor")?.focus();
           }
         }}
       >
@@ -182,7 +192,9 @@ export const NoteList: React.FC<NoteListProps> = ({
                 {notes.length === 0 && (
                   <div className="mt-20 px-4 text-center">
                     <p className="font-outfit text-sm text-slate-600">
-                      {searchQuery || selectedTag ? 'No matching notes' : 'No notes found'}
+                      {searchQuery || selectedTag
+                        ? "No matching notes"
+                        : "No notes found"}
                     </p>
                   </div>
                 )}
@@ -195,4 +207,4 @@ export const NoteList: React.FC<NoteListProps> = ({
   );
 };
 
-NoteList.displayName = 'NoteList';
+NoteList.displayName = "NoteList";

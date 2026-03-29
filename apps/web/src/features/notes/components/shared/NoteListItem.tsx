@@ -1,6 +1,5 @@
-import React from 'react';
-
-import type { Note } from 'openapi';
+import type { Note } from "openapi";
+import React from "react";
 
 interface NoteItemProps {
   note: Note;
@@ -18,7 +17,7 @@ export const NoteListItem = React.memo<NoteItemProps>(
 
     React.useEffect(() => {
       if (isSelected && ref.current) {
-        ref.current.scrollIntoView({ behavior: 'auto', block: 'nearest' });
+        ref.current.scrollIntoView({ behavior: "auto", block: "nearest" });
       }
     }, [isSelected]);
 
@@ -29,9 +28,9 @@ export const NoteListItem = React.memo<NoteItemProps>(
         className={`group relative mx-2 mb-1 cursor-pointer rounded-xl p-4 ${
           isSelected
             ? isPanelFocused
-              ? 'border border-blue-500 bg-blue-600 shadow-lg shadow-blue-500/20'
-              : 'border border-blue-500/20 bg-blue-600/15'
-            : 'border border-transparent hover:border-slate-700/50 hover:bg-slate-800/50'
+              ? "border border-blue-500 bg-blue-600 shadow-lg shadow-blue-500/20"
+              : "border border-blue-500/20 bg-blue-600/15"
+            : "border border-transparent hover:border-slate-700/50 hover:bg-slate-800/50"
         }`}
       >
         <div className="flex h-full gap-3">
@@ -39,22 +38,27 @@ export const NoteListItem = React.memo<NoteItemProps>(
             <div className="flex items-start justify-between">
               <h3
                 className={`mb-0.5 line-clamp-1 text-sm font-semibold ${
-                  isSelected ? (isPanelFocused ? 'text-white' : 'text-blue-400') : 'text-slate-200'
+                  isSelected
+                    ? isPanelFocused
+                      ? "text-white"
+                      : "text-blue-400"
+                    : "text-slate-200"
                 }`}
               >
-                {note.content.split('\n')[0] || 'Untitled'}
+                {note.content.split("\n")[0] || "Untitled"}
               </h3>
             </div>
             <p
               className={`line-clamp-2 text-xs leading-relaxed ${
                 isSelected
                   ? isPanelFocused
-                    ? 'text-blue-100'
-                    : 'text-slate-400'
-                  : 'text-slate-500'
+                    ? "text-blue-100"
+                    : "text-slate-400"
+                  : "text-slate-500"
               }`}
             >
-              {note.content.split('\n').slice(1).join(' ') || 'No additional content'}
+              {note.content.split("\n").slice(1).join(" ") ||
+                "No additional content"}
             </p>
           </div>
         </div>
@@ -68,4 +72,4 @@ export const NoteListItem = React.memo<NoteItemProps>(
   }
 );
 
-NoteListItem.displayName = 'NoteListItem';
+NoteListItem.displayName = "NoteListItem";
