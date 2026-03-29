@@ -18,7 +18,7 @@ export const useTags = () => {
   });
 };
 
-import { useTriggerSync } from './useSync';
+import { useTriggerSync } from '@/features/notes/hooks/useSync';
 
 /**
  * ノートを作成するためのミューテーションフック
