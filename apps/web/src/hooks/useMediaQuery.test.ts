@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
-import { useMediaQuery } from './useMediaQuery';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 describe('useMediaQuery', () => {
