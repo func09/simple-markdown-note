@@ -11,7 +11,7 @@ export const TagService = {
     userId: string,
     noteId: string,
     tagNames: string[],
-    client: DrizzleDB | any
+    client: DrizzleDB
   ) {
     // 1. 現在の紐付けを解除
     await client.delete(notesToTags).where(eq(notesToTags.noteId, noteId));
@@ -51,7 +51,7 @@ export const TagService = {
   /**
    * どのノートにも紐付いていないタグを削除する
    */
-  async cleanupOrphanedTags(userId: string, client: DrizzleDB | any) {
+  async cleanupOrphanedTags(userId: string, client: DrizzleDB) {
     // どのノートにも紐付いていない（notes_to_tags に存在しない）タグを特定して削除
     await client.delete(tags).where(
       and(
