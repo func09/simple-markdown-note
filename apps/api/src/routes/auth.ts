@@ -3,7 +3,7 @@ import { bcryptjs, eq, users } from "database";
 import { Hono } from "hono";
 import { sign } from "hono/jwt";
 import { SigninRequestSchema, SignupRequestSchema } from "openapi";
-import type { AppEnv } from "../index";
+import type { AppEnv } from "../types";
 
 // 認証関連のルーティング
 export const authRouter = new Hono<AppEnv>();
