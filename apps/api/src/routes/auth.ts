@@ -6,7 +6,7 @@ import { SigninRequestSchema, SignupRequestSchema } from "openapi";
 import type { AppEnv } from "../index";
 
 // 認証関連のルーティング
-const authRouter = new Hono<AppEnv>();
+export const authRouter = new Hono<AppEnv>();
 
 // ユーザー登録エンドポイント
 authRouter.post(
@@ -84,5 +84,3 @@ authRouter.post(
     });
   }
 );
-
-export default authRouter;

@@ -8,9 +8,7 @@ import {
   jwtAuth,
   requestLogger,
 } from "./middlewares";
-import authRouter from "./routes/auth";
-import { notesRouter } from "./routes/notes";
-import { tagsRouter } from "./routes/tags";
+import { authRouter, notesRouter, tagsRouter } from "./routes";
 
 // アプリケーション共通の環境変数型定義
 export type AppEnv = {
