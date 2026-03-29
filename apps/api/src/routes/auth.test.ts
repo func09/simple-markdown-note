@@ -28,7 +28,7 @@ describe("Auth API", () => {
     });
 
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body: any = await res.json();
     expect(body.user.email).toBe("test-test@example.com");
     expect(body.token).toBeDefined();
   });
@@ -46,7 +46,7 @@ describe("Auth API", () => {
     });
 
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body: any = await res.json();
     expect(body.user.email).toBe("test-test@example.com");
     expect(body.token).toBeDefined();
   });
@@ -64,7 +64,7 @@ describe("Auth API", () => {
     });
 
     expect(res.status).toBe(401);
-    const body = await res.json();
+    const body: any = await res.json();
     expect(body.error).toBe("Invalid credentials");
   });
 });

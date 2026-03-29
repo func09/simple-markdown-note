@@ -22,7 +22,7 @@ describe("Tags API via Sync", () => {
         password: "password123",
       }),
     });
-    const body = await signupRes.json();
+    const body: any = await signupRes.json();
     token = body.token;
   });
 
@@ -51,7 +51,7 @@ describe("Tags API via Sync", () => {
     });
 
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body: any = await res.json();
     const syncedNote = body.updates.find((n: any) => n.id === testNoteId);
     expect(syncedNote.tags.length).toBe(2);
     expect(syncedNote.tags.map((t: any) => t.name)).toContain("Work");
@@ -62,7 +62,7 @@ describe("Tags API via Sync", () => {
       method: "GET",
       headers: { Authorization: `Bearer ${token}` },
     });
-    const tags = await tagsRes.json();
+    const tags: any = await tagsRes.json();
     expect(tags.length).toBe(2);
   });
 
@@ -88,7 +88,7 @@ describe("Tags API via Sync", () => {
     });
 
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body: any = await res.json();
     const updatedNote = body.updates.find((n: any) => n.id === testNoteId);
     expect(updatedNote.tags.length).toBe(2);
     expect(updatedNote.tags.map((t: any) => t.name)).toContain("Work");
@@ -100,7 +100,7 @@ describe("Tags API via Sync", () => {
       method: "GET",
       headers: { Authorization: `Bearer ${token}` },
     });
-    const tags = await tagsRes.json();
+    const tags: any = await tagsRes.json();
     expect(tags.length).toBe(2);
     expect(tags.map((t: any) => t.name)).not.toContain("Important");
   });
@@ -131,7 +131,7 @@ describe("Tags API via Sync", () => {
       method: "GET",
       headers: { Authorization: `Bearer ${token}` },
     });
-    const tags = await tagsRes.json();
+    const tags: any = await tagsRes.json();
     expect(tags.length).toBe(0);
   });
 
@@ -154,7 +154,7 @@ describe("Tags API via Sync", () => {
           password: "password123",
         }),
       });
-      const { token: otherToken } = await loginRes.json();
+      const { token: otherToken }: any = await loginRes.json();
 
       await app.request("/notes/sync", {
         method: "POST",
@@ -182,7 +182,7 @@ describe("Tags API via Sync", () => {
       });
 
       expect(res.status).toBe(200);
-      const body = await res.json();
+      const body: any = await res.json();
       // PrivateTag が含まれていないことを確認
       expect(body.some((t: any) => t.name === "PrivateTag")).toBe(false);
     });

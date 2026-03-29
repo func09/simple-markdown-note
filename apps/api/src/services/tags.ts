@@ -1,13 +1,4 @@
-import {
-  and,
-  db,
-  eq,
-  inArray,
-  notesToTags,
-  notInArray,
-  sql,
-  tags,
-} from "database";
+import { and, type DrizzleDB, eq, notesToTags, sql, tags } from "database";
 
 export const TagService = {
   /**
@@ -20,10 +11,8 @@ export const TagService = {
     userId: string,
     noteId: string,
     tagNames: string[],
-    txClient?: any
+    client: DrizzleDB | any
   ) {
-    const client = txClient || db;
-
     // 1. 現在の紐付けを解除
     await client.delete(notesToTags).where(eq(notesToTags.noteId, noteId));
 
@@ -62,9 +51,7 @@ export const TagService = {
   /**
    * どのノートにも紐付いていないタグを削除する
    */
-  async cleanupOrphanedTags(userId: string, txClient?: any) {
-    const client = txClient || db;
-
+  async cleanupOrphanedTags(userId: string, client: DrizzleDB | any) {
     // どのノートにも紐付いていない（notes_to_tags に存在しない）タグを特定して削除
     await client.delete(tags).where(
       and(
