@@ -1,6 +1,6 @@
 import type { Note } from "openapi";
 import type React from "react";
-import { useDashboardStore } from "@/features/dashboard/store";
+import { useDashboardStore } from "@/features/dashboard/stores";
 import { DesktopEditorHeader, EditorCore } from "@/features/notes/components";
 
 interface EditorProps {

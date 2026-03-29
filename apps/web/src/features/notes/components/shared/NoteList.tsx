@@ -11,9 +11,9 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useDashboardStore } from "@/features/dashboard/store";
+import { useDashboardStore } from "@/features/dashboard/stores";
 import { NoteListItem as NoteItem } from "@/features/notes/components";
-import { useNoteStore } from "@/features/notes/store";
+import { useNoteStore } from "@/features/notes/stores";
 
 interface NoteListProps {
   notes: Note[];

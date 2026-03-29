@@ -3,7 +3,7 @@ import React from "react";
 
 import { Button } from "@/components/ui/button";
 
-import { useDashboardStore } from "@/features/dashboard/store";
+import { useDashboardStore } from "@/features/dashboard/stores";
 
 export const MobileHeader: React.FC = () => {
   const setIsSidebarOpen = useDashboardStore((state) => state.setIsSidebarOpen);

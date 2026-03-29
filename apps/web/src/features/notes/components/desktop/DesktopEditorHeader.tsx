@@ -1,6 +1,6 @@
 import { Columns3, RotateCw, Trash2 } from "lucide-react";
 import type React from "react";
-import { useDashboardStore } from "@/features/dashboard/store";
+import { useDashboardStore } from "@/features/dashboard/stores";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 interface DesktopEditorHeaderProps {
