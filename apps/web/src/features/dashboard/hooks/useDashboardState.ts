@@ -12,13 +12,8 @@ import { db } from "@/lib/db";
  */
 export const useDashboardState = () => {
   const selectedNoteId = useNoteStore((state) => state.selectedNoteId);
-  const {
-    searchQuery,
-    selectedTag,
-    isTrashSelected,
-    setActiveView,
-    setIsSidebarOpen,
-  } = useDashboardStore();
+  const { searchQuery, selectedTag, isTrashSelected, setIsSidebarOpen } =
+    useDashboardStore();
 
   // サーバーからの同期状態を追跡するためフック自体は残すが、UIが直接参照する状態は Dexie から取得する
   const { isLoading: notesLoading } = useSync();
@@ -84,7 +79,7 @@ export const useDashboardState = () => {
     if (!isExist) {
       useNoteStore.setState({ selectedNoteId: filteredNotes[0].id });
     }
-  }, [filteredNotes, selectedNoteId, setActiveView]);
+  }, [filteredNotes, selectedNoteId]);
 
   return {
     filteredNotes,

@@ -35,42 +35,39 @@ export const MobileEditorHeader: React.FC<MobileEditorHeaderProps> = ({
       </div>
 
       <div className="flex items-center gap-2">
-        {selectedNoteId && (
-          <>
-            {isTrashSelected ? (
-              <>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onRestore(selectedNoteId)}
-                  className="text-blue-400 hover:bg-blue-400/10 hover:text-blue-300"
-                  title="Restore"
-                >
-                  <RotateCw size={20} />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onDelete(selectedNoteId)}
-                  className="text-red-400 hover:bg-red-400/10 hover:text-red-300"
-                  title="Delete Permanently"
-                >
-                  <Trash2 size={20} />
-                </Button>
-              </>
-            ) : (
+        {selectedNoteId &&
+          (isTrashSelected ? (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => onRestore(selectedNoteId)}
+                className="text-blue-400 hover:bg-blue-400/10 hover:text-blue-300"
+                title="Restore"
+              >
+                <RotateCw size={20} />
+              </Button>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => onDelete(selectedNoteId)}
-                className="text-slate-400 hover:bg-red-400/10 hover:text-red-400"
-                title="Move to Trash"
+                className="text-red-400 hover:bg-red-400/10 hover:text-red-300"
+                title="Delete Permanently"
               >
                 <Trash2 size={20} />
               </Button>
-            )}
-          </>
-        )}
+            </>
+          ) : (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onDelete(selectedNoteId)}
+              className="text-slate-400 hover:bg-red-400/10 hover:text-red-400"
+              title="Move to Trash"
+            >
+              <Trash2 size={20} />
+            </Button>
+          ))}
       </div>
     </div>
   );

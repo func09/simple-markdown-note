@@ -37,6 +37,7 @@ export const TagInput: React.FC<TagInputProps> = ({
         >
           {tag}
           <button
+            type="button"
             onClick={() => removeTag(tag)}
             className="p-0.5 text-slate-500 transition-colors hover:text-slate-300"
           >

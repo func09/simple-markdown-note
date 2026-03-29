@@ -36,9 +36,9 @@ export const EditorCore: React.FC<EditorCoreProps> = ({
   useEffect(() => {
     if (titleRef.current) {
       titleRef.current.style.height = "auto";
-      titleRef.current.style.height = titleRef.current.scrollHeight + "px";
+      titleRef.current.style.height = `${titleRef.current.scrollHeight}px`;
     }
-  }, [content, note?.id]);
+  }, []);
 
   const lines = content.split("\n");
   const title = lines[0] || "";
@@ -51,7 +51,7 @@ export const EditorCore: React.FC<EditorCoreProps> = ({
   };
 
   const handleBodyChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    updateLocalContent(title + "\n" + e.target.value);
+    updateLocalContent(`${title}\n${e.target.value}`);
   };
 
   const handleTitleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -62,8 +62,7 @@ export const EditorCore: React.FC<EditorCoreProps> = ({
       const beforeCursor = title.substring(0, cursorPosition);
       const afterCursor = title.substring(cursorPosition);
 
-      const newContent =
-        beforeCursor + "\n" + afterCursor + (body ? "\n" + body : "");
+      const newContent = `${beforeCursor}\n${afterCursor}${body ? `\n${body}` : ""}`;
       updateLocalContent(newContent);
 
       setTimeout(() => {
@@ -134,6 +133,7 @@ export const EditorCore: React.FC<EditorCoreProps> = ({
             </span>
           </div>
           <button
+            type="button"
             onClick={() => onRestore?.(note.id)}
             className="rounded-md bg-blue-600 px-3 py-1 text-white transition-colors hover:bg-blue-500"
           >
