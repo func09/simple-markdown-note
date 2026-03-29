@@ -41,10 +41,6 @@ jobs:
       - name: Type check
         run: pnpm typecheck
 
-      - name: Setup test database
-        run: pnpm -F database db:push
-        env:
-          DATABASE_URL: "file:./test.db"
 
       - name: Run tests
         run: pnpm test
