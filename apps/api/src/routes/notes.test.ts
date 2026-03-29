@@ -275,7 +275,7 @@ describe("Unified Sync API (/notes/sync)", () => {
       });
 
       // sync endpoints upserts the note attached to the caller's userId.
-      // because prisma.note.upsert uses { where: { id } } but the rest is driven by the backend assigning userId.
+      // because db.insert(notes).onConflictDoUpdate() uses { where: { id } } but the rest is driven by the backend assigning userId.
       // Wait... upsert in notes.ts enforces userId during create, but on update it just updates where id match!
       // Let's verify if user 2's note was actually overwritten!
       const checkRes = await app.request("/notes/sync", {
@@ -290,7 +290,7 @@ describe("Unified Sync API (/notes/sync)", () => {
       const checkBody = await checkRes.json();
       const note = checkBody.updates.find((n: any) => n.id === otherNoteId);
       // It should NOT be overwritten as 'Hacked Content' if we fix the query,
-      // ACTUALLY, if Prisma upsert was insecure, it would be overwritten.
+      // ACTUALLY, if Drizzle upsert was insecure, it would be overwritten.
       // Fortunately our Unified Sync handles this: wait, wait!
       // In apps/api/src/routes/notes.ts: `existing = await tx.note.findUnique({ where: { id: change.id } })`
       // Wait, there's a security flaw if `existing` is from another user?
