@@ -1,16 +1,13 @@
 import type React from "react";
-import { useMemo } from "react";
 
-import { MobileSidebar } from "@/features/dashboard/components";
+import {
+  MobileEditorView,
+  MobileListView,
+  MobileSidebar,
+} from "@/features/dashboard/components";
 import { useDashboardState } from "@/features/dashboard/hooks";
 import { useDashboardStore } from "@/features/dashboard/store";
-import {
-  DeleteConfirmModal,
-  EditorCore,
-  MobileEditorHeader,
-  MobileHeader,
-  NoteList,
-} from "@/features/notes/components";
+import { DeleteConfirmModal } from "@/features/notes/components";
 
 /**
  * モバイル向けのメインダッシュボードコンポーネント
@@ -36,65 +33,27 @@ export const MobileDashboard: React.FC = () => {
     handleUpdateTags,
   } = useDashboardState();
 
-  /**
-   * ノート一覧（リストビュー）のメモ化
-   * ダッシュボード全体の再レンダリング時に、リスト画面が不要に再描画されるのを防ぎます
-   */
-  const memoizedList = useMemo(
-    () => (
-      <div className="flex h-full flex-col">
-        <MobileHeader />
-        <div className="flex-1 overflow-hidden">
-          <NoteList
-            notes={filteredNotes}
-            onCreateNote={handleCreateNote}
-            onEmptyTrash={handleEmptyTrash}
-            isLoading={notesLoading}
-          />
-        </div>
-      </div>
-    ),
-    [filteredNotes, handleCreateNote, handleEmptyTrash, notesLoading]
-  );
-
-  /**
-   * ノート編集（エディタビュー）のメモ化
-   * エディタ画面のヘッダーとコアエディタをまとめ、不要な再描画を防ぎます
-   */
-  const memoizedMain = useMemo(
-    () => (
-      <div className="flex h-full flex-col">
-        <MobileEditorHeader
-          selectedNoteId={selectedNote?.id || null}
-          isTrashSelected={isTrashSelected}
-          onBack={() => setActiveView("list")}
-          onRestore={handleRestoreNote}
-          onDelete={handleDeleteClick}
-        />
-        <div className="flex-1 overflow-hidden">
-          <EditorCore
-            note={selectedNote}
-            onUpdateTags={handleUpdateTags}
-            onRestore={handleRestoreNote}
-          />
-        </div>
-      </div>
-    ),
-    [
-      selectedNote,
-      isTrashSelected,
-      handleRestoreNote,
-      handleDeleteClick,
-      handleUpdateTags,
-      setActiveView,
-    ]
-  );
-
   return (
     <div className="relative flex h-screen w-full flex-col overflow-hidden bg-[#0f172a]">
       {/* メインビュー */}
       <div className="h-full flex-1">
-        {activeView === "list" ? memoizedList : memoizedMain}
+        {activeView === "list" ? (
+          <MobileListView
+            filteredNotes={filteredNotes}
+            handleCreateNote={handleCreateNote}
+            handleEmptyTrash={handleEmptyTrash}
+            notesLoading={notesLoading}
+          />
+        ) : (
+          <MobileEditorView
+            selectedNote={selectedNote}
+            isTrashSelected={isTrashSelected}
+            setActiveView={setActiveView}
+            handleRestoreNote={handleRestoreNote}
+            handleDeleteClick={handleDeleteClick}
+            handleUpdateTags={handleUpdateTags}
+          />
+        )}
       </div>
 
       {/* サイドバー（ドロワー） */}
