@@ -6,13 +6,17 @@ import {
 } from "@/components/ui/resizable";
 import { IDS, useLayoutManagement } from "@/features/dashboard/hooks";
 
-interface AppLayoutProps {
+interface DesktopLayoutProps {
   nav: React.ReactNode;
   list: React.ReactNode;
   main: React.ReactNode;
 }
 
-export const AppLayout: React.FC<AppLayoutProps> = React.memo(
+/**
+ * デスクトップ版専用のレイアウトコンポーネント
+ * 3ペイン（ナビゲーション、リスト、エディタ）のリサイズ可能な構成を提供します。
+ */
+export const DesktopLayout: React.FC<DesktopLayoutProps> = React.memo(
   ({ nav, list, main }) => {
     const { layoutMode, sanitizedAll, sanitizedSplit, handleLayoutChange } =
       useLayoutManagement();
@@ -94,4 +98,4 @@ export const AppLayout: React.FC<AppLayoutProps> = React.memo(
   }
 );
 
-AppLayout.displayName = "AppLayout";
+DesktopLayout.displayName = "DesktopLayout";

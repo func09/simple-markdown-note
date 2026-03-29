@@ -1,8 +1,6 @@
 import React, { useMemo, useState } from "react";
 
-import { AppLayout } from "@/components/layout/AppLayout";
-
-import { DesktopSidebar } from "@/features/dashboard/components";
+import { DesktopSidebar, DesktopLayout } from "@/features/dashboard/components";
 import {
   useDashboardState,
   useSidebarNavigation,
@@ -87,7 +85,7 @@ export const DesktopDashboard: React.FC = () => {
 
   return (
     <>
-      <AppLayout
+      <DesktopLayout
         nav={navigationContent}
         list={memoizedList}
         main={memoizedMain}
