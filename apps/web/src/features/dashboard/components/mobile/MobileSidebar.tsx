@@ -1,6 +1,5 @@
 import { LogOut, StickyNote, Tag as TagIcon, Trash2 } from "lucide-react";
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import { logout } from "@/features/auth";
@@ -20,21 +19,21 @@ interface MobileSidebarProps {
 export const MobileSidebar: React.FC<MobileSidebarProps> = ({
   onSelectTag,
 }) => {
-  const navigate = useNavigate();
   const selectedTag = useDashboardStore((state) => state.selectedTag);
   const isTrashSelected = useDashboardStore((state) => state.isTrashSelected);
 
-  const handleLogout = React.useCallback(() => {
-    logout();
-    navigate("/login");
+  const handleLogout = React.useCallback(async () => {
+    await logout();
+    window.location.href = "/login";
     toast.success("Logged out successfully");
-  }, [navigate]);
+  }, []);
 
   return (
     <div className="flex h-full flex-col bg-slate-900">
       <div className="flex h-full flex-col gap-4 p-4">
         <div className="flex flex-col gap-1">
           <button
+            type="button"
             onClick={() => onSelectTag(null, false)}
             className={cn(
               "flex w-full items-center gap-3 rounded-xl px-3 py-3",
@@ -47,6 +46,7 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
             <span>All Notes</span>
           </button>
           <button
+            type="button"
             onClick={() => onSelectTag(null, true)}
             className={cn(
               "flex w-full items-center gap-3 rounded-xl px-3 py-3",
@@ -72,6 +72,7 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
 
         <div className="mt-auto border-t border-slate-800/50 py-4">
           <button
+            type="button"
             onClick={handleLogout}
             className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-slate-500 hover:text-red-400"
           >
