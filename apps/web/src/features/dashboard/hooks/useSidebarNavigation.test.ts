@@ -8,7 +8,9 @@ import * as useNotesQuery from "@/features/notes/hooks";
 // Mock dependencies
 vi.mock("@/features/notes/hooks");
 
-const setupMockStore = (initialState: any = {}) => {
+const setupMockStore = (
+  initialState: { selectedTag?: string | null; isTrashSelected?: boolean } = {}
+) => {
   useDashboardStore.setState({
     selectedTag: initialState.selectedTag ?? null,
     isTrashSelected: initialState.isTrashSelected ?? false,
@@ -16,8 +18,10 @@ const setupMockStore = (initialState: any = {}) => {
 };
 
 describe("useSidebarNavigation", () => {
-  let mockFocus: any;
-  let updateSelection: any;
+  let mockFocus: import("vitest").Mock<(...args: unknown[]) => unknown>;
+  let updateSelection: import("vitest").Mock<
+    (...args: [string | null, boolean, string?]) => void
+  >;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -30,7 +34,7 @@ describe("useSidebarNavigation", () => {
         { id: "1", name: "React" },
         { id: "2", name: "TypeScript" },
       ],
-    } as any);
+    } as unknown as ReturnType<typeof useNotesQuery.useTags>);
 
     // Mock document.getElementById for focus tracking
     mockFocus = vi.fn();

@@ -9,16 +9,18 @@ const LoginPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async (data: any) => {
+  const handleLogin = async (data: { email: string; password: string }) => {
     setIsLoading(true);
     try {
       const res = await signin({ email: data.email, password: data.password });
       localStorage.setItem("token", res.token);
       toast.success("Logged in successfully");
       navigate("/");
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast.error(
-        err.message || "Login failed. Please check your credentials."
+        err instanceof Error
+          ? err.message
+          : "Login failed. Please check your credentials."
       );
     } finally {
       setIsLoading(false);

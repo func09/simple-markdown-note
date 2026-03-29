@@ -13,7 +13,7 @@ vi.mock("@/lib/db", () => ({
       bulkDelete: vi.fn(),
       bulkPut: vi.fn(),
     },
-    transaction: vi.fn(async (mode, tables, cb) => await cb()),
+    transaction: vi.fn(async (_mode, _tables, cb) => await cb()),
   },
 }));
 
@@ -45,7 +45,7 @@ describe("useSync / useTriggerSync", () => {
     vi.clearAllMocks();
 
     localStorageMock = {};
-    const storageSpy = vi
+    const _storageSpy = vi
       .spyOn(Storage.prototype, "getItem")
       .mockImplementation((key) => localStorageMock[key] || null);
     vi.spyOn(Storage.prototype, "setItem").mockImplementation((key, val) => {
@@ -85,7 +85,7 @@ describe("useSync / useTriggerSync", () => {
           isPermanent: false,
           updatedAt: "2023-01-01",
         },
-      ] as any);
+      ] as unknown as Awaited<ReturnType<typeof db.notes.toArray>>);
 
       vi.mocked(noteApi.syncNotes).mockResolvedValue({
         newSyncTime: "2023-01-02T00:00:00Z",
@@ -117,11 +117,13 @@ describe("useSync / useTriggerSync", () => {
     });
 
     it("syncs only updated items and process server updates", async () => {
-      localStorageMock["simplenote_last_sync"] = "2023-01-01T00:00:00Z";
+      localStorageMock.simplenote_last_sync = "2023-01-01T00:00:00Z";
 
       const toArrayMock = vi.fn().mockResolvedValue([{ id: "changed-1" }]);
       const aboveMock = vi.fn().mockReturnValue({ toArray: toArrayMock });
-      vi.mocked(db.notes.where).mockReturnValue({ above: aboveMock } as any);
+      vi.mocked(db.notes.where).mockReturnValue({
+        above: aboveMock,
+      } as unknown as ReturnType<typeof db.notes.where>);
 
       vi.mocked(noteApi.syncNotes).mockResolvedValue({
         newSyncTime: "2023-01-02T00:00:00Z",

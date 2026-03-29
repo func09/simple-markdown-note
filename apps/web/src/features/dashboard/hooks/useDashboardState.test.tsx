@@ -11,7 +11,16 @@ vi.mock("dexie-react-hooks");
 vi.mock("@/features/notes/hooks");
 vi.mock("./useDashboardActions");
 
-const setupStores = (dashboardState: any = {}, noteState: any = {}) => {
+const setupStores = (
+  dashboardState: {
+    searchQuery?: string;
+    selectedTag?: string | null;
+    isTrashSelected?: boolean;
+    activeView?: "list" | "editor";
+    isSidebarOpen?: boolean;
+  } = {},
+  noteState: { selectedNoteId?: string | null } = {}
+) => {
   useDashboardStore.setState({
     searchQuery: "",
     selectedTag: null,
@@ -37,14 +46,26 @@ describe("useDashboardState", () => {
       { id: "trash-1", content: "trash 1", deletedAt: "2023-01-01" },
     ]);
 
-    vi.mocked(hooks.useSync).mockReturnValue({ isLoading: false } as any);
+    vi.mocked(hooks.useSync).mockReturnValue({
+      isLoading: false,
+    } as unknown as ReturnType<typeof hooks.useSync>);
 
     vi.mocked(hooks.useOramaSearch).mockReturnValue({
-      filteredNotes: [{ id: "1", content: "note 1", deletedAt: null } as any],
+      filteredNotes: [
+        {
+          id: "1",
+          content: "note 1",
+          deletedAt: null,
+        } as unknown as ReturnType<
+          typeof hooks.useOramaSearch
+        >["filteredNotes"][0],
+      ],
       searchNotes: vi
         .fn()
         .mockReturnValue([{ id: "1", content: "note 1", deletedAt: null }]),
-      oramaDb: {} as any,
+      oramaDb: {} as unknown as ReturnType<
+        typeof hooks.useOramaSearch
+      >["oramaDb"],
     });
 
     vi.mocked(useDashboardActionsHook.useDashboardActions).mockReturnValue({
@@ -56,7 +77,9 @@ describe("useDashboardState", () => {
       confirmDeleteNote: vi.fn(),
       handleCancelDelete: vi.fn(),
       handleEmptyTrash: vi.fn(),
-    } as any);
+    } as unknown as ReturnType<
+      typeof useDashboardActionsHook.useDashboardActions
+    >);
   });
 
   it("selects correct notes and delegates to oramaSearch based on isTrashSelected", () => {
@@ -127,7 +150,9 @@ describe("useDashboardState", () => {
     vi.mocked(hooks.useOramaSearch).mockReturnValue({
       filteredNotes: [],
       searchNotes: vi.fn().mockReturnValue([]),
-      oramaDb: {} as any,
+      oramaDb: {} as unknown as ReturnType<
+        typeof hooks.useOramaSearch
+      >["oramaDb"],
     });
     setupStores({}, { selectedNoteId: "1" });
     renderHook(() => useDashboardState());

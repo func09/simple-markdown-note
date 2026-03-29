@@ -9,14 +9,16 @@ const SignupPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSignup = async (data: any) => {
+  const handleSignup = async (data: { email: string; password: string }) => {
     setIsLoading(true);
     try {
       await signup({ email: data.email, password: data.password });
       toast.success("Successfully signed up! Please login.");
       navigate("/login");
-    } catch (err: any) {
-      toast.error(err.message || "Signup failed. Please try again.");
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error ? err.message : "Signup failed. Please try again."
+      );
     } finally {
       setIsLoading(false);
     }
