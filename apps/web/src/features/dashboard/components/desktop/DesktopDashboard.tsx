@@ -5,7 +5,7 @@ import {
   useDashboardState,
   useSidebarNavigation,
 } from "@/features/dashboard/hooks";
-import { useDashboardStore } from "@/features/dashboard/store";
+import { useDashboardStore } from "@/features/dashboard/stores";
 import {
   DeleteConfirmModal,
   DesktopEditor,

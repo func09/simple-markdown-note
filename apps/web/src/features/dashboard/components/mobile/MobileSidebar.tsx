@@ -2,7 +2,7 @@ import { LogOut, StickyNote, Tag as TagIcon, Trash2 } from "lucide-react";
 import type React from "react";
 import { useAuthActions } from "@/features/auth";
 import { TagList } from "@/features/dashboard/components/shared/TagList";
-import { useDashboardStore } from "@/features/dashboard/store";
+import { useDashboardStore } from "@/features/dashboard/stores";
 
 import { cn } from "@/lib/utils";
 

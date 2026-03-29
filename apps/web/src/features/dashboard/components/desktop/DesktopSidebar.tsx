@@ -3,7 +3,7 @@ import type React from "react";
 
 import { useAuthActions } from "@/features/auth";
 import { TagList } from "@/features/dashboard/components";
-import { useDashboardStore } from "@/features/dashboard/store";
+import { useDashboardStore } from "@/features/dashboard/stores";
 
 import { cn } from "@/lib/utils";
 

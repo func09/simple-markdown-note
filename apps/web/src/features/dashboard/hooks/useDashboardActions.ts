@@ -1,7 +1,7 @@
 import type { Note } from "openapi";
 import { useCallback } from "react";
 import { toast } from "sonner";
-import { useDashboardStore } from "@/features/dashboard/store";
+import { useDashboardStore } from "@/features/dashboard/stores";
 import {
   useCreateNote,
   useDeleteNote,
@@ -10,7 +10,7 @@ import {
   useRestoreNote,
   useUpdateNote,
 } from "@/features/notes/hooks";
-import { useNoteStore } from "@/features/notes/store";
+import { useNoteStore } from "@/features/notes/stores";
 
 /**
  * ノートに関する各種アクション（作成、論理・物理削除、復元、タグ更新など）を処理するためのカスタムフック

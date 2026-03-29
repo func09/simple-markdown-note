@@ -1,6 +1,6 @@
 import React from "react";
 import type * as ResizablePrimitive from "react-resizable-panels";
-import { useDashboardStore } from "@/features/dashboard/store";
+import { useDashboardStore } from "@/features/dashboard/stores";
 
 /**
  * 初期の理想的なバランス [15%, 25%, 60%]
