@@ -1,15 +1,10 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "node",
-    "strict": true,
-    "skipLibCheck": true,
     "types": ["node"],
-    "baseUrl": ".",
     "paths": {
-      "database": ["../database/src"],
-      "openapi": ["../openapi/src"]
+      "database": ["../../packages/database/src"],
+      "openapi": ["../../packages/openapi/src"]
     }
   },
   "include": ["src"]
