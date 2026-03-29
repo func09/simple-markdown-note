@@ -4,6 +4,8 @@
   "type": "module",
   "main": "./src/index.ts",
   "scripts": {
+    "lint": "biome lint .",
+    "format": "biome format --write .",
     "db:push": "prisma db push",
     "generate": "prisma generate"
   },
