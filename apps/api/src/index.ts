@@ -6,13 +6,24 @@ import {
   dbInjector,
   jwtAuth,
   requestLogger,
-} from "@/middlewares";
-import { apiRouter } from "@/routes";
+} from "./middlewares";
+import { apiRouter } from "./routes";
 
-import type { AppEnv } from "@/types";
+import type { AppEnv } from "./types";
 
 // Honoアプリケーションのインスタンス化
 export const app = new Hono<AppEnv>();
+
+import { HTTPException } from "hono/http-exception";
+
+// エラーハンドラー (JSONレスポンス)
+app.onError((err, c) => {
+  if (err instanceof HTTPException) {
+    return c.json({ error: err.message }, err.status);
+  }
+  console.error("Unhandle error:", err);
+  return c.json({ error: "Internal Server Error" }, 500);
+});
 
 // 1. データベース注入ミドルウェア
 app.use("*", dbInjector());
