@@ -1,31 +1,15 @@
 import type React from "react";
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { toast } from "sonner";
-import { signin } from "@/features/auth/api";
-import { AuthForm } from "@/features/auth/components/AuthForm";
+import { Link } from "react-router-dom";
+
+import { DesktopAuthForm } from "@/features/auth/components/desktop/DesktopAuthForm";
+import { MobileAuthForm } from "@/features/auth/components/mobile/MobileAuthForm";
+import { useAuthActions } from "@/features/auth/hooks";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 const LoginPage: React.FC = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
-
-  const handleLogin = async (data: { email: string; password: string }) => {
-    setIsLoading(true);
-    try {
-      const res = await signin({ email: data.email, password: data.password });
-      localStorage.setItem("token", res.token);
-      toast.success("Logged in successfully");
-      navigate("/");
-    } catch (err: unknown) {
-      toast.error(
-        err instanceof Error
-          ? err.message
-          : "Login failed. Please check your credentials."
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { isLoading, handleLogin } = useAuthActions();
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  const AuthForm = isMobile ? MobileAuthForm : DesktopAuthForm;
 
   return (
     <div className="flex min-h-screen w-full flex-col items-center justify-center bg-[#0f172a] p-4 selection:bg-blue-500/30">
