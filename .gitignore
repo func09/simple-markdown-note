@@ -33,3 +33,6 @@ Thumbs.db
 .idea/
 # typescript
 *.tsbuildinfo
+
+# Cloudflare Wrangler
+.wrangler/
