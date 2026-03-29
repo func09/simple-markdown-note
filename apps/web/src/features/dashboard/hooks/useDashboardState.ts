@@ -5,7 +5,7 @@ import { db } from '@/lib/db';
 import { useSync, useOramaSearch } from '@/features/notes/hooks';
 import { useNoteStore } from '@/features/notes/store';
 import { useDashboardStore } from '@/features/dashboard/store';
-import { useDashboardActions } from './useDashboardActions';
+import { useDashboardActions } from '@/features/dashboard/hooks/useDashboardActions';
 
 /**
  * DesktopとMobileの両方のDashboardで共有されるビジネスロジックと状態を管理するカスタムフック
