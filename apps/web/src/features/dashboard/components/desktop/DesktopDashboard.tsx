@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 
-import { DesktopSidebar, DesktopLayout } from "@/features/dashboard/components";
+import { DesktopLayout, DesktopSidebar } from "@/features/dashboard/components";
 import {
   useDashboardState,
   useSidebarNavigation,
