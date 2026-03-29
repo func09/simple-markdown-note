@@ -1,5 +1,5 @@
 import { serve } from "@hono/node-server";
-import { createDb, type DrizzleDB } from "database";
+import { createDb, type DrizzleDB, getLibsqlDb } from "database";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { jwt } from "hono/jwt";
@@ -25,10 +25,11 @@ export const app = new Hono<AppEnv>();
 
 // 1. データベース注入ミドルウェア
 app.use("*", async (c, next) => {
-  // c.env.DB が無い場合（テスト環境など）は、静的な db (LibSQL) を使うフォールバックも検討可能ですが、
-  // Wrangler環境では常に c.env.DB が存在することを期待します。
+  // Wrangler環境では常に c.env.DB が存在しますが、テストでは存在しません。
   if (c.env?.DB) {
     c.set("db", createDb(c.env.DB));
+  } else {
+    c.set("db", getLibsqlDb() as unknown as DrizzleDB);
   }
   await next();
 });
@@ -64,7 +65,7 @@ app.use("/api/*", async (c, next) => {
   if (c.req.path.startsWith("/api/auth") || c.req.path === "/health") {
     return next();
   }
-  const secret = c.env.JWT_SECRET || "dev-secret";
+  const secret = c.env?.JWT_SECRET || "dev-secret";
   return jwt({ secret, alg: "HS256" })(c, next);
 });
 
