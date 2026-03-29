@@ -12,9 +12,9 @@
   ],
   "scripts": {
     "dev": "docker-compose up",
-    "format": "pnpm biome format --write .",
-    "lint": "pnpm biome lint .",
-    "check": "pnpm biome check --write --no-errors-on-unmatched .",
+    "format": "pnpm -F '*' format",
+    "lint": "pnpm -F '*' lint",
+    "check": "pnpm -F '*' check",
     "test": "pnpm -r --if-present test",
     "prepare": "husky"
   },
@@ -45,7 +45,7 @@
   },
   "lint-staged": {
     "*.{js,ts,jsx,tsx,json,md}": [
-      "biome check --write --no-errors-on-unmatched"
+      "pnpm biome check --write --no-errors-on-unmatched"
     ]
   }
 }
