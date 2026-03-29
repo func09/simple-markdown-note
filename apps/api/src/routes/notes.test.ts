@@ -1,5 +1,4 @@
-import { execSync } from "child_process";
-import { getLibsqlDb, users } from "database";
+import { db, users } from "database";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { app } from "../index";
 
@@ -9,14 +8,8 @@ describe("Unified Sync API (/notes/sync)", () => {
   let syncTime: string;
 
   beforeAll(async () => {
-    // テストデータベースの初期化
-    const dbUrl = process.env.DATABASE_URL || "file:./test.db";
-    execSync(`pnpm -F database db:push`, {
-      env: { ...process.env, DATABASE_URL: dbUrl },
-    });
-
-    const testDb = getLibsqlDb();
-    await testDb.delete(users);
+    // setupFiles (vitest.setup.ts) にてマイグレーション済み
+    await db.delete(users);
 
     // テスト用ユーザーの作成とログイン
     const signupRes = await app.request("/api/auth/signup", {

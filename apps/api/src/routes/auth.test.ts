@@ -1,18 +1,12 @@
-import { execSync } from "node:child_process";
-import { getLibsqlDb, users } from "database";
+import { db, users } from "database";
 import { beforeAll, describe, expect, it } from "vitest";
 import { app } from "../index";
 
 describe("Auth API", () => {
   beforeAll(async () => {
-    // テストデータベースの初期化 (Drizzle Kit を使用)
-    const dbUrl = process.env.DATABASE_URL || "file:./test.db";
-    execSync(`pnpm -F database db:push`, {
-      env: { ...process.env, DATABASE_URL: dbUrl },
-    });
+    // setupFiles (vitest.setup.ts) にてマイグレーション済み
     // テーブルのクリーンアップ
-    const testDb = getLibsqlDb();
-    await testDb.delete(users);
+    await db.delete(users);
   });
 
   // ユーザー登録のテスト

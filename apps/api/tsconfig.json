@@ -7,5 +7,5 @@
       "openapi": ["../../packages/openapi/src"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "vitest.setup.ts"]
 }

@@ -1,5 +1,5 @@
 import { serve } from "@hono/node-server";
-import { createDb, type DrizzleDB, getLibsqlDb } from "database";
+import { createDb, type DrizzleDB, db as staticDb } from "database";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { jwt } from "hono/jwt";
@@ -29,7 +29,7 @@ app.use("*", async (c, next) => {
   if (c.env?.DB) {
     c.set("db", createDb(c.env.DB));
   } else {
-    c.set("db", getLibsqlDb() as unknown as DrizzleDB);
+    c.set("db", staticDb as unknown as DrizzleDB);
   }
   await next();
 });

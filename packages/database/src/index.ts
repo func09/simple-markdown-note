@@ -9,7 +9,6 @@ export const createDb = (d1: any) => {
 };
 
 // LibSQL 用の型（ローカル開発/テスト用）
-// LibSQL 用の型（ローカル開発/テスト用）
 export const getLibsqlDb = () => {
   const url =
     (globalThis as any).process?.env?.DATABASE_URL || "file:./local.db";
@@ -29,5 +28,8 @@ export type DrizzleDB = ReturnType<typeof createDb>;
 import bcryptjs from "bcryptjs";
 
 export * from "drizzle-orm";
+
+import { migrate } from "drizzle-orm/libsql/migrator";
+export const migrateLibsql = migrate;
 export * from "./schema";
 export { bcryptjs };
