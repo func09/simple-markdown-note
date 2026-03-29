@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
-import { useTagInput } from './useTagInput';
+import { useTagInput } from '@/features/notes/hooks/useTagInput';
 import { describe, it, expect, vi } from 'vitest';
 import React from 'react';
 
