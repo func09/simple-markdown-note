@@ -5,9 +5,9 @@ import {
   BrowserRouter as Router,
   Routes,
 } from "react-router-dom";
-import Dashboard from "@/pages/Dashboard";
-import LoginPage from "@/pages/Login";
-import SignupPage from "@/pages/Signup";
+import Dashboard from "./pages/Dashboard";
+import LoginPage from "./pages/Login";
+import SignupPage from "./pages/Signup";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const token = localStorage.getItem("token");
