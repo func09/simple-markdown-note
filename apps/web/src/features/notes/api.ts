@@ -1,6 +1,6 @@
-import type { Note, Tag } from 'openapi';
+import type { Note, Tag } from "openapi";
 
-import api from '@/lib/api';
+import api from "@/lib/api";
 
 /**
  * Hono RPC を使用したノート関連の API 通信
@@ -11,9 +11,11 @@ import api from '@/lib/api';
  * @param params - { updatedAfter?: string } (ISO8601日時)
  */
 export const fetchNotes = async (params?: { updatedAfter?: string }) => {
-  const query = params?.updatedAfter ? { updatedAfter: params.updatedAfter } : {};
+  const query = params?.updatedAfter
+    ? { updatedAfter: params.updatedAfter }
+    : {};
   const res = await api.notes.$get({ query });
-  if (!res.ok) throw new Error('Failed to fetch notes');
+  if (!res.ok) throw new Error("Failed to fetch notes");
   return res.json() as Promise<Note[]>;
 };
 
@@ -33,7 +35,7 @@ export const syncNotes = async (payload: {
   }[];
 }) => {
   const res = await api.notes.sync.$post({ json: payload });
-  if (!res.ok) throw new Error('Failed to synchronize notes');
+  if (!res.ok) throw new Error("Failed to synchronize notes");
   return res.json() as Promise<{
     newSyncTime: string;
     updates: Note[];
@@ -45,6 +47,6 @@ export const syncNotes = async (payload: {
  */
 export const fetchTags = async () => {
   const res = await api.tags.$get();
-  if (!res.ok) throw new Error('Failed to fetch tags');
+  if (!res.ok) throw new Error("Failed to fetch tags");
   return res.json() as Promise<Tag[]>;
 };

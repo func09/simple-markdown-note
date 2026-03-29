@@ -1,14 +1,13 @@
-import React from 'react';
+import { LogOut, StickyNote, Tag as TagIcon, Trash2 } from "lucide-react";
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
-import { LogOut, StickyNote, Trash2, Tag as TagIcon } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
+import { logout } from "@/features/auth";
+import { TagList } from "@/features/dashboard/components";
+import { useDashboardStore } from "@/features/dashboard/store";
 
-import { logout } from '@/features/auth';
-import { TagList } from '@/features/dashboard/components';
-import { useDashboardStore } from '@/features/dashboard/store';
-
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 
 interface MobileSidebarProps {
   onSelectTag: (tag: string | null, isTrash: boolean) => void;
@@ -18,15 +17,17 @@ interface MobileSidebarProps {
  * モバイル用のサイドバーコンポーネント
  * ドロワー内に表示されるナビゲーション項目
  */
-export const MobileSidebar: React.FC<MobileSidebarProps> = ({ onSelectTag }) => {
+export const MobileSidebar: React.FC<MobileSidebarProps> = ({
+  onSelectTag,
+}) => {
   const navigate = useNavigate();
   const selectedTag = useDashboardStore((state) => state.selectedTag);
   const isTrashSelected = useDashboardStore((state) => state.isTrashSelected);
 
   const handleLogout = React.useCallback(() => {
     logout();
-    navigate('/login');
-    toast.success('Logged out successfully');
+    navigate("/login");
+    toast.success("Logged out successfully");
   }, [navigate]);
 
   return (
@@ -36,10 +37,10 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({ onSelectTag }) => 
           <button
             onClick={() => onSelectTag(null, false)}
             className={cn(
-              'flex w-full items-center gap-3 rounded-xl px-3 py-3',
+              "flex w-full items-center gap-3 rounded-xl px-3 py-3",
               selectedTag === null && !isTrashSelected
-                ? 'bg-blue-600 font-medium text-white'
-                : 'text-slate-400'
+                ? "bg-blue-600 font-medium text-white"
+                : "text-slate-400"
             )}
           >
             <StickyNote size={20} />
@@ -48,8 +49,10 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({ onSelectTag }) => 
           <button
             onClick={() => onSelectTag(null, true)}
             className={cn(
-              'flex w-full items-center gap-3 rounded-xl px-3 py-3',
-              isTrashSelected ? 'bg-blue-600 font-medium text-white' : 'text-slate-400'
+              "flex w-full items-center gap-3 rounded-xl px-3 py-3",
+              isTrashSelected
+                ? "bg-blue-600 font-medium text-white"
+                : "text-slate-400"
             )}
           >
             <Trash2 size={20} />
@@ -81,4 +84,4 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({ onSelectTag }) => 
   );
 };
 
-MobileSidebar.displayName = 'MobileSidebar';
+MobileSidebar.displayName = "MobileSidebar";

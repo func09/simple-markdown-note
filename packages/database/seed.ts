@@ -1,27 +1,28 @@
-import { PrismaClient } from '@prisma/client'
-import { PrismaLibSql } from '@prisma/adapter-libsql'
-import bcrypt from 'bcryptjs'
-import path from 'path'
-import { fileURLToPath } from 'url'
+import { PrismaLibSql } from "@prisma/adapter-libsql";
+import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
+import path from "path";
+import { fileURLToPath } from "url";
 
 // ESM でのパス解決
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // データベース URL の特定
-const absoluteDbPath = path.resolve(__dirname, '../../storage/dev.db')
-const url = process.env.DATABASE_URL || `file:${absoluteDbPath}`
+const absoluteDbPath = path.resolve(__dirname, "../../storage/dev.db");
+const url = process.env.DATABASE_URL || `file:${absoluteDbPath}`;
 
 const adapter = new PrismaLibSql({
-  // @ts-ignore
+  // @ts-expect-error
   url: url,
-})
+});
 
-const prisma = new PrismaClient({ adapter })
+const prisma = new PrismaClient({ adapter });
 
 // --- 文学テキスト定数 ---
 // 吾輩は猫である（冒頭部分）
-const CAT_TEXT = `
+const CAT_TEXT =
+  `
 吾輩は猫である。名前はまだ無い。
 どこで生れたかとんと見当がつかぬ。何でも薄暗いじめじめした所でニャーニャー泣いていた事だけは記憶している。吾輩はここで始めて人間というものを見た。しかもあとで聞くとそれは書生という人間中で一番獰悪な種族であったそうだ。この書生というのは時々我々を捕えて煮て食うという話である。しかしその当時は何という考もなかったから別段恐しいとも思わなかった。ただ彼の掌に載せられてスーと持ち上げられた時何だかフワフワした感じがあったばかりである。掌の上で少し落ちついて書生の顔を見たのがいわゆる人間というものの見始であろう。この時妙なものだと思った感じが今だに残っている。第一毛をもって装飾されべきはずの顔がつるつるしてまるで薬罐だ。その後猫にもだいぶ逢ったがこんな片輪には一度も出会わした事がない。のみならず顔の真中があまりに突起している。そうしてその穴の中から時々ぷうぷうと煙を吹く。どうも咽せぽくて実に弱った。これが人間の飲む煙草というものである事はいささかあとに知った。
 この書生の掌の裏でしばらくはよい心持に坐っておったが、しばらくすると非常に速力で運転し始めた。書生が動くのか自分だけが動くのか分らないが無暗に眼が廻る。胸が悪くなる。到底助からないと思っていると、どさりと音がして眼から火が出た。それまでは記憶しているがあとはどうなったかいくら考え出そうとしても分らない。
@@ -38,7 +39,9 @@ const CAT_TEXT = `
 しかし吾輩にとっては、それが最大のご馳走である。人間というものは、実に不思議な動物だ。自分の思っている事を言葉にせずにはいられないらしい。吾輩たち猫から見れば、言葉などなくても、尻尾の振り方一つで十分意志は通じるものを。
 特にこの主人は、自分の欠点を隠そうとして、かえってそれを曝け出しているような所がある。そこがまた、猫から見れば滑稽でならないのだ。
 （ここにさらに数千文字分のテキストがあると仮定し、実際には十分な量を文字列として結合する）
-` + Array(5).fill(`
+` +
+  Array(5)
+    .fill(`
 吾輩は猫である。名前はまだ無い。
 主人は今日もお年玉を貰うような顔をして、書斎の机に向かっている。
 彼は相変わらず胃弱を自慢にしているらしい。
@@ -51,10 +54,12 @@ const CAT_TEXT = `
 猫の吾輩から見れば、人間のプライドなど、鼠の一匹も捕れないほど無価値なものだ。
 それでも彼等は、その無価値なものに命を懸けている。
 実に見上げたものだ。いや、見下げたものか。
-`).join('\n')
+`)
+    .join("\n");
 
 // 走れメロス（全文に近い内容）
-const MELOS_TEXT = `
+const MELOS_TEXT =
+  `
 メロスは激怒した。必ず、かの邪智暴虐の王を除かなければならぬと決意した。メロスには政治がわからぬ。メロスは、村の牧人である。笛を吹き、羊と遊んで暮して来た。けれども邪悪に対しては、人一倍に敏感であった。きょう未明メロスは村を出発し、野を越え山越え、十里はなれた此のシラクスの市にやって来た。メロスには父も母も無い。女房も無い。十六の、内気な妹と二人暮しだ。この妹は、村の或る律気な一牧男を、近々花婿として迎える事になっていた。結婚式も間近かなのである。メロスは、それゆえ、花嫁の衣裳やら祝宴の御馳走やらを買いに、はるばる市にやって来たのだ。先ず、その品々を買い集め、それから都の大路をぶらぶら歩いた。メロスには竹馬の友があった。セリヌンティウスである。今は此のシラクスの市で、石工をしている。その友を、これから訪ねてみるつもりなのだ。久しく逢わなかったのだから、訪ねて行くのが楽しみである。歩いているうちにメロスは、まちの様子を怪しく思った。ひっそりしている。もう既に日も落ちて、まちの暗いのは当り前だが、けれども、なんだか、夜のせいばかりでは無く、市全体が、やけに寂しい。のんきなメロスも、だんだん不安になって来た。路で逢った若い衆を捕えて、何かあったのか、三年前に此の市に来た時は、夜でも皆が歌を歌って、まちは賑やかであった筈だが、と質問した。若い衆は、首を振って答えなかった。しばらく歩いて老爺に逢い、こんどはもっと語勢を強くして質問した。老爺は答えなかった。メロスは両手で老爺のからだを揺ぶり、重ねて質問を浴びせかけた。老爺は、あたりを憚る低声で、わずか答えた。
 「王様は、人を殺します。」
 「なぜ殺すのだ。」
@@ -78,7 +83,9 @@ const MELOS_TEXT = `
 これを聞いて、王は、残虐な気持で、そっと北叟笑んだ。生意気なことを言うわ。どうせ帰って来ないにきまっている。この嘘つきに騙されたふりをして、身代りの男を殺してやるのも面白い。そうして、人には身勝手なものだという事を、天下の者に知らせてやりたい。
 （中略）
 竹馬の友、セリヌンティウスは深夜、王城に召された。暴君ディオニスの面前で、佳き友と佳き友は、二年ぶりで相逢うた。メロスは、友に一切の事情を語った。セリヌンティウスは無言で首頷き、メロスをひしと抱きしめた。友と友の間は、それでよかった。セリヌンティウスは、縄打たれた。メロスは、すぐに出発した。初星一つ無い満天の星くずの下を、メロスは、その夜、一睡もせず走り続けた。
-` + Array(3).fill(`
+` +
+  Array(3)
+    .fill(`
 メロスは走った。陽は既に西に傾きかけている。
 「待て、メロス。君はもう十分やった。」
 「いや、私は行かねばならぬ。友が待っているのだ。」
@@ -89,75 +96,84 @@ const MELOS_TEXT = `
 「間に合うか？」「いや、もはや処刑の刻限だ。」
 メロスは、最後の一歩を振り絞るようにして、王城の門を潜った。
 「待て！ その人を殺してはならぬ！ メロスが帰って来た！」
-`).join('\n')
+`)
+    .join("\n");
 
 const LITERARY_SOURCES = [
-  { name: 'CAT', content: CAT_TEXT },
-  { name: 'MELOS', content: MELOS_TEXT },
-]
+  { name: "CAT", content: CAT_TEXT },
+  { name: "MELOS", content: MELOS_TEXT },
+];
 
 async function main() {
-  console.log('--- Start Super-High-Volume Literary Seeding (Self-Contained) ---')
+  console.log(
+    "--- Start Super-High-Volume Literary Seeding (Self-Contained) ---"
+  );
 
-  console.log('Cleaning up existing data...')
-  await prisma.note.deleteMany()
-  await prisma.user.deleteMany()
+  console.log("Cleaning up existing data...");
+  await prisma.note.deleteMany();
+  await prisma.user.deleteMany();
 
-  console.log('Creating test user...')
-  const passwordHash = await bcrypt.hash('password', 10)
+  console.log("Creating test user...");
+  const passwordHash = await bcrypt.hash("password", 10);
   const testUser = await prisma.user.create({
     data: {
-      id: 'test-user-id-12345', // 固定IDにする（シード実行のたびにトークンが無効になるのを防ぐ）
-      email: 'user@example.com',
+      id: "test-user-id-12345", // 固定IDにする（シード実行のたびにトークンが無効になるのを防ぐ）
+      email: "user@example.com",
       passwordHash: passwordHash,
-    }
-  })
+    },
+  });
 
-  console.log('Generating 100 super-heavy notes (~3500 chars each)...')
-  const notesData = []
-  
+  console.log("Generating 100 super-heavy notes (~3500 chars each)...");
+  const notesData = [];
+
   for (let i = 0; i < 100; i++) {
-// 作品をランダム選択
-    const source = LITERARY_SOURCES[Math.floor(Math.random() * LITERARY_SOURCES.length)]
-    const fullText = source.content
-    
+    // 作品をランダム選択
+    const source =
+      LITERARY_SOURCES[Math.floor(Math.random() * LITERARY_SOURCES.length)];
+    const fullText = source.content;
+
     // 目標文字数
-    const targetLength = 3500
-    
+    const targetLength = 3500;
+
     // 十分な長さがない場合は繰り返して水増し（インラインデータが少ない場合への保険）
-    let baseText = fullText
+    let baseText = fullText;
     while (baseText.length < targetLength + 1000) {
-      baseText += '\n' + fullText
+      baseText += "\n" + fullText;
     }
 
     // ランダムな開始位置から抽出
-    const maxStart = Math.max(0, baseText.length - targetLength - 500)
-    let startPos = Math.floor(Math.random() * maxStart)
-    
+    const maxStart = Math.max(0, baseText.length - targetLength - 500);
+    let startPos = Math.floor(Math.random() * maxStart);
+
     // 直近の「。」を探してそこから開始（文の途中を避ける）
-    const nextPeriod = baseText.indexOf('。', startPos)
+    const nextPeriod = baseText.indexOf("。", startPos);
     if (nextPeriod !== -1 && nextPeriod < startPos + 200) {
-      startPos = nextPeriod + 1
+      startPos = nextPeriod + 1;
     }
 
-    let content = baseText.substring(startPos, startPos + targetLength)
-    
+    let content = baseText.substring(startPos, startPos + targetLength);
+
     // 最後も「。」で終わるように調整
-    const lastPeriod = content.lastIndexOf('。')
+    const lastPeriod = content.lastIndexOf("。");
     if (lastPeriod !== -1 && lastPeriod > targetLength - 500) {
-      content = content.substring(0, lastPeriod + 1)
+      content = content.substring(0, lastPeriod + 1);
     }
 
     // 作品名を content の先頭に付けることで、クライアント側でタイトルとして認識されるようにする
-    const fullContent = `[${source.name}] ${content.trim()}`
+    const fullContent = `[${source.name}] ${content.trim()}`;
 
     // ランダムな過去日付の生成 (1年前までの範囲)
-    const pastDate = new Date(Date.now() - Math.floor(Math.random() * 365 * 24 * 60 * 60 * 1000))
+    const pastDate = new Date(
+      Date.now() - Math.floor(Math.random() * 365 * 24 * 60 * 60 * 1000)
+    );
 
     // 作品に応じたタグを付与
-    const tags = source.name === 'CAT' ? ['novel', 'soseki', 'cat'] : ['novel', 'dazai', 'melos'];
+    const tags =
+      source.name === "CAT"
+        ? ["novel", "soseki", "cat"]
+        : ["novel", "dazai", "melos"];
     // 少しランダム性を追加
-    if (Math.random() > 0.5) tags.push('favorite');
+    if (Math.random() > 0.5) tags.push("favorite");
 
     notesData.push({
       content: fullContent,
@@ -165,11 +181,13 @@ async function main() {
       createdAt: pastDate,
       updatedAt: new Date(),
       tags,
-    })
+    });
   }
 
-  console.log(`Inserting ${notesData.length} massive notes into database with tags...`)
-  
+  console.log(
+    `Inserting ${notesData.length} massive notes into database with tags...`
+  );
+
   // createMany ではネストしたリレーション(tags)を作成できないため、個別に create する
   for (const data of notesData) {
     await prisma.note.create({
@@ -190,18 +208,20 @@ async function main() {
           })),
         },
       },
-    })
+    });
   }
 
-  console.log(`Successfully seeded 100 notes (target ~${3500} chars) with assigned tags.`)
-  console.log('--- Seeding Completed (Clean) ---')
+  console.log(
+    `Successfully seeded 100 notes (target ~${3500} chars) with assigned tags.`
+  );
+  console.log("--- Seeding Completed (Clean) ---");
 }
 
 main()
   .catch((e) => {
-    console.error('Seed execution failed:', e)
-    process.exit(1)
+    console.error("Seed execution failed:", e);
+    process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect()
-  })
+    await prisma.$disconnect();
+  });

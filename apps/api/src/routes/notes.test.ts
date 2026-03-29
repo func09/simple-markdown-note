@@ -1,15 +1,15 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { app } from '../index';
-import { execSync } from 'child_process';
+import { execSync } from "child_process";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { app } from "../index";
 
-describe('Unified Sync API (/notes/sync)', () => {
+describe("Unified Sync API (/notes/sync)", () => {
   let token: string;
-  let testNoteId = 'test-note-cuid-1';
+  const testNoteId = "test-note-cuid-1";
   let syncTime: string;
 
   beforeAll(async () => {
     // テストデータベースの初期化
-    const dbUrl = process.env.DATABASE_URL || 'file:./test.db';
+    const dbUrl = process.env.DATABASE_URL || "file:./test.db";
     execSync(
       `npx prisma db push --force-reset --schema=../../packages/database/prisma/schema.prisma --config=../../packages/database/prisma.config.ts`,
       {
@@ -18,34 +18,37 @@ describe('Unified Sync API (/notes/sync)', () => {
     );
 
     // テスト用ユーザーの作成とログイン
-    const signupRes = await app.request('/auth/signup', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: 'sync-test@example.com', password: 'password123' }),
+    const signupRes = await app.request("/auth/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: "sync-test@example.com",
+        password: "password123",
+      }),
     });
     const body = await signupRes.json();
     token = body.token;
   });
 
   afterAll(async () => {
-    const { prisma } = await import('database');
+    const { prisma } = await import("database");
     await prisma.$disconnect();
   });
 
-  it('should create a new note via sync', async () => {
+  it("should create a new note via sync", async () => {
     const clientUpdatedAt = new Date().toISOString();
 
-    const res = await app.request('/notes/sync', {
-      method: 'POST',
+    const res = await app.request("/notes/sync", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         changes: [
           {
             id: testNoteId,
-            content: 'Sync Test Content',
+            content: "Sync Test Content",
             isPermanent: false,
             clientUpdatedAt,
           },
@@ -58,16 +61,16 @@ describe('Unified Sync API (/notes/sync)', () => {
     expect(body.newSyncTime).toBeDefined();
     expect(body.updates.length).toBe(1);
     expect(body.updates[0].id).toBe(testNoteId);
-    expect(body.updates[0].content).toBe('Sync Test Content');
+    expect(body.updates[0].content).toBe("Sync Test Content");
 
     syncTime = body.newSyncTime;
   });
 
-  it('should fetch notes via lastSyncedAt', async () => {
-    const res = await app.request('/notes/sync', {
-      method: 'POST',
+  it("should fetch notes via lastSyncedAt", async () => {
+    const res = await app.request("/notes/sync", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
@@ -81,20 +84,20 @@ describe('Unified Sync API (/notes/sync)', () => {
     expect(body.updates.length).toBeGreaterThan(0);
   });
 
-  it('should update a note using LWW (Last-Write-Wins)', async () => {
+  it("should update a note using LWW (Last-Write-Wins)", async () => {
     const newerUpdatedAt = new Date(Date.now() + 60000).toISOString(); // 1 minute in the future
 
-    const res = await app.request('/notes/sync', {
-      method: 'POST',
+    const res = await app.request("/notes/sync", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         changes: [
           {
             id: testNoteId,
-            content: 'Updated via LWW',
+            content: "Updated via LWW",
             isPermanent: false,
             clientUpdatedAt: newerUpdatedAt,
           },
@@ -105,25 +108,27 @@ describe('Unified Sync API (/notes/sync)', () => {
     expect(res.status).toBe(200);
     const body = await res.json();
     const updatedNote = body.updates.find((n: any) => n.id === testNoteId);
-    expect(updatedNote.content).toBe('Updated via LWW');
+    expect(updatedNote.content).toBe("Updated via LWW");
     // 保存時のサーバー時刻ではなく、クライアント申告の時刻がDBに反映されているべき
-    expect(new Date(updatedNote.updatedAt).getTime()).toBe(new Date(newerUpdatedAt).getTime());
+    expect(new Date(updatedNote.updatedAt).getTime()).toBe(
+      new Date(newerUpdatedAt).getTime()
+    );
   });
 
-  it('should reject outdated updates (older clientUpdatedAt)', async () => {
+  it("should reject outdated updates (older clientUpdatedAt)", async () => {
     const olderUpdatedAt = new Date(Date.now() - 60000).toISOString(); // 1 minute in the past
 
-    const res = await app.request('/notes/sync', {
-      method: 'POST',
+    const res = await app.request("/notes/sync", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         changes: [
           {
             id: testNoteId,
-            content: 'This update should be ignored',
+            content: "This update should be ignored",
             isPermanent: false,
             clientUpdatedAt: olderUpdatedAt,
           },
@@ -135,10 +140,10 @@ describe('Unified Sync API (/notes/sync)', () => {
     const body = await res.json();
 
     // DB に現在存在する最新のノート情報をチェック
-    const checkRes = await app.request('/notes/sync', {
-      method: 'POST',
+    const checkRes = await app.request("/notes/sync", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ changes: [] }),
@@ -146,24 +151,24 @@ describe('Unified Sync API (/notes/sync)', () => {
 
     const checkBody = await checkRes.json();
     const note = checkBody.updates.find((n: any) => n.id === testNoteId);
-    expect(note.content).toBe('Updated via LWW'); // 古い更新は無視され、新しい内容が維持されている
+    expect(note.content).toBe("Updated via LWW"); // 古い更新は無視され、新しい内容が維持されている
   });
 
-  it('should soft delete and permanently delete via isPermanent flag', async () => {
+  it("should soft delete and permanently delete via isPermanent flag", async () => {
     const deletedUpdatedAt = new Date(Date.now() + 120000).toISOString(); // Future
 
     // Soft Delete (deletedAt is set)
-    const softDelRes = await app.request('/notes/sync', {
-      method: 'POST',
+    const softDelRes = await app.request("/notes/sync", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         changes: [
           {
             id: testNoteId,
-            content: 'Deleted content',
+            content: "Deleted content",
             deletedAt: new Date().toISOString(),
             isPermanent: false,
             clientUpdatedAt: deletedUpdatedAt,
@@ -172,17 +177,19 @@ describe('Unified Sync API (/notes/sync)', () => {
       }),
     });
 
-    let dbNote = (await softDelRes.json()).updates.find((n: any) => n.id === testNoteId);
+    let dbNote = (await softDelRes.json()).updates.find(
+      (n: any) => n.id === testNoteId
+    );
     expect(dbNote.deletedAt).not.toBeNull();
     expect(dbNote.isPermanent).toBe(false);
 
     const permanentUpdatedAt = new Date(Date.now() + 180000).toISOString(); // Future Further
 
     // Permanent Delete (isPermanent is true)
-    const permDelRes = await app.request('/notes/sync', {
-      method: 'POST',
+    const permDelRes = await app.request("/notes/sync", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
@@ -197,31 +204,39 @@ describe('Unified Sync API (/notes/sync)', () => {
       }),
     });
 
-    dbNote = (await permDelRes.json()).updates.find((n: any) => n.id === testNoteId);
+    dbNote = (await permDelRes.json()).updates.find(
+      (n: any) => n.id === testNoteId
+    );
     expect(dbNote.isPermanent).toBe(true); // The frontend handles removing it from Dexie locally based on this flag
   });
 
-  describe('Authorization', () => {
+  describe("Authorization", () => {
     let otherToken: string;
-    const otherNoteId = 'other-user-note-1';
+    const otherNoteId = "other-user-note-1";
 
     beforeAll(async () => {
-      const signupRes = await app.request('/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: 'sync-other@example.com', password: 'password123' }),
+      const signupRes = await app.request("/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: "sync-other@example.com",
+          password: "password123",
+        }),
       });
       const body = await signupRes.json();
       otherToken = body.token;
 
-      await app.request('/notes/sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${otherToken}` },
+      await app.request("/notes/sync", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${otherToken}`,
+        },
         body: JSON.stringify({
           changes: [
             {
               id: otherNoteId,
-              content: 'Private Content',
+              content: "Private Content",
               isPermanent: false,
               clientUpdatedAt: new Date().toISOString(),
             },
@@ -231,9 +246,12 @@ describe('Unified Sync API (/notes/sync)', () => {
     });
 
     it("should not return other user's notes in updates", async () => {
-      const res = await app.request('/notes/sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      const res = await app.request("/notes/sync", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ changes: [] }),
       });
 
@@ -242,14 +260,17 @@ describe('Unified Sync API (/notes/sync)', () => {
     });
 
     it("should silently quarantine other user's update if attempted with manipulated payload", async () => {
-      const res = await app.request('/notes/sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, // Token of user 1
+      const res = await app.request("/notes/sync", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        }, // Token of user 1
         body: JSON.stringify({
           changes: [
             {
               id: otherNoteId, // Trying to update User 2's note!
-              content: 'Hacked Content',
+              content: "Hacked Content",
               isPermanent: false,
               clientUpdatedAt: new Date(Date.now() + 999999).toISOString(),
             },
@@ -261,9 +282,12 @@ describe('Unified Sync API (/notes/sync)', () => {
       // because prisma.note.upsert uses { where: { id } } but the rest is driven by the backend assigning userId.
       // Wait... upsert in notes.ts enforces userId during create, but on update it just updates where id match!
       // Let's verify if user 2's note was actually overwritten!
-      const checkRes = await app.request('/notes/sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${otherToken}` },
+      const checkRes = await app.request("/notes/sync", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${otherToken}`,
+        },
         body: JSON.stringify({ changes: [] }),
       });
 

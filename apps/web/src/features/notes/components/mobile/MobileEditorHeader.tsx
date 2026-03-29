@@ -1,6 +1,6 @@
-import React from 'react';
-import { ArrowLeft, RotateCw, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ArrowLeft, RotateCw, Trash2 } from "lucide-react";
+import type React from "react";
+import { Button } from "@/components/ui/button";
 
 interface MobileEditorHeaderProps {
   selectedNoteId: string | null;
@@ -24,7 +24,12 @@ export const MobileEditorHeader: React.FC<MobileEditorHeaderProps> = ({
   return (
     <div className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-white/5 bg-[#0f172a]/80 px-4 backdrop-blur-md">
       <div className="flex items-center">
-        <Button variant="ghost" size="icon" onClick={onBack} className="mr-2 text-slate-400">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onBack}
+          className="mr-2 text-slate-400"
+        >
           <ArrowLeft size={20} />
         </Button>
       </div>
@@ -71,4 +76,4 @@ export const MobileEditorHeader: React.FC<MobileEditorHeaderProps> = ({
   );
 };
 
-MobileEditorHeader.displayName = 'MobileEditorHeader';
+MobileEditorHeader.displayName = "MobileEditorHeader";

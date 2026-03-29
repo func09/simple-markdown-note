@@ -1,4 +1,4 @@
-import { prisma } from 'database';
+import { prisma } from "database";
 
 export const TagService = {
   /**
@@ -7,7 +7,12 @@ export const TagService = {
    * 2. 新しいタグを connectOrCreate で一括処理
    * 3. 浮いたタグをクリーンアップ
    */
-  async syncTags(userId: string, noteId: string, tagNames: string[], txClient?: any) {
+  async syncTags(
+    userId: string,
+    noteId: string,
+    tagNames: string[],
+    txClient?: any
+  ) {
     const client = txClient || prisma;
 
     // 1. 現在の紐付けを解除（タグ自体は削除しない）

@@ -1,14 +1,13 @@
-import React from 'react';
+import { LogOut, StickyNote, Tag as TagIcon, Trash2 } from "lucide-react";
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
-import { LogOut, StickyNote, Trash2, Tag as TagIcon } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
+import { logout } from "@/features/auth";
+import { TagList } from "@/features/dashboard/components";
+import { useDashboardStore } from "@/features/dashboard/store";
 
-import { logout } from '@/features/auth';
-import { TagList } from '@/features/dashboard/components';
-import { useDashboardStore } from '@/features/dashboard/store';
-
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 
 interface DesktopSidebarProps {
   isNavFocused: boolean;
@@ -34,8 +33,8 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
 
   const handleLogout = React.useCallback(() => {
     logout();
-    navigate('/login');
-    toast.success('Logged out successfully');
+    navigate("/login");
+    toast.success("Logged out successfully");
   }, [navigate]);
 
   return (
@@ -57,27 +56,27 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
         <button
           onClick={(e) => {
             e.preventDefault();
-            document.getElementById('note-list-container')?.focus();
+            document.getElementById("note-list-container")?.focus();
             onSelectTag(null, false);
           }}
           className={cn(
-            'group flex w-full items-center gap-3 rounded-xl px-3 py-2.5',
-            selectedTag === null && searchQuery === '' && !isTrashSelected
+            "group flex w-full items-center gap-3 rounded-xl px-3 py-2.5",
+            selectedTag === null && searchQuery === "" && !isTrashSelected
               ? isNavFocused
-                ? 'bg-blue-600 font-medium text-white shadow-lg shadow-blue-500/20'
-                : 'border border-blue-500/20 bg-blue-600/15 text-blue-400'
-              : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
+                ? "bg-blue-600 font-medium text-white shadow-lg shadow-blue-500/20"
+                : "border border-blue-500/20 bg-blue-600/15 text-blue-400"
+              : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
           )}
         >
           <StickyNote
             size={20}
             className={cn(
-              'transition-colors',
-              selectedTag === null && searchQuery === '' && !isTrashSelected
+              "transition-colors",
+              selectedTag === null && searchQuery === "" && !isTrashSelected
                 ? isNavFocused
-                  ? 'text-white'
-                  : 'text-blue-500'
-                : 'text-slate-500 group-hover:text-blue-400'
+                  ? "text-white"
+                  : "text-blue-500"
+                : "text-slate-500 group-hover:text-blue-400"
             )}
           />
           <span className="text-sm font-medium">All Notes</span>
@@ -86,27 +85,27 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
         <button
           onClick={(e) => {
             e.preventDefault();
-            document.getElementById('note-list-container')?.focus();
+            document.getElementById("note-list-container")?.focus();
             onSelectTag(null, true);
           }}
           className={cn(
-            'group flex w-full items-center gap-3 rounded-xl px-3 py-2.5',
+            "group flex w-full items-center gap-3 rounded-xl px-3 py-2.5",
             isTrashSelected
               ? isNavFocused
-                ? 'bg-blue-600 font-medium text-white shadow-lg shadow-blue-500/20'
-                : 'border border-blue-500/20 bg-blue-600/15 text-blue-400'
-              : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
+                ? "bg-blue-600 font-medium text-white shadow-lg shadow-blue-500/20"
+                : "border border-blue-500/20 bg-blue-600/15 text-blue-400"
+              : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
           )}
         >
           <Trash2
             size={20}
             className={cn(
-              'transition-colors',
+              "transition-colors",
               isTrashSelected
                 ? isNavFocused
-                  ? 'text-white'
-                  : 'text-blue-500'
-                : 'text-slate-500 group-hover:text-blue-400'
+                  ? "text-white"
+                  : "text-blue-500"
+                : "text-slate-500 group-hover:text-blue-400"
             )}
           />
           <span className="text-sm font-medium">Trash</span>
@@ -123,7 +122,7 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
         <TagList
           isPanelFocused={isNavFocused}
           onSelectTag={(tag) => {
-            document.getElementById('note-list-container')?.focus();
+            document.getElementById("note-list-container")?.focus();
             onSelectTag(tag, false);
           }}
         />
@@ -142,4 +141,4 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
   );
 };
 
-DesktopSidebar.displayName = 'DesktopSidebar';
+DesktopSidebar.displayName = "DesktopSidebar";

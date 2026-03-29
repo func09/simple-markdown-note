@@ -1,22 +1,24 @@
-import React from 'react';
+import React from "react";
 
-import { Skeleton } from '@/components/ui/skeleton';
-
-import { useTags } from '@/features/notes/hooks';
-import { useDashboardStore } from '@/features/dashboard/store';
+import { Skeleton } from "@/components/ui/skeleton";
+import { useDashboardStore } from "@/features/dashboard/store";
+import { useTags } from "@/features/notes/hooks";
 
 interface TagListProps {
   isPanelFocused?: boolean;
   onSelectTag?: (tag: string | null) => void;
 }
 
-import { TagItem } from '@/features/dashboard/components/shared/TagItem';
+import { TagItem } from "@/features/dashboard/components/shared/TagItem";
 
 /**
  * 共有のタグリスト部品
  * モバイルのドロワーやデスクトップのサイドバーで再利用される
  */
-export const TagList: React.FC<TagListProps> = ({ isPanelFocused = false, onSelectTag }) => {
+export const TagList: React.FC<TagListProps> = ({
+  isPanelFocused = false,
+  onSelectTag,
+}) => {
   const { data: tags, isLoading } = useTags();
   const selectedTag = useDashboardStore((state) => state.selectedTag);
   const setSelectedTag = useDashboardStore((state) => state.setSelectedTag);
@@ -37,7 +39,10 @@ export const TagList: React.FC<TagListProps> = ({ isPanelFocused = false, onSele
       <div className="mt-4 space-y-2 px-2">
         <Skeleton className="mb-4 ml-2 h-3 w-16 bg-slate-800" />
         {[1, 2, 3, 4].map((i) => (
-          <Skeleton key={i} className="h-10 w-full rounded-xl bg-slate-800/50" />
+          <Skeleton
+            key={i}
+            className="h-10 w-full rounded-xl bg-slate-800/50"
+          />
         ))}
       </div>
     );
@@ -56,7 +61,7 @@ export const TagList: React.FC<TagListProps> = ({ isPanelFocused = false, onSele
       <TagItem
         name="__untagged__"
         label="Untagged"
-        isSelected={selectedTag === '__untagged__'}
+        isSelected={selectedTag === "__untagged__"}
         isPanelFocused={isPanelFocused}
         onClick={handleTagClick}
       />
@@ -75,4 +80,4 @@ export const TagList: React.FC<TagListProps> = ({ isPanelFocused = false, onSele
   );
 };
 
-TagList.displayName = 'TagList';
+TagList.displayName = "TagList";

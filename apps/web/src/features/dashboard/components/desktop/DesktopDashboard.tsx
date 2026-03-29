@@ -1,12 +1,18 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState } from "react";
 
-import { AppLayout } from '@/components/layout/AppLayout';
+import { AppLayout } from "@/components/layout/AppLayout";
 
-import { DesktopSidebar } from '@/features/dashboard/components';
-import { DesktopEditor, DeleteConfirmModal, NoteList } from '@/features/notes/components';
-import { useDashboardState, useSidebarNavigation } from '@/features/dashboard/hooks';
-
-import { useDashboardStore } from '@/features/dashboard/store';
+import { DesktopSidebar } from "@/features/dashboard/components";
+import {
+  useDashboardState,
+  useSidebarNavigation,
+} from "@/features/dashboard/hooks";
+import { useDashboardStore } from "@/features/dashboard/store";
+import {
+  DeleteConfirmModal,
+  DesktopEditor,
+  NoteList,
+} from "@/features/notes/components";
 
 /**
  * デスクトップ向けのメインダッシュボードコンポーネント
@@ -35,7 +41,7 @@ export const DesktopDashboard: React.FC = () => {
 
   React.useEffect(() => {
     const timer = setTimeout(() => {
-      document.getElementById('nav-container')?.focus();
+      document.getElementById("nav-container")?.focus();
     }, 100);
     return () => clearTimeout(timer);
   }, []);
@@ -81,7 +87,11 @@ export const DesktopDashboard: React.FC = () => {
 
   return (
     <>
-      <AppLayout nav={navigationContent} list={memoizedList} main={memoizedMain} />
+      <AppLayout
+        nav={navigationContent}
+        list={memoizedList}
+        main={memoizedMain}
+      />
 
       <DeleteConfirmModal
         isOpen={isDeleteModalOpen}
@@ -93,4 +103,4 @@ export const DesktopDashboard: React.FC = () => {
   );
 };
 
-DesktopDashboard.displayName = 'DesktopDashboard';
+DesktopDashboard.displayName = "DesktopDashboard";

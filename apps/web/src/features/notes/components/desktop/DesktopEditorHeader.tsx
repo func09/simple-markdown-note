@@ -1,7 +1,7 @@
-import React from 'react';
-import { Columns3, RotateCw, Trash2 } from 'lucide-react';
-import { useDashboardStore } from '@/features/dashboard/store';
-import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { Columns3, RotateCw, Trash2 } from "lucide-react";
+import type React from "react";
+import { useDashboardStore } from "@/features/dashboard/store";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 interface DesktopEditorHeaderProps {
   noteId?: string;
@@ -21,7 +21,7 @@ export const DesktopEditorHeader: React.FC<DesktopEditorHeaderProps> = ({
   onDelete,
 }) => {
   const { toggleLayoutMode } = useDashboardStore();
-  const isMobile = useMediaQuery('(max-width: 1024px)');
+  const isMobile = useMediaQuery("(max-width: 1024px)");
 
   return (
     <div className="z-10 flex h-14 items-center justify-between border-b border-slate-800/30 bg-[#0f172a]/50 px-6 backdrop-blur-md">
@@ -76,4 +76,4 @@ export const DesktopEditorHeader: React.FC<DesktopEditorHeaderProps> = ({
   );
 };
 
-DesktopEditorHeader.displayName = 'DesktopEditorHeader';
+DesktopEditorHeader.displayName = "DesktopEditorHeader";
