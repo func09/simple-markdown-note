@@ -145,7 +145,7 @@ export const EditorCore: React.FC<EditorCoreProps> = ({
       <div className="custom-scrollbar flex w-full flex-1 flex-col overflow-y-auto bg-[#0f172a]">
         <div className="flex min-h-full w-full flex-1 flex-col px-8 py-8 pb-32 md:px-16">
           {/* Title Area */}
-          <div className="mb-1 w-full flex-shrink-0">
+          <div className="mb-1 w-full shrink-0">
             <textarea
               ref={titleRef}
               id="editor-title"
@@ -158,8 +158,8 @@ export const EditorCore: React.FC<EditorCoreProps> = ({
               placeholder="Title"
               disabled={!!note.deletedAt}
               className={cn(
-                "w-full border-none bg-transparent p-0 font-bold tracking-tight text-slate-100 outline-none placeholder:text-slate-800 focus:ring-0",
-                "resize-none overflow-hidden whitespace-pre-wrap break-words text-lg leading-tight md:text-lg lg:text-lg",
+                "w-full border-none bg-transparent p-0 font-bold tracking-tight text-slate-100 outline-hidden placeholder:text-slate-800 focus:ring-0",
+                "resize-none overflow-hidden whitespace-pre-wrap wrap-break-word text-lg leading-tight md:text-lg lg:text-lg",
                 "transition-all duration-300",
                 note.deletedAt && "cursor-not-allowed opacity-60"
               )}

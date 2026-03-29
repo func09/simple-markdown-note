@@ -130,7 +130,7 @@ export const NoteList: React.FC<NoteListProps> = ({
       {/* Note List with ScrollArea */}
       <div
         id="note-list-container"
-        className="min-h-0 flex-1 focus:outline-none"
+        className="min-h-0 flex-1 focus:outline-hidden"
         onFocus={() => setIsFocused(true)}
         onBlur={(e) => {
           if (!e.currentTarget.contains(e.relatedTarget as Node)) {
