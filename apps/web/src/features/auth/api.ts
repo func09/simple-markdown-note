@@ -45,8 +45,18 @@ export const signup = async (data: {
 };
 
 /**
- * ログアウトを実行し、ローカルのトークンを削除する
+ * ログアウトを実行し、ローカルのデータ（トークン、同期日時、IndexedDB）をすべて削除する
  */
-export const logout = () => {
+export const logout = async () => {
   localStorage.removeItem("token");
+  localStorage.removeItem("simplenote_last_sync_key"); // 念のため
+  localStorage.clear(); // キャッシュなどを念のため全クリア
+
+  try {
+    const { db } = await import("@/lib/db");
+    // IndexedDB のデータベース自体を削除して完全にリセットする
+    await db.delete();
+  } catch (error) {
+    console.error("Failed to clear IndexedDB on logout:", error);
+  }
 };

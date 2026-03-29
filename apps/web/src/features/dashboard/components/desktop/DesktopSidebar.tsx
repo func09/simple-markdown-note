@@ -1,6 +1,5 @@
 import { LogOut, StickyNote, Tag as TagIcon, Trash2 } from "lucide-react";
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import { logout } from "@/features/auth";
@@ -26,22 +25,21 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
   onFocusChange,
   onKeyDown,
 }) => {
-  const navigate = useNavigate();
   const selectedTag = useDashboardStore((state) => state.selectedTag);
   const isTrashSelected = useDashboardStore((state) => state.isTrashSelected);
   const searchQuery = useDashboardStore((state) => state.searchQuery);
 
-  const handleLogout = React.useCallback(() => {
-    logout();
-    navigate("/login");
+  const handleLogout = React.useCallback(async () => {
+    await logout();
+    window.location.href = "/login";
     toast.success("Logged out successfully");
-  }, [navigate]);
+  }, []);
 
   return (
-    <div
+    <nav
       id="nav-container"
+      aria-label="Sidebar Navigation"
       className="custom-scrollbar flex h-full flex-col overflow-y-auto px-2 focus:outline-none"
-      tabIndex={0}
       onFocus={() => onFocusChange(true)}
       onBlur={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget as Node)) {
@@ -54,6 +52,7 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
       <div className="min-h-8 w-full flex-shrink-0 [-webkit-app-region:drag]" />
       <div className="flex flex-shrink-0 flex-col gap-1 pb-4 pt-2">
         <button
+          type="button"
           onClick={(e) => {
             e.preventDefault();
             document.getElementById("note-list-container")?.focus();
@@ -83,6 +82,7 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
         </button>
 
         <button
+          type="button"
           onClick={(e) => {
             e.preventDefault();
             document.getElementById("note-list-container")?.focus();
@@ -130,6 +130,7 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
 
       <div className="mt-auto flex flex-shrink-0 flex-col gap-1 pb-4 pt-6">
         <button
+          type="button"
           onClick={handleLogout}
           className="group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-slate-500 hover:bg-red-500/10 hover:text-red-400"
         >
@@ -137,7 +138,7 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
           <span className="text-sm font-medium">Sign Out</span>
         </button>
       </div>
-    </div>
+    </nav>
   );
 };
 
