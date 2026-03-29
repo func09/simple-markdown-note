@@ -1,5 +1,12 @@
 import { motion } from "framer-motion";
-import { AlertCircle, ArrowRight, Loader2, Lock, Mail } from "lucide-react";
+import {
+  AlertCircle,
+  ArrowRight,
+  Loader2,
+  Lock,
+  Mail,
+  ShieldCheck,
+} from "lucide-react";
 import type React from "react";
 import { useState } from "react";
 
@@ -15,18 +22,12 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-interface AuthFormProps {
-  type: "login" | "signup";
-  onSubmit: (data: { email: string; password: string }) => Promise<void>;
-  isLoading: boolean;
-  error?: string;
-}
+import type { AuthFormProps } from "@/features/auth/types";
 
 /**
- * ログイン・サインアップ共通のフォームコンポーネント (shadcn/ui 使用版)
+ * デスクトップ版専用の認証フォーム
  */
-export const AuthForm: React.FC<AuthFormProps> = ({
+export const DesktopAuthForm: React.FC<AuthFormProps> = ({
   type,
   onSubmit,
   isLoading,
@@ -44,11 +45,18 @@ export const AuthForm: React.FC<AuthFormProps> = ({
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.3, ease: "easeOut" }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
       className="w-full max-w-md"
     >
-      <Card className="overflow-hidden rounded-3xl border-slate-800 bg-slate-900/50 shadow-2xl backdrop-blur-xl">
-        <CardHeader className="pb-4 pt-8 text-center">
+      <Card className="overflow-hidden rounded-3xl border-white/10 bg-[#1e293b]/40 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] backdrop-blur-2xl">
+        <div className="absolute top-0 left-0 h-1 w-full bg-gradient-to-r from-blue-600 via-indigo-500 to-blue-400" />
+
+        <CardHeader className="pb-4 pt-10 text-center">
+          <div className="flex justify-center mb-6">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600/10 text-blue-500 ring-1 ring-blue-500/20">
+              <ShieldCheck size={28} />
+            </div>
+          </div>
           <CardTitle className="font-outfit text-3xl font-bold tracking-tight text-white">
             {type === "login" ? "Welcome Back" : "Create Account"}
           </CardTitle>
@@ -59,12 +67,12 @@ export const AuthForm: React.FC<AuthFormProps> = ({
           </CardDescription>
         </CardHeader>
 
-        <CardContent>
+        <CardContent className="px-8 pb-8">
           <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
               <Alert
                 variant="destructive"
-                className="rounded-xl border-red-500/50 bg-red-500/10 text-red-400"
+                className="rounded-xl border-red-500/40 bg-red-500/5 text-red-400"
               >
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Error</AlertTitle>
@@ -73,38 +81,44 @@ export const AuthForm: React.FC<AuthFormProps> = ({
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="email" className="ml-1 text-slate-300">
+              <Label
+                htmlFor="desktop-email"
+                className="ml-1 text-sm font-medium text-slate-200"
+              >
                 Email
               </Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+              <div className="relative group">
+                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500 transition-colors group-focus-within:text-blue-500" />
                 <Input
-                  id="email"
+                  id="desktop-email"
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@example.com"
-                  className="h-12 rounded-xl border-slate-800 bg-slate-950/50 pl-10 text-white placeholder:text-slate-600 focus-visible:ring-blue-500/50"
+                  className="h-12 rounded-xl border-white/5 bg-white/5 pl-10 text-white placeholder:text-slate-600 focus-visible:ring-2 focus-visible:ring-blue-500/40 transition-shadow"
                   disabled={isLoading}
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="ml-1 text-slate-300">
+              <Label
+                htmlFor="desktop-password"
+                className="ml-1 text-sm font-medium text-slate-200"
+              >
                 Password
               </Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+              <div className="relative group">
+                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500 transition-colors group-focus-within:text-blue-500" />
                 <Input
-                  id="password"
+                  id="desktop-password"
                   type="password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="h-12 rounded-xl border-slate-800 bg-slate-950/50 pl-10 text-white placeholder:text-slate-600 focus-visible:ring-blue-500/50"
+                  className="h-12 rounded-xl border-white/5 bg-white/5 pl-10 text-white placeholder:text-slate-600 focus-visible:ring-2 focus-visible:ring-blue-500/40 transition-shadow"
                   disabled={isLoading}
                 />
               </div>
@@ -113,7 +127,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
             <Button
               type="submit"
               disabled={isLoading}
-              className="mt-4 h-12 w-full gap-2 rounded-xl bg-blue-600 font-bold text-white shadow-lg shadow-blue-500/20 transition-all hover:bg-blue-500"
+              className="mt-4 h-12 w-full gap-2 rounded-xl bg-blue-600 font-bold text-white shadow-lg shadow-blue-500/20 transition-all hover:bg-blue-500 hover:shadow-blue-500/30 active:scale-[0.98]"
             >
               {isLoading ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
@@ -127,12 +141,14 @@ export const AuthForm: React.FC<AuthFormProps> = ({
           </form>
         </CardContent>
 
-        <CardFooter className="justify-center pb-8">
-          <p className="text-sm text-slate-500">
-            Secure authentication powered by Hono JWT
+        <CardFooter className="justify-center border-t border-white/5 py-6">
+          <p className="text-xs font-semibold uppercase tracking-widest text-slate-600">
+            Powered by Hono JWT & D1
           </p>
         </CardFooter>
       </Card>
     </motion.div>
   );
 };
+
+DesktopAuthForm.displayName = "DesktopAuthForm";
