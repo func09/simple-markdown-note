@@ -20,7 +20,6 @@ const client = hc<AppType>(apiBaseUrl, {
 
 // 認証トークンの付与などのためのラッパーやインターセプターが必要な場合は
 // ここで拡張できますが、Hono hc は fetch をベースにしています。
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 // biome-ignore lint/suspicious/noExplicitAny: hc export needs any
 export const api = client as any;
 export default api;
