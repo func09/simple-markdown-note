@@ -11,7 +11,7 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "docker-compose up",
+    "dev": "pnpm -r --parallel dev",
     "format": "pnpm -F '*' format",
     "lint": "pnpm -F '*' lint",
     "check": "pnpm -F '*' check",

@@ -2,15 +2,23 @@
 
 ## 開発環境の起動
 
-Docker を用いて、API と Web フロントエンドを一括で起動できます。
+本プロジェクトは pnpm ワークスペースを利用しており、ローカル環境で直接アプリを起動できます。
 
-### 1. コンテナの起動
+### 1. 依存関係のインストール
+
+プロジェクトルートで以下のコマンドを実行します。
 
 ```bash
-docker compose up -d --build
+pnpm install
 ```
 
-### 2. 各サービスへのアクセス
+### 2. コンテナの起動（アプリの実行）
+
+API と Web フロントエンドを一括で起動します。
+
+```bash
+pnpm dev
+```
 
 - **Web UI**: [http://localhost:5173](http://localhost:5173)
 - **API**: [http://localhost:3000](http://localhost:3000)
@@ -20,27 +28,26 @@ docker compose up -d --build
 
 各パッケージのテストを実行できます。
 
-**API のテスト (起動中)**
+**プロジェクト全体のテスト**
 
 ```bash
-docker compose exec api npm run test -w apps/api
+pnpm test
 ```
 
-**Web のテスト (単発実行)**
-依存関係（`node_modules`）を確実に反映させるため、コンテナ起動と同時にインストールを挟んでテストを走らせます。
+**特定のアプリのみテスト**
 
 ```bash
-docker compose run --rm web sh -c "npm install && npm run test -w apps/web"
+pnpm -F web test
+# または
+pnpm -F api test
 ```
-
-※既に `docker compose up` でWebコンテナが起動済みの場合は、`docker compose exec web npm run test -w apps/web` で実行可能です。
 
 ### 4. データベースの初期化・同期
 
 初回起動時やスキーマ変更時には、以下のコマンドでデータベースを同期してください。
 
 ```bash
-docker compose exec api sh -c "cd packages/database && npx prisma db push"
+pnpm -F database db:push
 ```
 
 ### 5. シードデータの投入
@@ -48,32 +55,25 @@ docker compose exec api sh -c "cd packages/database && npx prisma db push"
 開発用の初期データ（テストユーザーやノート）を投入します。
 
 ```bash
-docker compose run --rm api sh -c "npm install && npx prisma db seed --config packages/database/prisma.config.ts"
+# データベースのワークスペースに移動して実行
+cd packages/database
+pnpm generate
+pnpm db:seed
 ```
 
-### 6. コードフォーマット (Prettier)
+### 6. コードフォーマット・チェック (Biome)
 
-Docker コンテナ（`api` 等）の中から実行することで、ローカル環境に Node.js や Prettier が無くても自動フォーマットが可能です。
-
-プロジェクト全体:
+プロジェクト全体をチェックします。
 
 ```bash
-docker compose exec api npm run format
-```
-
-特定のパッケージ（例: `api` や `web` のみ）:
-
-```bash
-docker compose exec api npm run format --workspace=api
-# または
-docker compose exec api npm run format --workspace=web
+pnpm lint
+pnpm format
 ```
 
 ### 7. デスクトップアプリ (Electron) の起動
 
-Web コンテナが起動している状態（`docker compose up` 状態）で、ローカルから以下のコマンドを実行すると、デスクトップネイティブアプリとして起動します。
-ローカルに Node.js インストール環境が必要です。
+アプリ本体（`pnpm dev`）が起動している状態で、以下のコマンドを実行するとデスクトップ版が起動します。
 
 ```bash
-npm run dev --workspace=apps/desktop
+pnpm -F desktop dev
 ```
