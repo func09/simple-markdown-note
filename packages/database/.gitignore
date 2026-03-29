@@ -5,3 +5,9 @@ node_modules
 # Cloudflare Wrangler
 .wrangler/
 
+
+# SQLite Local Databases
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
