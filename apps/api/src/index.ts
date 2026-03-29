@@ -1,8 +1,9 @@
 import { serve } from "@hono/node-server";
-import { createDb, type DrizzleDB, db as staticDb } from "database";
+import type { DrizzleDB } from "database";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { authContextExtractor, jwtAuth } from "./middlewares/auth";
+import { dbInjector } from "./middlewares/db";
 import { requestLogger } from "./middlewares/logger";
 import authRouter from "./routes/auth";
 import { notesRouter } from "./routes/notes";
@@ -24,15 +25,7 @@ export type AppEnv = {
 export const app = new Hono<AppEnv>();
 
 // 1. データベース注入ミドルウェア
-app.use("*", async (c, next) => {
-  // Wrangler環境では常に c.env.DB が存在しますが、テストでは存在しません。
-  if (c.env?.DB) {
-    c.set("db", createDb(c.env.DB));
-  } else {
-    c.set("db", staticDb as unknown as DrizzleDB);
-  }
-  await next();
-});
+app.use("*", dbInjector());
 
 // 2. シンプルで情報密度の高いロガー
 app.use("*", requestLogger());
