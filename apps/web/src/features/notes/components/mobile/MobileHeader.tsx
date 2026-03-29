@@ -1,10 +1,9 @@
-import React from 'react';
+import { Menu, StickyNote } from "lucide-react";
+import React from "react";
 
-import { Menu, StickyNote } from 'lucide-react';
+import { Button } from "@/components/ui/button";
 
-import { Button } from '@/components/ui/button';
-
-import { useDashboardStore } from '@/features/dashboard/store';
+import { useDashboardStore } from "@/features/dashboard/store";
 
 export const MobileHeader: React.FC = () => {
   const setIsSidebarOpen = useDashboardStore((state) => state.setIsSidebarOpen);
@@ -12,7 +11,7 @@ export const MobileHeader: React.FC = () => {
   const isTrashSelected = useDashboardStore((state) => state.isTrashSelected);
 
   const handleMenuClick = React.useCallback(() => {
-    console.log('Menu clicked, opening sidebar');
+    console.log("Menu clicked, opening sidebar");
     setIsSidebarOpen(true);
   }, [setIsSidebarOpen]);
 
@@ -31,10 +30,10 @@ export const MobileHeader: React.FC = () => {
           <StickyNote size={18} className="text-blue-500" />
           <span className="font-outfit font-bold tracking-tight text-slate-200">
             {isTrashSelected
-              ? 'Trash'
-              : selectedTag === '__untagged__'
-                ? 'Untagged'
-                : selectedTag || 'All Notes'}
+              ? "Trash"
+              : selectedTag === "__untagged__"
+                ? "Untagged"
+                : selectedTag || "All Notes"}
           </span>
         </div>
       </div>

@@ -1,9 +1,7 @@
-import React from 'react';
-
-import type { Note } from 'openapi';
-
-import { DesktopEditorHeader, EditorCore } from '@/features/notes/components';
-import { useDashboardStore } from '@/features/dashboard/store';
+import type { Note } from "openapi";
+import type React from "react";
+import { useDashboardStore } from "@/features/dashboard/store";
+import { DesktopEditorHeader, EditorCore } from "@/features/notes/components";
 
 interface EditorProps {
   note: Note | null;
@@ -39,10 +37,15 @@ export const DesktopEditor: React.FC<EditorProps> = ({
         onDelete={onDelete}
       />
       <div className="flex-1 overflow-hidden">
-        <EditorCore key={note.id} note={note} onUpdateTags={onUpdateTags} onRestore={onRestore} />
+        <EditorCore
+          key={note.id}
+          note={note}
+          onUpdateTags={onUpdateTags}
+          onRestore={onRestore}
+        />
       </div>
     </div>
   );
 };
 
-DesktopEditor.displayName = 'DesktopEditor';
+DesktopEditor.displayName = "DesktopEditor";

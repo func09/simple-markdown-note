@@ -1,5 +1,5 @@
-import { useDashboardStore } from '@/features/dashboard/store';
-import { create } from 'zustand';
+import { create } from "zustand";
+import { useDashboardStore } from "@/features/dashboard/store";
 
 interface NoteState {
   selectedNoteId: string | null;
@@ -14,7 +14,7 @@ export const useNoteStore = create<NoteState>((set) => ({
   setSelectedNoteId: (id) => {
     set({ selectedNoteId: id });
     if (id) {
-      useDashboardStore.getState().setActiveView('editor');
+      useDashboardStore.getState().setActiveView("editor");
     }
   },
 }));

@@ -4,8 +4,15 @@
   "type": "module",
   "main": "./src/index.ts",
   "scripts": {
-    "db:push": "prisma db push",
-    "generate": "prisma generate"
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "check": "biome check .",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "generate": "drizzle-kit generate",
+    "db:seed": "tsx src/seed.ts",
+    "seed": "tsx src/seed.ts",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",
@@ -13,14 +20,16 @@
   "description": "",
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
-    "prisma": "^7.5.0"
+    "drizzle-kit": "^0.30.5",
+    "drizzle-seed": "^0.2.1",
+    "tsx": "^4.21.0"
   },
   "dependencies": {
     "@libsql/client": "^0.17.2",
-    "@prisma/adapter-libsql": "^7.5.0",
-    "@prisma/client": "^7.5.0",
+    "@paralleldrive/cuid2": "^2.2.2",
     "bcryptjs": "^3.0.3",
-    "openapi": "^1.0.0",
+    "drizzle-orm": "^0.40.0",
+    "openapi": "workspace:*",
     "zod": "^4.3.6"
   }
 }

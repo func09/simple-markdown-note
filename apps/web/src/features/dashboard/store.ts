@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
 interface DashboardState {
   searchQuery: string;
@@ -8,8 +8,8 @@ interface DashboardState {
   isTrashSelected: boolean;
   setIsTrashSelected: (isTrash: boolean) => void;
 
-  layoutMode: 'all' | 'split' | 'focus';
-  setLayoutMode: (mode: 'all' | 'split' | 'focus') => void;
+  layoutMode: "all" | "split" | "focus";
+  setLayoutMode: (mode: "all" | "split" | "focus") => void;
   toggleLayoutMode: () => void;
 
   layoutAllSizes: number[];
@@ -18,8 +18,8 @@ interface DashboardState {
   setLayoutSplitSizes: (sizes: number[]) => void;
 
   // モバイル表示用の状態
-  activeView: 'list' | 'editor';
-  setActiveView: (view: 'list' | 'editor') => void;
+  activeView: "list" | "editor";
+  setActiveView: (view: "list" | "editor") => void;
   isSidebarOpen: boolean;
   setIsSidebarOpen: (isOpen: boolean) => void;
 
@@ -34,7 +34,7 @@ interface DashboardState {
  * ダッシュボードのUIやフィルタリング状態を管理する Zustand ストア
  */
 export const useDashboardStore = create<DashboardState>((set) => ({
-  searchQuery: '',
+  searchQuery: "",
   setSearchQuery: (query) => set({ searchQuery: query }),
 
   selectedTag: null,
@@ -43,13 +43,13 @@ export const useDashboardStore = create<DashboardState>((set) => ({
   isTrashSelected: false,
   setIsTrashSelected: (isTrash) => set({ isTrashSelected: isTrash }),
 
-  layoutMode: 'all',
+  layoutMode: "all",
   setLayoutMode: (mode) => set({ layoutMode: mode }),
   toggleLayoutMode: () =>
     set((state) => {
-      if (state.layoutMode === 'all') return { layoutMode: 'split' };
-      if (state.layoutMode === 'split') return { layoutMode: 'focus' };
-      return { layoutMode: 'all' };
+      if (state.layoutMode === "all") return { layoutMode: "split" };
+      if (state.layoutMode === "split") return { layoutMode: "focus" };
+      return { layoutMode: "all" };
     }),
 
   layoutAllSizes: [20, 25, 55],
@@ -59,7 +59,7 @@ export const useDashboardStore = create<DashboardState>((set) => ({
   setLayoutSplitSizes: (sizes) => set({ layoutSplitSizes: sizes }),
 
   // モバイル表示用の状態
-  activeView: 'list',
+  activeView: "list",
   setActiveView: (view) => set({ activeView: view }),
 
   isSidebarOpen: false,

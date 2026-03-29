@@ -1,10 +1,13 @@
-import React from 'react';
+import type React from "react";
 
-import { DesktopDashboard, MobileDashboard } from '@/features/dashboard/components';
-import { useMediaQuery } from '@/hooks/useMediaQuery';
+import {
+  DesktopDashboard,
+  MobileDashboard,
+} from "@/features/dashboard/components";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 const Dashboard: React.FC = () => {
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   if (isMobile) {
     return <MobileDashboard />;

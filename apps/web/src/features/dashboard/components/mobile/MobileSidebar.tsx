@@ -1,14 +1,12 @@
-import React from 'react';
+import { LogOut, StickyNote, Tag as TagIcon, Trash2 } from "lucide-react";
+import React from "react";
+import { toast } from "sonner";
 
-import { LogOut, StickyNote, Trash2, Tag as TagIcon } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
+import { logout } from "@/features/auth";
+import { TagList } from "@/features/dashboard/components";
+import { useDashboardStore } from "@/features/dashboard/store";
 
-import { logout } from '@/features/auth';
-import { TagList } from '@/features/dashboard/components';
-import { useDashboardStore } from '@/features/dashboard/store';
-
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 
 interface MobileSidebarProps {
   onSelectTag: (tag: string | null, isTrash: boolean) => void;
@@ -18,38 +16,43 @@ interface MobileSidebarProps {
  * モバイル用のサイドバーコンポーネント
  * ドロワー内に表示されるナビゲーション項目
  */
-export const MobileSidebar: React.FC<MobileSidebarProps> = ({ onSelectTag }) => {
-  const navigate = useNavigate();
+export const MobileSidebar: React.FC<MobileSidebarProps> = ({
+  onSelectTag,
+}) => {
   const selectedTag = useDashboardStore((state) => state.selectedTag);
   const isTrashSelected = useDashboardStore((state) => state.isTrashSelected);
 
-  const handleLogout = React.useCallback(() => {
-    logout();
-    navigate('/login');
-    toast.success('Logged out successfully');
-  }, [navigate]);
+  const handleLogout = React.useCallback(async () => {
+    await logout();
+    window.location.href = "/login";
+    toast.success("Logged out successfully");
+  }, []);
 
   return (
     <div className="flex h-full flex-col bg-slate-900">
       <div className="flex h-full flex-col gap-4 p-4">
         <div className="flex flex-col gap-1">
           <button
+            type="button"
             onClick={() => onSelectTag(null, false)}
             className={cn(
-              'flex w-full items-center gap-3 rounded-xl px-3 py-3',
+              "flex w-full items-center gap-3 rounded-xl px-3 py-3",
               selectedTag === null && !isTrashSelected
-                ? 'bg-blue-600 font-medium text-white'
-                : 'text-slate-400'
+                ? "bg-blue-600 font-medium text-white"
+                : "text-slate-400"
             )}
           >
             <StickyNote size={20} />
             <span>All Notes</span>
           </button>
           <button
+            type="button"
             onClick={() => onSelectTag(null, true)}
             className={cn(
-              'flex w-full items-center gap-3 rounded-xl px-3 py-3',
-              isTrashSelected ? 'bg-blue-600 font-medium text-white' : 'text-slate-400'
+              "flex w-full items-center gap-3 rounded-xl px-3 py-3",
+              isTrashSelected
+                ? "bg-blue-600 font-medium text-white"
+                : "text-slate-400"
             )}
           >
             <Trash2 size={20} />
@@ -69,6 +72,7 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({ onSelectTag }) => 
 
         <div className="mt-auto border-t border-slate-800/50 py-4">
           <button
+            type="button"
             onClick={handleLogout}
             className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-slate-500 hover:text-red-400"
           >
@@ -81,4 +85,4 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({ onSelectTag }) => 
   );
 };
 
-MobileSidebar.displayName = 'MobileSidebar';
+MobileSidebar.displayName = "MobileSidebar";

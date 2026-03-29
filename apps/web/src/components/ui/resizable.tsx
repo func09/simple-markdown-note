@@ -1,7 +1,7 @@
-import * as React from "react"
-import * as ResizablePrimitive from "react-resizable-panels"
+import * as React from "react";
+import * as ResizablePrimitive from "react-resizable-panels";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 const ResizablePanelGroup = React.forwardRef<
   ResizablePrimitive.GroupImperativeHandle,
@@ -17,23 +17,27 @@ const ResizablePanelGroup = React.forwardRef<
     )}
     {...props}
   />
-))
-ResizablePanelGroup.displayName = "ResizablePanelGroup"
+));
+ResizablePanelGroup.displayName = "ResizablePanelGroup";
 
 const ResizablePanel = React.forwardRef<
   ResizablePrimitive.PanelImperativeHandle,
   React.ComponentProps<typeof ResizablePrimitive.Panel>
 >(({ ...props }, ref) => (
-  <ResizablePrimitive.Panel panelRef={ref} data-slot="resizable-panel" {...props} />
-))
-ResizablePanel.displayName = "ResizablePanel"
+  <ResizablePrimitive.Panel
+    panelRef={ref}
+    data-slot="resizable-panel"
+    {...props}
+  />
+));
+ResizablePanel.displayName = "ResizablePanel";
 
 const ResizableHandle = ({
   withHandle,
   className,
   ...props
 }: React.ComponentProps<typeof ResizablePrimitive.Separator> & {
-  withHandle?: boolean
+  withHandle?: boolean;
 }) => (
   <ResizablePrimitive.Separator
     data-slot="resizable-handle"
@@ -47,6 +51,6 @@ const ResizableHandle = ({
       <div className="z-10 flex h-6 w-1 shrink-0 rounded-lg bg-border" />
     )}
   </ResizablePrimitive.Separator>
-)
+);
 
-export { ResizableHandle, ResizablePanel, ResizablePanelGroup }
+export { ResizableHandle, ResizablePanel, ResizablePanelGroup };

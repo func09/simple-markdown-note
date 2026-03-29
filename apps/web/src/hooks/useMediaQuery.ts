@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from "react";
 
 /**
  * メディアクエリの状態を監視するフック
@@ -8,19 +8,17 @@ export function useMediaQuery(query: string): boolean {
 
   useEffect(() => {
     const media = window.matchMedia(query);
-    if (media.matches !== matches) {
-      setMatches(media.matches);
-    }
+    setMatches(media.matches);
 
     const listener = (e: MediaQueryListEvent) => {
       setMatches(e.matches);
     };
 
     // modern browsers
-    media.addEventListener('change', listener);
+    media.addEventListener("change", listener);
 
     return () => {
-      media.removeEventListener('change', listener);
+      media.removeEventListener("change", listener);
     };
   }, [query]);
 

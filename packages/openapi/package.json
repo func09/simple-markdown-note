@@ -3,13 +3,18 @@
   "version": "1.0.0",
   "type": "module",
   "main": "./src/index.ts",
-  "scripts": {},
+  "scripts": {
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "check": "biome check .",
+    "typecheck": "tsc --noEmit"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^7.3.4",
-    "zod": "^3.25.76"
+    "zod": "^4.3.6"
   }
 }

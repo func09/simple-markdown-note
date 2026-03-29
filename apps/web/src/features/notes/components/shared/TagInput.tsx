@@ -1,10 +1,9 @@
-import React from 'react';
+import { Tag as TagIcon, X } from "lucide-react";
+import type React from "react";
 
-import { Tag as TagIcon, X } from 'lucide-react';
+import { Badge } from "@/components/ui/badge";
 
-import { Badge } from '@/components/ui/badge';
-
-import { useTagInput } from '@/features/notes/hooks';
+import { useTagInput } from "@/features/notes/hooks";
 
 interface TagInputProps {
   tags: string[];
@@ -19,9 +18,10 @@ interface TagInputProps {
 export const TagInput: React.FC<TagInputProps> = ({
   tags,
   onChange,
-  placeholder = 'Add tags...',
+  placeholder = "Add tags...",
 }) => {
-  const { inputValue, handleInputChange, handleKeyDown, removeTag } = useTagInput(tags, onChange);
+  const { inputValue, handleInputChange, handleKeyDown, removeTag } =
+    useTagInput(tags, onChange);
 
   return (
     <div className="flex min-h-[40px] flex-wrap items-center gap-2 border-t border-slate-800/50 px-1 py-2">
@@ -37,6 +37,7 @@ export const TagInput: React.FC<TagInputProps> = ({
         >
           {tag}
           <button
+            type="button"
             onClick={() => removeTag(tag)}
             className="p-0.5 text-slate-500 transition-colors hover:text-slate-300"
           >
@@ -50,7 +51,7 @@ export const TagInput: React.FC<TagInputProps> = ({
         value={inputValue}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
-        placeholder={tags.length === 0 ? placeholder : ''}
+        placeholder={tags.length === 0 ? placeholder : ""}
         className="min-w-[120px] flex-1 border-none bg-transparent py-1 text-sm text-slate-300 placeholder:text-slate-600 focus:outline-none"
       />
     </div>

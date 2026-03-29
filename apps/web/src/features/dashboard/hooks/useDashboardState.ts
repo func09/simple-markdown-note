@@ -1,11 +1,10 @@
-import React, { useMemo } from 'react';
-import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '@/lib/db';
-
-import { useSync, useOramaSearch } from '@/features/notes/hooks';
-import { useNoteStore } from '@/features/notes/store';
-import { useDashboardStore } from '@/features/dashboard/store';
-import { useDashboardActions } from '@/features/dashboard/hooks/useDashboardActions';
+import { useLiveQuery } from "dexie-react-hooks";
+import React, { useMemo } from "react";
+import { useDashboardActions } from "@/features/dashboard/hooks/useDashboardActions";
+import { useDashboardStore } from "@/features/dashboard/store";
+import { useOramaSearch, useSync } from "@/features/notes/hooks";
+import { useNoteStore } from "@/features/notes/store";
+import { db } from "@/lib/db";
 
 /**
  * DesktopとMobileの両方のDashboardで共有されるビジネスロジックと状態を管理するカスタムフック
@@ -13,7 +12,7 @@ import { useDashboardActions } from '@/features/dashboard/hooks/useDashboardActi
  */
 export const useDashboardState = () => {
   const selectedNoteId = useNoteStore((state) => state.selectedNoteId);
-  const { searchQuery, selectedTag, isTrashSelected, setActiveView, setIsSidebarOpen } =
+  const { searchQuery, selectedTag, isTrashSelected, setIsSidebarOpen } =
     useDashboardStore();
 
   // サーバーからの同期状態を追跡するためフック自体は残すが、UIが直接参照する状態は Dexie から取得する
@@ -24,11 +23,17 @@ export const useDashboardState = () => {
 
   // 現在の「ゴミ箱か否か」のビューに基づいて Dexie のデータをフィルタリングする
   const notes = useMemo(() => {
-    return dexieNotes.filter((n) => (isTrashSelected ? !!n.deletedAt : !n.deletedAt));
+    return dexieNotes.filter((n) =>
+      isTrashSelected ? !!n.deletedAt : !n.deletedAt
+    );
   }, [dexieNotes, isTrashSelected]);
 
   // 分割したフックから検索機能とアクション群を取得
-  const { filteredNotes, searchNotes, oramaDb } = useOramaSearch(notes, selectedTag, searchQuery);
+  const { filteredNotes, searchNotes, oramaDb } = useOramaSearch(
+    notes,
+    selectedTag,
+    searchQuery
+  );
   const actions = useDashboardActions();
 
   const selectedNote = useMemo(
@@ -49,7 +54,7 @@ export const useDashboardState = () => {
         selectedTag: tag,
         searchQuery: query,
         isTrashSelected: isTrash,
-        activeView: 'list',
+        activeView: "list",
         isSidebarOpen: false,
       });
       useNoteStore.setState({
@@ -65,7 +70,7 @@ export const useDashboardState = () => {
     if (filteredNotes.length === 0) {
       if (selectedNoteId !== null) {
         useNoteStore.setState({ selectedNoteId: null });
-        useDashboardStore.getState().setActiveView('list');
+        useDashboardStore.getState().setActiveView("list");
       }
       return;
     }
@@ -74,7 +79,7 @@ export const useDashboardState = () => {
     if (!isExist) {
       useNoteStore.setState({ selectedNoteId: filteredNotes[0].id });
     }
-  }, [filteredNotes, selectedNoteId, setActiveView]);
+  }, [filteredNotes, selectedNoteId]);
 
   return {
     filteredNotes,
