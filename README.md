@@ -22,7 +22,7 @@ pnpm dev
 
 - **Web UI**: [http://localhost:5173](http://localhost:5173)
 - **API**: [http://localhost:3000](http://localhost:3000)
-- **Prisma Studio**: [http://localhost:5555](http://localhost:5555) (DB の中身をブラウザで見れます)
+- **Drizzle Studio**: [pnpm -F database db:studio](pnpm -F database db:studio) (DB の中身をブラウザで見れます)
 
 ### 3. テストの実行
 

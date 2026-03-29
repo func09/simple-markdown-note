@@ -2,9 +2,6 @@
   "name": "simplenote-clone",
   "version": "1.0.0",
   "private": true,
-  "prisma": {
-    "seed": "tsx packages/database/seed.ts"
-  },
   "description": "SimpleNote Clone - A robust, local-first note-taking app",
   "workspaces": [
     "apps/*",
@@ -44,6 +41,14 @@
     "dotenv": "^17.3.1",
     "drizzle-orm": "^0.40.0",
     "uuid": "^13.0.0"
+  },
+  "pnpm": {
+    "peerDependencyRules": {
+      "ignore": [
+        "prisma",
+        "@prisma/client"
+      ]
+    }
   },
   "lint-staged": {
     "*.{js,ts,jsx,tsx,json,md}": [
