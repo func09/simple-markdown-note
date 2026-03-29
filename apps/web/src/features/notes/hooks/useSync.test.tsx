@@ -1,5 +1,5 @@
 import { renderHook, waitFor } from '@testing-library/react';
-import { useSync, useTriggerSync } from './useSync';
+import { useSync, useTriggerSync } from '@/features/notes/hooks/useSync';
 import { db } from '@/lib/db';
 import * as noteApi from '@/features/notes/api';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';

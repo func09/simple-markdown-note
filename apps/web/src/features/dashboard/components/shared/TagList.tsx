@@ -10,7 +10,7 @@ interface TagListProps {
   onSelectTag?: (tag: string | null) => void;
 }
 
-import { TagItem } from './TagItem';
+import { TagItem } from '@/features/dashboard/components/shared/TagItem';
 
 /**
  * 共有のタグリスト部品
