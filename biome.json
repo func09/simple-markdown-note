@@ -30,6 +30,13 @@
       }
     }
   },
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  },
   "javascript": {
     "formatter": {
       "quoteStyle": "double",
@@ -46,5 +53,33 @@
     "parser": {
       "tailwindDirectives": true
     }
-  }
+  },
+  "overrides": [
+    {
+      "includes": [
+        "apps/api/src/**/*",
+        "apps/web/src/**/*",
+        "apps/desktop/src/**/*",
+        "packages/database/src/**/*",
+        "packages/openapi/src/**/*"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["../../**"],
+                    "message": "1段階を超える相対パス（../）は禁止されています。代わりに '@/' エイリアスを使用してください。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
 }
