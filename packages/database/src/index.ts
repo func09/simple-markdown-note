@@ -31,5 +31,10 @@ export * from "drizzle-orm";
 
 import { migrate } from "drizzle-orm/libsql/migrator";
 export const migrateLibsql = migrate;
+export * from "./repositories/note";
+export * from "./repositories/tag";
+
+// Repositories
+export * from "./repositories/user";
 export * from "./schema";
 export { bcryptjs };
