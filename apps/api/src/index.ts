@@ -1,5 +1,4 @@
 import { serve } from "@hono/node-server";
-import type { DrizzleDB } from "database";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import {
@@ -7,10 +6,10 @@ import {
   dbInjector,
   jwtAuth,
   requestLogger,
-} from "./middlewares";
-import { authRouter, notesRouter, tagsRouter } from "./routes";
+} from "@/middlewares";
+import { apiRouter } from "@/routes";
 
-import type { AppEnv } from "./types";
+import type { AppEnv } from "@/types";
 
 // Honoアプリケーションのインスタンス化
 export const app = new Hono<AppEnv>();
@@ -29,10 +28,8 @@ app.use("/api/*", jwtAuth());
 // userId 抽出ミドルウェア (認証後に payload から ID をコンテキストにセット)
 app.use("/api/*", authContextExtractor());
 
-// 各ルートの登録 (/api プレフィックスを Hono 側で持つように変更)
-app.route("/api/notes", notesRouter);
-app.route("/api/tags", tagsRouter);
-app.route("/api/auth", authRouter);
+// APIルートの登録
+app.route("/api", apiRouter);
 
 // ヘルスチェック用エンドポイント
 app.get("/health", (c) => c.json({ status: "ok" }));
