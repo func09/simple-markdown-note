@@ -44,12 +44,6 @@ importers:
       chai:
         specifier: ^5.2.0
         version: 5.3.3
-      drizzle-kit:
-        specifier: ^0.30.5
-        version: 0.30.6
-      drizzle-seed:
-        specifier: ^0.2.1
-        version: 0.2.1(drizzle-orm@0.40.1(@electric-sql/pglite@0.4.1)(@libsql/client@0.17.2(encoding@0.1.13))(gel@2.2.0)(mysql2@3.15.3)(postgres@3.4.7))
       husky:
         specifier: ^9.1.7
         version: 9.1.7
@@ -269,6 +263,12 @@ importers:
       '@types/bcryptjs':
         specifier: ^2.4.6
         version: 2.4.6
+      drizzle-kit:
+        specifier: ^0.30.5
+        version: 0.30.6
+      drizzle-seed:
+        specifier: ^0.2.1
+        version: 0.2.1(drizzle-orm@0.40.1(@electric-sql/pglite@0.4.1)(@libsql/client@0.17.2(encoding@0.1.13))(gel@2.2.0)(mysql2@3.15.3)(postgres@3.4.7))
 
   packages/openapi:
     dependencies:

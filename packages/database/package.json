@@ -16,7 +16,9 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "@types/bcryptjs": "^2.4.6"
+    "@types/bcryptjs": "^2.4.6",
+    "drizzle-kit": "^0.30.5",
+    "drizzle-seed": "^0.2.1"
   },
   "dependencies": {
     "@libsql/client": "^0.17.2",
