@@ -1,9 +1,9 @@
 import { zValidator } from "@hono/zod-validator";
-import { and, eq, gt, notes, notesToTags } from "database";
+import { and, eq, gt, notes } from "database";
 import { Hono } from "hono";
 import { SyncRequestSchema } from "openapi";
-import { TagService } from "../services/tags";
-import type { AppEnv } from "../types";
+import { TagService } from "@/services/tags";
+import type { AppEnv } from "@/types";
 
 const notesRouter = new Hono<AppEnv>();
 
