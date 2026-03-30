@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/common/Display";
 import { TagItem } from "@/features/dashboard/components/shared/TagItem";
 import { useTags } from "@/features/notes/hooks";
 

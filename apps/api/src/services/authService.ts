@@ -1,12 +1,8 @@
 import { bcryptjs, createUserRepository, type DrizzleDB } from "database";
 import { HTTPException } from "hono/http-exception";
-import type { z } from "zod";
-import type { SigninRequestSchema, SignupRequestSchema } from "@/schema";
+import type { SigninRequest, SignupRequest } from "@/schema";
 
-export async function signup(
-  db: DrizzleDB,
-  data: z.infer<typeof SignupRequestSchema>
-) {
+export async function signup(db: DrizzleDB, data: SignupRequest) {
   const userRepository = createUserRepository(db);
 
   const existingUser = await userRepository.findByEmail(data.email);
@@ -24,10 +20,7 @@ export async function signup(
   return user;
 }
 
-export async function signin(
-  db: DrizzleDB,
-  data: z.infer<typeof SigninRequestSchema>
-) {
+export async function signin(db: DrizzleDB, data: SigninRequest) {
   const userRepository = createUserRepository(db);
 
   const user = await userRepository.findByEmail(data.email);

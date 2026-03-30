@@ -1,7 +1,7 @@
 import { Menu, Plus, StickyNote } from "lucide-react";
 import React from "react";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/common/Button";
 
 import { useDashboardState } from "@/features/dashboard/hooks";
 import { useDashboardStore } from "@/features/dashboard/stores";
