@@ -13,15 +13,6 @@ export interface FilterSlice {
 }
 
 /**
- * レイアウトに関連する状態とアクション
- */
-export interface LayoutSlice {
-  layoutMode: "all" | "split" | "focus";
-  setLayoutMode: (mode: "all" | "split" | "focus") => void;
-  toggleLayoutMode: () => void;
-}
-
-/**
  * モバイル・UI表示に関連する状態とアクション
  */
 export interface UISlice {
@@ -44,7 +35,7 @@ export interface ModalSlice {
 /**
  * すべてのスライスを統合した Dashboard ストアの全体型
  */
-export type DashboardState = FilterSlice & LayoutSlice & UISlice & ModalSlice;
+export type DashboardState = FilterSlice & UISlice & ModalSlice;
 
 /**
  * 各スライスを作成するための StateCreator 型のエイリアス
