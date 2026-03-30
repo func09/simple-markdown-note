@@ -1,5 +1,11 @@
 import { db, users } from "database";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import type { z } from "zod";
+import type {
+  AuthResponseSchema,
+  SyncResponseSchema,
+  TagListResponseSchema,
+} from "@/schema";
 import { app } from "../index";
 
 describe("Tags API via Sync", () => {
@@ -19,7 +25,7 @@ describe("Tags API via Sync", () => {
         password: "password123",
       }),
     });
-    const body: any = await signupRes.json();
+    const body = (await signupRes.json()) as z.infer<typeof AuthResponseSchema>;
     token = body.token;
   });
 
@@ -48,18 +54,25 @@ describe("Tags API via Sync", () => {
     });
 
     expect(res.status).toBe(200);
-    const body: any = await res.json();
-    const syncedNote = body.updates.find((n: any) => n.id === testNoteId);
+    const body = (await res.json()) as z.infer<typeof SyncResponseSchema>;
+    const syncedNote = body.updates.find((n) => n.id === testNoteId);
+    if (!syncedNote) throw new Error("Note not found");
     expect(syncedNote.tags.length).toBe(2);
-    expect(syncedNote.tags.map((t: any) => t.name)).toContain("Work");
-    expect(syncedNote.tags.map((t: any) => t.name)).toContain("Important");
+    expect(
+      syncedNote.tags.map((t) => (t as unknown as { name: string }).name)
+    ).toContain("Work");
+    expect(
+      syncedNote.tags.map((t) => (t as unknown as { name: string }).name)
+    ).toContain("Important");
 
     // タグ一覧をGETで確認
     const tagsRes = await app.request("/api/tags", {
       method: "GET",
       headers: { Authorization: `Bearer ${token}` },
     });
-    const tags: any = await tagsRes.json();
+    const tags = (await tagsRes.json()) as z.infer<
+      typeof TagListResponseSchema
+    >;
     expect(tags.length).toBe(2);
   });
 
@@ -85,25 +98,32 @@ describe("Tags API via Sync", () => {
     });
 
     expect(res.status).toBe(200);
-    const body: any = await res.json();
-    const updatedNote = body.updates.find((n: any) => n.id === testNoteId);
+    const body = (await res.json()) as z.infer<typeof SyncResponseSchema>;
+    const updatedNote = body.updates.find((n) => n.id === testNoteId);
+    if (!updatedNote) throw new Error("Note not found");
     expect(updatedNote.tags.length).toBe(2);
-    expect(updatedNote.tags.map((t: any) => t.name)).toContain("Work");
-    expect(updatedNote.tags.map((t: any) => t.name)).toContain("Done");
-    expect(updatedNote.tags.map((t: any) => t.name)).not.toContain("Important");
+    expect(updatedNote.tags.map((t: { name: string }) => t.name)).toContain(
+      "Work"
+    );
+    expect(updatedNote.tags.map((t: { name: string }) => t.name)).toContain(
+      "Done"
+    );
+    expect(updatedNote.tags.map((t: { name: string }) => t.name)).not.toContain(
+      "Important"
+    );
 
-    // タグ一覧を確認 (Important は cleanupOrphanedTags で削除されているはず)
     const tagsRes = await app.request("/api/tags", {
       method: "GET",
       headers: { Authorization: `Bearer ${token}` },
     });
-    const tags: any = await tagsRes.json();
+    const tags = (await tagsRes.json()) as z.infer<
+      typeof TagListResponseSchema
+    >;
     expect(tags.length).toBe(2);
-    expect(tags.map((t: any) => t.name)).not.toContain("Important");
+    expect(tags.map((t) => t.name)).not.toContain("Important");
   });
 
   it("should cleanup all tags when note tags are set to empty", async () => {
-    // タグを空にする
     await app.request("/api/notes/sync", {
       method: "POST",
       headers: {
@@ -128,7 +148,9 @@ describe("Tags API via Sync", () => {
       method: "GET",
       headers: { Authorization: `Bearer ${token}` },
     });
-    const tags: any = await tagsRes.json();
+    const tags = (await tagsRes.json()) as z.infer<
+      typeof TagListResponseSchema
+    >;
     expect(tags.length).toBe(0);
   });
 
@@ -151,7 +173,10 @@ describe("Tags API via Sync", () => {
           password: "password123",
         }),
       });
-      const { token: otherToken }: any = await loginRes.json();
+      const loginBody = (await loginRes.json()) as z.infer<
+        typeof AuthResponseSchema
+      >;
+      const otherToken = loginBody.token;
 
       await app.request("/api/notes/sync", {
         method: "POST",
@@ -179,9 +204,9 @@ describe("Tags API via Sync", () => {
       });
 
       expect(res.status).toBe(200);
-      const body: any = await res.json();
+      const body = (await res.json()) as z.infer<typeof TagListResponseSchema>;
       // PrivateTag が含まれていないことを確認
-      expect(body.some((t: any) => t.name === "PrivateTag")).toBe(false);
+      expect(body.some((t) => t.name === "PrivateTag")).toBe(false);
     });
   });
 });

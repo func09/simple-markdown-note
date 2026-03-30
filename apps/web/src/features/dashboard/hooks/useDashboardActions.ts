@@ -1,4 +1,4 @@
-import type { Note } from "openapi";
+import type { Note } from "api";
 import { useCallback } from "react";
 import { toast } from "sonner";
 import { useDashboardStore } from "@/features/dashboard/stores";
