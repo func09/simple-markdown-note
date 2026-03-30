@@ -1,26 +1,19 @@
+import type { AppType } from "api"; // Hono側の型定義
 import { hc } from "hono/client";
 
-// Hono RPCクライアントの初期化
-const apiBaseUrl =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787/api";
+const getBaseUrl = () => {
+  // ブラウザ・Electron環境
+  if (typeof window !== "undefined") {
+    const isElectron = process.env.NEXT_PUBLIC_APP_PLATFORM === "electron";
+    // ElectronならHonoへ直、WebならNext.jsのRoute Handler(/api)へ
+    return isElectron ? "https://api.your-hono-server.com" : "/api";
+  }
+  // Next.jsサーバーサイド(SSR)
+  return "https://api.your-hono-server.com";
+};
 
-/**
- * TODO: ワークスペース間の型解決を修正して AppType を再導入する。
- * 現状は型解決エラー回避のため any を使用。
- */
-const client = hc<any>(apiBaseUrl, {
-  headers: () => {
-    if (typeof window !== "undefined") {
-      const token = localStorage.getItem("token");
-      const headers: Record<string, string> = {};
-      if (token) {
-        headers.Authorization = `Bearer ${token}`;
-      }
-      return headers;
-    }
-    return {};
-  },
-});
-
-export const api = client as any;
+// Hono RPCの型を正しく反映させるために、明示的にキャストするか、
+// AppTypeが正しく認識されているか確認します。
+const client = hc<AppType>(getBaseUrl());
+export const api = client.api; // app.route("/api", ...) なので .api が実体
 export default api;

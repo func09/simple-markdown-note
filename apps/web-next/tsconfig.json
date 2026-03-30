@@ -12,7 +12,9 @@
     "paths": {
       "@/*": ["./src/*"],
       "api": ["../api/src/index.ts"],
-      "api/*": ["../api/src/*"]
+      "api/*": ["../api/src/*"],
+      "openapi": ["../../packages/openapi/src/index.ts"],
+      "openapi/*": ["../../packages/openapi/src/*"]
     }
   },
   "include": [
