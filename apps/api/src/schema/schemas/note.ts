@@ -1,3 +1,4 @@
+import { NOTE_SCOPES } from "database";
 import { z } from "@/schema/z";
 import { NoteSchema } from "../models/note";
 
@@ -73,9 +74,24 @@ export const NoteUpdateRequestSchema = z
   })
   .openapi("NoteUpdateRequest");
 
+/**
+ * ノート一覧取得のクバリデーションスキーマ
+ */
+export const NoteQuerySchema = z
+  .object({
+    tag: z.string().optional().openapi({ example: "work" }),
+    scope: z
+      .enum(NOTE_SCOPES)
+      .optional()
+      .default("all")
+      .openapi({ example: "all" }),
+  })
+  .openapi("NoteQuery");
+
 export type SyncChange = z.infer<typeof SyncChangeSchema>;
 export type SyncRequest = z.infer<typeof SyncRequestSchema>;
 export type SyncResponse = z.infer<typeof SyncResponseSchema>;
 export type NoteCreateRequest = z.infer<typeof NoteCreateRequestSchema>;
 export type NoteUpdateRequest = z.infer<typeof NoteUpdateRequestSchema>;
 export type NoteListResponse = z.infer<typeof NoteListResponseSchema>;
+export type NoteQuery = z.infer<typeof NoteQuerySchema>;

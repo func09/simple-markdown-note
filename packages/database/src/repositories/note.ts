@@ -1,11 +1,74 @@
-import { and, desc, eq, gt } from "drizzle-orm";
+import {
+  and,
+  desc,
+  eq,
+  exists,
+  gt,
+  isNotNull,
+  isNull,
+  notExists,
+} from "drizzle-orm";
 import type { DrizzleDB } from "../index";
-import { type NewNote, type Note, notes } from "../schema";
+import {
+  type NewNote,
+  type Note,
+  type NoteScope,
+  notes,
+  notesToTags,
+  tags,
+} from "../schema";
 
 export const createNoteRepository = (db: DrizzleDB) => ({
   findAllByUserId: async (userId: string): Promise<Note[]> => {
     return await db.query.notes.findMany({
       where: eq(notes.userId, userId),
+      orderBy: [desc(notes.updatedAt)],
+    });
+  },
+  findAllByUserIdWithFilters: async (
+    userId: string,
+    filters: { tag?: string; scope?: NoteScope }
+  ) => {
+    const { tag, scope } = filters;
+
+    const whereClauses = [eq(notes.userId, userId)];
+
+    if (scope === "trash") {
+      whereClauses.push(isNotNull(notes.deletedAt));
+    } else {
+      // Default to non-trash for 'all', 'untagged', and tag filtering
+      whereClauses.push(isNull(notes.deletedAt));
+    }
+
+    if (scope === "untagged") {
+      whereClauses.push(
+        notExists(
+          db.select().from(notesToTags).where(eq(notesToTags.noteId, notes.id))
+        )
+      );
+    }
+
+    if (tag) {
+      whereClauses.push(
+        exists(
+          db
+            .select()
+            .from(notesToTags)
+            .innerJoin(tags, eq(notesToTags.tagId, tags.id))
+            .where(and(eq(notesToTags.noteId, notes.id), eq(tags.name, tag)))
+        )
+      );
+    }
+
+    return await db.query.notes.findMany({
+      where: and(...whereClauses),
+      with: {
+        notesToTags: {
+          with: {
+            tag: true,
+          },
+        },
+      },
       orderBy: [desc(notes.updatedAt)],
     });
   },

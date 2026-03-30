@@ -1,4 +1,4 @@
-import { createNoteRepository, type DrizzleDB } from "database";
+import { createNoteRepository, type DrizzleDB, type NoteScope } from "database";
 import type { z } from "zod";
 import type {
   NoteCreateRequestSchema,
@@ -84,13 +84,16 @@ export async function syncNotes(
 }
 
 /**
- * ユーザーの全ノートを取得する
+ * ユーザーのノート一覧を取得する
  */
-export async function getNotes(userId: string, db: DrizzleDB) {
+export async function getNotes(
+  userId: string,
+  db: DrizzleDB,
+  filters: { tag?: string; scope?: NoteScope } = {}
+) {
   const repo = createNoteRepository(db);
-  const notesRaw = await repo.findAllWithTagsSince(userId);
-
-  return notesRaw.map(mapToNoteWithTags);
+  const notes = await repo.findAllByUserIdWithFilters(userId, filters);
+  return notes.map(mapToNoteWithTags);
 }
 
 /**

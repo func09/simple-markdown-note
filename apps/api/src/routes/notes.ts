@@ -3,6 +3,7 @@ import { HTTPException } from "hono/http-exception";
 import {
   NoteCreateRequestSchema,
   NoteListResponseSchema,
+  NoteQuerySchema,
   NoteSchema,
   NoteUpdateRequestSchema,
   SyncRequestSchema,
@@ -53,6 +54,9 @@ const listNotesRoute = createRoute({
   method: "get",
   path: "/",
   summary: "ノート一覧取得",
+  request: {
+    query: NoteQuerySchema,
+  },
   responses: {
     200: {
       content: {
@@ -186,8 +190,9 @@ notesRouter.openapi(syncRoute, async (c) => {
 notesRouter.openapi(listNotesRoute, async (c) => {
   const userId = c.get("userId");
   const db = c.var.db;
+  const { tag, scope } = c.req.valid("query");
 
-  const notes = await getNotes(userId, db);
+  const notes = await getNotes(userId, db, { tag, scope });
   return c.json(NoteListResponseSchema.parse(notes), 200);
 });
 
