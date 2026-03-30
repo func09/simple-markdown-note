@@ -17,10 +17,13 @@ export const SigninRequestSchema = z
   })
   .openapi("SigninRequest");
 
-// 認証レスポンスのスキーマ
 export const AuthResponseSchema = z
   .object({
     user: UserSchema,
     token: z.string(),
   })
   .openapi("AuthResponse");
+
+export type SignupRequest = z.infer<typeof SignupRequestSchema>;
+export type SigninRequest = z.infer<typeof SigninRequestSchema>;
+export type AuthResponse = z.infer<typeof AuthResponseSchema>;
