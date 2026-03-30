@@ -1,5 +1,4 @@
 import React from "react";
-import { useDashboardStore } from "@/features/dashboard/stores";
 
 interface DesktopLayoutProps {
   nav: React.ReactNode;
@@ -13,23 +12,17 @@ interface DesktopLayoutProps {
  */
 export const DesktopLayout: React.FC<DesktopLayoutProps> = React.memo(
   ({ nav, list, main }) => {
-    const layoutMode = useDashboardStore((state) => state.layoutMode);
-
     return (
       <div className="flex h-screen w-full overflow-hidden bg-[#0f172a] text-slate-200">
         {/* Column 1: Navigation */}
-        {layoutMode === "all" && (
-          <aside className="h-full w-[240px] shrink-0 overflow-hidden border-r border-slate-800/10 bg-slate-950/50 py-4">
-            {nav}
-          </aside>
-        )}
+        <aside className="h-full w-[240px] shrink-0 overflow-hidden border-r border-slate-800/10 bg-slate-950/50 py-4">
+          {nav}
+        </aside>
 
         {/* Column 2: Note List */}
-        {(layoutMode === "all" || layoutMode === "split") && (
-          <aside className="flex h-full w-[320px] shrink-0 flex-col overflow-hidden border-r border-slate-800/10 bg-slate-900/40">
-            {list}
-          </aside>
-        )}
+        <aside className="flex h-full w-[320px] shrink-0 flex-col overflow-hidden border-r border-slate-800/10 bg-slate-900/40">
+          {list}
+        </aside>
 
         {/* Column 3: Main Editor */}
         <main

@@ -11,7 +11,6 @@ const Dashboard: React.FC = () => {
     return <MobileDashboard />;
   }
 
-  // DesktopDashboard 内部で AppLayout を適切に利用しているため、ここでは直接呼び出します
   return <DesktopDashboard />;
 };
 
