@@ -8,10 +8,9 @@
 
 ### 2. @backend (Hono API)
 * **役割**: Hono による Node.js API の実装。JWT 認証、Drizzle による D1 操作、S3互換ストレージ (R2等) 連携。
-* **責任**: OpenAPI 定義を「唯一の真実」とし、フロントエンドと齟齬のない型安全なエンドポイントを構築すること。
 
 ### 3. @web-frontend (React / UI)
-* **役割**: React による Web UI の実装。OpenAPI から生成されたクライアントを用いた API 通信。
+* **役割**: React による Web UI の実装。
 * **責任**: `DESIGN.md` に基づくレスポンシブな UI の構築と、オフラインキャッシュ (IndexedDB) の管理。
 
 ### 4. @desktop-ios (Electron / SwiftUI)

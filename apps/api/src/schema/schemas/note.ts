@@ -1,5 +1,5 @@
+import { z } from "@/schema/z";
 import { NoteSchema } from "../models/note";
-import { z } from "../z";
 
 /**
  * Sync Endpoint Schema definitions

@@ -1,13 +1,39 @@
-import { zValidator } from "@hono/zod-validator";
-import { Hono } from "hono";
-import { SyncRequestSchema } from "openapi";
-import { NoteService } from "../services/notes";
+import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
+import { SyncRequestSchema, SyncResponseSchema } from "@/schema";
+import { syncNotes } from "../services/noteService";
 import type { AppEnv } from "../types";
 
-const notesRouter = new Hono<AppEnv>();
+const notesRouter = new OpenAPIHono<AppEnv>();
+
+const syncRoute = createRoute({
+  method: "post",
+  path: "/sync",
+  summary: "ノートの同期",
+  description:
+    "クライアントの変更をアップロードし、サーバーからの更新を取得します。",
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: SyncRequestSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: SyncResponseSchema,
+        },
+      },
+      description: "同期成功",
+    },
+  },
+});
 
 // ノート同期エンドポイント
-notesRouter.post("/sync", zValidator("json", SyncRequestSchema), async (c) => {
+notesRouter.openapi(syncRoute, async (c) => {
   const userId = c.get("userId");
   const db = c.var.db;
   const payload = c.req.valid("json");
@@ -15,10 +41,10 @@ notesRouter.post("/sync", zValidator("json", SyncRequestSchema), async (c) => {
   const newSyncTime = new Date();
 
   // NoteServiceによる同期処理 (アップロード & ダウンロード)
-  const updates = await NoteService.syncNotes(userId, payload, db);
+  const updates = await syncNotes(userId, payload, db);
 
   return c.json({
-    newSyncTime,
+    newSyncTime: newSyncTime.toISOString(),
     updates,
   });
 });

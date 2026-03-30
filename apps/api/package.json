@@ -19,12 +19,13 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@hono/swagger-ui": "^0.6.1",
+    "@hono/zod-openapi": "^1.2.4",
     "@hono/zod-validator": "^0.7.6",
     "bcryptjs": "^3.0.3",
     "database": "workspace:*",
     "dotenv": "^17.3.1",
     "hono": "^4.12.9",
-    "openapi": "workspace:*",
     "zod": "^4.3.6"
   },
   "devDependencies": {
