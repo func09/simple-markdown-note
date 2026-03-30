@@ -21,7 +21,7 @@ export function useAuthActions() {
         const res = await signin(data);
         localStorage.setItem("token", res.token);
         toast.success("Logged in successfully");
-        navigate("/");
+        navigate("/notes");
       } catch (err: unknown) {
         toast.error(
           err instanceof Error

@@ -15,8 +15,7 @@ import { DeleteConfirmModal } from "@/features/notes/components";
  * ドロワー形式のサイドバー、リスト画面、エディタ画面を切り替えて表示し、`useDashboard` で状態を管理します。
  */
 export const MobileDashboard: React.FC = () => {
-  const { activeView, setActiveView, isSidebarOpen, setIsSidebarOpen } =
-    useDashboardStore();
+  const { activeView, isSidebarOpen, setIsSidebarOpen } = useDashboardStore();
 
   const {
     filteredNotes,
@@ -26,6 +25,7 @@ export const MobileDashboard: React.FC = () => {
     setIsDeleteModalOpen,
     isTrashSelected,
     updateSelection,
+    handleSelectNote,
     handleCreateNote,
     handleDeleteClick,
     confirmDeleteNote,
@@ -63,7 +63,7 @@ export const MobileDashboard: React.FC = () => {
         <MobileEditorView
           selectedNote={selectedNote}
           isTrashSelected={isTrashSelected}
-          setActiveView={setActiveView}
+          onBack={() => handleSelectNote(null)}
           handleRestoreNote={handleRestoreNote}
           handleDeleteClick={handleDeleteClick}
           handleUpdateTags={handleUpdateTags}

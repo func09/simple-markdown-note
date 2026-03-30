@@ -1,10 +1,8 @@
-import React, { useMemo, useState } from "react";
+import type React from "react";
+import { useMemo } from "react";
 
 import { DesktopLayout, DesktopSidebar } from "@/features/dashboard/components";
-import {
-  useDashboardState,
-  useSidebarNavigation,
-} from "@/features/dashboard/hooks";
+import { useDashboardState } from "@/features/dashboard/hooks";
 import { useDashboardStore } from "@/features/dashboard/stores";
 import {
   DeleteConfirmModal,
@@ -33,16 +31,6 @@ export const DesktopDashboard: React.FC = () => {
     handleEmptyTrash,
     handleUpdateTags,
   } = useDashboardState();
-
-  const [isNavFocused, setIsNavFocused] = useState(false);
-  const { handleNavKeyDown } = useSidebarNavigation(updateSelection);
-
-  React.useEffect(() => {
-    const timer = setTimeout(() => {
-      document.getElementById("nav-container")?.focus();
-    }, 100);
-    return () => clearTimeout(timer);
-  }, []);
 
   /** ノート一覧エリアのメモ化（再レンダリング最適化） */
   const memoizedList = useMemo(
@@ -74,13 +62,10 @@ export const DesktopDashboard: React.FC = () => {
   const navigationContent = useMemo(
     () => (
       <DesktopSidebar
-        isNavFocused={isNavFocused}
         onSelectTag={(tag, isTrash) => updateSelection(tag, isTrash)}
-        onFocusChange={setIsNavFocused}
-        onKeyDown={handleNavKeyDown}
       />
     ),
-    [isNavFocused, updateSelection, handleNavKeyDown]
+    [updateSelection]
   );
 
   return (

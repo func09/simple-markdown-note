@@ -1,37 +1,31 @@
 import React from "react";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import { useDashboardStore } from "@/features/dashboard/stores";
+import { TagItem } from "@/features/dashboard/components/shared/TagItem";
 import { useTags } from "@/features/notes/hooks";
 
 interface TagListProps {
-  isPanelFocused?: boolean;
+  selectedTag?: string | null;
   onSelectTag?: (tag: string | null) => void;
 }
-
-import { TagItem } from "@/features/dashboard/components/shared/TagItem";
 
 /**
  * 共有のタグリスト部品
  * モバイルのドロワーやデスクトップのサイドバーで再利用される
  */
 export const TagList: React.FC<TagListProps> = ({
-  isPanelFocused = false,
+  selectedTag,
   onSelectTag,
 }) => {
   const { data: tags, isLoading } = useTags();
-  const selectedTag = useDashboardStore((state) => state.selectedTag);
-  const setSelectedTag = useDashboardStore((state) => state.setSelectedTag);
 
   const handleTagClick = React.useCallback(
     (name: string | null) => {
       if (onSelectTag) {
         onSelectTag(name);
-      } else {
-        setSelectedTag(name);
       }
     },
-    [onSelectTag, setSelectedTag]
+    [onSelectTag]
   );
 
   if (isLoading) {
@@ -62,7 +56,6 @@ export const TagList: React.FC<TagListProps> = ({
         name="__untagged__"
         label="Untagged"
         isSelected={selectedTag === "__untagged__"}
-        isPanelFocused={isPanelFocused}
         onClick={handleTagClick}
       />
 
@@ -72,7 +65,6 @@ export const TagList: React.FC<TagListProps> = ({
           name={tag.name}
           label={tag.name}
           isSelected={selectedTag === tag.name}
-          isPanelFocused={isPanelFocused}
           onClick={handleTagClick}
         />
       ))}

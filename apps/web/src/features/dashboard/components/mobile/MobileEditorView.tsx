@@ -5,7 +5,7 @@ import { EditorCore, MobileEditorHeader } from "@/features/notes/components";
 interface MobileEditorViewProps {
   selectedNote: Note | null;
   isTrashSelected: boolean;
-  setActiveView: (view: "list" | "editor") => void;
+  onBack: () => void;
   handleRestoreNote: (id: string) => Promise<void>;
   handleDeleteClick: (id: string) => void;
   handleUpdateTags: (id: string, tags: string[]) => Promise<void>;
@@ -18,7 +18,7 @@ export const MobileEditorView: React.FC<MobileEditorViewProps> = React.memo(
   ({
     selectedNote,
     isTrashSelected,
-    setActiveView,
+    onBack,
     handleRestoreNote,
     handleDeleteClick,
     handleUpdateTags,
@@ -28,12 +28,13 @@ export const MobileEditorView: React.FC<MobileEditorViewProps> = React.memo(
         <MobileEditorHeader
           selectedNoteId={selectedNote?.id || null}
           isTrashSelected={isTrashSelected}
-          onBack={() => setActiveView("list")}
+          onBack={onBack}
           onRestore={handleRestoreNote}
           onDelete={handleDeleteClick}
         />
         <div className="flex-1 overflow-hidden">
           <EditorCore
+            key={selectedNote?.id}
             note={selectedNote}
             onUpdateTags={handleUpdateTags}
             onRestore={handleRestoreNote}
