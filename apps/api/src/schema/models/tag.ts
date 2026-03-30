@@ -1,4 +1,4 @@
-import { z } from "../z";
+import { z } from "@/schema/z";
 
 /**
  * タグモデルのスキーマ
