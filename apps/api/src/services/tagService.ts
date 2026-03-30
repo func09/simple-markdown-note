@@ -1,4 +1,5 @@
 import { createTagRepository, type DrizzleDB } from "database";
+import type { TagListResponse } from "@/schema";
 
 /**
  * ノートのタグを同期する
@@ -45,7 +46,10 @@ export async function cleanupOrphanedTags(userId: string, client: DrizzleDB) {
 /**
  * ユーザーのタグ一覧と、各タグに紐付くノート数を取得する
  */
-export async function getTagsWithNoteCount(userId: string, client: DrizzleDB) {
+export async function getTagsWithNoteCount(
+  userId: string,
+  client: DrizzleDB
+): Promise<TagListResponse> {
   const repo = createTagRepository(client);
   const tagsRaw = await repo.findAllWithNotesByUserId(userId);
 

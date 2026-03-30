@@ -1,10 +1,10 @@
 import { createNoteRepository, type DrizzleDB, type NoteScope } from "database";
-import type { z } from "zod";
 import type {
-  NoteCreateRequestSchema,
-  NoteUpdateRequestSchema,
-  SyncRequestSchema,
+  NoteCreateRequest,
+  NoteUpdateRequest,
+  SyncRequest,
 } from "@/schema";
+
 import { syncTags } from "./tagService";
 
 /**
@@ -34,7 +34,7 @@ function mapToNoteWithTags(note: {
  */
 export async function syncNotes(
   userId: string,
-  payload: z.infer<typeof SyncRequestSchema>,
+  payload: SyncRequest,
   db: DrizzleDB
 ) {
   const { changes, lastSyncedAt } = payload;
@@ -117,7 +117,7 @@ export async function getNoteById(userId: string, id: string, db: DrizzleDB) {
  */
 export async function createNote(
   userId: string,
-  data: z.infer<typeof NoteCreateRequestSchema>,
+  data: NoteCreateRequest,
   db: DrizzleDB
 ) {
   const repo = createNoteRepository(db);
@@ -142,7 +142,7 @@ export async function createNote(
 export async function updateNote(
   userId: string,
   id: string,
-  data: z.infer<typeof NoteUpdateRequestSchema>,
+  data: NoteUpdateRequest,
   db: DrizzleDB
 ) {
   const repo = createNoteRepository(db);
