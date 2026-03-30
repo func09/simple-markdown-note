@@ -8,9 +8,13 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "isolatedModules": true,
-    "allowJs": true,
     "incremental": true,
-    "noEmit": true
+    "paths": {
+      "@/api/*": ["./apps/api/src/*"],
+      "@/web/*": ["./apps/web/src/*"],
+      "@/desktop/*": ["./apps/desktop/src/*"],
+      "@/database/*": ["./packages/database/src/*"],
+      "@/database": ["./packages/database/src/index.ts"]
+    }
   }
 }

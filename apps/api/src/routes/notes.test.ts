@@ -6,8 +6,8 @@ import type {
   NoteListResponseSchema,
   NoteSchema,
   SyncResponseSchema,
-} from "@/schema";
-import { NOTE_SCOPE } from "@/schema";
+} from "@/api/schema";
+import { NOTE_SCOPE } from "@/api/schema";
 import { app } from "../index";
 
 describe("Unified Sync API (/notes/sync)", () => {

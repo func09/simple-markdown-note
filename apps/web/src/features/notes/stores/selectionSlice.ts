@@ -1,4 +1,4 @@
-import { useDashboardStore } from "@/features/dashboard/stores";
+import { useDashboardStore } from "@/web/features/dashboard/stores";
 import type { NoteSliceCreator, SelectionSlice } from "./types";
 
 /**

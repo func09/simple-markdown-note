@@ -1,11 +1,11 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import * as noteApi from "@/features/notes/api";
-import { useSync, useTriggerSync } from "@/features/notes/hooks/useSync";
-import { db } from "@/lib/db";
+import * as noteApi from "@/web/features/notes/api";
+import { useSync, useTriggerSync } from "@/web/features/notes/hooks/useSync";
+import { db } from "@/web/lib/db";
 
-vi.mock("@/lib/db", () => ({
+vi.mock("@/web/lib/db", () => ({
   db: {
     notes: {
       where: vi.fn(),
@@ -17,7 +17,7 @@ vi.mock("@/lib/db", () => ({
   },
 }));
 
-vi.mock("@/features/notes/api", () => ({
+vi.mock("@/web/features/notes/api", () => ({
   syncNotes: vi.fn(),
 }));
 

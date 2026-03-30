@@ -8,7 +8,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/common/Dialog";
+} from "@/web/components/common/Dialog";
 
 interface DeleteConfirmModalProps {
   isOpen: boolean;

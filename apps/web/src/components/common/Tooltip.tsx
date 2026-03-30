@@ -1,5 +1,5 @@
 import type * as React from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/web/lib/utils";
 
 export function TooltipProvider({ children }: { children: React.ReactNode }) {
   return <>{children}</>;

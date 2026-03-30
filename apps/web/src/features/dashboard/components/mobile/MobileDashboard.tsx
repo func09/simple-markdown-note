@@ -5,10 +5,10 @@ import {
   MobileLayout,
   MobileListView,
   MobileSidebar,
-} from "@/features/dashboard/components";
-import { useDashboardState } from "@/features/dashboard/hooks";
-import { useDashboardStore } from "@/features/dashboard/stores";
-import { DeleteConfirmModal } from "@/features/notes/components";
+} from "@/web/features/dashboard/components";
+import { useDashboardState } from "@/web/features/dashboard/hooks";
+import { useDashboardStore } from "@/web/features/dashboard/stores";
+import { DeleteConfirmModal } from "@/web/features/notes/components";
 
 /**
  * モバイル向けのメインダッシュボードコンポーネント

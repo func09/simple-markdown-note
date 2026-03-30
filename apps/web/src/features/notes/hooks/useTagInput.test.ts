@@ -1,7 +1,7 @@
 import { act, renderHook } from "@testing-library/react";
 import type React from "react";
 import { describe, expect, it, vi } from "vitest";
-import { useTagInput } from "@/features/notes/hooks/useTagInput";
+import { useTagInput } from "@/web/features/notes/hooks/useTagInput";
 
 describe("useTagInput", () => {
   it("should initialize with an empty input value", () => {
