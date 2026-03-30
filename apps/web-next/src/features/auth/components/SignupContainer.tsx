@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { useAuthLogic } from "../hooks/useAuthLogic";
+import { useSignup } from "../hooks/useAuthLogic";
 
 const DesktopView = dynamic(() => import("./desktop/SignupForm"), {
   ssr: false,
@@ -20,19 +20,19 @@ const MobileView = dynamic(() => import("./mobile/SignupForm"), {
 
 export function SignupContainer() {
   const isDesktop = useMediaQuery("(min-width: 768px)");
-  const { handleSubmit, isLoading, error } = useAuthLogic("signup");
+  const { handleSignup, isLoading, error } = useSignup();
 
   return (
     <div className="flex min-h-[80vh] items-center justify-center p-4">
       {isDesktop ? (
         <DesktopView
-          onSubmit={handleSubmit}
+          onSubmit={handleSignup}
           isLoading={isLoading}
           error={error}
         />
       ) : (
         <MobileView
-          onSubmit={handleSubmit}
+          onSubmit={handleSignup}
           isLoading={isLoading}
           error={error}
         />
