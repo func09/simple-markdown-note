@@ -6,10 +6,6 @@ import type { StateCreator } from "zustand";
 export interface FilterSlice {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
-  selectedTag: string | null;
-  setSelectedTag: (tag: string | null) => void;
-  isTrashSelected: boolean;
-  setIsTrashSelected: (isTrash: boolean) => void;
 }
 
 /**

@@ -11,9 +11,9 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useDashboardState } from "@/features/dashboard/hooks";
 import { useDashboardStore } from "@/features/dashboard/stores";
 import { NoteListItem as NoteItem } from "@/features/notes/components";
-import { useNoteStore } from "@/features/notes/stores";
 
 interface NoteListProps {
   notes: Note[];
@@ -23,7 +23,7 @@ interface NoteListProps {
 }
 
 /**
- * ノート一覧を表示するコンポーネント (Zustand 直接参照版)
+ * ノート一覧を表示するコンポーネント (URLベースの選択状態管理版)
  */
 export const NoteList: React.FC<NoteListProps> = ({
   notes,
@@ -31,18 +31,19 @@ export const NoteList: React.FC<NoteListProps> = ({
   onEmptyTrash,
   isLoading = false,
 }) => {
-  const selectedNoteId = useNoteStore((state) => state.selectedNoteId);
-  const setSelectedNoteId = useNoteStore((state) => state.setSelectedNoteId);
-  const searchQuery = useDashboardStore((state) => state.searchQuery);
-  const setSearchQuery = useDashboardStore((state) => state.setSearchQuery);
-  const selectedTag = useDashboardStore((state) => state.selectedTag);
-  const setSelectedTag = useDashboardStore((state) => state.setSelectedTag);
-  const isTrashSelected = useDashboardStore((state) => state.isTrashSelected);
+  const {
+    selectedNoteId,
+    handleSelectNote,
+    isTrashSelected,
+    selectedTag,
+    updateSelection,
+  } = useDashboardState();
+  const { searchQuery, setSearchQuery } = useDashboardStore();
 
   return (
     <div className="flex h-full flex-col bg-[#0f172a]/50">
-      {/* Header */}
-      <div className="flex items-center justify-between px-6 py-5">
+      {/* Header - モバイルではヘッダーにタイトルが表示されるため非表示 */}
+      <div className="hidden items-center justify-between px-6 py-5 md:flex">
         <div className="flex flex-col">
           <h2 className="font-outfit text-xl font-bold tracking-tight text-white">
             {isTrashSelected
@@ -60,7 +61,7 @@ export const NoteList: React.FC<NoteListProps> = ({
                 {selectedTag === "__untagged__" ? "Untagged" : selectedTag}
                 <button
                   type="button"
-                  onClick={() => setSelectedTag(null)}
+                  onClick={() => updateSelection(null, false)}
                   className="transition-colors hover:text-white"
                 >
                   <X size={8} />
@@ -152,7 +153,7 @@ export const NoteList: React.FC<NoteListProps> = ({
                     key={note.id}
                     note={note}
                     isSelected={selectedNoteId === note.id}
-                    onSelect={setSelectedNoteId}
+                    onSelect={() => handleSelectNote(note.id)}
                   />
                 ))}
                 {notes.length === 0 && (

@@ -3,6 +3,7 @@ import type React from "react";
 
 import { useAuthActions } from "@/features/auth";
 import { TagList } from "@/features/dashboard/components";
+import { useDashboardState } from "@/features/dashboard/hooks";
 import { useDashboardStore } from "@/features/dashboard/stores";
 
 import { cn } from "@/lib/utils";
@@ -18,11 +19,14 @@ interface DesktopSidebarProps {
 export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
   onSelectTag,
 }) => {
-  const selectedTag = useDashboardStore((state) => state.selectedTag);
-  const isTrashSelected = useDashboardStore((state) => state.isTrashSelected);
+  const { isTrashSelected, selectedTag } = useDashboardState();
   const searchQuery = useDashboardStore((state) => state.searchQuery);
 
   const { handleLogout } = useAuthActions();
+
+  // "All Notes" の判定: ゴミ箱ではなく、かつ検索クエリが空で、タグも選択されていない状態
+  const isAllNotesSelected =
+    selectedTag === null && !isTrashSelected && searchQuery === "";
 
   return (
     <nav
@@ -38,7 +42,7 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
           onClick={() => onSelectTag(null, false)}
           className={cn(
             "group flex w-full items-center gap-3 rounded-xl px-3 py-2.5",
-            selectedTag === null && searchQuery === "" && !isTrashSelected
+            isAllNotesSelected
               ? "border border-blue-500/20 bg-blue-600/15 text-blue-400"
               : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
           )}
@@ -47,7 +51,7 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
             size={20}
             className={cn(
               "transition-colors",
-              selectedTag === null && searchQuery === "" && !isTrashSelected
+              isAllNotesSelected
                 ? "text-blue-500"
                 : "text-slate-500 group-hover:text-blue-400"
             )}
@@ -86,6 +90,7 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
           <span>Tags</span>
         </div>
         <TagList
+          selectedTag={selectedTag}
           onSelectTag={(tag) => {
             onSelectTag(tag, false);
           }}
