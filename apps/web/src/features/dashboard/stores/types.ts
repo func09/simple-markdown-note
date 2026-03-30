@@ -19,10 +19,6 @@ export interface LayoutSlice {
   layoutMode: "all" | "split" | "focus";
   setLayoutMode: (mode: "all" | "split" | "focus") => void;
   toggleLayoutMode: () => void;
-  layoutAllSizes: number[];
-  setLayoutAllSizes: (sizes: number[]) => void;
-  layoutSplitSizes: number[];
-  setLayoutSplitSizes: (sizes: number[]) => void;
 }
 
 /**

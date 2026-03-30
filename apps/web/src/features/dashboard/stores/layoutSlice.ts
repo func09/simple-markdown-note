@@ -12,10 +12,4 @@ export const createLayoutSlice: DashboardSliceCreator<LayoutSlice> = (set) => ({
       if (state.layoutMode === "split") return { layoutMode: "focus" };
       return { layoutMode: "all" };
     }),
-
-  layoutAllSizes: [20, 25, 55],
-  setLayoutAllSizes: (sizes) => set({ layoutAllSizes: sizes }),
-
-  layoutSplitSizes: [35, 65],
-  setLayoutSplitSizes: (sizes) => set({ layoutSplitSizes: sizes }),
 });
