@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { Note, Tag } from "openapi";
+import type { Note, Tag } from "api";
 
 import * as noteApi from "@/features/notes/api";
 import { db } from "@/lib/db";

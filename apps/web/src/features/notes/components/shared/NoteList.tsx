@@ -1,5 +1,5 @@
 import { Plus, Search, Tag as TagIcon, X } from "lucide-react";
-import type { Note } from "openapi";
+import type { Note } from "api";
 import type React from "react";
 
 import { Button } from "@/components/ui/button";

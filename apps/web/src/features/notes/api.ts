@@ -1,4 +1,4 @@
-import type { Note, Tag } from "openapi";
+import type { Note, Tag } from "api";
 
 import api from "@/lib/api";
 

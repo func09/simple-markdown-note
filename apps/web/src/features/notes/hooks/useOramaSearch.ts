@@ -1,7 +1,7 @@
 import { type AnyOrama, create, insertMultiple, search } from "@orama/orama";
 import { stopwords as japaneseStopwords } from "@orama/stopwords/japanese";
 import { createTokenizer } from "@orama/tokenizers/japanese";
-import type { Note, Tag } from "openapi";
+import type { Note, Tag } from "api";
 import { useCallback, useMemo } from "react";
 
 /**

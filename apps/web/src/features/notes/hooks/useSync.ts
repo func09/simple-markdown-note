@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import type { Note } from "openapi";
+import type { Note } from "api";
 import * as noteApi from "@/features/notes/api";
 import { db } from "@/lib/db";
 

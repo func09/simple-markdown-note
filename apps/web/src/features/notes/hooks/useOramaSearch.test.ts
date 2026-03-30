@@ -1,5 +1,5 @@
 import { renderHook } from "@testing-library/react";
-import type { Note } from "openapi";
+import type { Note } from "api";
 import { describe, expect, it } from "vitest";
 import { useOramaSearch } from "@/features/notes/hooks/useOramaSearch";
 
