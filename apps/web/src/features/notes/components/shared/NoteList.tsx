@@ -1,6 +1,6 @@
 import { Plus, Search, Tag as TagIcon, X } from "lucide-react";
 import type { Note } from "openapi";
-import React from "react";
+import type React from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,7 +38,6 @@ export const NoteList: React.FC<NoteListProps> = ({
   const selectedTag = useDashboardStore((state) => state.selectedTag);
   const setSelectedTag = useDashboardStore((state) => state.setSelectedTag);
   const isTrashSelected = useDashboardStore((state) => state.isTrashSelected);
-  const [isFocused, setIsFocused] = React.useState(false);
 
   return (
     <div className="flex h-full flex-col bg-[#0f172a]/50">
@@ -131,39 +130,6 @@ export const NoteList: React.FC<NoteListProps> = ({
       <div
         id="note-list-container"
         className="min-h-0 flex-1 focus:outline-hidden"
-        onFocus={() => setIsFocused(true)}
-        onBlur={(e) => {
-          if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-            setIsFocused(false);
-          }
-        }}
-        onKeyDown={(e) => {
-          if (e.key === "ArrowDown") {
-            e.preventDefault();
-            if (notes.length === 0) return;
-            const currentIndex = notes.findIndex(
-              (n) => n.id === selectedNoteId
-            );
-            const nextIndex = Math.min(currentIndex + 1, notes.length - 1);
-            if (nextIndex >= 0) setSelectedNoteId(notes[nextIndex].id);
-          } else if (e.key === "ArrowUp") {
-            e.preventDefault();
-            if (notes.length === 0) return;
-            const currentIndex = notes.findIndex(
-              (n) => n.id === selectedNoteId
-            );
-            const prevIndex = Math.max(currentIndex - 1, 0);
-            if (prevIndex >= 0 && prevIndex < notes.length)
-              setSelectedNoteId(notes[prevIndex].id);
-          } else if (e.key === "ArrowLeft") {
-            e.preventDefault();
-            document.getElementById("nav-container")?.focus();
-          } else if (e.key === "ArrowRight") {
-            e.preventDefault();
-            // Desktopエディタにはタイトルがない可能性があるが、ひとまずEditorCoreへフォーカス
-            document.getElementById("note-editor")?.focus();
-          }
-        }}
       >
         <ScrollArea className="h-full">
           <div className="px-3 pb-8">
@@ -186,7 +152,6 @@ export const NoteList: React.FC<NoteListProps> = ({
                     key={note.id}
                     note={note}
                     isSelected={selectedNoteId === note.id}
-                    isPanelFocused={isFocused}
                     onSelect={setSelectedNoteId}
                   />
                 ))}
