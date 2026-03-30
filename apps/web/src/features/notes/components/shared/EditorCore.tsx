@@ -3,7 +3,7 @@ import { Clock, Info } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 
-import { Textarea } from "@/components/ui/textarea";
+import { Textarea } from "@/components/common/Form";
 
 import { TagInput } from "@/features/notes/components";
 import { useUpdateNote } from "@/features/notes/hooks";
@@ -155,7 +155,7 @@ export const EditorCore: React.FC<EditorCoreProps> = ({
         )}
       >
         <TagInput
-          tags={note.tags?.map((t) => t.name) || []}
+          tags={note.tags?.map((t: { name: string }) => t.name) || []}
           onChange={handleTagsChange}
         />
       </div>

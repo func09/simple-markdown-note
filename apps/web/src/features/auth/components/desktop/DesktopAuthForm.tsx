@@ -9,19 +9,19 @@ import {
 } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
-
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/common/Button";
 import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
   Card,
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from "@/components/common/Display";
+import { Input, Label } from "@/components/common/Form";
 import type { AuthFormProps } from "@/features/auth/types";
 
 /**

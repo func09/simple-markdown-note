@@ -1,7 +1,7 @@
 import { Tag as TagIcon, X } from "lucide-react";
 import type React from "react";
 
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/common/Display";
 
 import { useTagInput } from "@/features/notes/hooks";
 
