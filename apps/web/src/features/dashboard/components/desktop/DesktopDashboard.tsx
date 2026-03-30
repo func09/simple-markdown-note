@@ -1,14 +1,17 @@
 import type React from "react";
 import { useMemo } from "react";
 
-import { DesktopLayout, DesktopSidebar } from "@/features/dashboard/components";
-import { useDashboardState } from "@/features/dashboard/hooks";
-import { useDashboardStore } from "@/features/dashboard/stores";
+import {
+  DesktopLayout,
+  DesktopSidebar,
+} from "@/web/features/dashboard/components";
+import { useDashboardState } from "@/web/features/dashboard/hooks";
+import { useDashboardStore } from "@/web/features/dashboard/stores";
 import {
   DeleteConfirmModal,
   DesktopEditor,
   NoteList,
-} from "@/features/notes/components";
+} from "@/web/features/notes/components";
 
 /**
  * デスクトップ向けのメインダッシュボードコンポーネント

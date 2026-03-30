@@ -1,10 +1,10 @@
 import type React from "react";
 import { Link } from "react-router-dom";
 
-import { DesktopAuthForm } from "@/features/auth/components/desktop/DesktopAuthForm";
-import { MobileAuthForm } from "@/features/auth/components/mobile/MobileAuthForm";
-import { useAuthActions } from "@/features/auth/hooks";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { DesktopAuthForm } from "@/web/features/auth/components/desktop/DesktopAuthForm";
+import { MobileAuthForm } from "@/web/features/auth/components/mobile/MobileAuthForm";
+import { useAuthActions } from "@/web/features/auth/hooks";
+import { useMediaQuery } from "@/web/hooks/useMediaQuery";
 
 const LoginPage: React.FC = () => {
   const { isLoading, handleLogin } = useAuthActions();

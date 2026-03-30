@@ -1,3 +1,3 @@
-export * from "@/middlewares/auth";
-export * from "@/middlewares/db";
-export * from "@/middlewares/logger";
+export * from "@/api/middlewares/auth";
+export * from "@/api/middlewares/db";
+export * from "@/api/middlewares/logger";

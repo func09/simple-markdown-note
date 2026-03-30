@@ -1,10 +1,10 @@
 import { LogOut, StickyNote, Tag as TagIcon, Trash2 } from "lucide-react";
 import type React from "react";
-import { useAuthActions } from "@/features/auth";
-import { TagList } from "@/features/dashboard/components/shared/TagList";
-import { useDashboardState } from "@/features/dashboard/hooks";
+import { useAuthActions } from "@/web/features/auth";
+import { TagList } from "@/web/features/dashboard/components/shared/TagList";
+import { useDashboardState } from "@/web/features/dashboard/hooks";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/web/lib/utils";
 
 interface MobileSidebarProps {
   onSelectTag: (tag: string | null, isTrash: boolean) => void;

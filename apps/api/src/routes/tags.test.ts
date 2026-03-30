@@ -5,7 +5,7 @@ import type {
   AuthResponseSchema,
   SyncResponseSchema,
   TagListResponseSchema,
-} from "@/schema";
+} from "@/api/schema";
 import { app } from "../index";
 
 describe("Tags API via Sync", () => {

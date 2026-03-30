@@ -1,8 +1,8 @@
 import React from "react";
 
-import { Skeleton } from "@/components/common/Display";
-import { TagItem } from "@/features/dashboard/components/shared/TagItem";
-import { useTags } from "@/features/notes/hooks";
+import { Skeleton } from "@/web/components/common/Display";
+import { TagItem } from "@/web/features/dashboard/components/shared/TagItem";
+import { useTags } from "@/web/features/notes/hooks";
 
 interface TagListProps {
   selectedTag?: string | null;

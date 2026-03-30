@@ -3,7 +3,7 @@ import type {
   NoteCreateRequest,
   NoteUpdateRequest,
   SyncRequest,
-} from "@/schema";
+} from "@/api/schema";
 
 import { syncTags } from "./tagService";
 
@@ -107,7 +107,7 @@ export async function getNoteById(userId: string, id: string, db: DrizzleDB) {
 
   // 単体取得の場合もタグ情報を含めるため、リレーションクエリを再利用
   const notesRaw = await repo.findAllWithTagsSince(userId);
-  const note = notesRaw.find((n) => n.id === id);
+  const note = notesRaw.find((n: (typeof notesRaw)[number]) => n.id === id);
 
   return note ? mapToNoteWithTags(note) : undefined;
 }
