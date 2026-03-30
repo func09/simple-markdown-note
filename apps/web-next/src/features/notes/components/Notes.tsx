@@ -2,7 +2,15 @@
 
 import { useParams } from "next/navigation";
 
-export function NotesContainer() {
+interface NotesProps {
+  context: {
+    type: "system" | "tag";
+    value: string;
+  };
+  selectedNoteId?: string;
+}
+
+export function Notes({ context, selectedNoteId }: NotesProps) {
   const params = useParams();
   const filter = params.filter as string;
   const noteId = params.noteId as string[] | undefined;

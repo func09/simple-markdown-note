@@ -1,4 +1,4 @@
-import { NotesContainer } from "@/features/notes";
+import { Notes } from "@/features/notes";
 
 interface TagNotesPageProps {
   params: Promise<{
@@ -19,7 +19,7 @@ export default async function TagNotesPage({ params }: TagNotesPageProps) {
 
   return (
     <div className="container mx-auto py-8">
-      <NotesContainer
+      <Notes
         context={{ type: "tag", value: tagName }}
         selectedNoteId={currentNoteId}
       />

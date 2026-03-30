@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { SignupContainer } from "@/features/auth/components/SignupContainer";
+import { Signup } from "@/features/auth/components/Signup";
 
 export const metadata: Metadata = {
   title: "新規登録 | Simplenote Clone",
@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function SignupPage() {
-  return <SignupContainer />;
+  return <Signup />;
 }

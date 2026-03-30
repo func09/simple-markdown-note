@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { z } from "zod";
-import { NotesContainer } from "@/features/notes";
+import { Notes } from "@/features/notes";
 
 // 許可するシステムフィルターを定義
 const FilterSchema = z.enum(["all", "trash", "untagged"]);
@@ -33,7 +33,7 @@ export default async function SystemNotesPage({
 
   return (
     <div className="container mx-auto py-8">
-      <NotesContainer
+      <Notes
         context={{ type: "system", value: validFilter }}
         selectedNoteId={currentNoteId}
       />
