@@ -2,6 +2,7 @@ import { db, users } from "database";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { z } from "zod";
 import type {
+  NoteListResponse,
   NoteListResponseSchema,
   NoteSchema,
   SyncResponseSchema,
@@ -470,5 +471,104 @@ describe("Notes CRUD API (/notes)", () => {
       body: JSON.stringify({ content: "Hacked!" }),
     });
     expect(patchRes.status).toBe(404);
+  });
+
+  describe("Notes Filtering API (GET /api/notes)", () => {
+    let token: string;
+
+    beforeAll(async () => {
+      // テスト用ユーザーの作成
+      const signupRes = await app.request("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: "filter-test@example.com",
+          password: "password123",
+        }),
+      });
+      const body = (await signupRes.json()) as { token: string };
+      token = body.token;
+
+      // 1. 通常のノート（タグなし）
+      await app.request("/api/notes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ content: "Regular Note" }),
+      });
+
+      // 2. タグ付きノート ('work')
+      await app.request("/api/notes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ content: "Work Note", tags: ["work"] }),
+      });
+
+      // 3. ゴミ箱のノート
+      const res3 = await app.request("/api/notes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ content: "Trashed Note" }),
+      });
+      const note3 = (await res3.json()) as { id: string };
+      await app.request(`/api/notes/${note3.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ deletedAt: new Date().toISOString() }),
+      });
+    });
+
+    it("should return only non-trash notes by default", async () => {
+      const res = await app.request("/api/notes", {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const body = (await res.json()) as NoteListResponse;
+      expect(body.length).toBe(2);
+      expect(body.every((n) => n.deletedAt === null)).toBe(true);
+    });
+
+    it("should return only trashed notes when scope=trash", async () => {
+      const res = await app.request("/api/notes?scope=trash", {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const body = (await res.json()) as NoteListResponse;
+      expect(body.length).toBe(1);
+      expect(body[0].content).toBe("Trashed Note");
+      expect(body[0].deletedAt).not.toBeNull();
+    });
+
+    it("should return untagged notes when scope=untagged", async () => {
+      const res = await app.request("/api/notes?scope=untagged", {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const body = (await res.json()) as NoteListResponse;
+      // Regular Note のみ（Trashed Note は除外される設定）
+      expect(body.length).toBe(1);
+      expect(body[0].content).toBe("Regular Note");
+    });
+
+    it("should filter by tag", async () => {
+      const res = await app.request("/api/notes?tag=work", {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const body = (await res.json()) as NoteListResponse;
+      expect(body.length).toBe(1);
+      expect(body[0].content).toBe("Work Note");
+    });
   });
 });
