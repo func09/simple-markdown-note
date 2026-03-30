@@ -1,7 +1,5 @@
-import { Columns3, RotateCw, Trash2 } from "lucide-react";
+import { RotateCw, Trash2 } from "lucide-react";
 import type React from "react";
-import { useDashboardStore } from "@/features/dashboard/stores";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 interface DesktopEditorHeaderProps {
   noteId?: string;
@@ -12,7 +10,7 @@ interface DesktopEditorHeaderProps {
 
 /**
  * デスクトップ用エディタ上部のヘッダーバー
- * レイアウト切り替えや、ノートの削除・復元アクションを提供します。
+ * ノートの削除・復元アクションを提供します。
  */
 export const DesktopEditorHeader: React.FC<DesktopEditorHeaderProps> = ({
   noteId,
@@ -20,23 +18,9 @@ export const DesktopEditorHeader: React.FC<DesktopEditorHeaderProps> = ({
   onRestore,
   onDelete,
 }) => {
-  const { toggleLayoutMode } = useDashboardStore();
-  const isMobile = useMediaQuery("(max-width: 1024px)");
-
   return (
     <div className="z-10 flex h-14 items-center justify-between border-b border-slate-800/30 bg-[#0f172a]/50 px-6 backdrop-blur-md">
-      <div className="flex items-center gap-4">
-        {!isMobile && (
-          <button
-            type="button"
-            onClick={toggleLayoutMode}
-            className="rounded-lg bg-slate-800/20 p-2 text-slate-500 transition-colors hover:text-blue-400"
-            title="Toggle Layout"
-          >
-            <Columns3 size={20} />
-          </button>
-        )}
-      </div>
+      <div className="flex items-center gap-4"></div>
 
       <div className="flex items-center gap-2">
         {noteId &&

@@ -16,7 +16,7 @@ export const MobileListView: React.FC<MobileListViewProps> = React.memo(
   ({ filteredNotes, handleCreateNote, handleEmptyTrash, notesLoading }) => {
     return (
       <div className="flex h-full flex-col">
-        <MobileHeader />
+        <MobileHeader onCreateNote={handleCreateNote} />
         <div className="flex-1 overflow-hidden">
           <NoteList
             notes={filteredNotes}

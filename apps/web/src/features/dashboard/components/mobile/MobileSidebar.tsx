@@ -2,7 +2,7 @@ import { LogOut, StickyNote, Tag as TagIcon, Trash2 } from "lucide-react";
 import type React from "react";
 import { useAuthActions } from "@/features/auth";
 import { TagList } from "@/features/dashboard/components/shared/TagList";
-import { useDashboardStore } from "@/features/dashboard/stores";
+import { useDashboardState } from "@/features/dashboard/hooks";
 
 import { cn } from "@/lib/utils";
 
@@ -17,10 +17,11 @@ interface MobileSidebarProps {
 export const MobileSidebar: React.FC<MobileSidebarProps> = ({
   onSelectTag,
 }) => {
-  const selectedTag = useDashboardStore((state) => state.selectedTag);
-  const isTrashSelected = useDashboardStore((state) => state.isTrashSelected);
-
+  const { isTrashSelected, selectedTag } = useDashboardState();
   const { handleLogout } = useAuthActions();
+
+  // "All Notes" の判定: ゴミ箱ではなく、かつタグも選択されていない状態（モバイルでは検索クエリ表示は簡易化）
+  const isAllNotesSelected = selectedTag === null && !isTrashSelected;
 
   return (
     <div className="flex h-full flex-col bg-slate-900">
@@ -31,7 +32,7 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
             onClick={() => onSelectTag(null, false)}
             className={cn(
               "flex w-full items-center gap-3 rounded-xl px-3 py-3",
-              selectedTag === null && !isTrashSelected
+              isAllNotesSelected
                 ? "bg-blue-600 font-medium text-white"
                 : "text-slate-400"
             )}
@@ -61,7 +62,10 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
             <TagIcon size={12} />
             <span>Tags</span>
           </div>
-          <TagList onSelectTag={(tag) => onSelectTag(tag, false)} />
+          <TagList
+            selectedTag={selectedTag}
+            onSelectTag={(tag) => onSelectTag(tag, false)}
+          />
         </div>
 
         <div className="mt-auto border-t border-slate-800/50 py-4">

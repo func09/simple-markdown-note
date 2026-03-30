@@ -6,29 +6,12 @@ import type { StateCreator } from "zustand";
 export interface FilterSlice {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
-  selectedTag: string | null;
-  setSelectedTag: (tag: string | null) => void;
-  isTrashSelected: boolean;
-  setIsTrashSelected: (isTrash: boolean) => void;
 }
 
 /**
- * レイアウトに関連する状態とアクション
+ * モバイル・ナビゲーションに関連する状態とアクション
  */
-export interface LayoutSlice {
-  layoutMode: "all" | "split" | "focus";
-  setLayoutMode: (mode: "all" | "split" | "focus") => void;
-  toggleLayoutMode: () => void;
-  layoutAllSizes: number[];
-  setLayoutAllSizes: (sizes: number[]) => void;
-  layoutSplitSizes: number[];
-  setLayoutSplitSizes: (sizes: number[]) => void;
-}
-
-/**
- * モバイル・UI表示に関連する状態とアクション
- */
-export interface UISlice {
+export interface NavigationSlice {
   activeView: "list" | "editor";
   setActiveView: (view: "list" | "editor") => void;
   isSidebarOpen: boolean;
@@ -48,7 +31,7 @@ export interface ModalSlice {
 /**
  * すべてのスライスを統合した Dashboard ストアの全体型
  */
-export type DashboardState = FilterSlice & LayoutSlice & UISlice & ModalSlice;
+export type DashboardState = FilterSlice & NavigationSlice & ModalSlice;
 
 /**
  * 各スライスを作成するための StateCreator 型のエイリアス

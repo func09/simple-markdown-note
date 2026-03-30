@@ -7,7 +7,6 @@ import type { NoteSliceCreator, SelectionSlice } from "./types";
 export const createSelectionSlice: NoteSliceCreator<SelectionSlice> = (
   set
 ) => ({
-  // State
   selectedNoteId: null,
 
   // Actions
