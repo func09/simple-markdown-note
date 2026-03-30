@@ -4,6 +4,7 @@ import type { StateCreator } from "zustand";
  * ノートの選択状態に関連するスライス
  */
 export interface SelectionSlice {
+  selectedNoteId: string | null;
   setSelectedNoteId: (id: string | null) => void;
 }
 
