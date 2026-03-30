@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { authService } from "../services/authService";
 
 /**
  * ゲストガード (Client Component)
@@ -12,8 +13,7 @@ export function GuestGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
+    if (authService.isAuthenticated()) {
       router.replace("/notes/all");
     } else {
       setIsChecking(false);

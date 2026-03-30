@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { signin, signup } from "../api";
+import { authService } from "../services/authService";
 
 /**
  * ログインロジックを管理するカスタムフック
@@ -18,9 +18,7 @@ export function useLogin() {
     setError(undefined);
 
     try {
-      const res = await signin(data);
-      // トークンを保存
-      localStorage.setItem("token", res.token);
+      await authService.login(data);
       toast.success("Successfully logged in");
       // ノート一覧ページへ遷移
       router.push("/notes/all");
@@ -53,7 +51,7 @@ export function useSignup() {
     setError(undefined);
 
     try {
-      await signup(data);
+      await authService.signup(data);
       toast.success("Successfully signed up! Please login.");
       // ログインページへ遷移
       router.push("/login");
