@@ -303,3 +303,156 @@ describe("Unified Sync API (/notes/sync)", () => {
     });
   });
 });
+
+describe("Notes CRUD API (/notes)", () => {
+  let token: string;
+  let testNoteId: string;
+
+  beforeAll(async () => {
+    // 既存のユーザーをクリア（Syncテストとは別のユーザーで実行）
+    const signupRes = await app.request("/api/auth/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: "crud-test-merged@example.com",
+        password: "password123",
+      }),
+    });
+    const body: any = await signupRes.json();
+    token = body.token;
+  });
+
+  it("should create a new note", async () => {
+    const res = await app.request("/api/notes", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        content: "CRUD Create Test",
+        tags: ["Test", "CRUD"],
+        isPermanent: false,
+      }),
+    });
+
+    expect(res.status).toBe(201);
+    const body: any = await res.json();
+    expect(body.id).toBeDefined();
+    expect(body.content).toBe("CRUD Create Test");
+    expect(body.tags.length).toBe(2);
+    expect(body.tags.some((t: any) => t.name === "Test")).toBe(true);
+
+    testNoteId = body.id;
+  });
+
+  it("should list all notes", async () => {
+    const res = await app.request("/api/notes", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    expect(res.status).toBe(200);
+    const body: any = await res.json();
+    expect(Array.isArray(body)).toBe(true);
+    expect(body.length).toBeGreaterThanOrEqual(1);
+    expect(body.some((n: any) => n.id === testNoteId)).toBe(true);
+  });
+
+  it("should get a single note by id", async () => {
+    const res = await app.request(`/api/notes/${testNoteId}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    expect(res.status).toBe(200);
+    const body: any = await res.json();
+    expect(body.id).toBe(testNoteId);
+    expect(body.content).toBe("CRUD Create Test");
+  });
+
+  it("should update a note", async () => {
+    const res = await app.request(`/api/notes/${testNoteId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        content: "CRUD Updated Content",
+        tags: ["Updated"],
+      }),
+    });
+
+    expect(res.status).toBe(200);
+    const body: any = await res.json();
+    expect(body.content).toBe("CRUD Updated Content");
+    expect(body.tags.length).toBe(1);
+    expect(body.tags[0].name).toBe("Updated");
+  });
+
+  it("should delete a note", async () => {
+    const res = await app.request(`/api/notes/${testNoteId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    expect(res.status).toBe(204);
+
+    // Verify it's gone
+    const checkRes = await app.request(`/api/notes/${testNoteId}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    expect(checkRes.status).toBe(404);
+  });
+
+  it("should not allow access to other user's notes", async () => {
+    const signupRes2 = await app.request("/api/auth/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: "crud-other-merged@example.com",
+        password: "password123",
+      }),
+    });
+    const body2: any = await signupRes2.json();
+    const otherToken = body2.token;
+
+    const createRes = await app.request("/api/notes", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ content: "User 1 Secret" }),
+    });
+    const note1: any = await createRes.json();
+
+    const getRes = await app.request(`/api/notes/${note1.id}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${otherToken}`,
+      },
+    });
+    expect(getRes.status).toBe(404);
+
+    const patchRes = await app.request(`/api/notes/${note1.id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${otherToken}`,
+      },
+      body: JSON.stringify({ content: "Hacked!" }),
+    });
+    expect(patchRes.status).toBe(404);
+  });
+});
