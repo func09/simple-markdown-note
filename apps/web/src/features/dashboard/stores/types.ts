@@ -13,9 +13,9 @@ export interface FilterSlice {
 }
 
 /**
- * モバイル・UI表示に関連する状態とアクション
+ * モバイル・ナビゲーションに関連する状態とアクション
  */
-export interface UISlice {
+export interface NavigationSlice {
   activeView: "list" | "editor";
   setActiveView: (view: "list" | "editor") => void;
   isSidebarOpen: boolean;
@@ -35,7 +35,7 @@ export interface ModalSlice {
 /**
  * すべてのスライスを統合した Dashboard ストアの全体型
  */
-export type DashboardState = FilterSlice & UISlice & ModalSlice;
+export type DashboardState = FilterSlice & NavigationSlice & ModalSlice;
 
 /**
  * 各スライスを作成するための StateCreator 型のエイリアス
