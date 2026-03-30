@@ -1,4 +1,4 @@
-import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
+import { createRoute, OpenAPIHono, type z } from "@hono/zod-openapi";
 import { HTTPException } from "hono/http-exception";
 import {
   NoteCreateRequestSchema,
@@ -174,7 +174,9 @@ notesRouter.openapi(syncRoute, async (c) => {
 
   return c.json({
     newSyncTime: newSyncTime.toISOString(),
-    updates,
+    updates: updates as unknown as z.infer<
+      typeof SyncResponseSchema
+    >["updates"],
   });
 });
 

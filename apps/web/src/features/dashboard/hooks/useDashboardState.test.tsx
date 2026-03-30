@@ -32,7 +32,10 @@ const setupStores = (
   });
 };
 
-const renderWithRouter = (ui: () => any, initialEntries = ["/notes/all"]) => {
+const renderWithRouter = (
+  ui: () => unknown,
+  initialEntries = ["/notes/all"]
+) => {
   return renderHook(ui, {
     wrapper: ({ children }) => (
       <MemoryRouter initialEntries={initialEntries}>
@@ -42,7 +45,7 @@ const renderWithRouter = (ui: () => any, initialEntries = ["/notes/all"]) => {
         </Routes>
       </MemoryRouter>
     ),
-  });
+  }) as any;
 };
 
 describe("useDashboardState", () => {

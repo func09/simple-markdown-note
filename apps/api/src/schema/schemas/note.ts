@@ -35,7 +35,9 @@ export const SyncResponseSchema = z
 /**
  * ノート一覧取得のレスポンススキーマ
  */
-export const NoteListResponseSchema = z.array(NoteSchema).openapi("NoteListResponse");
+export const NoteListResponseSchema = z
+  .array(NoteSchema)
+  .openapi("NoteListResponse");
 
 /**
  * ノート作成リクエストのスキーマ
@@ -43,7 +45,10 @@ export const NoteListResponseSchema = z.array(NoteSchema).openapi("NoteListRespo
 export const NoteCreateRequestSchema = z
   .object({
     content: z.string().openapi({ example: "New note content" }),
-    tags: z.array(z.string()).optional().openapi({ example: ["Work", "Personal"] }),
+    tags: z
+      .array(z.string())
+      .optional()
+      .openapi({ example: ["Work", "Personal"] }),
     isPermanent: z.boolean().default(false).openapi({ example: false }),
   })
   .openapi("NoteCreateRequest");
@@ -54,9 +59,17 @@ export const NoteCreateRequestSchema = z
 export const NoteUpdateRequestSchema = z
   .object({
     content: z.string().optional().openapi({ example: "Updated note content" }),
-    tags: z.array(z.string()).optional().openapi({ example: ["Work"] }),
+    tags: z
+      .array(z.string())
+      .optional()
+      .openapi({ example: ["Work"] }),
     isPermanent: z.boolean().optional().openapi({ example: false }),
-    deletedAt: z.string().datetime().nullable().optional().openapi({ example: null }),
+    deletedAt: z
+      .string()
+      .datetime()
+      .nullable()
+      .optional()
+      .openapi({ example: null }),
   })
   .openapi("NoteUpdateRequest");
 
