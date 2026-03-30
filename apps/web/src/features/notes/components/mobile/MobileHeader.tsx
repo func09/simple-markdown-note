@@ -1,14 +1,18 @@
-import { Menu, StickyNote } from "lucide-react";
+import { Menu, Plus, StickyNote } from "lucide-react";
 import React from "react";
 
 import { Button } from "@/components/ui/button";
 
+import { useDashboardState } from "@/features/dashboard/hooks";
 import { useDashboardStore } from "@/features/dashboard/stores";
 
-export const MobileHeader: React.FC = () => {
+interface MobileHeaderProps {
+  onCreateNote?: () => void;
+}
+
+export const MobileHeader: React.FC<MobileHeaderProps> = ({ onCreateNote }) => {
   const setIsSidebarOpen = useDashboardStore((state) => state.setIsSidebarOpen);
-  const selectedTag = useDashboardStore((state) => state.selectedTag);
-  const isTrashSelected = useDashboardStore((state) => state.isTrashSelected);
+  const { isTrashSelected, selectedTag } = useDashboardState();
 
   const handleMenuClick = React.useCallback(() => {
     console.log("Menu clicked, opening sidebar");
@@ -38,7 +42,16 @@ export const MobileHeader: React.FC = () => {
         </div>
       </div>
 
-      {/* 共通のノート作成ボタンは Dashboard から渡すか、ここで定義 */}
+      {!isTrashSelected && onCreateNote && (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onCreateNote}
+          className="text-blue-400 hover:bg-slate-800 hover:text-blue-300"
+        >
+          <Plus size={20} />
+        </Button>
+      )}
     </header>
   );
 };
