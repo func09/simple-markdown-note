@@ -1,14 +1,23 @@
+import type { AuthResponse, SigninRequest, SignupRequest } from "openapi";
 import api from "@/lib/api";
 
 /**
  * 認証関連の純粋なAPI呼び出し（副作用なし）
  */
-export const signin = async (data: any) => {
+export const signin = async (data: SigninRequest): Promise<AuthResponse> => {
   const res = await api.auth.signin.$post({ json: data });
-  return res;
+  if (!res.ok) {
+    const errorData = (await res.json()) as { error?: string };
+    throw new Error(errorData.error || "Login failed");
+  }
+  return res.json() as Promise<AuthResponse>;
 };
 
-export const signup = async (data: any) => {
+export const signup = async (data: SignupRequest): Promise<AuthResponse> => {
   const res = await api.auth.signup.$post({ json: data });
-  return res;
+  if (!res.ok) {
+    const errorData = (await res.json()) as { error?: string };
+    throw new Error(errorData.error || "Signup failed");
+  }
+  return res.json() as Promise<AuthResponse>;
 };
