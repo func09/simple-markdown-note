@@ -54,40 +54,6 @@ export const EditorCore: React.FC<EditorCoreProps> = ({
     updateLocalContent(`${title}\n${e.target.value}`);
   };
 
-  const handleTitleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter") {
-      if (e.nativeEvent.isComposing) return;
-      e.preventDefault();
-      const cursorPosition = e.currentTarget.selectionStart;
-      const beforeCursor = title.substring(0, cursorPosition);
-      const afterCursor = title.substring(cursorPosition);
-
-      const newContent = `${beforeCursor}\n${afterCursor}${body ? `\n${body}` : ""}`;
-      updateLocalContent(newContent);
-
-      setTimeout(() => {
-        bodyRef.current?.focus({ preventScroll: true });
-        bodyRef.current?.setSelectionRange(0, 0);
-      }, 0);
-    } else if (e.key === "ArrowDown") {
-      e.preventDefault();
-      bodyRef.current?.focus();
-      bodyRef.current?.setSelectionRange(0, 0);
-    }
-  };
-
-  const handleBodyKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "ArrowUp") {
-      const { selectionStart } = e.currentTarget;
-      if (selectionStart === 0) {
-        e.preventDefault();
-        titleRef.current?.focus();
-        const titleLen = titleRef.current?.value.length || 0;
-        titleRef.current?.setSelectionRange(titleLen, titleLen);
-      }
-    }
-  };
-
   const updateLocalContent = (newContent: string) => {
     setContent(newContent);
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -154,7 +120,6 @@ export const EditorCore: React.FC<EditorCoreProps> = ({
               onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                 handleTitleChange(e)
               }
-              onKeyDown={handleTitleKeyDown}
               placeholder="Title"
               disabled={!!note.deletedAt}
               className={cn(
@@ -172,7 +137,6 @@ export const EditorCore: React.FC<EditorCoreProps> = ({
             ref={bodyRef}
             value={body}
             onChange={handleBodyChange}
-            onKeyDown={handleBodyKeyDown}
             placeholder="Start writing..."
             disabled={!!note.deletedAt}
             className={cn(
