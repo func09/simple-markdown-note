@@ -1,5 +1,5 @@
 import { Clock, Info } from "lucide-react";
-import type { Note } from "openapi";
+import type { Note } from "api";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 
