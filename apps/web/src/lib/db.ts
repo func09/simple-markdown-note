@@ -1,5 +1,5 @@
-import Dexie, { type EntityTable } from "dexie";
 import type { Note } from "api";
+import Dexie, { type EntityTable } from "dexie";
 
 export const db = new Dexie("SimplenoteCloneDB") as Dexie & {
   notes: EntityTable<Note & { isPermanent?: boolean }, "id">;

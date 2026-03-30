@@ -56,8 +56,9 @@ app.get("/ui", swaggerUI({ url: "/doc" }));
 
 // Node.js 環境（ローカルテスト等）での起動を維持
 if (
-  (globalThis as any).process?.env?.NODE_ENV !== "test" &&
-  !(globalThis as any).caches
+  typeof process !== "undefined" &&
+  process.env?.NODE_ENV !== "test" &&
+  typeof caches === "undefined"
 ) {
   const port = 3000;
   console.log(`Server is running on port ${port}`);

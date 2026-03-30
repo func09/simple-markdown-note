@@ -1,11 +1,16 @@
 import { db, users } from "database";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import type { z } from "zod";
+import type {
+  NoteListResponseSchema,
+  NoteSchema,
+  SyncResponseSchema,
+} from "@/schema";
 import { app } from "../index";
 
 describe("Unified Sync API (/notes/sync)", () => {
   let token: string;
   const testNoteId = "test-note-cuid-1";
-  let syncTime: string;
 
   beforeAll(async () => {
     // setupFiles (vitest.setup.ts) にてマイグレーション済み
@@ -20,7 +25,7 @@ describe("Unified Sync API (/notes/sync)", () => {
         password: "password123",
       }),
     });
-    const body: any = await signupRes.json();
+    const body = (await signupRes.json()) as { token: string };
     token = body.token;
   });
 
@@ -50,13 +55,11 @@ describe("Unified Sync API (/notes/sync)", () => {
     });
 
     expect(res.status).toBe(200);
-    const body: any = await res.json();
+    const body = (await res.json()) as z.infer<typeof SyncResponseSchema>;
     expect(body.newSyncTime).toBeDefined();
     expect(body.updates.length).toBe(1);
     expect(body.updates[0].id).toBe(testNoteId);
     expect(body.updates[0].content).toBe("Sync Test Content");
-
-    syncTime = body.newSyncTime;
   });
 
   it("should fetch notes via lastSyncedAt", async () => {
@@ -73,7 +76,7 @@ describe("Unified Sync API (/notes/sync)", () => {
     });
 
     expect(res.status).toBe(200);
-    const body: any = await res.json();
+    const body = (await res.json()) as { updates: unknown[] };
     expect(body.updates.length).toBeGreaterThan(0);
   });
 
@@ -101,11 +104,12 @@ describe("Unified Sync API (/notes/sync)", () => {
     });
 
     expect(res.status).toBe(200);
-    const body: any = await res.json();
-    const updatedNote = body.updates.find((n: any) => n.id === testNoteId);
+    const body = (await res.json()) as z.infer<typeof SyncResponseSchema>;
+    const updatedNote = body.updates.find((n) => n.id === testNoteId);
+    if (!updatedNote) throw new Error("Note not found");
     expect(updatedNote.content).toBe("Updated via LWW");
     // 保存時のサーバー時刻ではなく、クライアント申告の時刻がDBに反映されているべき
-    expect(new Date(updatedNote.updatedAt).getTime()).toBe(
+    expect(new Date(updatedNote.updatedAt as unknown as string).getTime()).toBe(
       new Date(newerUpdatedAt).getTime()
     );
   });
@@ -132,7 +136,7 @@ describe("Unified Sync API (/notes/sync)", () => {
     });
 
     expect(res.status).toBe(200);
-    const body: any = await res.json();
+    await res.json();
 
     // DB に現在存在する最新のノート情報をチェック
     const checkRes = await app.request("/api/notes/sync", {
@@ -144,8 +148,11 @@ describe("Unified Sync API (/notes/sync)", () => {
       body: JSON.stringify({ changes: [] }),
     });
 
-    const checkBody: any = await checkRes.json();
-    const note = checkBody.updates.find((n: any) => n.id === testNoteId);
+    const checkBody = (await checkRes.json()) as z.infer<
+      typeof SyncResponseSchema
+    >;
+    const note = checkBody.updates.find((n) => n.id === testNoteId);
+    if (!note) throw new Error("Note not found");
     expect(note.content).toBe("Updated via LWW"); // 古い更新は無視され、新しい内容が維持されている
   });
 
@@ -174,9 +181,11 @@ describe("Unified Sync API (/notes/sync)", () => {
       }),
     });
 
-    let dbNote = ((await softDelRes.json()) as any).updates.find(
-      (n: any) => n.id === testNoteId
-    );
+    const softDelBody = (await softDelRes.json()) as z.infer<
+      typeof SyncResponseSchema
+    >;
+    const dbNote = softDelBody.updates.find((n) => n.id === testNoteId);
+    if (!dbNote) throw new Error("Note not found");
     expect(dbNote.deletedAt).not.toBeNull();
     expect(dbNote.isPermanent).toBe(false);
 
@@ -203,10 +212,12 @@ describe("Unified Sync API (/notes/sync)", () => {
       }),
     });
 
-    dbNote = ((await permDelRes.json()) as any).updates.find(
-      (n: any) => n.id === testNoteId
-    );
-    expect(dbNote.isPermanent).toBe(true); // The frontend handles removing it from Dexie locally based on this flag
+    const permDelBody = (await permDelRes.json()) as z.infer<
+      typeof SyncResponseSchema
+    >;
+    const dbNote2 = permDelBody.updates.find((n) => n.id === testNoteId);
+    if (!dbNote2) throw new Error("Note not found");
+    expect(dbNote2.isPermanent).toBe(true); // The frontend handles removing it from Dexie locally based on this flag
   });
 
   describe("Authorization", () => {
@@ -222,7 +233,7 @@ describe("Unified Sync API (/notes/sync)", () => {
           password: "password123",
         }),
       });
-      const body: any = await signupRes.json();
+      const body = (await signupRes.json()) as { token: string };
       otherToken = body.token;
 
       await app.request("/api/notes/sync", {
@@ -254,8 +265,8 @@ describe("Unified Sync API (/notes/sync)", () => {
         body: JSON.stringify({ changes: [] }),
       });
 
-      const body: any = await res.json();
-      expect(body.updates.some((n: any) => n.id === otherNoteId)).toBe(false);
+      const body = (await res.json()) as z.infer<typeof SyncResponseSchema>;
+      expect(body.updates.some((n) => n.id === otherNoteId)).toBe(false);
     });
 
     it("should silently quarantine other user's update if attempted with manipulated payload", async () => {
@@ -290,8 +301,11 @@ describe("Unified Sync API (/notes/sync)", () => {
         body: JSON.stringify({ changes: [] }),
       });
 
-      const checkBody: any = await checkRes.json();
-      const note = checkBody.updates.find((n: any) => n.id === otherNoteId);
+      const checkBody = (await checkRes.json()) as z.infer<
+        typeof SyncResponseSchema
+      >;
+      const note = checkBody.updates.find((n) => n.id === otherNoteId);
+      if (!note) throw new Error("Note not found");
       // It should NOT be overwritten as 'Hacked Content' if we fix the query,
       // ACTUALLY, if Drizzle upsert was insecure, it would be overwritten.
       // Fortunately our Unified Sync handles this: wait, wait!
@@ -318,7 +332,7 @@ describe("Notes CRUD API (/notes)", () => {
         password: "password123",
       }),
     });
-    const body: any = await signupRes.json();
+    const body = (await signupRes.json()) as { token: string };
     token = body.token;
   });
 
@@ -337,11 +351,13 @@ describe("Notes CRUD API (/notes)", () => {
     });
 
     expect(res.status).toBe(201);
-    const body: any = await res.json();
+    const body = (await res.json()) as z.infer<typeof NoteSchema>;
     expect(body.id).toBeDefined();
     expect(body.content).toBe("CRUD Create Test");
     expect(body.tags.length).toBe(2);
-    expect(body.tags.some((t: any) => t.name === "Test")).toBe(true);
+    expect(body.tags.some((t: { name: string }) => t.name === "Test")).toBe(
+      true
+    );
 
     testNoteId = body.id;
   });
@@ -355,10 +371,10 @@ describe("Notes CRUD API (/notes)", () => {
     });
 
     expect(res.status).toBe(200);
-    const body: any = await res.json();
+    const body = (await res.json()) as z.infer<typeof NoteListResponseSchema>;
     expect(Array.isArray(body)).toBe(true);
     expect(body.length).toBeGreaterThanOrEqual(1);
-    expect(body.some((n: any) => n.id === testNoteId)).toBe(true);
+    expect(body.some((n) => n.id === testNoteId)).toBe(true);
   });
 
   it("should get a single note by id", async () => {
@@ -370,7 +386,7 @@ describe("Notes CRUD API (/notes)", () => {
     });
 
     expect(res.status).toBe(200);
-    const body: any = await res.json();
+    const body = (await res.json()) as z.infer<typeof NoteSchema>;
     expect(body.id).toBe(testNoteId);
     expect(body.content).toBe("CRUD Create Test");
   });
@@ -389,7 +405,7 @@ describe("Notes CRUD API (/notes)", () => {
     });
 
     expect(res.status).toBe(200);
-    const body: any = await res.json();
+    const body = (await res.json()) as z.infer<typeof NoteSchema>;
     expect(body.content).toBe("CRUD Updated Content");
     expect(body.tags.length).toBe(1);
     expect(body.tags[0].name).toBe("Updated");
@@ -424,7 +440,7 @@ describe("Notes CRUD API (/notes)", () => {
         password: "password123",
       }),
     });
-    const body2: any = await signupRes2.json();
+    const body2 = (await signupRes2.json()) as { token: string };
     const otherToken = body2.token;
 
     const createRes = await app.request("/api/notes", {
@@ -435,7 +451,7 @@ describe("Notes CRUD API (/notes)", () => {
       },
       body: JSON.stringify({ content: "User 1 Secret" }),
     });
-    const note1: any = await createRes.json();
+    const note1 = (await createRes.json()) as { id: string };
 
     const getRes = await app.request(`/api/notes/${note1.id}`, {
       method: "GET",

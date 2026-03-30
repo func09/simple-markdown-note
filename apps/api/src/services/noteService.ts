@@ -10,10 +10,21 @@ import { syncTags } from "./tagService";
 /**
  * Repository から取得した Notes (with tags) をレスポンス形式にマッピングする
  */
-function mapToNoteWithTags(note: any) {
+function mapToNoteWithTags(note: {
+  notesToTags: {
+    tag: {
+      id: string;
+      name: string;
+      userId: string;
+      createdAt: Date;
+      updatedAt: Date;
+    };
+  }[];
+  [key: string]: unknown;
+}) {
   return {
     ...note,
-    tags: note.notesToTags.map((nt: any) => nt.tag),
+    tags: note.notesToTags.map((nt) => nt.tag),
     notesToTags: undefined,
   };
 }
