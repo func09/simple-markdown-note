@@ -1,30 +1,73 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
+import { signin, signup } from "../api";
 
-export function useAuthLogic(type: "login" | "signup") {
+/**
+ * ログインロジックを管理するカスタムフック
+ */
+export function useLogin() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
+  const router = useRouter();
 
-  const handleSubmit = async (data: { email: string; password: string }) => {
+  const handleLogin = async (data: { email: string; password: string }) => {
     setIsLoading(true);
     setError(undefined);
 
     try {
-      // 実際の API 通信の代わりにモック処理（1秒待機）
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log(`${type === "login" ? "Login" : "Signup"} Submit:`, data);
-
-      // 成功時の処理（例: リダイレクトなど）をここに記述
+      const res = await signin(data);
+      // トークンを保存
+      localStorage.setItem("token", res.token);
+      toast.success("Successfully logged in");
+      // ノート一覧ページへ遷移
+      router.push("/notes/all");
     } catch (err: any) {
-      setError(err.message || "An unexpected error occurred");
+      const message = err.message || "An unexpected error occurred";
+      setError(message);
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
   };
 
   return {
-    handleSubmit,
+    handleLogin,
+    isLoading,
+    error,
+  };
+}
+
+/**
+ * 新規登録ロジックを管理するカスタムフック
+ */
+export function useSignup() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | undefined>(undefined);
+  const router = useRouter();
+
+  const handleSignup = async (data: { email: string; password: string }) => {
+    setIsLoading(true);
+    setError(undefined);
+
+    try {
+      await signup(data);
+      toast.success("Successfully signed up! Please login.");
+      // ログインページへ遷移
+      router.push("/login");
+    } catch (err: any) {
+      const message = err.message || "An unexpected error occurred";
+      setError(message);
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return {
+    handleSignup,
     isLoading,
     error,
   };
