@@ -5,7 +5,13 @@
     "module": "CommonJS",
     "moduleResolution": "node",
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "paths": {
+      "@/desktop": ["./src/index.ts"],
+      "@/desktop/*": ["./src/*"],
+      "@/database": ["../../packages/database/src/index.ts"],
+      "@/database/*": ["../../packages/database/src/*"]
+    }
   },
   "include": ["src/**/*"]
 }
