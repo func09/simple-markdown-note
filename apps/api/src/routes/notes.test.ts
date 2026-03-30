@@ -7,6 +7,7 @@ import type {
   NoteSchema,
   SyncResponseSchema,
 } from "@/schema";
+import { NOTE_SCOPE } from "@/schema";
 import { app } from "../index";
 
 describe("Unified Sync API (/notes/sync)", () => {
@@ -540,7 +541,7 @@ describe("Notes CRUD API (/notes)", () => {
     });
 
     it("should return only trashed notes when scope=trash", async () => {
-      const res = await app.request("/api/notes?scope=trash", {
+      const res = await app.request(`/api/notes?scope=${NOTE_SCOPE.TRASH}`, {
         method: "GET",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -551,7 +552,7 @@ describe("Notes CRUD API (/notes)", () => {
     });
 
     it("should return untagged notes when scope=untagged", async () => {
-      const res = await app.request("/api/notes?scope=untagged", {
+      const res = await app.request(`/api/notes?scope=${NOTE_SCOPE.UNTAGGED}`, {
         method: "GET",
         headers: { Authorization: `Bearer ${token}` },
       });

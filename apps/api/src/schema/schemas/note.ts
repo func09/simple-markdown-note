@@ -1,6 +1,8 @@
-import { NOTE_SCOPES } from "database";
+import { NOTE_SCOPE, NOTE_SCOPES } from "database";
 import { z } from "@/schema/z";
 import { NoteSchema } from "../models/note";
+
+export { NOTE_SCOPE, NOTE_SCOPES };
 
 /**
  * Sync Endpoint Schema definitions
@@ -83,7 +85,7 @@ export const NoteQuerySchema = z
     scope: z
       .enum(NOTE_SCOPES)
       .optional()
-      .default("all")
+      .default(NOTE_SCOPE.ALL)
       .openapi({ example: "all" }),
   })
   .openapi("NoteQuery");

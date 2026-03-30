@@ -50,7 +50,17 @@ export const notes = sqliteTable("notes", {
 export type Note = typeof notes.$inferSelect;
 export type NewNote = typeof notes.$inferInsert;
 
-export const NOTE_SCOPES = ["all", "trash", "untagged"] as const;
+export const NOTE_SCOPE = {
+  ALL: "all",
+  TRASH: "trash",
+  UNTAGGED: "untagged",
+} as const;
+
+export const NOTE_SCOPES = [
+  NOTE_SCOPE.ALL,
+  NOTE_SCOPE.TRASH,
+  NOTE_SCOPE.UNTAGGED,
+] as const;
 export type NoteScope = (typeof NOTE_SCOPES)[number];
 
 // タグ情報を管理するテーブル
