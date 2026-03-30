@@ -22,5 +22,5 @@ const client = hc<any>(apiBaseUrl, {
   },
 });
 
-export const api = client;
+export const api = client as any;
 export default api;
