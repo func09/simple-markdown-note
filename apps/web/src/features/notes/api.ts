@@ -1,4 +1,4 @@
-import type { Note, Tag } from "api";
+import type { SyncRequest, SyncResponse, TagListResponse } from "api";
 
 import api from "@/lib/api";
 
@@ -7,46 +7,22 @@ import api from "@/lib/api";
  */
 
 /**
- * ノート一覧を取得する（差分同期対応）
- * @param params - { updatedAfter?: string } (ISO8601日時)
- */
-export const fetchNotes = async (params?: { updatedAfter?: string }) => {
-  const query = params?.updatedAfter
-    ? { updatedAfter: params.updatedAfter }
-    : {};
-  const res = await api.notes.$get({ query });
-  if (!res.ok) throw new Error("Failed to fetch notes");
-  return res.json() as Promise<Note[]>;
-};
-
-/**
  * Unified Sync (一括同期) を実行する
  * @param payload - 同期リクエスト (lastSyncedAt, changes[])
  */
-export const syncNotes = async (payload: {
-  lastSyncedAt?: string;
-  changes: {
-    id: string;
-    content?: string;
-    deletedAt?: string | null;
-    isPermanent: boolean;
-    clientUpdatedAt: string;
-    tags?: string[];
-  }[];
-}) => {
+export const syncNotes = async (
+  payload: SyncRequest
+): Promise<SyncResponse> => {
   const res = await api.notes.sync.$post({ json: payload });
   if (!res.ok) throw new Error("Failed to synchronize notes");
-  return res.json() as Promise<{
-    newSyncTime: string;
-    updates: Note[];
-  }>;
+  return res.json() as Promise<SyncResponse>;
 };
 
 /**
  * 現在使用されている全タグの一覧を取得する
  */
-export const fetchTags = async () => {
+export const fetchTags = async (): Promise<TagListResponse> => {
   const res = await api.tags.$get();
   if (!res.ok) throw new Error("Failed to fetch tags");
-  return res.json() as Promise<Tag[]>;
+  return res.json() as Promise<TagListResponse>;
 };

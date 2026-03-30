@@ -1,25 +1,15 @@
+import type { AuthResponse, SigninRequest, SignupRequest } from "api";
 import api from "@/lib/api";
 
 /**
  * Hono RPC を使用した認証関連の API 通信
  */
 
-export interface AuthResponse {
-  token: string;
-  user: {
-    id: string;
-    email: string;
-  };
-}
-
 /**
  * 既存アカウントでログインする
  * @param data - メールアドレスとパスワード
  */
-export const signin = async (data: {
-  email: string;
-  password: string;
-}): Promise<AuthResponse> => {
+export const signin = async (data: SigninRequest): Promise<AuthResponse> => {
   const res = await api.auth.signin.$post({ json: data });
   if (!res.ok) {
     const errorData = (await res.json()) as { error?: string };
@@ -32,10 +22,7 @@ export const signin = async (data: {
  * 新規アカウントを作成する
  * @param data - 登録するメールアドレスとパスワード
  */
-export const signup = async (data: {
-  email: string;
-  password: string;
-}): Promise<AuthResponse> => {
+export const signup = async (data: SignupRequest): Promise<AuthResponse> => {
   const res = await api.auth.signup.$post({ json: data });
   if (!res.ok) {
     const errorData = (await res.json()) as { error?: string };

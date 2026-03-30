@@ -2,15 +2,14 @@ import type { Note } from "api";
 import { Plus, Search, Tag as TagIcon, X } from "lucide-react";
 import type React from "react";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/common/Button";
+import { Skeleton } from "@/components/common/Display";
+import { Input } from "@/components/common/Form";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "@/components/common/Tooltip";
 import { useDashboardState } from "@/features/dashboard/hooks";
 import { useDashboardStore } from "@/features/dashboard/stores";
 import { NoteListItem as NoteItem } from "@/features/notes/components";
@@ -132,7 +131,7 @@ export const NoteList: React.FC<NoteListProps> = ({
         id="note-list-container"
         className="min-h-0 flex-1 focus:outline-hidden"
       >
-        <ScrollArea className="h-full">
+        <div className="h-full overflow-y-auto custom-scrollbar">
           <div className="px-3 pb-8">
             {isLoading ? (
               <div className="space-y-3 px-3">
@@ -168,7 +167,7 @@ export const NoteList: React.FC<NoteListProps> = ({
               </>
             )}
           </div>
-        </ScrollArea>
+        </div>
       </div>
     </div>
   );
