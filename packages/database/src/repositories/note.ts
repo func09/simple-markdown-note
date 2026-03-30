@@ -11,6 +11,7 @@ import {
 import type { DrizzleDB } from "../index";
 import {
   type NewNote,
+  NOTE_SCOPE,
   type Note,
   type NoteScope,
   notes,
@@ -33,14 +34,14 @@ export const createNoteRepository = (db: DrizzleDB) => ({
 
     const whereClauses = [eq(notes.userId, userId)];
 
-    if (scope === "trash") {
+    if (scope === NOTE_SCOPE.TRASH) {
       whereClauses.push(isNotNull(notes.deletedAt));
     } else {
       // Default to non-trash for 'all', 'untagged', and tag filtering
       whereClauses.push(isNull(notes.deletedAt));
     }
 
-    if (scope === "untagged") {
+    if (scope === NOTE_SCOPE.UNTAGGED) {
       whereClauses.push(
         notExists(
           db.select().from(notesToTags).where(eq(notesToTags.noteId, notes.id))
