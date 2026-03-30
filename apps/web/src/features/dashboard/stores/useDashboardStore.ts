@@ -3,8 +3,8 @@ import { create } from "zustand";
 import { createFilterSlice } from "./filterSlice";
 
 import { createModalSlice } from "./modalSlice";
+import { createNavigationSlice } from "./navigationSlice";
 import type { DashboardState } from "./types";
-import { createUISlice } from "./uiSlice";
 
 /**
  * すべてのスライスを統合した Dashboard ストア
@@ -12,6 +12,6 @@ import { createUISlice } from "./uiSlice";
 export const useDashboardStore = create<DashboardState>((...a) => ({
   ...createFilterSlice(...a),
 
-  ...createUISlice(...a),
+  ...createNavigationSlice(...a),
   ...createModalSlice(...a),
 }));
