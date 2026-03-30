@@ -1,4 +1,4 @@
-import { z } from "../z";
+import { z } from "@/schema/z";
 
 // ユーザーモデルのスキーマ定義
 export const UserSchema = z

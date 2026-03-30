@@ -22,7 +22,7 @@ const ProtectedRoute: React.FC<{ children?: React.ReactNode }> = ({
   if (!token) {
     return <Navigate to="/login" replace />;
   }
-  return children ? <>{children}</> : <Outlet />;
+  return children || <Outlet />;
 };
 
 function App() {

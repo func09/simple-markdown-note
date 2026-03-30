@@ -4,8 +4,7 @@
     "types": ["@cloudflare/workers-types", "node"],
     "paths": {
       "@/*": ["./src/*"],
-      "database": ["../../packages/database/src"],
-      "openapi": ["../../packages/openapi/src"]
+      "database": ["../../packages/database/src"]
     }
   },
   "include": ["src", "vitest.setup.ts"]

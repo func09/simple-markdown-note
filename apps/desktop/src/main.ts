@@ -1,5 +1,5 @@
+import * as path from "node:path";
 import { app, BrowserWindow } from "electron";
-import * as path from "path";
 
 // Disable hardware acceleration to avoid some GPU-related glitches (optional, but good for simple apps)
 // app.disableHardwareAcceleration();

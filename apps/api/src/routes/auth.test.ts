@@ -1,5 +1,7 @@
 import { db, users } from "database";
 import { beforeAll, describe, expect, it } from "vitest";
+import type { z } from "zod";
+import type { AuthResponseSchema } from "@/schema";
 import { app } from "../index";
 
 describe("Auth API", () => {
@@ -23,7 +25,7 @@ describe("Auth API", () => {
     });
 
     expect(res.status).toBe(200);
-    const body: any = await res.json();
+    const body = (await res.json()) as z.infer<typeof AuthResponseSchema>;
     expect(body.user.email).toBe("test-test@example.com");
     expect(body.token).toBeDefined();
   });
@@ -41,7 +43,7 @@ describe("Auth API", () => {
     });
 
     expect(res.status).toBe(200);
-    const body: any = await res.json();
+    const body = (await res.json()) as z.infer<typeof AuthResponseSchema>;
     expect(body.user.email).toBe("test-test@example.com");
     expect(body.token).toBeDefined();
   });
@@ -59,7 +61,7 @@ describe("Auth API", () => {
     });
 
     expect(res.status).toBe(401);
-    const body: any = await res.json();
+    const body = (await res.json()) as { error: string };
     expect(body.error).toBe("Invalid credentials");
   });
 });

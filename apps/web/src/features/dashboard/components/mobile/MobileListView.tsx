@@ -1,4 +1,4 @@
-import type { Note } from "openapi";
+import type { Note } from "api";
 import React from "react";
 import { MobileHeader, NoteList } from "@/features/notes/components";
 

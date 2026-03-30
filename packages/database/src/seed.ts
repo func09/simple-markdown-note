@@ -90,7 +90,9 @@ async function main() {
       "日記\n今日は作業が順調に進んだ。\n特にデータベースの移行が一番大変だったが、\n無事に終わってよかった。",
     ];
 
-    await seed(db as any, schema, { count: 3 }).refine((f) => ({
+    await seed(db as unknown as Parameters<typeof seed>[0], schema, {
+      count: 3,
+    }).refine((f) => ({
       users: {
         count: 0, // すでに手動で作成したため追加しない
       },
