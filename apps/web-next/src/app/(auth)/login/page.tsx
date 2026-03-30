@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { LoginContainer } from "@/features/auth/components/LoginContainer";
+import { Login } from "@/features/auth/components/Login";
 
 export const metadata: Metadata = {
   title: "ログイン | Simplenote Clone",
@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function LoginPage() {
-  return <LoginContainer />;
+  return <Login />;
 }
