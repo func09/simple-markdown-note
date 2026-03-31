@@ -1,9 +1,5 @@
 import { createNoteRepository, type DrizzleDB, type NoteScope } from "database";
-import type {
-  NoteCreateRequest,
-  NoteUpdateRequest,
-  SyncRequest,
-} from "../schema";
+import type { NoteCreateRequest, NoteUpdateRequest } from "../schema";
 
 import { syncTags } from "./tagService";
 
@@ -27,60 +23,6 @@ function mapToNoteWithTags(note: {
     tags: note.notesToTags.map((nt) => nt.tag),
     notesToTags: undefined,
   };
-}
-
-/**
- * クライアントとサーバーのノートを同期する (LWW方式)
- */
-export async function syncNotes(
-  userId: string,
-  payload: SyncRequest,
-  db: DrizzleDB
-) {
-  const { changes, lastSyncedAt } = payload;
-  const noteRepository = createNoteRepository(db);
-
-  // 1. アップロード (Update/Upsert) 処理
-  if (changes && changes.length > 0) {
-    for (const change of changes) {
-      const existing = await noteRepository.findByIdAndUserId(
-        change.id,
-        userId
-      );
-
-      const clientTime = new Date(change.clientUpdatedAt);
-
-      // LWW (Last-Write-Wins): サーバーにデータが無いか、クライアントの方が新しければ Upsert
-      if (!existing || clientTime > existing.updatedAt) {
-        await noteRepository.upsert({
-          id: change.id,
-          userId,
-          content: change.content || "",
-          createdAt: clientTime,
-          updatedAt: clientTime,
-          deletedAt: change.deletedAt ? new Date(change.deletedAt) : null,
-          isPermanent: change.isPermanent,
-        });
-
-        // タグの同期処理
-        if (change.tags && Array.isArray(change.tags)) {
-          await syncTags(userId, change.id, change.tags, db);
-        }
-      }
-    }
-  }
-
-  // 2. ダウンロード (Fetch) 処理
-  const parsedLastSyncedAt = lastSyncedAt ? new Date(lastSyncedAt) : undefined;
-  const updatesRaw = await noteRepository.findAllWithTagsSince(
-    userId,
-    parsedLastSyncedAt
-  );
-
-  // レスポンス形式にマッピング
-  const updates = updatesRaw.map(mapToNoteWithTags);
-
-  return updates;
 }
 
 /**
