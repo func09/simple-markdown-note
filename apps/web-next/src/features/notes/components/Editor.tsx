@@ -3,8 +3,6 @@
 import CharacterCount from "@tiptap/extension-character-count";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
-import TaskItem from "@tiptap/extension-task-item";
-import TaskList from "@tiptap/extension-task-list";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import {
@@ -19,7 +17,6 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Markdown } from "tiptap-markdown";
 import { cn } from "@/lib/utils";
 import {
   useDeleteNote,
@@ -38,6 +35,7 @@ interface EditorProps {
 
 export function Editor({ noteId, isMobile }: EditorProps) {
   const [isPreview, setIsPreview] = useState(false);
+  const [content, setContent] = useState("");
   const router = useRouter();
   const scope = useNotesStore((s) => s.filterScope);
   const tag = useNotesStore((s) => s.filterTag);
@@ -104,10 +102,12 @@ export function Editor({ noteId, isMobile }: EditorProps) {
         bulletList: false,
         orderedList: false,
         blockquote: false,
-      }),
-      Markdown.configure({
-        html: false,
-        tightLists: true,
+        bold: false,
+        italic: false,
+        strike: false,
+        code: false,
+        horizontalRule: false,
+        hardBreak: false,
       }),
       Placeholder.configure({
         placeholder: "Start writing...",
@@ -115,10 +115,6 @@ export function Editor({ noteId, isMobile }: EditorProps) {
       CharacterCount,
       Link.configure({
         openOnClick: false,
-      }),
-      TaskList,
-      TaskItem.configure({
-        nested: true,
       }),
     ],
     content: "",
@@ -137,8 +133,9 @@ export function Editor({ noteId, isMobile }: EditorProps) {
       transformPastedText: (text) => text,
     },
     onUpdate: ({ editor }) => {
-      const content = editor.getText({ blockSeparator: "\n" });
-      handleAutoSave(content);
+      const text = editor.getText({ blockSeparator: "\n" });
+      setContent(text);
+      handleAutoSave(text);
     },
   });
 
@@ -154,7 +151,13 @@ export function Editor({ noteId, isMobile }: EditorProps) {
     if (editor && note) {
       // ノートIDが切り替わった初動のみ内容をセット
       if (note.id !== lastNoteIdRef.current) {
-        editor.commands.setContent(note.content);
+        // 改行を <p> タグに変換して流し込む
+        const html = note.content
+          .split("\n")
+          .map((line) => `<p>${line}</p>`)
+          .join("");
+        editor.commands.setContent(html, { emitUpdate: false });
+        setContent(note.content);
         contentRef.current = note.content;
         lastNoteIdRef.current = note.id;
         setIsPreview(false);
@@ -286,9 +289,19 @@ export function Editor({ noteId, isMobile }: EditorProps) {
         )}
       >
         {isPreview ? (
-          <div className="prose prose-slate max-w-none px-8 py-12 animate-in fade-in duration-300 font-sans">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {editor?.getText({ blockSeparator: "\n" }) || ""}
+          <div className="prose prose-slate max-w-none px-8 py-12 animate-in fade-in duration-300 font-sans prose-p:my-0 prose-headings:mb-2 prose-headings:mt-6 prose-ul:my-2 prose-li:my-0 prose-ol:my-2">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                p: ({ children }) => (
+                  <p className="whitespace-pre-wrap">{children}</p>
+                ),
+                li: ({ children }) => (
+                  <li className="whitespace-pre-wrap">{children}</li>
+                ),
+              }}
+            >
+              {content || ""}
             </ReactMarkdown>
           </div>
         ) : (
