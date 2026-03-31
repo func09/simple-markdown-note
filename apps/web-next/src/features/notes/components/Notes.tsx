@@ -4,27 +4,26 @@ import { Menu } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { cn } from "@/lib/utils";
+import { useNotesStore } from "../store";
 import { Editor } from "./Editor";
 import { NoteList } from "./NoteList";
 import { Sidebar } from "./Sidebar";
 
 interface NotesProps {
-  context: {
-    type: "scope" | "tag";
-    value: string;
-  };
   selectedNoteId?: string;
 }
 
-export function Notes({ selectedNoteId }: NotesProps) {
+export function Notes({ selectedNoteId: propSelectedNoteId }: NotesProps) {
   const isDesktop = useMediaQuery("(min-width: 1024px)");
   const isTablet = useMediaQuery("(min-width: 768px)");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  // Mock initial content for the editor
-  const mockContent = selectedNoteId
-    ? `# Note ${selectedNoteId}\nThis is mock content for testing the UI.`
-    : "";
+  const { selectedNoteId: storeSelectedNoteId, setSelectedNoteId } =
+    useNotesStore();
+
+  useEffect(() => {
+    setSelectedNoteId(propSelectedNoteId || null);
+  }, [propSelectedNoteId, setSelectedNoteId]);
 
   // Handle drawer close on resize to desktop
   useEffect(() => {
@@ -62,12 +61,12 @@ export function Notes({ selectedNoteId }: NotesProps) {
             "border-r border-slate-200 shrink-0 h-full",
             isTablet && "w-[300px] xl:w-[350px]",
             !isTablet && "w-full",
-            !isTablet && selectedNoteId ? "hidden" : "block",
+            !isTablet && storeSelectedNoteId ? "hidden" : "block",
             !isDesktop && "transition-all duration-300 ease-in-out"
           )}
         >
           {/* Mobile Hamburger Handle (Only on List View) */}
-          {!isDesktop && !selectedNoteId && (
+          {!isDesktop && !storeSelectedNoteId && (
             <div className="p-4 flex items-center gap-2 bg-white border-b border-slate-100 lg:hidden">
               <button
                 type="button"
@@ -79,21 +78,21 @@ export function Notes({ selectedNoteId }: NotesProps) {
               <h2 className="font-bold text-slate-900">Simplenote</h2>
             </div>
           )}
-          <NoteList selectedNoteId={selectedNoteId} />
+          <NoteList selectedNoteId={storeSelectedNoteId || undefined} />
         </div>
 
         {/* Editor (Visible if NOT on Mobile-List view) */}
         <div
           className={cn(
             "flex-1 h-full bg-white",
-            !isTablet && !selectedNoteId ? "hidden" : "block",
+            !isTablet && !storeSelectedNoteId ? "hidden" : "block",
             !isDesktop && "transition-opacity duration-300"
           )}
         >
           <Editor
-            noteId={selectedNoteId}
-            initialContent={mockContent}
-            isMobile={!isTablet && !!selectedNoteId}
+            noteId={storeSelectedNoteId || undefined}
+            initialContent=""
+            isMobile={!isTablet && !!storeSelectedNoteId}
           />
         </div>
       </main>

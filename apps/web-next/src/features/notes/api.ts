@@ -5,7 +5,7 @@ import type {
   NoteQuery,
   NoteUpdateRequest,
   TagListResponse,
-} from "api";
+} from "api/schema";
 import api from "@/lib/api";
 
 /**

@@ -1,4 +1,3 @@
-import { NOTE_SCOPE } from "api";
 import { beforeEach, describe, expect, it } from "vitest";
 import { useNotesStore } from "./store";
 
@@ -14,8 +13,7 @@ describe("useNotesStore", () => {
     const state = useNotesStore.getState();
     expect(state.selectedNoteId).toBeNull();
     expect(state.searchQuery).toBe("");
-    expect(state.filterScope).toBe(NOTE_SCOPE.ALL);
-    expect(state.filterTag).toBeNull();
+    expect(state.isCreatingNewNote).toBe(false);
   });
 
   it("selectedNoteId を更新できること", () => {
@@ -31,45 +29,16 @@ describe("useNotesStore", () => {
     expect(useNotesStore.getState().searchQuery).toBe("hello");
   });
 
-  it("filterScope を更新できること（タグと検索クエリがリセットされること）", () => {
-    // 事前に他のフィルタをセット
-    useNotesStore.setState({ filterTag: "work", searchQuery: "test" });
-
-    useNotesStore.getState().setFilterScope(NOTE_SCOPE.TRASH);
-
-    const state = useNotesStore.getState();
-    expect(state.filterScope).toBe(NOTE_SCOPE.TRASH);
-    expect(state.filterTag).toBeNull();
-    expect(state.searchQuery).toBe("");
-  });
-
-  it("filterTag を更新できること（スコープが ALL になり検索クエリがリセットされること）", () => {
-    // 事前に他のフィルタをセット
+  it("resetFilters で検索クエリが初期状態に戻ること", () => {
     useNotesStore.setState({
-      filterScope: NOTE_SCOPE.TRASH,
-      searchQuery: "test",
-    });
-
-    useNotesStore.getState().setFilterTag("personal");
-
-    const state = useNotesStore.getState();
-    expect(state.filterTag).toBe("personal");
-    expect(state.filterScope).toBe(NOTE_SCOPE.ALL);
-    expect(state.searchQuery).toBe("");
-  });
-
-  it("resetFilters で全てのフィルタが初期状態に戻ること", () => {
-    useNotesStore.setState({
-      filterScope: NOTE_SCOPE.TRASH,
-      filterTag: "work",
       searchQuery: "hello",
+      isCreatingNewNote: true,
     });
 
     useNotesStore.getState().resetFilters();
 
     const state = useNotesStore.getState();
-    expect(state.filterScope).toBe(NOTE_SCOPE.ALL);
-    expect(state.filterTag).toBeNull();
     expect(state.searchQuery).toBe("");
+    expect(state.isCreatingNewNote).toBe(false);
   });
 });
