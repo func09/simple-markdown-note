@@ -1,6 +1,6 @@
 import type * as React from "react";
-import { Button } from "../../Button";
 import { cn } from "../../lib/utils";
+import { Button } from "./Button";
 
 export function AlertDialog({
   children,

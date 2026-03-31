@@ -1,4 +1,4 @@
-import type { DashboardSliceCreator, NavigationSlice } from "../../../types";
+import type { DashboardSliceCreator, NavigationSlice } from "./types";
 
 /**
  * モバイル・ナビゲーションに関連するスライスの作成
