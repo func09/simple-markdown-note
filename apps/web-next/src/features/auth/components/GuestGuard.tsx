@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { authService } from "../services/authService";
+import { isAuthenticated } from "../utils";
 
 /**
  * ゲストガード (Client Component)
@@ -13,14 +13,11 @@ export function GuestGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    const checkAuth = async () => {
-      if (await authService.isAuthenticated()) {
-        router.replace("/notes?scope=all");
-      } else {
-        setIsChecking(false);
-      }
-    };
-    checkAuth();
+    if (isAuthenticated()) {
+      router.replace("/notes?scope=all");
+    } else {
+      setIsChecking(false);
+    }
   }, [router]);
 
   if (isChecking) {

@@ -37,3 +37,18 @@ export const getMe = async (): Promise<MeResponse | null> => {
   }
   return res.json() as Promise<MeResponse>;
 };
+
+/**
+ * ログアウトを実行（サーバーサイドのクッキーをクリア）
+ */
+export const logout = async (): Promise<void> => {
+  try {
+    const res = await fetch("/api/auth/logout", { method: "POST" });
+    if (!res.ok) {
+      throw new Error("Logout failed");
+    }
+  } catch (error) {
+    console.error("Logout error:", error);
+    throw error;
+  }
+};
