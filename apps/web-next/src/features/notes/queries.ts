@@ -16,6 +16,7 @@ export const useNotes = (query: NoteQuery) => {
   return useQuery({
     queryKey: ["notes", query],
     queryFn: () => listNotes(query),
+    placeholderData: (prev) => prev,
   });
 };
 

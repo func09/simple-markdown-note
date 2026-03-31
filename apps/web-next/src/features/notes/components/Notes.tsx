@@ -71,12 +71,12 @@ export function Notes({ selectedNoteId: propSelectedNoteId }: NotesProps) {
       </aside>
 
       {/* Mobile Drawer Overlay */}
-      {!isDesktop && isSidebarOpen && (
+      {!isDesktop && isSidebarOpen ? (
         <div
           className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-35 animate-in fade-in duration-300"
           onClick={closeSidebar}
         />
-      )}
+      ) : null}
 
       {/* 2. Main Workspace (NoteList & Editor) */}
       <main className="flex-1 flex overflow-hidden relative">
