@@ -1,6 +1,6 @@
 import type { SyncRequest, SyncResponse, TagListResponse } from "api";
 
-import api from "@/web/lib/api";
+import api from "../lib/api";
 
 /**
  * Hono RPC を使用したノート関連の API 通信

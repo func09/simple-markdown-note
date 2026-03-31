@@ -1,5 +1,5 @@
-import { z } from "@/api/schema/z";
 import { TagSchema } from "../models/tag";
+import { z } from "../z";
 
 /**
  * タグ一覧の各アイテム用スキーマ

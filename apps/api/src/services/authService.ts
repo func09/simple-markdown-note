@@ -1,6 +1,6 @@
 import { bcryptjs, createUserRepository, type DrizzleDB } from "database";
 import { HTTPException } from "hono/http-exception";
-import type { SigninRequest, SignupRequest } from "@/api/schema";
+import type { SigninRequest, SignupRequest } from "../schema";
 
 export async function signup(db: DrizzleDB, data: SignupRequest) {
   const userRepository = createUserRepository(db);

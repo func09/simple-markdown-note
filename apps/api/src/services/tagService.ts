@@ -1,5 +1,5 @@
 import { createTagRepository, type DrizzleDB } from "database";
-import type { TagListResponse } from "@/api/schema";
+import type { TagListResponse } from "../schema";
 
 /**
  * ノートのタグを同期する

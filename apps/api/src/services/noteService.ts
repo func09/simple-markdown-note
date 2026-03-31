@@ -3,7 +3,7 @@ import type {
   NoteCreateRequest,
   NoteUpdateRequest,
   SyncRequest,
-} from "@/api/schema";
+} from "../schema";
 
 import { syncTags } from "./tagService";
 

@@ -8,7 +8,7 @@ import {
   NoteUpdateRequestSchema,
   SyncRequestSchema,
   SyncResponseSchema,
-} from "@/api/schema";
+} from "../schema";
 import {
   createNote,
   deleteNote,

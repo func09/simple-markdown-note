@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
-import { Button } from "@/web/components/common/Button";
+import { Button } from "../components/common/Button";
 import {
   Alert,
   AlertDescription,
@@ -20,9 +20,9 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/web/components/common/Display";
-import { Input, Label } from "@/web/components/common/Form";
-import type { AuthFormProps } from "@/web/features/auth/types";
+} from "../components/common/Display";
+import { Input, Label } from "../components/common/Form";
+import type { AuthFormProps } from "../features/auth/types";
 
 /**
  * デスクトップ版専用の認証フォーム

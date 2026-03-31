@@ -1,9 +1,6 @@
 import type { Note } from "api";
 import React from "react";
-import {
-  EditorCore,
-  MobileEditorHeader,
-} from "@/web/features/notes/components";
+import { EditorCore, MobileEditorHeader } from "../features/notes/components";
 
 interface MobileEditorViewProps {
   selectedNote: Note | null;

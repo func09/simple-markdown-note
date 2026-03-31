@@ -4,14 +4,14 @@ import { useMemo } from "react";
 import {
   DesktopLayout,
   DesktopSidebar,
-} from "@/web/features/dashboard/components";
-import { useDashboardState } from "@/web/features/dashboard/hooks";
-import { useDashboardStore } from "@/web/features/dashboard/stores";
+} from "../features/dashboard/components";
+import { useDashboardState } from "../features/dashboard/hooks";
+import { useDashboardStore } from "../features/dashboard/stores";
 import {
   DeleteConfirmModal,
   DesktopEditor,
   NoteList,
-} from "@/web/features/notes/components";
+} from "../features/notes/components";
 
 /**
  * デスクトップ向けのメインダッシュボードコンポーネント

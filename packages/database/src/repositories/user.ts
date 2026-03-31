@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
-import type { DrizzleDB } from "@/database/index";
-import { type NewUser, type User, users } from "@/database/schema";
+import type { DrizzleDB } from "../index";
+import { type NewUser, type User, users } from "../schema";
 
 export const createUserRepository = (db: DrizzleDB) => ({
   findByEmail: async (email: string): Promise<User | undefined> => {

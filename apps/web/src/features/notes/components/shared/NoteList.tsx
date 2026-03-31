@@ -2,17 +2,17 @@ import type { Note } from "api";
 import { Plus, Search, Tag as TagIcon, X } from "lucide-react";
 import type React from "react";
 
-import { Button } from "@/web/components/common/Button";
-import { Skeleton } from "@/web/components/common/Display";
-import { Input } from "@/web/components/common/Form";
+import { Button } from "../components/common/Button";
+import { Skeleton } from "../components/common/Display";
+import { Input } from "../components/common/Form";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/web/components/common/Tooltip";
-import { useDashboardState } from "@/web/features/dashboard/hooks";
-import { useDashboardStore } from "@/web/features/dashboard/stores";
-import { NoteListItem as NoteItem } from "@/web/features/notes/components";
+} from "../components/common/Tooltip";
+import { useDashboardState } from "../features/dashboard/hooks";
+import { useDashboardStore } from "../features/dashboard/stores";
+import { NoteListItem as NoteItem } from "../features/notes/components";
 
 interface NoteListProps {
   notes: Note[];

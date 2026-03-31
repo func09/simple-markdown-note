@@ -8,7 +8,7 @@ import {
   isNull,
   notExists,
 } from "drizzle-orm";
-import type { DrizzleDB } from "@/database/index";
+import type { DrizzleDB } from "../index";
 import {
   type NewNote,
   NOTE_SCOPE,
@@ -17,7 +17,7 @@ import {
   notes,
   notesToTags,
   tags,
-} from "@/database/schema";
+} from "../schema";
 
 export const createNoteRepository = (db: DrizzleDB) => ({
   findAllByUserId: async (userId: string): Promise<Note[]> => {

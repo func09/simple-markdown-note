@@ -1,6 +1,6 @@
 import { and, eq, sql } from "drizzle-orm";
-import type { DrizzleDB } from "@/database";
-import { type NewTag, notesToTags, type Tag, tags } from "@/database/schema";
+import type { DrizzleDB } from "../index";
+import { type NewTag, notesToTags, type Tag, tags } from "../schema";
 
 export const createTagRepository = (db: DrizzleDB) => ({
   findAllByUserId: async (userId: string): Promise<Tag[]> => {
