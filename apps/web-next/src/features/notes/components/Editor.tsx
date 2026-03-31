@@ -9,6 +9,7 @@ import {
   ChevronLeft,
   Edit3,
   Eye,
+  EyeOff,
   Info,
   MoreVertical,
   Plus,
@@ -284,31 +285,27 @@ export function Editor({ noteId, isMobile }: EditorProps) {
               <ChevronLeft className="w-5 h-5 text-slate-600" />
             </button>
           )}
+        </div>
+
+        <div className="flex items-center gap-1">
           <button
             type="button"
             onClick={() => setIsPreview(!isPreview)}
             className={cn(
-              "flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all transform active:scale-95",
+              "p-2 rounded-full transition-all active:scale-95",
               isPreview
                 ? "bg-slate-900 text-white shadow-md shadow-slate-200"
-                : "text-slate-600 hover:bg-slate-100"
+                : "text-slate-400 hover:bg-slate-50 hover:text-slate-600"
             )}
+            title={isPreview ? "Edit Mode" : "Preview Mode"}
           >
             {isPreview ? (
-              <>
-                <Edit3 className="w-4 h-4" />
-                <span>Edit</span>
-              </>
+              <EyeOff className="w-5 h-5" />
             ) : (
-              <>
-                <Eye className="w-4 h-4" />
-                <span>Preview</span>
-              </>
+              <Eye className="w-5 h-5" />
             )}
           </button>
-        </div>
 
-        <div className="flex items-center gap-1">
           <div className="relative" ref={infoRef}>
             <button
               type="button"
