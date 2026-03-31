@@ -3,7 +3,7 @@ import type {
   MeResponse,
   SigninRequest,
   SignupRequest,
-} from "api";
+} from "api/schema";
 import api from "@/lib/api";
 
 /**

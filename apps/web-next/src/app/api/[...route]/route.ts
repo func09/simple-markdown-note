@@ -24,7 +24,8 @@ export async function ALL(
     );
   }
 
-  const targetUrl = `${baseUrl}/${path}`;
+  const { search } = new URL(request.url);
+  const targetUrl = `${baseUrl}/${path}${search}`;
   const cookieStore = await cookies();
 
   // ログアウト処理の特例
@@ -49,6 +50,11 @@ export async function ALL(
     if (!res.ok) {
       const errorText = await res.text();
       return new NextResponse(errorText, { status: res.status });
+    }
+
+    // 204 No Content の場合は空レスポンスを返す
+    if (res.status === 204) {
+      return new NextResponse(null, { status: 204 });
     }
 
     // JSONをパースし、any ではなく ProxyResponse として扱う
