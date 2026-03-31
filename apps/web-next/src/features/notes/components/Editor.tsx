@@ -10,7 +10,9 @@ import {
   Edit3,
   Eye,
   Info,
+  MoreVertical,
   Plus,
+  RotateCcw,
   Tag as TagIcon,
   Trash2,
 } from "lucide-react";
@@ -63,7 +65,9 @@ export function Editor({ noteId, isMobile }: EditorProps) {
   const [isPreview, setIsPreview] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const [isOptionsOpen, setIsOptionsOpen] = useState(false);
   const infoRef = useRef<HTMLDivElement>(null);
+  const optionsRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const scope = useNotesStore((s) => s.filterScope);
   const tag = useNotesStore((s) => s.filterTag);
@@ -73,6 +77,12 @@ export function Editor({ noteId, isMobile }: EditorProps) {
     function handleClickOutside(event: MouseEvent) {
       if (infoRef.current && !infoRef.current.contains(event.target as Node)) {
         setIsInfoOpen(false);
+      }
+      if (
+        optionsRef.current &&
+        !optionsRef.current.contains(event.target as Node)
+      ) {
+        setIsOptionsOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -366,34 +376,64 @@ export function Editor({ noteId, isMobile }: EditorProps) {
             )}
           </div>
 
-          {isTrashView ? (
-            <>
-              <button
-                type="button"
-                onClick={handleRestore}
-                className="px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
-              >
-                Restore
-              </button>
-              <button
-                type="button"
-                onClick={handlePermanentDelete}
-                className="p-2 text-slate-400 hover:bg-red-50 hover:text-red-500 rounded-full transition-colors"
-                title="Delete Permanently"
-              >
-                <Trash2 className="w-5 h-5" />
-              </button>
-            </>
-          ) : (
+          <div className="relative" ref={optionsRef}>
             <button
               type="button"
-              onClick={handleDelete}
-              className="p-2 text-slate-400 hover:bg-red-50 hover:text-red-500 rounded-full transition-colors"
-              title="Move to Trash"
+              onClick={() => setIsOptionsOpen(!isOptionsOpen)}
+              className={cn(
+                "p-2 rounded-full transition-all active:scale-95",
+                isOptionsOpen
+                  ? "bg-slate-100 text-slate-900"
+                  : "text-slate-400 hover:bg-slate-50 hover:text-slate-600"
+              )}
+              title="Note Options"
             >
-              <Trash2 className="w-5 h-5" />
+              <MoreVertical className="w-5 h-5" />
             </button>
-          )}
+
+            {isOptionsOpen && (
+              <div className="absolute right-0 mt-2 w-56 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-100 p-2 z-50 animate-in fade-in zoom-in duration-200 origin-top-right">
+                {isTrashView ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        handleRestore();
+                        setIsOptionsOpen(false);
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 rounded-xl transition-colors group"
+                    >
+                      <RotateCcw className="w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-colors" />
+                      Restore
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        handlePermanentDelete();
+                        setIsOptionsOpen(false);
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 rounded-xl transition-colors group"
+                    >
+                      <Trash2 className="w-4 h-4 text-red-400 group-hover:text-red-500 transition-colors" />
+                      Delete Permanently
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleDelete();
+                      setIsOptionsOpen(false);
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 rounded-xl transition-colors group"
+                  >
+                    <Trash2 className="w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-colors" />
+                    Move to Trash
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
