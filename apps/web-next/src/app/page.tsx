@@ -1,26 +1,15 @@
-"use client";
-
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { isAuthenticated } from "@/features/auth/utils";
+import { AuthGuard, GuestGuard } from "@/features/auth/components";
 
 /**
- * ルートパス (/) へのアクセスを適切にリダイレクトします (Client Component)。
- * Electron や静的エクスポート環境でも動作するように、クライアントサイドで判定を行います。
+ * ルートパス (/) へのアクセスを適切にリダイレクトします (Server Component)。
+ * 実際の判定は Client Component である Guard に任せることで、プラットフォームを選ばず動作させます。
+ * - ログイン済みの場合: GuestGuard が検知して /notes へ
+ * - 未ログインの場合: AuthGuard が検知して /login へ
  */
 export default function IndexPage() {
-  const router = useRouter();
-
-  useEffect(() => {
-    if (isAuthenticated()) {
-      // ログイン済みならノート一覧へ
-      router.replace("/notes?scope=all");
-    } else {
-      // 未ログインならログイン画面へ
-      router.replace("/login");
-    }
-  }, [router]);
-
-  // リダイレクト中は何表示もしない
-  return null;
+  return (
+    <GuestGuard>
+      <AuthGuard>{null}</AuthGuard>
+    </GuestGuard>
+  );
 }
