@@ -2,15 +2,10 @@ import { db, users } from "database";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { z } from "zod";
 import { app } from "../index";
-import type {
-  AuthResponseSchema,
-  SyncResponseSchema,
-  TagListResponseSchema,
-} from "../schema";
+import type { AuthResponseSchema, TagListResponseSchema } from "../schema";
 
-describe("Tags API via Sync", () => {
+describe("Tags API", () => {
   let token: string;
-  const testNoteId = "tag-test-note-1";
 
   beforeAll(async () => {
     // setupFiles (vitest.setup.ts) にてマイグレーション済み
@@ -33,131 +28,60 @@ describe("Tags API via Sync", () => {
     // 必要に応じて後処理を追加
   });
 
-  it("should create tags when syncing a new note", async () => {
-    const res = await app.request("/api/notes/sync", {
+  it("should list tags with note count after creating notes with tags via CRUD", async () => {
+    // ノート1を作成 (タグ: Work, Important)
+    await app.request("/api/notes", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
-        changes: [
-          {
-            id: testNoteId,
-            content: "Note with tags",
-            isPermanent: false,
-            clientUpdatedAt: new Date().toISOString(),
-            tags: ["Work", "Important"],
-          },
-        ],
+        content: "Note with tags",
+        isPermanent: false,
+        tags: ["Work", "Important"],
       }),
     });
 
-    expect(res.status).toBe(200);
-    const body = (await res.json()) as z.infer<typeof SyncResponseSchema>;
-    const syncedNote = body.updates.find((n) => n.id === testNoteId);
-    if (!syncedNote) throw new Error("Note not found");
-    expect(syncedNote.tags.length).toBe(2);
-    expect(
-      syncedNote.tags.map((t) => (t as unknown as { name: string }).name)
-    ).toContain("Work");
-    expect(
-      syncedNote.tags.map((t) => (t as unknown as { name: string }).name)
-    ).toContain("Important");
+    // ノート2を作成 (タグ: Work, Personal)
+    await app.request("/api/notes", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        content: "Another note with tags",
+        isPermanent: false,
+        tags: ["Work", "Personal"],
+      }),
+    });
 
     // タグ一覧をGETで確認
     const tagsRes = await app.request("/api/tags", {
       method: "GET",
       headers: { Authorization: `Bearer ${token}` },
     });
+
+    expect(tagsRes.status).toBe(200);
     const tags = (await tagsRes.json()) as z.infer<
       typeof TagListResponseSchema
     >;
-    expect(tags.length).toBe(2);
-  });
 
-  it("should sync tags when updating a note via sync", async () => {
-    // タグを更新 (1つ削除、1つ追加)
-    const res = await app.request("/api/notes/sync", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        changes: [
-          {
-            id: testNoteId,
-            content: "Note with updated tags",
-            isPermanent: false,
-            clientUpdatedAt: new Date(Date.now() + 60000).toISOString(),
-            tags: ["Work", "Done"],
-          },
-        ],
-      }),
-    });
+    // Work は2つのノート、Important と Personal は1つのノートに関連付けられているはず
+    const workTag = tags.find((t) => t.name === "Work");
+    const importantTag = tags.find((t) => t.name === "Important");
+    const personalTag = tags.find((t) => t.name === "Personal");
 
-    expect(res.status).toBe(200);
-    const body = (await res.json()) as z.infer<typeof SyncResponseSchema>;
-    const updatedNote = body.updates.find((n) => n.id === testNoteId);
-    if (!updatedNote) throw new Error("Note not found");
-    expect(updatedNote.tags.length).toBe(2);
-    expect(updatedNote.tags.map((t: { name: string }) => t.name)).toContain(
-      "Work"
-    );
-    expect(updatedNote.tags.map((t: { name: string }) => t.name)).toContain(
-      "Done"
-    );
-    expect(updatedNote.tags.map((t: { name: string }) => t.name)).not.toContain(
-      "Important"
-    );
-
-    const tagsRes = await app.request("/api/tags", {
-      method: "GET",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const tags = (await tagsRes.json()) as z.infer<
-      typeof TagListResponseSchema
-    >;
-    expect(tags.length).toBe(2);
-    expect(tags.map((t) => t.name)).not.toContain("Important");
-  });
-
-  it("should cleanup all tags when note tags are set to empty", async () => {
-    await app.request("/api/notes/sync", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        changes: [
-          {
-            id: testNoteId,
-            content: "No tags",
-            isPermanent: false,
-            clientUpdatedAt: new Date(Date.now() + 120000).toISOString(),
-            tags: [],
-          },
-        ],
-      }),
-    });
-
-    // タグ一覧を確認 (全て削除されているはず)
-    const tagsRes = await app.request("/api/tags", {
-      method: "GET",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const tags = (await tagsRes.json()) as z.infer<
-      typeof TagListResponseSchema
-    >;
-    expect(tags.length).toBe(0);
+    expect(workTag?.count).toBe(2);
+    expect(importantTag?.count).toBe(1);
+    expect(personalTag?.count).toBe(1);
   });
 
   describe("Authorization", () => {
     it("should not include other user's tags in list", async () => {
-      // 別のユーザーを作成してノートを作成（タグ付き）
-      await app.request("/api/auth/signup", {
+      // 別のユーザーを作成
+      const signupRes = await app.request("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -165,35 +89,22 @@ describe("Tags API via Sync", () => {
           password: "password123",
         }),
       });
-      const loginRes = await app.request("/api/auth/signin", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: "tag-other@example.com",
-          password: "password123",
-        }),
-      });
-      const loginBody = (await loginRes.json()) as z.infer<
+      const loginBody = (await signupRes.json()) as z.infer<
         typeof AuthResponseSchema
       >;
       const otherToken = loginBody.token;
 
-      await app.request("/api/notes/sync", {
+      // 別のユーザーとしてノートを作成（タグ付き）
+      await app.request("/api/notes", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${otherToken}`,
         },
         body: JSON.stringify({
-          changes: [
-            {
-              id: "other-user-note",
-              content: "Other note",
-              isPermanent: false,
-              clientUpdatedAt: new Date().toISOString(),
-              tags: ["PrivateTag"],
-            },
-          ],
+          content: "Other note",
+          isPermanent: false,
+          tags: ["PrivateTag"],
         }),
       });
 
