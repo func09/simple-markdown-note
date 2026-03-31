@@ -3,12 +3,33 @@
 import { Plus, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useCallback, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { useCreateNote, useNotes } from "../queries";
 import { useNotesStore } from "../store";
 
 interface NoteListProps {
   selectedNoteId?: string;
+}
+
+function formatNotePreview(content: string) {
+  const lines = content.split("\n");
+  const title = lines[0].replace(/^#\s*/, "").trim() || "Untitled";
+  const preview = lines.slice(1).join(" ").trim() || "No additional text";
+  return { title, preview };
+}
+
+function formatDate(dateStr: string) {
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diff = now.getTime() - date.getTime();
+  if (diff < 1000 * 60 * 60 * 24) {
+    return date.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+  return date.toLocaleDateString([], { month: "short", day: "numeric" });
 }
 
 export function NoteList({ selectedNoteId }: NoteListProps) {
@@ -28,50 +49,34 @@ export function NoteList({ selectedNoteId }: NoteListProps) {
 
   const createNoteMutation = useCreateNote();
 
-  const filteredNotes = notes.filter((note) =>
-    note.content.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredNotes = useMemo(
+    () =>
+      notes.filter((note) =>
+        note.content.toLowerCase().includes(searchQuery.toLowerCase())
+      ),
+    [notes, searchQuery]
   );
 
-  const formatNotePreview = (content: string) => {
-    const lines = content.split("\n");
-    const title = lines[0].replace(/^#\s*/, "").trim() || "Untitled";
-    const preview = lines.slice(1).join(" ").trim() || "No additional text";
-    return { title, preview };
-  };
-
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    const now = new Date();
-    const diff = now.getTime() - date.getTime();
-    if (diff < 1000 * 60 * 60 * 24) {
-      return date.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    }
-    return date.toLocaleDateString([], { month: "short", day: "numeric" });
-  };
-
-  const buildQueryString = () => {
+  const queryString = useMemo(() => {
     const params = new URLSearchParams();
     if (scope !== "all") params.set("scope", scope);
     if (tag) params.set("tag", tag);
     const qs = params.toString();
     return qs ? `?${qs}` : "";
-  };
+  }, [scope, tag]);
 
-  const handleAddNote = async () => {
+  const handleAddNote = useCallback(async () => {
     try {
       const result = await createNoteMutation.mutateAsync({
         content: "",
         isPermanent: false,
       });
       setSelectedNoteId(result.id);
-      router.push(`/notes/${result.id}${buildQueryString()}`);
+      router.push(`/notes/${result.id}${queryString}`);
     } catch (error) {
       console.error("Failed to create note:", error);
     }
-  };
+  }, [createNoteMutation, setSelectedNoteId, router, queryString]);
 
   return (
     <div className="flex flex-col h-full bg-white border-r border-slate-200">
@@ -118,7 +123,7 @@ export function NoteList({ selectedNoteId }: NoteListProps) {
             {filteredNotes.map((note) => {
               const { title, preview } = formatNotePreview(note.content);
               const isSelected = selectedNoteId === note.id;
-              const href = `/notes/${note.id}${buildQueryString()}`;
+              const href = `/notes/${note.id}${queryString}`;
 
               return (
                 <Link

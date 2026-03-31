@@ -16,7 +16,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Markdown } from "tiptap-markdown";
@@ -42,13 +42,13 @@ export function Editor({ noteId, isMobile }: EditorProps) {
   const scope = useNotesStore((s) => s.filterScope);
   const tag = useNotesStore((s) => s.filterTag);
 
-  const buildQueryString = () => {
+  const queryString = useMemo(() => {
     const params = new URLSearchParams();
     if (scope !== "all") params.set("scope", scope);
     if (tag) params.set("tag", tag);
     const qs = params.toString();
     return qs ? `?${qs}` : "";
-  };
+  }, [scope, tag]);
 
   // 1. データ取得
   const { data: note, isLoading } = useNote(noteId ?? null);
@@ -163,26 +163,26 @@ export function Editor({ noteId, isMobile }: EditorProps) {
   }, [note, editor]);
 
   // 3. アクションハンドラ
-  const handleDelete = async () => {
+  const handleDelete = useCallback(async () => {
     if (!noteId) return;
     await deleteNoteMutation.mutateAsync(noteId);
-    router.push(`/notes${buildQueryString()}`);
-  };
+    router.push(`/notes${queryString}`);
+  }, [noteId, deleteNoteMutation, router, queryString]);
 
-  const handleRestore = async () => {
+  const handleRestore = useCallback(async () => {
     if (!noteId) return;
     await restoreNoteMutation.mutateAsync(noteId);
     // 元のスコープ（All Notes）などで表示されるように調整
     router.push(`/notes/${noteId}?scope=all`);
-  };
+  }, [noteId, restoreNoteMutation, router]);
 
-  const handlePermanentDelete = async () => {
+  const handlePermanentDelete = useCallback(async () => {
     if (!noteId) return;
     if (confirm("Are you sure you want to delete this note permanently?")) {
       await permanentDeleteMutation.mutateAsync(noteId);
-      router.push(`/notes${buildQueryString()}`);
+      router.push(`/notes${queryString}`);
     }
-  };
+  }, [noteId, permanentDeleteMutation, router, queryString]);
 
   if (!noteId) {
     return (
@@ -216,7 +216,7 @@ export function Editor({ noteId, isMobile }: EditorProps) {
           {isMobile && (
             <button
               type="button"
-              onClick={() => router.push(`/notes${buildQueryString()}`)}
+              onClick={() => router.push(`/notes${queryString}`)}
               className="p-2 hover:bg-slate-100 rounded-full transition-colors mr-2"
             >
               <ChevronLeft className="w-5 h-5 text-slate-600" />
