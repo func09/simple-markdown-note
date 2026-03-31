@@ -34,13 +34,13 @@ function formatDate(dateStr: string) {
 
 export function NoteList({ selectedNoteId }: NoteListProps) {
   const router = useRouter();
-  const {
-    searchQuery,
-    setSearchQuery,
-    filterScope: scope,
-    filterTag: tag,
-    setSelectedNoteId,
-  } = useNotesStore();
+
+  // ストアの個別の値をセレクタ形式で購読（不要な再描画を防ぐ）
+  const searchQuery = useNotesStore((s) => s.searchQuery);
+  const setSearchQuery = useNotesStore((s) => s.setSearchQuery);
+  const scope = useNotesStore((s) => s.filterScope);
+  const tag = useNotesStore((s) => s.filterTag);
+  const setSelectedNoteId = useNotesStore((s) => s.setSelectedNoteId);
 
   const { data: notes = [], isLoading } = useNotes({
     scope,
@@ -78,6 +78,9 @@ export function NoteList({ selectedNoteId }: NoteListProps) {
     }
   }, [createNoteMutation, setSelectedNoteId, router, queryString]);
 
+  // データがある場合は isLoading が真（フェッチ中）であってもリストを表示し続け、DOMの再生成を防ぐ
+  const shouldShowSkeleton = isLoading && notes.length === 0;
+
   return (
     <div className="flex flex-col h-full bg-white border-r border-slate-200">
       {/* Top Header - Search & New Note */}
@@ -109,7 +112,7 @@ export function NoteList({ selectedNoteId }: NoteListProps) {
 
       {/* Note List Items */}
       <div className="flex-1 overflow-y-auto custom-scrollbar">
-        {isLoading ? (
+        {shouldShowSkeleton ? (
           <div className="space-y-4 p-4">
             {["sk1", "sk2", "sk3", "sk4", "sk5"].map((id) => (
               <div key={id} className="animate-pulse flex flex-col gap-2">
@@ -166,3 +169,5 @@ export function NoteList({ selectedNoteId }: NoteListProps) {
     </div>
   );
 }
+
+NoteList.displayName = "NoteList";
