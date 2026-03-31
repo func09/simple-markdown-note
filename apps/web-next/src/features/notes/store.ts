@@ -15,12 +15,9 @@ interface NotesState {
   filterScope: NoteScope;
   // フィルタリング対象のタグ名
   filterTag: string | null;
-  // 新規作成中かどうか（初回編集時にAPIを叩くため）
-  isCreatingNewNote: boolean;
 
   // Actions
   setSelectedNoteId: (id: string | null) => void;
-  setIsCreatingNewNote: (val: boolean) => void;
   setSearchQuery: (query: string) => void;
   setFilterScope: (scope: NoteScope) => void;
   setFilterTag: (tag: string | null) => void;
@@ -34,41 +31,21 @@ export const useNotesStore = create<NotesState>()(
       searchQuery: "",
       filterScope: "all",
       filterTag: null,
-      isCreatingNewNote: false,
 
       setSelectedNoteId: (id) =>
-        set(
-          { selectedNoteId: id, isCreatingNewNote: false },
-          false,
-          "setSelectedNoteId"
-        ),
-      setIsCreatingNewNote: (val) =>
-        set(
-          { isCreatingNewNote: val, selectedNoteId: val ? null : undefined },
-          false,
-          "setIsCreatingNewNote"
-        ),
+        set({ selectedNoteId: id }, false, "setSelectedNoteId"),
       setSearchQuery: (query) =>
         set({ searchQuery: query }, false, "setSearchQuery"),
       setFilterScope: (scope) =>
-        set(
-          { filterScope: scope, filterTag: null, selectedNoteId: null },
-          false,
-          "setFilterScope"
-        ),
+        set({ filterScope: scope, filterTag: null }, false, "setFilterScope"),
       setFilterTag: (tag) =>
-        set(
-          { filterTag: tag, filterScope: "all", selectedNoteId: null },
-          false,
-          "setFilterTag"
-        ),
+        set({ filterTag: tag, filterScope: "all" }, false, "setFilterTag"),
       resetFilters: () =>
         set(
           {
             searchQuery: "",
             filterScope: "all",
             filterTag: null,
-            isCreatingNewNote: false,
           },
           false,
           "resetFilters"

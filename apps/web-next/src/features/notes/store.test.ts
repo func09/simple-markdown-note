@@ -15,7 +15,6 @@ describe("useNotesStore", () => {
     expect(state.searchQuery).toBe("");
     expect(state.filterScope).toBe("all");
     expect(state.filterTag).toBeNull();
-    expect(state.isCreatingNewNote).toBe(false);
   });
 
   it("filterScope を更新できること", () => {
@@ -41,7 +40,6 @@ describe("useNotesStore", () => {
       searchQuery: "hello",
       filterScope: "trash",
       filterTag: "work",
-      isCreatingNewNote: true,
     });
 
     useNotesStore.getState().resetFilters();
@@ -50,6 +48,5 @@ describe("useNotesStore", () => {
     expect(state.searchQuery).toBe("");
     expect(state.filterScope).toBe("all");
     expect(state.filterTag).toBeNull();
-    expect(state.isCreatingNewNote).toBe(false);
   });
 });
