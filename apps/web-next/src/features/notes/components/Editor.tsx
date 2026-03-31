@@ -9,6 +9,7 @@ import {
   ChevronLeft,
   Edit3,
   Eye,
+  Info,
   Plus,
   Tag as TagIcon,
   Trash2,
@@ -33,6 +34,18 @@ const markdownComponents: Components = {
   li: ({ children }) => <li className="whitespace-pre-wrap">{children}</li>,
 };
 
+function formatDate(date?: string | Date) {
+  if (!date) return "N/A";
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  }).format(new Date(date));
+}
+
 function escapeHtml(text: string): string {
   return text
     .replace(/&/g, "&amp;")
@@ -49,9 +62,22 @@ interface EditorProps {
 export function Editor({ noteId, isMobile }: EditorProps) {
   const [isPreview, setIsPreview] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const infoRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const scope = useNotesStore((s) => s.filterScope);
   const tag = useNotesStore((s) => s.filterTag);
+
+  // ポップオーバー外クリックの検知
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (infoRef.current && !infoRef.current.contains(event.target as Node)) {
+        setIsInfoOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const queryString = useMemo(() => {
     const params = new URLSearchParams();
@@ -273,6 +299,73 @@ export function Editor({ noteId, isMobile }: EditorProps) {
         </div>
 
         <div className="flex items-center gap-1">
+          <div className="relative" ref={infoRef}>
+            <button
+              type="button"
+              onClick={() => setIsInfoOpen(!isInfoOpen)}
+              className={cn(
+                "p-2 rounded-full transition-all active:scale-95",
+                isInfoOpen
+                  ? "bg-slate-100 text-slate-900"
+                  : "text-slate-400 hover:bg-slate-50 hover:text-slate-600"
+              )}
+              title="Note Info"
+            >
+              <Info className="w-5 h-5" />
+            </button>
+
+            {isInfoOpen && (
+              <div className="absolute right-0 mt-2 w-64 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-100 p-5 z-50 animate-in fade-in zoom-in duration-200 origin-top-right">
+                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
+                  Note Information
+                </h4>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-[10px] font-medium text-slate-400 uppercase tracking-tight mb-0.5">
+                        Characters
+                      </p>
+                      <p className="text-lg font-semibold text-slate-900 tabular-nums">
+                        {editor?.storage.characterCount
+                          .characters()
+                          .toLocaleString()}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-medium text-slate-400 uppercase tracking-tight mb-0.5">
+                        Words
+                      </p>
+                      <p className="text-lg font-semibold text-slate-900 tabular-nums">
+                        {editor?.storage.characterCount
+                          .words()
+                          .toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-slate-50 space-y-3">
+                    <div>
+                      <p className="text-[10px] font-medium text-slate-400 uppercase tracking-tight mb-1">
+                        Modified
+                      </p>
+                      <p className="text-xs text-slate-600 font-medium">
+                        {formatDate(note?.updatedAt)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-medium text-slate-400 uppercase tracking-tight mb-1">
+                        Created
+                      </p>
+                      <p className="text-xs text-slate-600 font-medium">
+                        {formatDate(note?.createdAt)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
           {isTrashView ? (
             <>
               <button
