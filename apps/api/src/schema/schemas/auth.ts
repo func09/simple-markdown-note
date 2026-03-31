@@ -24,6 +24,9 @@ export const AuthResponseSchema = z
   })
   .openapi("AuthResponse");
 
+export const MeResponseSchema = UserSchema.openapi("MeResponse");
+
 export type SignupRequest = z.infer<typeof SignupRequestSchema>;
 export type SigninRequest = z.infer<typeof SigninRequestSchema>;
 export type AuthResponse = z.infer<typeof AuthResponseSchema>;
+export type MeResponse = z.infer<typeof MeResponseSchema>;

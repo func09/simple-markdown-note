@@ -1,6 +1,7 @@
 import type { Note } from "api";
 import { Plus, Search, Tag as TagIcon, X } from "lucide-react";
 import type React from "react";
+import { useId } from "react";
 
 import { Button } from "@/components/common/Button";
 import { Skeleton } from "@/components/common/Display";
@@ -38,6 +39,7 @@ export const NoteList: React.FC<NoteListProps> = ({
     updateSelection,
   } = useDashboardState();
   const { searchQuery, setSearchQuery } = useDashboardStore();
+  const listId = useId();
 
   return (
     <div className="flex h-full flex-col bg-[#0f172a]/50">
@@ -127,10 +129,7 @@ export const NoteList: React.FC<NoteListProps> = ({
       </div>
 
       {/* Note List with ScrollArea */}
-      <div
-        id="note-list-container"
-        className="min-h-0 flex-1 focus:outline-hidden"
-      >
+      <div id={listId} className="min-h-0 flex-1 focus:outline-hidden">
         <div className="h-full overflow-y-auto custom-scrollbar">
           <div className="px-3 pb-8">
             {isLoading ? (

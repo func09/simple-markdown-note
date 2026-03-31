@@ -8,7 +8,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import type React from "react";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Button } from "@/components/common/Button";
 import {
   Alert,
@@ -35,6 +35,8 @@ export const DesktopAuthForm: React.FC<AuthFormProps> = ({
 }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const emailId = useId();
+  const passwordId = useId();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,7 +84,7 @@ export const DesktopAuthForm: React.FC<AuthFormProps> = ({
 
             <div className="space-y-2">
               <Label
-                htmlFor="desktop-email"
+                htmlFor={emailId}
                 className="ml-1 text-sm font-medium text-slate-200"
               >
                 Email
@@ -90,7 +92,7 @@ export const DesktopAuthForm: React.FC<AuthFormProps> = ({
               <div className="relative group">
                 <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500 transition-colors group-focus-within:text-blue-500" />
                 <Input
-                  id="desktop-email"
+                  id={emailId}
                   type="email"
                   required
                   value={email}
@@ -104,7 +106,7 @@ export const DesktopAuthForm: React.FC<AuthFormProps> = ({
 
             <div className="space-y-2">
               <Label
-                htmlFor="desktop-password"
+                htmlFor={passwordId}
                 className="ml-1 text-sm font-medium text-slate-200"
               >
                 Password
@@ -112,7 +114,7 @@ export const DesktopAuthForm: React.FC<AuthFormProps> = ({
               <div className="relative group">
                 <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500 transition-colors group-focus-within:text-blue-500" />
                 <Input
-                  id="desktop-password"
+                  id={passwordId}
                   type="password"
                   required
                   value={password}

@@ -1,7 +1,7 @@
 import type { Note } from "api";
 import { Clock, Info } from "lucide-react";
 import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 
 import { Textarea } from "@/components/common/Form";
 
@@ -28,6 +28,7 @@ export const EditorCore: React.FC<EditorCoreProps> = ({
   const [content, setContent] = useState(note?.content || "");
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const updateNoteMutation = useUpdateNote();
+  const titleId = useId();
 
   const titleRef = useRef<HTMLTextAreaElement>(null);
   const bodyRef = useRef<HTMLTextAreaElement>(null);
@@ -114,7 +115,7 @@ export const EditorCore: React.FC<EditorCoreProps> = ({
           <div className="mb-1 w-full shrink-0">
             <textarea
               ref={titleRef}
-              id="editor-title"
+              id={titleId}
               rows={1}
               value={title}
               onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
