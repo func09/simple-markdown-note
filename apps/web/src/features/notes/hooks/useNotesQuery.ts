@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Note, Tag } from "api";
 
-import * as noteApi from "../features/notes/api";
-import { db } from "../lib/db";
+import * as noteApi from "../../../features/notes/api";
+import { db } from "../../../lib/db";
 
 /**
  * タグ一覧を取得するためのクエリフック
@@ -18,7 +18,7 @@ export const useTags = () => {
   });
 };
 
-import { useTriggerSync } from "../features/notes/hooks/useSync";
+import { useTriggerSync } from "../../../features/notes/hooks/useSync";
 
 /**
  * ノートを作成するためのミューテーションフック

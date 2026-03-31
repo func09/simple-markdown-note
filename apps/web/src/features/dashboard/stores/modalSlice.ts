@@ -1,4 +1,4 @@
-import type { DashboardSliceCreator, ModalSlice } from "./types";
+import type { DashboardSliceCreator, ModalSlice } from "../../../types";
 
 /**
  * モーダル管理に関連するスライスの作成

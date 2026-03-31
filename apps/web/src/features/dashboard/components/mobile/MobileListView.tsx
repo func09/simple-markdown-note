@@ -1,6 +1,6 @@
 import type { Note } from "api";
 import React from "react";
-import { MobileHeader, NoteList } from "../features/notes/components";
+import { MobileHeader, NoteList } from "../../../../features/notes/components";
 
 interface MobileListViewProps {
   filteredNotes: Note[];

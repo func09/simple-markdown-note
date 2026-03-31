@@ -1,9 +1,9 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import * as noteApi from "../features/notes/api";
-import { useSync, useTriggerSync } from "../features/notes/hooks/useSync";
-import { db } from "../lib/db";
+import * as noteApi from "../../../features/notes/api";
+import { useSync, useTriggerSync } from "../../../features/notes/hooks/useSync";
+import { db } from "../../../lib/db";
 
 vi.mock("../lib/db", () => ({
   db: {

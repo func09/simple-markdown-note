@@ -1,4 +1,4 @@
-import type { DashboardSliceCreator, FilterSlice } from "./types";
+import type { DashboardSliceCreator, FilterSlice } from "../../../types";
 
 /**
  * 検索とフィルタリングに関連するスライスの作成

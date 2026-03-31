@@ -1,10 +1,10 @@
 import { Menu, Plus, StickyNote } from "lucide-react";
 import React from "react";
 
-import { Button } from "../components/common/Button";
+import { Button } from "../../../../components/common/Button";
 
-import { useDashboardState } from "../features/dashboard/hooks";
-import { useDashboardStore } from "../features/dashboard/stores";
+import { useDashboardState } from "../../../../features/dashboard/hooks";
+import { useDashboardStore } from "../../../../features/dashboard/stores";
 
 interface MobileHeaderProps {
   onCreateNote?: () => void;
