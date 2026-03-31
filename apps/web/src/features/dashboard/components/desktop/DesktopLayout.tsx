@@ -12,6 +12,8 @@ interface DesktopLayoutProps {
  */
 export const DesktopLayout: React.FC<DesktopLayoutProps> = React.memo(
   ({ nav, list, main }) => {
+    const editorId = React.useId();
+
     return (
       <div className="flex h-screen w-full overflow-hidden bg-[#0f172a] text-slate-200">
         {/* Column 1: Navigation */}
@@ -27,7 +29,7 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = React.memo(
         {/* Column 3: Main Editor */}
         <main
           className="flex h-full min-w-0 flex-1 flex-col bg-[#0f172a]"
-          id="note-editor"
+          id={editorId}
         >
           {main}
         </main>
