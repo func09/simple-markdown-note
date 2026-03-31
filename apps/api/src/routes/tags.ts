@@ -7,9 +7,15 @@ import {
 import { createTag, getTagsWithNoteCount } from "../services/tagService";
 import type { AppEnv } from "../types";
 
+/**
+ * タグ関連のルーター
+ * タグの一覧取得・新規作成エンドポイントを提供する
+ */
 const tagsRouter = new OpenAPIHono<AppEnv>();
 
-// タグ一覧取得エンドポイントの定義
+// --- Routes Definition ---
+
+/** GET / — タグ一覧取得ルート定義 */
 const tagsListRoute = createRoute({
   method: "get",
   path: "/",
@@ -27,7 +33,7 @@ const tagsListRoute = createRoute({
   },
 });
 
-// タグ新規作成エンドポイントの定義
+/** POST / — タグ作成ルート定義 */
 const createTagRoute = createRoute({
   method: "post",
   path: "/",
@@ -54,7 +60,12 @@ const createTagRoute = createRoute({
   },
 });
 
-// GET: タグ一覧取得
+// --- Handlers ---
+
+/**
+ * タグ一覧取得
+ * 認証ユーザーが持つ全タグをノート数と共に返す
+ */
 tagsRouter.openapi(tagsListRoute, async (c) => {
   const userId = c.get("userId");
   const db = c.var.db;
@@ -64,7 +75,10 @@ tagsRouter.openapi(tagsListRoute, async (c) => {
   return c.json(results);
 });
 
-// POST: タグ新規作成
+/**
+ * タグ新規作成
+ * 同名のタグが既に存在する場合はそれを返す（upsert 的な挙動）
+ */
 tagsRouter.openapi(createTagRoute, async (c) => {
   const userId = c.get("userId");
   const db = c.var.db;
