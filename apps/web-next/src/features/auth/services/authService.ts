@@ -44,6 +44,7 @@ export const authService = {
 
   /**
    * 現在のログインユーザー情報を取得
+   * セッション維持のため実際のユーザー情報をサーバーから取得する
    */
   async getMe() {
     try {
@@ -53,13 +54,5 @@ export const authService = {
       console.error("getMe unexpected error:", error);
       return null;
     }
-  },
-
-  /**
-   * 認証済み確認
-   */
-  async isAuthenticated(): Promise<boolean> {
-    const user = await authService.getMe();
-    return !!user;
   },
 };
