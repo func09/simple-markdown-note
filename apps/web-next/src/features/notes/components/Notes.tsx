@@ -3,7 +3,7 @@
 import type { NoteScope } from "api/schema";
 import { Menu } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { cn } from "@/lib/utils";
 import { useNotesStore } from "../store";
@@ -47,6 +47,9 @@ export function Notes({ selectedNoteId: propSelectedNoteId }: NotesProps) {
     }
   }, [propSelectedNoteId, setSelectedNoteId]);
 
+  const closeSidebar = useCallback(() => setIsSidebarOpen(false), []);
+  const openSidebar = useCallback(() => setIsSidebarOpen(true), []);
+
   // Handle drawer close on resize to desktop
   useEffect(() => {
     if (isDesktop) setIsSidebarOpen(false);
@@ -64,14 +67,14 @@ export function Notes({ selectedNoteId: propSelectedNoteId }: NotesProps) {
           isSidebarOpen && !isDesktop && "translate-x-0"
         )}
       >
-        <Sidebar onClose={() => setIsSidebarOpen(false)} />
+        <Sidebar onClose={closeSidebar} />
       </aside>
 
       {/* Mobile Drawer Overlay */}
       {!isDesktop && isSidebarOpen && (
         <div
           className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-35 animate-in fade-in duration-300"
-          onClick={() => setIsSidebarOpen(false)}
+          onClick={closeSidebar}
         />
       )}
 
@@ -92,7 +95,7 @@ export function Notes({ selectedNoteId: propSelectedNoteId }: NotesProps) {
             <div className="p-4 flex items-center gap-2 bg-white border-b border-slate-100 lg:hidden">
               <button
                 type="button"
-                onClick={() => setIsSidebarOpen(true)}
+                onClick={openSidebar}
                 className="p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-full"
               >
                 <Menu className="w-5 h-5" />

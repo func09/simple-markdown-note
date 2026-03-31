@@ -3,49 +3,34 @@
 import { FileText, Hash, LogOut, Trash2 } from "lucide-react";
 import Link from "next/link";
 import type { ElementType } from "react";
+import { useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { useLogout } from "../../auth/queries";
 import { useAuthStore } from "../../auth/store";
 import { useTags } from "../queries";
 import { useNotesStore } from "../store";
 
-interface SidebarProps {
-  onClose?: () => void;
+interface NavItemProps {
+  href: string;
+  icon: ElementType;
+  label: string;
+  active: boolean;
+  count?: number;
+  onClick: () => void;
 }
 
-export function Sidebar({ onClose }: SidebarProps) {
-  const { filterScope, filterTag, setFilterScope, setFilterTag } =
-    useNotesStore();
-  const { data: tags = [], isLoading } = useTags();
-  const user = useAuthStore((state) => state.user);
-  const logoutMutation = useLogout();
-
-  const handleLogout = () => {
-    logoutMutation.mutate();
-  };
-
-  const NavItem = ({
-    href,
-    icon: Icon,
-    label,
-    active,
-    count,
-    onClick,
-  }: {
-    href: string;
-    icon: ElementType;
-    label: string;
-    active: boolean;
-    count?: number;
-    onClick: () => void;
-  }) => (
+function NavItem({
+  href,
+  icon: Icon,
+  label,
+  active,
+  count,
+  onClick,
+}: NavItemProps) {
+  return (
     <Link
       href={href}
-      onClick={(_e) => {
-        // e.preventDefault(); // URLも更新したい場合は preventDefault しない
-        onClick();
-        onClose?.();
-      }}
+      onClick={onClick}
       className={cn(
         "group flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-colors",
         active
@@ -71,6 +56,32 @@ export function Sidebar({ onClose }: SidebarProps) {
       )}
     </Link>
   );
+}
+
+interface SidebarProps {
+  onClose?: () => void;
+}
+
+export function Sidebar({ onClose }: SidebarProps) {
+  const { filterScope, filterTag, setFilterScope, setFilterTag } =
+    useNotesStore();
+  const { data: tags = [], isLoading } = useTags();
+  const user = useAuthStore((state) => state.user);
+  const logoutMutation = useLogout();
+
+  const handleLogout = useCallback(() => {
+    logoutMutation.mutate();
+  }, [logoutMutation]);
+
+  const handleAllNotes = useCallback(() => {
+    setFilterScope("all");
+    onClose?.();
+  }, [setFilterScope, onClose]);
+
+  const handleTrash = useCallback(() => {
+    setFilterScope("trash");
+    onClose?.();
+  }, [setFilterScope, onClose]);
 
   return (
     <div className="flex flex-col h-full bg-slate-50 border-r border-slate-200 w-full overflow-y-auto custom-scrollbar">
@@ -92,14 +103,14 @@ export function Sidebar({ onClose }: SidebarProps) {
             icon={FileText}
             label="All Notes"
             active={filterScope === "all" && !filterTag}
-            onClick={() => setFilterScope("all")}
+            onClick={handleAllNotes}
           />
           <NavItem
             href="/notes?scope=trash"
             icon={Trash2}
             label="Trash"
             active={filterScope === "trash"}
-            onClick={() => setFilterScope("trash")}
+            onClick={handleTrash}
           />
         </div>
 
@@ -122,7 +133,10 @@ export function Sidebar({ onClose }: SidebarProps) {
                   label={tag.name}
                   active={filterTag === tag.name}
                   count={tag.count}
-                  onClick={() => setFilterTag(tag.name)}
+                  onClick={() => {
+                    setFilterTag(tag.name);
+                    onClose?.();
+                  }}
                 />
               ))
             )}
