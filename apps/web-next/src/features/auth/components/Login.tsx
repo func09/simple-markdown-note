@@ -9,8 +9,10 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type React from "react";
 import { useId, useState } from "react";
+import { toast } from "sonner";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -24,14 +26,15 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useLogin } from "../hooks/useAuthLogic";
+import { useLogin } from "../queries";
 
 /**
  * ログインコンテナ
  * フォームの表示と認証ロジックを統合したコンポーネントです。
  */
 export function Login() {
-  const { handleLogin, isLoading, error } = useLogin();
+  const { mutate, isPending: isLoading, error } = useLogin();
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const emailId = useId();
@@ -39,7 +42,18 @@ export function Login() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    handleLogin({ email, password });
+    mutate(
+      { email, password },
+      {
+        onSuccess: () => {
+          toast.success("Successfully logged in");
+          router.push("/notes?scope=all");
+        },
+        onError: (err: Error) => {
+          toast.error(err.message || "Login failed");
+        },
+      }
+    );
   };
 
   return (
@@ -71,7 +85,9 @@ export function Login() {
                 >
                   <AlertCircle className="h-4 w-4" />
                   <AlertTitle>Error</AlertTitle>
-                  <AlertDescription>{error}</AlertDescription>
+                  <AlertDescription>
+                    {error instanceof Error ? error.message : "Login failed"}
+                  </AlertDescription>
                 </Alert>
               )}
 

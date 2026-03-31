@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { logout } from "@/features/auth/api";
+import { toast } from "sonner";
+import { useLogout } from "@/features/auth/queries";
 
 interface NotesProps {
   context: {
@@ -13,10 +14,18 @@ interface NotesProps {
 
 export function Notes({ context, selectedNoteId }: NotesProps) {
   const router = useRouter();
+  const { mutate } = useLogout();
 
-  const handleLogout = async () => {
-    await logout();
-    router.push("/login");
+  const handleLogout = () => {
+    mutate(undefined, {
+      onSuccess: () => {
+        toast.success("Logged out successfully");
+        router.push("/login");
+      },
+      onError: (err: Error) => {
+        toast.error(err.message || "Logout failed");
+      },
+    });
   };
 
   return (

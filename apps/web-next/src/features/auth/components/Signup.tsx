@@ -9,8 +9,10 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type React from "react";
 import { useId, useState } from "react";
+import { toast } from "sonner";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -24,14 +26,15 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useSignup } from "../hooks/useAuthLogic";
+import { useSignup } from "../queries";
 
 /**
  * 新規登録コンテナ
  * フォームの表示と認証ロジックを統合したコンポーネントです。
  */
 export function Signup() {
-  const { handleSignup, isLoading, error } = useSignup();
+  const { mutate, isPending: isLoading, error } = useSignup();
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const emailId = useId();
@@ -39,7 +42,18 @@ export function Signup() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    handleSignup({ email, password });
+    mutate(
+      { email, password },
+      {
+        onSuccess: () => {
+          toast.success("Successfully signed up!");
+          router.push("/notes?scope=all");
+        },
+        onError: (err: Error) => {
+          toast.error(err.message || "Signup failed");
+        },
+      }
+    );
   };
 
   return (
@@ -71,7 +85,9 @@ export function Signup() {
                 >
                   <AlertCircle className="h-4 w-4" />
                   <AlertTitle>Error</AlertTitle>
-                  <AlertDescription>{error}</AlertDescription>
+                  <AlertDescription>
+                    {error instanceof Error ? error.message : "Signup failed"}
+                  </AlertDescription>
                 </Alert>
               )}
 
