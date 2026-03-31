@@ -1,6 +1,6 @@
 import { NOTE_SCOPE, NOTE_SCOPES } from "database";
-import { z } from "@/api/schema/z";
 import { NoteSchema } from "../models/note";
+import { z } from "../z";
 
 export { NOTE_SCOPE, NOTE_SCOPES };
 

@@ -3,7 +3,7 @@ import {
   TagCreateRequestSchema,
   TagListResponseSchema,
   TagSchema,
-} from "@/api/schema";
+} from "../schema";
 import { createTag, getTagsWithNoteCount } from "../services/tagService";
 import type { AppEnv } from "../types";
 

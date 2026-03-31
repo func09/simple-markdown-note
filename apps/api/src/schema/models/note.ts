@@ -1,4 +1,4 @@
-import { z } from "@/api/schema/z";
+import { z } from "../z";
 import { TagSchema } from "./tag";
 
 /**

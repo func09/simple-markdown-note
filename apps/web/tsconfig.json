@@ -5,13 +5,7 @@
     "useDefineForClassFields": true,
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "jsx": "react-jsx",
-    "allowImportingTsExtensions": true,
-    "paths": {
-      "@/web": ["./src/main.tsx"],
-      "@/web/*": ["./src/*"],
-      "@/database": ["../../packages/database/src/index.ts"],
-      "@/database/*": ["../../packages/database/src/*"]
-    }
+    "allowImportingTsExtensions": true
   },
   "files": [],
   "references": [

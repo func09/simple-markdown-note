@@ -1,9 +1,9 @@
 import { Tag as TagIcon, X } from "lucide-react";
 import type React from "react";
 
-import { Badge } from "@/web/components/common/Display";
+import { Badge } from "../components/common/Display";
 
-import { useTagInput } from "@/web/features/notes/hooks";
+import { useTagInput } from "../features/notes/hooks";
 
 interface TagInputProps {
   tags: string[];

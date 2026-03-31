@@ -4,7 +4,7 @@ import {
   AuthResponseSchema,
   SigninRequestSchema,
   SignupRequestSchema,
-} from "@/api/schema";
+} from "../schema";
 import { signin, signup } from "../services/authService";
 import type { AppEnv } from "../types";
 

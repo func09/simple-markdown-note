@@ -1,13 +1,13 @@
 import { useLiveQuery } from "dexie-react-hooks";
 import React, { useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useDashboardActions } from "@/web/features/dashboard/hooks/useDashboardActions";
-import { useDashboardStore } from "@/web/features/dashboard/stores";
-import { useOramaSearch, useSync } from "@/web/features/notes/hooks";
-import { getNotePath } from "@/web/features/notes/utils/path";
-import { useMediaQuery } from "@/web/hooks/useMediaQuery";
+import { useDashboardActions } from "../features/dashboard/hooks/useDashboardActions";
+import { useDashboardStore } from "../features/dashboard/stores";
+import { useOramaSearch, useSync } from "../features/notes/hooks";
+import { getNotePath } from "../features/notes/utils/path";
+import { useMediaQuery } from "../hooks/useMediaQuery";
 
-import { db } from "@/web/lib/db";
+import { db } from "../lib/db";
 
 /**
  * DesktopとMobileの両方のDashboardで共有されるビジネスロジックと状態を管理するカスタムフック

@@ -4,11 +4,7 @@
     "types": ["node"],
     "declaration": true,
     "outDir": "./dist",
-    "rootDir": "./src",
-    "paths": {
-      "@/database": ["./src/index.ts"],
-      "@/database/*": ["./src/*"]
-    }
+    "rootDir": "./src"
   },
   "include": ["src"]
 }

@@ -1,8 +1,8 @@
 import { db, users } from "database";
 import { beforeAll, describe, expect, it } from "vitest";
 import type { z } from "zod";
-import type { AuthResponseSchema } from "@/api/schema";
 import { app } from "../index";
+import type { AuthResponseSchema } from "../schema";
 
 describe("Auth API", () => {
   beforeAll(async () => {
@@ -13,7 +13,7 @@ describe("Auth API", () => {
 
   // ユーザー登録のテスト
   it("should signup a new user", async () => {
-    const res = await app.request("/api/auth/signup", {
+    const res = await app.request("/../auth/signup", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -31,7 +31,7 @@ describe("Auth API", () => {
   });
 
   it("should signin an existing user", async () => {
-    const res = await app.request("/api/auth/signin", {
+    const res = await app.request("/../auth/signin", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -49,7 +49,7 @@ describe("Auth API", () => {
   });
 
   it("should return error for invalid credentials", async () => {
-    const res = await app.request("/api/auth/signin", {
+    const res = await app.request("/../auth/signin", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

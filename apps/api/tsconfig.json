@@ -1,13 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "types": ["@cloudflare/workers-types", "node"],
-    "paths": {
-      "@/api": ["./src/index.ts"],
-      "@/api/*": ["./src/*"],
-      "@/database": ["../../packages/database/src/index.ts"],
-      "@/database/*": ["../../packages/database/src/*"]
-    }
+    "types": ["@cloudflare/workers-types", "node"]
   },
   "include": ["src", "vitest.setup.ts"]
 }
