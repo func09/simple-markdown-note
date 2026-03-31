@@ -8,8 +8,7 @@ import { tagsRouter } from "./tags";
  * API ルートの集約
  * /api 以下の全エンドポイントをここで登録する
  */
-export const apiRouter = new OpenAPIHono<AppEnv>();
-
-apiRouter.route("/notes", notesRouter);
-apiRouter.route("/tags", tagsRouter);
-apiRouter.route("/auth", authRouter);
+export const apiRouter = new OpenAPIHono<AppEnv>()
+  .route("/notes", notesRouter)
+  .route("/tags", tagsRouter)
+  .route("/auth", authRouter);
