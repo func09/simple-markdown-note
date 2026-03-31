@@ -30,6 +30,7 @@ export async function ALL(
   // ログアウト処理の特例
   if (path === "auth/logout") {
     cookieStore.delete("token");
+    cookieStore.delete("is_logged_in");
     return NextResponse.json({ success: true });
   }
 
@@ -55,11 +56,19 @@ export async function ALL(
 
     const isAuth = path.includes("signin") || path.includes("signup");
     if (isAuth && typeof data.token === "string") {
-      (await cookieStore).set("token", data.token, {
+      cookieStore.set("token", data.token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
         path: "/",
+      });
+
+      // JSからログイン状態を確認するためのCookieを追加
+      cookieStore.set("is_logged_in", "true", {
+        path: "/",
+        maxAge: 60 * 60 * 24 * 7, // 1週間
+        httpOnly: false, // JSから見えるようにする
+        sameSite: "lax",
       });
     }
 
