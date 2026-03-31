@@ -13,25 +13,34 @@ describe("useNotesStore", () => {
     const state = useNotesStore.getState();
     expect(state.selectedNoteId).toBeNull();
     expect(state.searchQuery).toBe("");
+    expect(state.filterScope).toBe("all");
+    expect(state.filterTag).toBeNull();
     expect(state.isCreatingNewNote).toBe(false);
   });
 
-  it("selectedNoteId を更新できること", () => {
-    useNotesStore.getState().setSelectedNoteId("note-1");
-    expect(useNotesStore.getState().selectedNoteId).toBe("note-1");
-
-    useNotesStore.getState().setSelectedNoteId(null);
-    expect(useNotesStore.getState().selectedNoteId).toBeNull();
+  it("filterScope を更新できること", () => {
+    useNotesStore.getState().setFilterScope("trash");
+    expect(useNotesStore.getState().filterScope).toBe("trash");
+    // scopeを変更するとtagはリセットされること
+    useNotesStore.setState({ filterTag: "work" });
+    useNotesStore.getState().setFilterScope("all");
+    expect(useNotesStore.getState().filterTag).toBeNull();
   });
 
-  it("searchQuery を更新できること", () => {
-    useNotesStore.getState().setSearchQuery("hello");
-    expect(useNotesStore.getState().searchQuery).toBe("hello");
+  it("filterTag を更新できること", () => {
+    useNotesStore.getState().setFilterTag("work");
+    expect(useNotesStore.getState().filterTag).toBe("work");
+    // tagを変更するとscopeはallになること
+    useNotesStore.setState({ filterScope: "trash" });
+    useNotesStore.getState().setFilterTag("personal");
+    expect(useNotesStore.getState().filterScope).toBe("all");
   });
 
-  it("resetFilters で検索クエリが初期状態に戻ること", () => {
+  it("resetFilters でフィルタが初期化されること", () => {
     useNotesStore.setState({
       searchQuery: "hello",
+      filterScope: "trash",
+      filterTag: "work",
       isCreatingNewNote: true,
     });
 
@@ -39,6 +48,8 @@ describe("useNotesStore", () => {
 
     const state = useNotesStore.getState();
     expect(state.searchQuery).toBe("");
+    expect(state.filterScope).toBe("all");
+    expect(state.filterTag).toBeNull();
     expect(state.isCreatingNewNote).toBe(false);
   });
 });

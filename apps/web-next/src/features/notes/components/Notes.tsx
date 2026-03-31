@@ -1,6 +1,8 @@
 "use client";
 
+import type { NoteScope } from "api/schema";
 import { Menu } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { cn } from "@/lib/utils";
@@ -17,9 +19,28 @@ export function Notes({ selectedNoteId: propSelectedNoteId }: NotesProps) {
   const isDesktop = useMediaQuery("(min-width: 1024px)");
   const isTablet = useMediaQuery("(min-width: 768px)");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const searchParams = useSearchParams();
 
-  const { selectedNoteId: storeSelectedNoteId, setSelectedNoteId } =
-    useNotesStore();
+  const {
+    selectedNoteId: storeSelectedNoteId,
+    setSelectedNoteId,
+    setFilterScope,
+    setFilterTag,
+  } = useNotesStore();
+
+  // URLパラメータをストアに同期（初期化・ブラウザバック対応）
+  useEffect(() => {
+    const scope = searchParams.get("scope");
+    const tag = searchParams.get("tag");
+
+    if (tag) {
+      setFilterTag(tag);
+    } else if (scope) {
+      setFilterScope(scope as NoteScope);
+    } else {
+      setFilterScope("all");
+    }
+  }, [searchParams, setFilterScope, setFilterTag]);
 
   useEffect(() => {
     setSelectedNoteId(propSelectedNoteId || null);

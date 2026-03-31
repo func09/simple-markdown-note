@@ -15,7 +15,7 @@ import {
   Tag as TagIcon,
   Trash2,
 } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -40,9 +40,20 @@ interface EditorProps {
 export function Editor({ noteId, isMobile }: EditorProps) {
   const [isPreview, setIsPreview] = useState(false);
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const { isCreatingNewNote, setIsCreatingNewNote } = useNotesStore();
-  const scope = searchParams.get("scope") || "all";
+  const {
+    isCreatingNewNote,
+    setIsCreatingNewNote,
+    filterScope: scope,
+    filterTag: tag,
+  } = useNotesStore();
+
+  const buildQueryString = () => {
+    const params = new URLSearchParams();
+    if (scope !== "all") params.set("scope", scope);
+    if (tag) params.set("tag", tag);
+    const qs = params.toString();
+    return qs ? `?${qs}` : "";
+  };
 
   // 1. データ取得
   const { data: note, isLoading } = useNote(noteId ?? null);
@@ -116,7 +127,7 @@ export function Editor({ noteId, isMobile }: EditorProps) {
         });
         setIsCreatingNewNote(false);
         // 新規IDでURLを更新
-        router.push(`/notes/${result.id}?${searchParams.toString()}`);
+        router.push(`/notes/${result.id}${buildQueryString()}`);
       } else if (noteId) {
         // 既存更新
         updateNoteMutation.mutate({ id: noteId, data: { content } });
@@ -149,7 +160,7 @@ export function Editor({ noteId, isMobile }: EditorProps) {
   const handleDelete = async () => {
     if (!noteId) return;
     await deleteNoteMutation.mutateAsync(noteId);
-    router.push(`/notes?${searchParams.toString()}`);
+    router.push(`/notes${buildQueryString()}`);
   };
 
   const handleRestore = async () => {
@@ -163,7 +174,7 @@ export function Editor({ noteId, isMobile }: EditorProps) {
     if (!noteId) return;
     if (confirm("Are you sure you want to delete this note permanently?")) {
       await permanentDeleteMutation.mutateAsync(noteId);
-      router.push(`/notes?${searchParams.toString()}`);
+      router.push(`/notes${buildQueryString()}`);
     }
   };
 
@@ -199,7 +210,7 @@ export function Editor({ noteId, isMobile }: EditorProps) {
           {isMobile && (
             <button
               type="button"
-              onClick={() => router.push("/notes?" + searchParams.toString())}
+              onClick={() => router.push("/notes" + buildQueryString())}
               className="p-2 hover:bg-slate-100 rounded-full transition-colors mr-2"
             >
               <ChevronLeft className="w-5 h-5 text-slate-600" />
