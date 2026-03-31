@@ -1,8 +1,15 @@
-import { serve } from "@hono/node-server";
 import { swaggerUI } from "@hono/swagger-ui";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
+import type { AppEnv } from "./types";
+
+/**
+ * Honoアプリケーションのインスタンス化 (宣言を最上部に移動)
+ */
+export const app = new OpenAPIHono<AppEnv>();
+
+// 他の内部モジュールは App インスタンス定義の後に読み込む（循環参照リスク低減）
 import {
   authContextExtractor,
   dbInjector,
@@ -12,11 +19,6 @@ import {
 import { apiRouter } from "./routes";
 
 export * from "./schema";
-
-import type { AppEnv } from "./types";
-
-// Honoアプリケーションのインスタンス化
-export const app = new OpenAPIHono<AppEnv>();
 
 // エラーハンドラー (JSONレスポンス)
 app.onError((err, c) => {
@@ -53,21 +55,6 @@ app.doc("/doc", {
 
 // Swagger UI の設定
 app.get("/ui", swaggerUI({ url: "/doc" }));
-
-// Node.js 環境（ローカルテスト等）での起動を維持
-if (
-  typeof process !== "undefined" &&
-  process.env?.NODE_ENV !== "test" &&
-  typeof caches === "undefined"
-) {
-  const port = 3000;
-  console.log(`Server is running on port ${port}`);
-  console.log(`Swagger UI: http://localhost:${port}/ui`);
-  serve({
-    fetch: app.fetch,
-    port,
-  });
-}
 
 export type AppType = typeof apiRouter;
 export default app;

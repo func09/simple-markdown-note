@@ -1,5 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { NoteCreateRequest, NoteQuery, NoteUpdateRequest } from "api";
+import type {
+  NoteCreateRequest,
+  NoteQuery,
+  NoteUpdateRequest,
+} from "api/schema";
 import {
   createNote,
   deleteNote,

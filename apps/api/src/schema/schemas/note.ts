@@ -1,4 +1,4 @@
-import { NOTE_SCOPE, NOTE_SCOPES } from "database";
+import { NOTE_SCOPE, NOTE_SCOPES } from "database/constants";
 import { NoteSchema } from "../models/note";
 import { z } from "../z";
 

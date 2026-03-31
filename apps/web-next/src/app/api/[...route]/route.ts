@@ -24,7 +24,8 @@ export async function ALL(
     );
   }
 
-  const targetUrl = `${baseUrl}/${path}`;
+  const { search } = new URL(request.url);
+  const targetUrl = `${baseUrl}/${path}${search}`;
   const cookieStore = await cookies();
 
   // ログアウト処理の特例

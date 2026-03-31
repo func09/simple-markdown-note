@@ -1,57 +1,48 @@
 "use client";
 
+import type { NoteScope } from "api/schema";
 import { Plus, Search } from "lucide-react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useNotes } from "../queries";
+import { useNotesStore } from "../store";
 
 interface NoteListProps {
   selectedNoteId?: string;
 }
 
-// モックデータ: ノート一覧
-const MOCK_NOTES = [
-  {
-    id: "note-1",
-    content: "# Welcome to Simplenote\nThis is a simple note-taking app.",
-    updatedAt: new Date(Date.now() - 1000 * 60 * 5), // 5 mins ago
-  },
-  {
-    id: "note-2",
-    content: "Project Ideas\n- Build a clone of Simplenote\n- Learn Next.js 16",
-    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-  },
-  {
-    id: "note-3",
-    content: "Shopping List\nMilk, Bread, Eggs, Coffee",
-    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
-  },
-  {
-    id: "note-4",
-    content: "Meeting Notes\nDiscuss the roadmap for Q2.",
-    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3), // 3 days ago
-  },
-];
-
 export function NoteList({ selectedNoteId }: NoteListProps) {
-  const [searchQuery, setSearchQuery] = useState("");
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const currentScope = searchParams.get("scope") || "all";
-  const currentTag = searchParams.get("tag");
+  const {
+    searchQuery,
+    setSearchQuery,
+    isCreatingNewNote,
+    setIsCreatingNewNote,
+  } = useNotesStore();
 
-  const filteredNotes = MOCK_NOTES.filter((note) =>
+  const scope = (searchParams.get("scope") as NoteScope) || "all";
+  const tag = searchParams.get("tag") || undefined;
+
+  const { data: notes = [], isLoading } = useNotes({
+    scope,
+    tag,
+  });
+
+  const filteredNotes = notes.filter((note) =>
     note.content.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const formatNotePreview = (content: string) => {
     const lines = content.split("\n");
-    const title = lines[0].replace(/^#\s*/, "") || "Untitled";
+    const title = lines[0].replace(/^#\s*/, "").trim() || "Untitled";
     const preview = lines.slice(1).join(" ").trim() || "No additional text";
     return { title, preview };
   };
 
-  const formatDate = (date: Date) => {
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
     const now = new Date();
     const diff = now.getTime() - date.getTime();
     if (diff < 1000 * 60 * 60 * 24) {
@@ -63,20 +54,24 @@ export function NoteList({ selectedNoteId }: NoteListProps) {
     return date.toLocaleDateString([], { month: "short", day: "numeric" });
   };
 
+  const handleAddNote = () => {
+    setIsCreatingNewNote(true);
+    // 既存のクエリパラメータを保持しつつ /notes に遷移（noteIdを外す）
+    const params = new URLSearchParams(searchParams.toString());
+    router.push(`/notes?${params.toString()}`);
+  };
+
   return (
     <div className="flex flex-col h-full bg-white border-r border-slate-200">
       {/* Top Header - Search & New Note */}
       <div className="p-4 space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold text-slate-900">
-            {currentTag
-              ? `#${currentTag}`
-              : currentScope === "trash"
-                ? "Trash"
-                : "All Notes"}
+            {tag ? `#${tag}` : scope === "trash" ? "Trash" : "All Notes"}
           </h2>
           <button
             type="button"
+            onClick={handleAddNote}
             className="p-2 text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
           >
             <Plus className="w-5 h-5" />
@@ -97,14 +92,22 @@ export function NoteList({ selectedNoteId }: NoteListProps) {
 
       {/* Note List Items */}
       <div className="flex-1 overflow-y-auto custom-scrollbar">
-        {filteredNotes.length > 0 ? (
+        {isLoading ? (
+          <div className="space-y-4 p-4">
+            {["sk1", "sk2", "sk3", "sk4", "sk5"].map((id) => (
+              <div key={id} className="animate-pulse flex flex-col gap-2">
+                <div className="h-4 bg-slate-100 rounded w-3/4" />
+                <div className="h-3 bg-slate-50 rounded w-1/2" />
+              </div>
+            ))}
+          </div>
+        ) : filteredNotes.length > 0 ? (
           <div className="divide-y divide-slate-100">
             {filteredNotes.map((note) => {
               const { title, preview } = formatNotePreview(note.content);
-              const isSelected = selectedNoteId === note.id;
-              const href = `/notes/${note.id}${
-                searchParams.toString() ? `?${searchParams.toString()}` : ""
-              }`;
+              const isSelected =
+                selectedNoteId === note.id && !isCreatingNewNote;
+              const href = `/notes/${note.id}?${searchParams.toString()}`;
 
               return (
                 <Link
@@ -138,7 +141,7 @@ export function NoteList({ selectedNoteId }: NoteListProps) {
               <Search className="w-6 h-6 text-slate-300" />
             </div>
             <p className="text-sm text-slate-500 font-medium whitespace-pre-wrap">
-              No notes found
+              {searchQuery ? "No matching notes" : "No notes found"}
             </p>
           </div>
         )}

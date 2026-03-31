@@ -1,4 +1,3 @@
-import { NOTE_SCOPE, type NoteScope } from "api";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 
@@ -11,16 +10,13 @@ interface NotesState {
   selectedNoteId: string | null;
   // 検索クエリ
   searchQuery: string;
-  // 表示スコープ (all, trash, untagged)
-  filterScope: NoteScope;
-  // 選択中のタグ
-  filterTag: string | null;
+  // 新規作成中かどうか（初回編集時にAPIを叩くため）
+  isCreatingNewNote: boolean;
 
   // Actions
   setSelectedNoteId: (id: string | null) => void;
+  setIsCreatingNewNote: (val: boolean) => void;
   setSearchQuery: (query: string) => void;
-  setFilterScope: (scope: NoteScope) => void;
-  setFilterTag: (tag: string | null) => void;
   resetFilters: () => void;
 }
 
@@ -29,31 +25,27 @@ export const useNotesStore = create<NotesState>()(
     (set) => ({
       selectedNoteId: null,
       searchQuery: "",
-      filterScope: NOTE_SCOPE.ALL,
-      filterTag: null,
+      isCreatingNewNote: false,
 
       setSelectedNoteId: (id) =>
-        set({ selectedNoteId: id }, false, "setSelectedNoteId"),
+        set(
+          { selectedNoteId: id, isCreatingNewNote: false },
+          false,
+          "setSelectedNoteId"
+        ),
+      setIsCreatingNewNote: (val) =>
+        set(
+          { isCreatingNewNote: val, selectedNoteId: val ? null : undefined },
+          false,
+          "setIsCreatingNewNote"
+        ),
       setSearchQuery: (query) =>
         set({ searchQuery: query }, false, "setSearchQuery"),
-      setFilterScope: (scope) =>
-        set(
-          { filterScope: scope, filterTag: null, searchQuery: "" },
-          false,
-          "setFilterScope"
-        ),
-      setFilterTag: (tag) =>
-        set(
-          { filterTag: tag, filterScope: NOTE_SCOPE.ALL, searchQuery: "" },
-          false,
-          "setFilterTag"
-        ),
       resetFilters: () =>
         set(
           {
-            filterScope: NOTE_SCOPE.ALL,
-            filterTag: null,
             searchQuery: "",
+            isCreatingNewNote: false,
           },
           false,
           "resetFilters"

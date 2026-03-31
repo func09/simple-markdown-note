@@ -1,28 +1,31 @@
 "use client";
 
-import { FileText, Hash, Trash2 } from "lucide-react";
+import { FileText, Hash, LogOut, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import type { ElementType } from "react";
 import { cn } from "@/lib/utils";
+import { useLogout } from "../../auth/queries";
+import { useAuthStore } from "../../auth/store";
+import { useTags } from "../queries";
 
 interface SidebarProps {
   onClose?: () => void;
 }
 
-// モックデータ: タグ一覧
-const MOCK_TAGS = [
-  { id: "1", name: "work", count: 12 },
-  { id: "2", name: "personal", count: 5 },
-  { id: "3", name: "ideas", count: 8 },
-  { id: "4", name: "recipes", count: 3 },
-  { id: "5", name: "project-x", count: 15 },
-];
-
 export function Sidebar({ onClose }: SidebarProps) {
   const searchParams = useSearchParams();
-  const currentScope = searchParams.get("scope") || "all";
+  const { data: tags = [], isLoading } = useTags();
+  const user = useAuthStore((state) => state.user);
+  const logoutMutation = useLogout();
+
+  const currentScope =
+    searchParams.get("scope") || (searchParams.get("tag") ? null : "all");
   const currentTag = searchParams.get("tag");
+
+  const handleLogout = () => {
+    logoutMutation.mutate();
+  };
 
   const NavItem = ({
     href,
@@ -101,31 +104,51 @@ export function Sidebar({ onClose }: SidebarProps) {
             Tags
           </h3>
           <div className="space-y-1">
-            {MOCK_TAGS.map((tag) => (
-              <NavItem
-                key={tag.id}
-                href={`/notes?tag=${tag.name}`}
-                icon={Hash}
-                label={tag.name}
-                active={currentTag === tag.name}
-                count={tag.count}
-              />
-            ))}
+            {isLoading ? (
+              <div className="px-3 py-2 text-xs text-slate-400 animate-pulse">
+                Loading tags...
+              </div>
+            ) : (
+              tags.map((tag) => (
+                <NavItem
+                  key={tag.name}
+                  href={`/notes?tag=${tag.name}`}
+                  icon={Hash}
+                  label={tag.name}
+                  active={currentTag === tag.name}
+                  count={tag.count}
+                />
+              ))
+            )}
+            {!isLoading && tags.length === 0 && (
+              <p className="px-3 py-2 text-xs text-slate-400 italic">
+                No tags yet
+              </p>
+            )}
           </div>
         </div>
       </nav>
 
-      {/* Footer / User Profile Placeholder */}
-      <div className="p-4 border-t border-slate-200">
+      {/* User Section & Logout */}
+      <div className="p-4 border-t border-slate-200 space-y-2">
+        <div className="flex items-center gap-3 px-3 py-2">
+          <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 font-bold shrink-0">
+            {user?.email?.[0].toUpperCase() || "U"}
+          </div>
+          <div className="flex-1 text-left min-w-0">
+            <p className="text-sm font-medium text-slate-900 truncate">
+              {user?.email || "User Account"}
+            </p>
+          </div>
+        </div>
         <button
           type="button"
-          className="w-full flex items-center gap-3 px-3 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg transition-colors overflow-hidden"
+          onClick={handleLogout}
+          disabled={logoutMutation.isPending}
+          className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
         >
-          <div className="w-8 h-8 rounded-full bg-slate-300 shrink-0" />
-          <div className="flex-1 text-left truncate">
-            <p className="font-medium text-slate-900 truncate">User Account</p>
-            <p className="text-xs text-slate-500 truncate">Settings</p>
-          </div>
+          <LogOut className="w-4 h-4" />
+          <span>{logoutMutation.isPending ? "Logging out..." : "Logout"}</span>
         </button>
       </div>
     </div>

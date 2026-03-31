@@ -5,7 +5,7 @@
   "main": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./*": "./src/*"
+    "./schema": "./src/schema/index.ts"
   },
   "scripts": {
     "dev": "wrangler dev",
