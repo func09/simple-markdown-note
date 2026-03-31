@@ -2,23 +2,24 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { isAuthenticated } from "../utils";
+import { useAuthStore } from "../store";
 
 /**
  * 認証ガード (Client Component)
  * ログインしていない場合にログイン画面へリダイレクトします。
  */
 export function AuthGuard({ children }: { children: React.ReactNode }) {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const [isChecking, setIsChecking] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    if (!isAuthenticated()) {
+    if (!isAuthenticated) {
       router.replace("/login");
     } else {
       setIsChecking(false);
     }
-  }, [router]);
+  }, [isAuthenticated, router]);
 
   if (isChecking) {
     return null;
