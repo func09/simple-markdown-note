@@ -2,26 +2,23 @@
 
 import { FileText, Hash, LogOut, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import type { ElementType } from "react";
 import { cn } from "@/lib/utils";
 import { useLogout } from "../../auth/queries";
 import { useAuthStore } from "../../auth/store";
 import { useTags } from "../queries";
+import { useNotesStore } from "../store";
 
 interface SidebarProps {
   onClose?: () => void;
 }
 
 export function Sidebar({ onClose }: SidebarProps) {
-  const searchParams = useSearchParams();
+  const { filterScope, filterTag, setFilterScope, setFilterTag } =
+    useNotesStore();
   const { data: tags = [], isLoading } = useTags();
   const user = useAuthStore((state) => state.user);
   const logoutMutation = useLogout();
-
-  const currentScope =
-    searchParams.get("scope") || (searchParams.get("tag") ? null : "all");
-  const currentTag = searchParams.get("tag");
 
   const handleLogout = () => {
     logoutMutation.mutate();
@@ -33,16 +30,22 @@ export function Sidebar({ onClose }: SidebarProps) {
     label,
     active,
     count,
+    onClick,
   }: {
     href: string;
     icon: ElementType;
     label: string;
     active: boolean;
     count?: number;
+    onClick: () => void;
   }) => (
     <Link
       href={href}
-      onClick={onClose}
+      onClick={(_e) => {
+        // e.preventDefault(); // URLも更新したい場合は preventDefault しない
+        onClick();
+        onClose?.();
+      }}
       className={cn(
         "group flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-colors",
         active
@@ -88,13 +91,15 @@ export function Sidebar({ onClose }: SidebarProps) {
             href="/notes?scope=all"
             icon={FileText}
             label="All Notes"
-            active={currentScope === "all" && !currentTag}
+            active={filterScope === "all" && !filterTag}
+            onClick={() => setFilterScope("all")}
           />
           <NavItem
             href="/notes?scope=trash"
             icon={Trash2}
             label="Trash"
-            active={currentScope === "trash"}
+            active={filterScope === "trash"}
+            onClick={() => setFilterScope("trash")}
           />
         </div>
 
@@ -115,8 +120,9 @@ export function Sidebar({ onClose }: SidebarProps) {
                   href={`/notes?tag=${tag.name}`}
                   icon={Hash}
                   label={tag.name}
-                  active={currentTag === tag.name}
+                  active={filterTag === tag.name}
                   count={tag.count}
+                  onClick={() => setFilterTag(tag.name)}
                 />
               ))
             )}

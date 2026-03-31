@@ -1,3 +1,4 @@
+import type { NoteScope } from "api/schema";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 
@@ -10,6 +11,10 @@ interface NotesState {
   selectedNoteId: string | null;
   // 検索クエリ
   searchQuery: string;
+  // 表示スコープ (all, trash, untagged)
+  filterScope: NoteScope;
+  // フィルタリング対象のタグ名
+  filterTag: string | null;
   // 新規作成中かどうか（初回編集時にAPIを叩くため）
   isCreatingNewNote: boolean;
 
@@ -17,6 +22,8 @@ interface NotesState {
   setSelectedNoteId: (id: string | null) => void;
   setIsCreatingNewNote: (val: boolean) => void;
   setSearchQuery: (query: string) => void;
+  setFilterScope: (scope: NoteScope) => void;
+  setFilterTag: (tag: string | null) => void;
   resetFilters: () => void;
 }
 
@@ -25,6 +32,8 @@ export const useNotesStore = create<NotesState>()(
     (set) => ({
       selectedNoteId: null,
       searchQuery: "",
+      filterScope: "all",
+      filterTag: null,
       isCreatingNewNote: false,
 
       setSelectedNoteId: (id) =>
@@ -41,10 +50,24 @@ export const useNotesStore = create<NotesState>()(
         ),
       setSearchQuery: (query) =>
         set({ searchQuery: query }, false, "setSearchQuery"),
+      setFilterScope: (scope) =>
+        set(
+          { filterScope: scope, filterTag: null, selectedNoteId: null },
+          false,
+          "setFilterScope"
+        ),
+      setFilterTag: (tag) =>
+        set(
+          { filterTag: tag, filterScope: "all", selectedNoteId: null },
+          false,
+          "setFilterTag"
+        ),
       resetFilters: () =>
         set(
           {
             searchQuery: "",
+            filterScope: "all",
+            filterTag: null,
             isCreatingNewNote: false,
           },
           false,

@@ -1,9 +1,8 @@
 "use client";
 
-import type { NoteScope } from "api/schema";
 import { Plus, Search } from "lucide-react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useNotes } from "../queries";
 import { useNotesStore } from "../store";
@@ -14,20 +13,19 @@ interface NoteListProps {
 
 export function NoteList({ selectedNoteId }: NoteListProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const {
     searchQuery,
     setSearchQuery,
     isCreatingNewNote,
     setIsCreatingNewNote,
+    filterScope: scope,
+    filterTag: tag,
+    setSelectedNoteId,
   } = useNotesStore();
-
-  const scope = (searchParams.get("scope") as NoteScope) || "all";
-  const tag = searchParams.get("tag") || undefined;
 
   const { data: notes = [], isLoading } = useNotes({
     scope,
-    tag,
+    tag: tag || undefined,
   });
 
   const filteredNotes = notes.filter((note) =>
@@ -54,11 +52,17 @@ export function NoteList({ selectedNoteId }: NoteListProps) {
     return date.toLocaleDateString([], { month: "short", day: "numeric" });
   };
 
+  const buildQueryString = () => {
+    const params = new URLSearchParams();
+    if (scope !== "all") params.set("scope", scope);
+    if (tag) params.set("tag", tag);
+    const qs = params.toString();
+    return qs ? `?${qs}` : "";
+  };
+
   const handleAddNote = () => {
     setIsCreatingNewNote(true);
-    // 既存のクエリパラメータを保持しつつ /notes に遷移（noteIdを外す）
-    const params = new URLSearchParams(searchParams.toString());
-    router.push(`/notes?${params.toString()}`);
+    router.push(`/notes${buildQueryString()}`);
   };
 
   return (
@@ -107,12 +111,13 @@ export function NoteList({ selectedNoteId }: NoteListProps) {
               const { title, preview } = formatNotePreview(note.content);
               const isSelected =
                 selectedNoteId === note.id && !isCreatingNewNote;
-              const href = `/notes/${note.id}?${searchParams.toString()}`;
+              const href = `/notes/${note.id}${buildQueryString()}`;
 
               return (
                 <Link
                   key={note.id}
                   href={href}
+                  onClick={() => setSelectedNoteId(note.id)}
                   className={cn(
                     "block px-5 py-4 transition-colors text-left",
                     isSelected
