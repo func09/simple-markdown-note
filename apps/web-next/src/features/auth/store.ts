@@ -1,4 +1,4 @@
-import type { AuthResponse, MeResponse } from "api/schema";
+import type { MeResponse } from "api/schema";
 import { create } from "zustand";
 
 /**

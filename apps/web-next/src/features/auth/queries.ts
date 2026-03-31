@@ -43,7 +43,7 @@ export const useLogout = () => {
   const clearAuth = useAuthStore((state) => state.clearAuth);
 
   return useMutation({
-    mutationFn: () => logout(),
+    mutationFn: logout,
     onSuccess: () => {
       // ログアウト成功時にストアをクリア
       clearAuth();
