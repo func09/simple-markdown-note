@@ -25,6 +25,7 @@
     "@hono/node-server": "^1.19.12",
     "@hono/swagger-ui": "^0.6.1",
     "api": "workspace:*",
+    "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^2.1.8",
     "wrangler": "^3.99.0"
   }

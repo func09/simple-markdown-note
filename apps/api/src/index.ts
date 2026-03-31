@@ -34,9 +34,9 @@ app
   .use("*", requestLogger())
   .use("*", cors())
   // JWT 認証ミドルウェア (秘密鍵は環境変数から取得)
-  .use("*", jwtAuth())
+  .use("/api/*", jwtAuth())
   // userId 抽出ミドルウェア (認証後に payload から ID をコンテキストにセット)
-  .use("*", authContextExtractor())
+  .use("/api/*", authContextExtractor())
   // APIルートの登録
   .route("/api", apiRouter)
   // ヘルスチェック用エンドポイント

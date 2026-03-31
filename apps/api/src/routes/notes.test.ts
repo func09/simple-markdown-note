@@ -19,7 +19,7 @@ describe("Unified Sync API (/notes/sync)", () => {
     await db.delete(users);
 
     // テスト用ユーザーの作成とログイン
-    const signupRes = await app.request("/../auth/signup", {
+    const signupRes = await app.request("/api/auth/signup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -38,7 +38,7 @@ describe("Unified Sync API (/notes/sync)", () => {
   it("should create a new note via sync", async () => {
     const clientUpdatedAt = new Date().toISOString();
 
-    const res = await app.request("/../notes/sync", {
+    const res = await app.request("/api/notes/sync", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -65,7 +65,7 @@ describe("Unified Sync API (/notes/sync)", () => {
   });
 
   it("should fetch notes via lastSyncedAt", async () => {
-    const res = await app.request("/../notes/sync", {
+    const res = await app.request("/api/notes/sync", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -87,7 +87,7 @@ describe("Unified Sync API (/notes/sync)", () => {
     date.setMilliseconds(0);
     const newerUpdatedAt = date.toISOString();
 
-    const res = await app.request("/../notes/sync", {
+    const res = await app.request("/api/notes/sync", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -119,7 +119,7 @@ describe("Unified Sync API (/notes/sync)", () => {
   it("should reject outdated updates (older clientUpdatedAt)", async () => {
     const olderUpdatedAt = new Date(Date.now() - 60000).toISOString(); // 1 minute in the past
 
-    const res = await app.request("/../notes/sync", {
+    const res = await app.request("/api/notes/sync", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -141,7 +141,7 @@ describe("Unified Sync API (/notes/sync)", () => {
     await res.json();
 
     // DB に現在存在する最新のノート情報をチェック
-    const checkRes = await app.request("/../notes/sync", {
+    const checkRes = await app.request("/api/notes/sync", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -164,7 +164,7 @@ describe("Unified Sync API (/notes/sync)", () => {
     const deletedUpdatedAt = softDelDate.toISOString();
 
     // Soft Delete (deletedAt is set)
-    const softDelRes = await app.request("/../notes/sync", {
+    const softDelRes = await app.request("/api/notes/sync", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -196,7 +196,7 @@ describe("Unified Sync API (/notes/sync)", () => {
     const permanentUpdatedAt = permDate.toISOString();
 
     // Permanent Delete (isPermanent is true)
-    const permDelRes = await app.request("/../notes/sync", {
+    const permDelRes = await app.request("/api/notes/sync", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -227,7 +227,7 @@ describe("Unified Sync API (/notes/sync)", () => {
     const otherNoteId = "other-user-note-1";
 
     beforeAll(async () => {
-      const signupRes = await app.request("/../auth/signup", {
+      const signupRes = await app.request("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -238,7 +238,7 @@ describe("Unified Sync API (/notes/sync)", () => {
       const body = (await signupRes.json()) as { token: string };
       otherToken = body.token;
 
-      await app.request("/../notes/sync", {
+      await app.request("/api/notes/sync", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -258,7 +258,7 @@ describe("Unified Sync API (/notes/sync)", () => {
     });
 
     it("should not return other user's notes in updates", async () => {
-      const res = await app.request("/../notes/sync", {
+      const res = await app.request("/api/notes/sync", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -272,7 +272,7 @@ describe("Unified Sync API (/notes/sync)", () => {
     });
 
     it("should silently quarantine other user's update if attempted with manipulated payload", async () => {
-      const res = await app.request("/../notes/sync", {
+      const res = await app.request("/api/notes/sync", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -294,7 +294,7 @@ describe("Unified Sync API (/notes/sync)", () => {
       // because db.insert(notes).onConflictDoUpdate() uses { where: { id } } but the rest is driven by the backend assigning userId.
       // Wait... upsert in notes.ts enforces userId during create, but on update it just updates where id match!
       // Let's verify if user 2's note was actually overwritten!
-      const checkRes = await app.request("/../notes/sync", {
+      const checkRes = await app.request("/api/notes/sync", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -326,7 +326,7 @@ describe("Notes CRUD API (/notes)", () => {
 
   beforeAll(async () => {
     // 既存のユーザーをクリア（Syncテストとは別のユーザーで実行）
-    const signupRes = await app.request("/../auth/signup", {
+    const signupRes = await app.request("/api/auth/signup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -339,7 +339,7 @@ describe("Notes CRUD API (/notes)", () => {
   });
 
   it("should create a new note", async () => {
-    const res = await app.request("/../notes", {
+    const res = await app.request("/api/notes", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -365,7 +365,7 @@ describe("Notes CRUD API (/notes)", () => {
   });
 
   it("should list all notes", async () => {
-    const res = await app.request("/../notes", {
+    const res = await app.request("/api/notes", {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -380,7 +380,7 @@ describe("Notes CRUD API (/notes)", () => {
   });
 
   it("should get a single note by id", async () => {
-    const res = await app.request(`/../notes/${testNoteId}`, {
+    const res = await app.request(`/api/notes/${testNoteId}`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -394,7 +394,7 @@ describe("Notes CRUD API (/notes)", () => {
   });
 
   it("should update a note", async () => {
-    const res = await app.request(`/../notes/${testNoteId}`, {
+    const res = await app.request(`/api/notes/${testNoteId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -414,7 +414,7 @@ describe("Notes CRUD API (/notes)", () => {
   });
 
   it("should delete a note", async () => {
-    const res = await app.request(`/../notes/${testNoteId}`, {
+    const res = await app.request(`/api/notes/${testNoteId}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -424,7 +424,7 @@ describe("Notes CRUD API (/notes)", () => {
     expect(res.status).toBe(204);
 
     // Verify it's gone
-    const checkRes = await app.request(`/../notes/${testNoteId}`, {
+    const checkRes = await app.request(`/api/notes/${testNoteId}`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -434,7 +434,7 @@ describe("Notes CRUD API (/notes)", () => {
   });
 
   it("should not allow access to other user's notes", async () => {
-    const signupRes2 = await app.request("/../auth/signup", {
+    const signupRes2 = await app.request("/api/auth/signup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -445,7 +445,7 @@ describe("Notes CRUD API (/notes)", () => {
     const body2 = (await signupRes2.json()) as { token: string };
     const otherToken = body2.token;
 
-    const createRes = await app.request("/../notes", {
+    const createRes = await app.request("/api/notes", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -455,7 +455,7 @@ describe("Notes CRUD API (/notes)", () => {
     });
     const note1 = (await createRes.json()) as { id: string };
 
-    const getRes = await app.request(`/../notes/${note1.id}`, {
+    const getRes = await app.request(`/api/notes/${note1.id}`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${otherToken}`,
@@ -463,7 +463,7 @@ describe("Notes CRUD API (/notes)", () => {
     });
     expect(getRes.status).toBe(404);
 
-    const patchRes = await app.request(`/../notes/${note1.id}`, {
+    const patchRes = await app.request(`/api/notes/${note1.id}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -479,7 +479,7 @@ describe("Notes CRUD API (/notes)", () => {
 
     beforeAll(async () => {
       // テスト用ユーザーの作成
-      const signupRes = await app.request("/../auth/signup", {
+      const signupRes = await app.request("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -491,7 +491,7 @@ describe("Notes CRUD API (/notes)", () => {
       token = body.token;
 
       // 1. 通常のノート（タグなし）
-      await app.request("/../notes", {
+      await app.request("/api/notes", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -501,7 +501,7 @@ describe("Notes CRUD API (/notes)", () => {
       });
 
       // 2. タグ付きノート ('work')
-      await app.request("/../notes", {
+      await app.request("/api/notes", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -511,7 +511,7 @@ describe("Notes CRUD API (/notes)", () => {
       });
 
       // 3. ゴミ箱のノート
-      const res3 = await app.request("/../notes", {
+      const res3 = await app.request("/api/notes", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -520,7 +520,7 @@ describe("Notes CRUD API (/notes)", () => {
         body: JSON.stringify({ content: "Trashed Note" }),
       });
       const note3 = (await res3.json()) as { id: string };
-      await app.request(`/../notes/${note3.id}`, {
+      await app.request(`/api/notes/${note3.id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -531,7 +531,7 @@ describe("Notes CRUD API (/notes)", () => {
     });
 
     it("should return only non-trash notes by default", async () => {
-      const res = await app.request("/../notes", {
+      const res = await app.request("/api/notes", {
         method: "GET",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -541,7 +541,7 @@ describe("Notes CRUD API (/notes)", () => {
     });
 
     it("should return only trashed notes when scope=trash", async () => {
-      const res = await app.request(`/../notes?scope=${NOTE_SCOPE.TRASH}`, {
+      const res = await app.request(`/api/notes?scope=${NOTE_SCOPE.TRASH}`, {
         method: "GET",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -552,7 +552,7 @@ describe("Notes CRUD API (/notes)", () => {
     });
 
     it("should return untagged notes when scope=untagged", async () => {
-      const res = await app.request(`/../notes?scope=${NOTE_SCOPE.UNTAGGED}`, {
+      const res = await app.request(`/api/notes?scope=${NOTE_SCOPE.UNTAGGED}`, {
         method: "GET",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -563,7 +563,7 @@ describe("Notes CRUD API (/notes)", () => {
     });
 
     it("should filter by tag", async () => {
-      const res = await app.request("/../notes?tag=work", {
+      const res = await app.request("/api/notes?tag=work", {
         method: "GET",
         headers: { Authorization: `Bearer ${token}` },
       });
