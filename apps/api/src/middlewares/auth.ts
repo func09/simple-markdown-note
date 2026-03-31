@@ -6,7 +6,7 @@ import type { AppEnv } from "../types";
 export const jwtAuth = (): MiddlewareHandler<AppEnv> => {
   return async (c, next) => {
     // 認証不要ルートの除外
-    if (c.req.path.startsWith("/../auth") || c.req.path === "/health") {
+    if (c.req.path.startsWith("/api/auth") || c.req.path === "/health") {
       return next();
     }
     const secret = c.env?.JWT_SECRET || "dev-secret";
@@ -17,7 +17,7 @@ export const jwtAuth = (): MiddlewareHandler<AppEnv> => {
 // userId 抽出ミドルウェア (認証後に payload から ID をコンテキストにセット)
 export const authContextExtractor = (): MiddlewareHandler<AppEnv> => {
   return async (c, next) => {
-    if (c.req.path.startsWith("/../auth") || c.req.path === "/health") {
+    if (c.req.path.startsWith("/api/auth") || c.req.path === "/health") {
       return next();
     }
     const payload = c.get("jwtPayload") as Record<string, unknown> | undefined;

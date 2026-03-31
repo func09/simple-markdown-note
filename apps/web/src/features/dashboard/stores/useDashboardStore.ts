@@ -1,10 +1,10 @@
 import { create } from "zustand";
 
-import { createFilterSlice } from "../../../filterSlice";
+import { createFilterSlice } from "./filterSlice";
 
-import { createModalSlice } from "../../../modalSlice";
-import { createNavigationSlice } from "../../../navigationSlice";
-import type { DashboardState } from "../../../types";
+import { createModalSlice } from "./modalSlice";
+import { createNavigationSlice } from "./navigationSlice";
+import type { DashboardState } from "./types";
 
 /**
  * すべてのスライスを統合した Dashboard ストア

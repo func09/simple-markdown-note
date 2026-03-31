@@ -40,7 +40,7 @@ export const logout = async () => {
   localStorage.clear(); // キャッシュなどを念のため全クリア
 
   try {
-    const { db } = await import("../lib/db");
+    const { db } = await import("../../lib/db");
     // IndexedDB のデータベース自体を削除して完全にリセットする
     await db.delete();
   } catch (error) {
