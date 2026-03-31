@@ -4,7 +4,7 @@ import { Plus, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { useNotes } from "../queries";
+import { useCreateNote, useNotes } from "../queries";
 import { useNotesStore } from "../store";
 
 interface NoteListProps {
@@ -16,8 +16,6 @@ export function NoteList({ selectedNoteId }: NoteListProps) {
   const {
     searchQuery,
     setSearchQuery,
-    isCreatingNewNote,
-    setIsCreatingNewNote,
     filterScope: scope,
     filterTag: tag,
     setSelectedNoteId,
@@ -27,6 +25,8 @@ export function NoteList({ selectedNoteId }: NoteListProps) {
     scope,
     tag: tag || undefined,
   });
+
+  const createNoteMutation = useCreateNote();
 
   const filteredNotes = notes.filter((note) =>
     note.content.toLowerCase().includes(searchQuery.toLowerCase())
@@ -60,9 +60,17 @@ export function NoteList({ selectedNoteId }: NoteListProps) {
     return qs ? `?${qs}` : "";
   };
 
-  const handleAddNote = () => {
-    setIsCreatingNewNote(true);
-    router.push(`/notes${buildQueryString()}`);
+  const handleAddNote = async () => {
+    try {
+      const result = await createNoteMutation.mutateAsync({
+        content: "",
+        isPermanent: false,
+      });
+      setSelectedNoteId(result.id);
+      router.push(`/notes/${result.id}${buildQueryString()}`);
+    } catch (error) {
+      console.error("Failed to create note:", error);
+    }
   };
 
   return (
@@ -109,8 +117,7 @@ export function NoteList({ selectedNoteId }: NoteListProps) {
           <div className="divide-y divide-slate-100">
             {filteredNotes.map((note) => {
               const { title, preview } = formatNotePreview(note.content);
-              const isSelected =
-                selectedNoteId === note.id && !isCreatingNewNote;
+              const isSelected = selectedNoteId === note.id;
               const href = `/notes/${note.id}${buildQueryString()}`;
 
               return (

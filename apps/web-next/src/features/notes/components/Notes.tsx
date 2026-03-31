@@ -21,29 +21,30 @@ export function Notes({ selectedNoteId: propSelectedNoteId }: NotesProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const searchParams = useSearchParams();
 
-  const {
-    selectedNoteId: storeSelectedNoteId,
-    setSelectedNoteId,
-    setFilterScope,
-    setFilterTag,
-  } = useNotesStore();
+  const setSelectedNoteId = useNotesStore((s) => s.setSelectedNoteId);
+  const setFilterScope = useNotesStore((s) => s.setFilterScope);
+  const setFilterTag = useNotesStore((s) => s.setFilterTag);
+
+  const urlScope = searchParams.get("scope");
+  const urlTag = searchParams.get("tag");
 
   // URLパラメータをストアに同期（初期化・ブラウザバック対応）
   useEffect(() => {
-    const scope = searchParams.get("scope");
-    const tag = searchParams.get("tag");
-
-    if (tag) {
-      setFilterTag(tag);
-    } else if (scope) {
-      setFilterScope(scope as NoteScope);
-    } else {
+    const currentState = useNotesStore.getState();
+    if (urlTag && urlTag !== currentState.filterTag) {
+      setFilterTag(urlTag);
+    } else if (urlScope && urlScope !== currentState.filterScope) {
+      setFilterScope(urlScope as NoteScope);
+    } else if (!urlTag && !urlScope && currentState.filterScope !== "all") {
       setFilterScope("all");
     }
-  }, [searchParams, setFilterScope, setFilterTag]);
+  }, [urlScope, urlTag, setFilterScope, setFilterTag]);
 
   useEffect(() => {
-    setSelectedNoteId(propSelectedNoteId || null);
+    const targetId = propSelectedNoteId || null;
+    if (targetId !== useNotesStore.getState().selectedNoteId) {
+      setSelectedNoteId(targetId);
+    }
   }, [propSelectedNoteId, setSelectedNoteId]);
 
   // Handle drawer close on resize to desktop
@@ -82,12 +83,12 @@ export function Notes({ selectedNoteId: propSelectedNoteId }: NotesProps) {
             "border-r border-slate-200 shrink-0 h-full",
             isTablet && "w-[300px] xl:w-[350px]",
             !isTablet && "w-full",
-            !isTablet && storeSelectedNoteId ? "hidden" : "block",
+            !isTablet && propSelectedNoteId ? "hidden" : "block",
             !isDesktop && "transition-all duration-300 ease-in-out"
           )}
         >
           {/* Mobile Hamburger Handle (Only on List View) */}
-          {!isDesktop && !storeSelectedNoteId && (
+          {!isDesktop && !propSelectedNoteId && (
             <div className="p-4 flex items-center gap-2 bg-white border-b border-slate-100 lg:hidden">
               <button
                 type="button"
@@ -99,21 +100,21 @@ export function Notes({ selectedNoteId: propSelectedNoteId }: NotesProps) {
               <h2 className="font-bold text-slate-900">Simplenote</h2>
             </div>
           )}
-          <NoteList selectedNoteId={storeSelectedNoteId || undefined} />
+          <NoteList selectedNoteId={propSelectedNoteId} />
         </div>
 
         {/* Editor (Visible if NOT on Mobile-List view) */}
         <div
           className={cn(
             "flex-1 h-full bg-white",
-            !isTablet && !storeSelectedNoteId ? "hidden" : "block",
+            !isTablet && !propSelectedNoteId ? "hidden" : "block",
             !isDesktop && "transition-opacity duration-300"
           )}
         >
           <Editor
-            noteId={storeSelectedNoteId || undefined}
+            noteId={propSelectedNoteId}
             initialContent=""
-            isMobile={!isTablet && !!storeSelectedNoteId}
+            isMobile={!isTablet && !!propSelectedNoteId}
           />
         </div>
       </main>

@@ -22,7 +22,6 @@ import remarkGfm from "remark-gfm";
 import { Markdown } from "tiptap-markdown";
 import { cn } from "@/lib/utils";
 import {
-  useCreateNote,
   useDeleteNote,
   useNote,
   usePermanentDelete,
@@ -40,12 +39,8 @@ interface EditorProps {
 export function Editor({ noteId, isMobile }: EditorProps) {
   const [isPreview, setIsPreview] = useState(false);
   const router = useRouter();
-  const {
-    isCreatingNewNote,
-    setIsCreatingNewNote,
-    filterScope: scope,
-    filterTag: tag,
-  } = useNotesStore();
+  const scope = useNotesStore((s) => s.filterScope);
+  const tag = useNotesStore((s) => s.filterTag);
 
   const buildQueryString = () => {
     const params = new URLSearchParams();
@@ -57,11 +52,49 @@ export function Editor({ noteId, isMobile }: EditorProps) {
 
   // 1. データ取得
   const { data: note, isLoading } = useNote(noteId ?? null);
-  const createNoteMutation = useCreateNote();
   const updateNoteMutation = useUpdateNote();
   const deleteNoteMutation = useDeleteNote();
   const restoreNoteMutation = useRestoreNote();
   const permanentDeleteMutation = usePermanentDelete();
+
+  // 2. オートセーブロジック
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const contentRef = useRef("");
+  const lastNoteIdRef = useRef<string | null>(null);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: updateNoteMutation is excluded to prevent render loops
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+        const content = contentRef.current;
+        const currentNoteContent =
+          lastNoteIdRef.current === noteId ? note?.content : undefined;
+
+        if (!content.trim() || !noteId || content === currentNoteContent)
+          return;
+
+        // 既存更新
+        updateNoteMutation.mutate({ id: noteId, data: { content } });
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [noteId, note?.content]);
+
+  const handleAutoSave = (content: string) => {
+    contentRef.current = content;
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+
+    // note?.content が最新（背景更新後）の場合があるため、それと比較
+    if (!noteId || content === note?.content) return;
+
+    // 既存更新は10秒デバウンス
+    timeoutRef.current = setTimeout(() => {
+      timeoutRef.current = null;
+      updateNoteMutation.mutate({ id: noteId, data: { content } });
+    }, 10000);
+  };
 
   const editor = useEditor({
     extensions: [
@@ -109,32 +142,6 @@ export function Editor({ noteId, isMobile }: EditorProps) {
     },
   });
 
-  // 2. オートセーブ & 初回作成ロジック (10秒デバウンス)
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  const handleAutoSave = (content: string) => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-
-    // 空の新規ノートは何もしない（入力待ち）
-    if (isCreatingNewNote && !content.trim()) return;
-
-    timeoutRef.current = setTimeout(async () => {
-      if (isCreatingNewNote) {
-        // 初回作成
-        const result = await createNoteMutation.mutateAsync({
-          content,
-          isPermanent: false,
-        });
-        setIsCreatingNewNote(false);
-        // 新規IDでURLを更新
-        router.push(`/notes/${result.id}${buildQueryString()}`);
-      } else if (noteId) {
-        // 既存更新
-        updateNoteMutation.mutate({ id: noteId, data: { content } });
-      }
-    }, 10000); // 10秒デバウンス
-  };
-
   // プレビュー切り替えの連動
   useEffect(() => {
     if (editor) {
@@ -145,16 +152,15 @@ export function Editor({ noteId, isMobile }: EditorProps) {
   // ノートが切り替わった時にエディタの内容を更新
   useEffect(() => {
     if (editor && note) {
-      // 外部からの更新（選択切り替えなど）のみ反映
-      if (editor.getText({ blockSeparator: "\n" }) !== note.content) {
+      // ノートIDが切り替わった初動のみ内容をセット
+      if (note.id !== lastNoteIdRef.current) {
         editor.commands.setContent(note.content);
+        contentRef.current = note.content;
+        lastNoteIdRef.current = note.id;
+        setIsPreview(false);
       }
-      setIsPreview(false);
-    } else if (editor && isCreatingNewNote) {
-      editor.commands.setContent("");
-      setIsPreview(false);
     }
-  }, [note, editor, isCreatingNewNote]);
+  }, [note, editor]);
 
   // 3. アクションハンドラ
   const handleDelete = async () => {
@@ -178,7 +184,7 @@ export function Editor({ noteId, isMobile }: EditorProps) {
     }
   };
 
-  if (!noteId && !isCreatingNewNote) {
+  if (!noteId) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-12 text-center bg-white h-full">
         <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-6">
@@ -191,7 +197,7 @@ export function Editor({ noteId, isMobile }: EditorProps) {
     );
   }
 
-  if (isLoading && !isCreatingNewNote) {
+  if (isLoading) {
     return <div className="flex-1 bg-white animate-pulse" />;
   }
 
@@ -210,7 +216,7 @@ export function Editor({ noteId, isMobile }: EditorProps) {
           {isMobile && (
             <button
               type="button"
-              onClick={() => router.push("/notes" + buildQueryString())}
+              onClick={() => router.push(`/notes${buildQueryString()}`)}
               className="p-2 hover:bg-slate-100 rounded-full transition-colors mr-2"
             >
               <ChevronLeft className="w-5 h-5 text-slate-600" />
