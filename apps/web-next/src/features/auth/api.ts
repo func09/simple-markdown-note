@@ -7,7 +7,11 @@ import type {
 import api from "@/lib/api";
 
 /**
- * 認証関連の純粋なAPI呼び出し（副作用なし）
+ * 認証関連の純粋なAPI呼び出し
+ * 状態管理に関与せず、通信のみを担当する
+ */
+/**
+ * ログインを実行する
  */
 export const signin = async (data: SigninRequest): Promise<AuthResponse> => {
   const res = await api.auth.signin.$post({ json: data });
@@ -18,6 +22,9 @@ export const signin = async (data: SigninRequest): Promise<AuthResponse> => {
   return res.json() as Promise<AuthResponse>;
 };
 
+/**
+ * 新規登録を実行する
+ */
 export const signup = async (data: SignupRequest): Promise<AuthResponse> => {
   const res = await api.auth.signup.$post({ json: data });
   if (!res.ok) {
@@ -27,6 +34,10 @@ export const signup = async (data: SignupRequest): Promise<AuthResponse> => {
   return res.json() as Promise<AuthResponse>;
 };
 
+/**
+ * 現在ログインしているユーザー情報を取得する
+ * ログインしていない（401）場合は null を返す
+ */
 export const getMe = async (): Promise<MeResponse | null> => {
   const res = await api.auth.me.$get();
   if (res.status === 401) {
