@@ -89,13 +89,15 @@ export function NoteList({ selectedNoteId }: NoteListProps) {
           <h2 className="text-lg font-bold text-slate-900">
             {tag ? `#${tag}` : scope === "trash" ? "Trash" : "All Notes"}
           </h2>
-          <button
-            type="button"
-            onClick={handleAddNote}
-            className="p-2 text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
-          >
-            <Plus className="w-5 h-5" />
-          </button>
+          {scope !== "trash" && (
+            <button
+              type="button"
+              onClick={handleAddNote}
+              className="p-2 text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
+            >
+              <Plus className="w-5 h-5" />
+            </button>
+          )}
         </div>
 
         <div className="relative">
