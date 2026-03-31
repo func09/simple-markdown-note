@@ -41,7 +41,7 @@ export const useCreateNote = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: NoteCreateRequest) => createNote(data),
+    mutationFn: createNote,
     onSuccess: () => {
       // ノート作成成功時に一覧を再取得
       queryClient.invalidateQueries({ queryKey: ["notes"] });
@@ -106,7 +106,7 @@ export const usePermanentDelete = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => deleteNote(id),
+    mutationFn: deleteNote,
     onSuccess: (_, id) => {
       // 削除成功時に一覧を再取得し、個別キャッシュを削除
       queryClient.invalidateQueries({ queryKey: ["notes"] });
@@ -121,6 +121,6 @@ export const usePermanentDelete = () => {
 export const useTags = () => {
   return useQuery({
     queryKey: ["tags"],
-    queryFn: () => listTags(),
+    queryFn: listTags,
   });
 };
