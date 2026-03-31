@@ -8,9 +8,13 @@ import {
 import { signin, signup } from "../services/authService";
 import type { AppEnv } from "../types";
 
-// 認証関連のルーティング
+/**
+ * 認証関連のルーター
+ * /auth/signup, /auth/signin エンドポイントを提供する
+ */
 export const authRouter = new OpenAPIHono<AppEnv>();
 
+/** POST /signup — ユーザー登録ルート定義 */
 const signupRoute = createRoute({
   method: "post",
   path: "/signup",
@@ -37,6 +41,7 @@ const signupRoute = createRoute({
   },
 });
 
+/** POST /signin — サインインルート定義 */
 const signinRoute = createRoute({
   method: "post",
   path: "/signin",
@@ -63,7 +68,10 @@ const signinRoute = createRoute({
   },
 });
 
-// ユーザー登録エンドポイント
+/**
+ * ユーザー登録エンドポイント
+ * メールアドレスとパスワードで新規ユーザーを作成し、JWT トークンを返す
+ */
 authRouter.openapi(signupRoute, async (c) => {
   const db = c.var.db;
   const payload = c.req.valid("json");
@@ -76,7 +84,10 @@ authRouter.openapi(signupRoute, async (c) => {
   return c.json(AuthResponseSchema.parse({ user, token }), 200);
 });
 
-// サインインエンドポイント
+/**
+ * サインインエンドポイント
+ * 登録済みのメールアドレスとパスワードで認証し、JWT トークンを返す
+ */
 authRouter.openapi(signinRoute, async (c) => {
   const db = c.var.db;
   const payload = c.req.valid("json");

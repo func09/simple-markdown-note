@@ -19,10 +19,15 @@ import {
 } from "../services/noteService";
 import type { AppEnv } from "../types";
 
+/**
+ * ノート関連のルーター
+ * ノートの CRUD および同期エンドポイントを提供する
+ */
 const notesRouter = new OpenAPIHono<AppEnv>();
 
 // --- Routes Definition ---
 
+/** POST /sync — ノート同期ルート定義 */
 const syncRoute = createRoute({
   method: "post",
   path: "/sync",
@@ -50,6 +55,7 @@ const syncRoute = createRoute({
   },
 });
 
+/** GET / — ノート一覧取得ルート定義 */
 const listNotesRoute = createRoute({
   method: "get",
   path: "/",
@@ -69,6 +75,7 @@ const listNotesRoute = createRoute({
   },
 });
 
+/** GET /:id — ノート取得ルート定義 */
 const getNoteRoute = createRoute({
   method: "get",
   path: "/{id}",
@@ -91,6 +98,7 @@ const getNoteRoute = createRoute({
   },
 });
 
+/** POST / — ノート作成ルート定義 */
 const createNoteRoute = createRoute({
   method: "post",
   path: "/",
@@ -116,6 +124,7 @@ const createNoteRoute = createRoute({
   },
 });
 
+/** PATCH /:id — ノート更新ルート定義 */
 const updateNoteRoute = createRoute({
   method: "patch",
   path: "/{id}",
@@ -145,6 +154,7 @@ const updateNoteRoute = createRoute({
   },
 });
 
+/** DELETE /:id — ノート削除ルート定義 */
 const deleteNoteRoute = createRoute({
   method: "delete",
   path: "/{id}",
