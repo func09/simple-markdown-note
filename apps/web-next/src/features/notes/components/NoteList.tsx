@@ -70,13 +70,14 @@ export function NoteList({ selectedNoteId }: NoteListProps) {
       const result = await createNoteMutation.mutateAsync({
         content: "",
         isPermanent: false,
+        tags: tag ? [tag] : [],
       });
       setSelectedNoteId(result.id);
       router.push(`/notes/${result.id}${queryString}`);
     } catch (error) {
       console.error("Failed to create note:", error);
     }
-  }, [createNoteMutation, setSelectedNoteId, router, queryString]);
+  }, [createNoteMutation, setSelectedNoteId, router, queryString, tag]);
 
   // データがある場合は isLoading が真（フェッチ中）であってもリストを表示し続け、DOMの再生成を防ぐ
   const shouldShowSkeleton = isLoading && notes.length === 0;
