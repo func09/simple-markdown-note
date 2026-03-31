@@ -26,7 +26,14 @@ export async function ALL(
 
   const targetUrl = `${baseUrl}/${path}`;
   const cookieStore = await cookies();
-  const token = (await cookieStore).get("token")?.value;
+
+  // ログアウト処理の特例
+  if (path === "auth/logout") {
+    cookieStore.delete("token");
+    return NextResponse.json({ success: true });
+  }
+
+  const token = cookieStore.get("token")?.value;
 
   try {
     const res = await fetch(targetUrl, {
