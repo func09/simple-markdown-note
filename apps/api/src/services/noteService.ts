@@ -92,7 +92,12 @@ export async function updateNote(
   await repo.update(id, userId, {
     content: data.content,
     isPermanent: data.isPermanent,
-    deletedAt: data.deletedAt ? new Date(data.deletedAt) : undefined,
+    deletedAt:
+      data.deletedAt === null
+        ? null
+        : data.deletedAt !== undefined
+          ? new Date(data.deletedAt)
+          : undefined,
   });
 
   if (data.tags !== undefined) {
