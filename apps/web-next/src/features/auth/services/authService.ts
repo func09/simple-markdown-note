@@ -1,60 +1,65 @@
-import { signin, signup as apiSignup } from "../api";
+import { getMe as apiGetMe, signup as apiSignup, signin } from "../api";
 
 /**
  * 認証関連のビジネスロジックを管理するサービス
  */
 export const authService = {
   /**
-   * ログインを実行し、トークンを保存します
+   * ログインを実行します
    */
   async login(data: { email: string; password: string }) {
-    const res = await signin(data);
-    this.setToken(res.token);
-    return res;
+    try {
+      const res = await signin(data);
+      return res;
+    } catch (error) {
+      console.error("Login service error:", error);
+      throw error;
+    }
   },
 
   /**
    * 新規登録を実行します
    */
   async signup(data: { email: string; password: string }) {
-    return await apiSignup(data);
+    try {
+      const res = await apiSignup(data);
+      return res;
+    } catch (error) {
+      console.error("Signup service error:", error);
+      throw error;
+    }
   },
 
   /**
-   * ログアウトを実行し、トークンを削除します
+   * ログアウトを実行
    */
-  logout() {
-    this.removeToken();
+  async logout() {
+    try {
+      // サーバーサイドのクッキーをクリア
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   },
 
   /**
-   * トークンを取得します
+   * 現在のログインユーザー情報を取得
    */
-  getToken(): string | null {
-    if (typeof window === "undefined") return null;
-    return localStorage.getItem("token");
+  async getMe() {
+    try {
+      return await apiGetMe();
+    } catch (error) {
+      // ネットワークエラーなどの予期せぬ例外時のみログを出す
+      console.error("getMe unexpected error:", error);
+      return null;
+    }
   },
 
   /**
-   * トークンを保存します
+   * 認証済み確認
    */
-  setToken(token: string): void {
-    if (typeof window === "undefined") return;
-    localStorage.setItem("token", token);
-  },
-
-  /**
-   * トークンを削除します
-   */
-  removeToken(): void {
-    if (typeof window === "undefined") return;
-    localStorage.removeItem("token");
-  },
-
-  /**
-   * 認証済みかどうかを確認します
-   */
-  isAuthenticated(): boolean {
-    return !!this.getToken();
+  async isAuthenticated(): Promise<boolean> {
+    const user = await authService.getMe();
+    return !!user;
   },
 };

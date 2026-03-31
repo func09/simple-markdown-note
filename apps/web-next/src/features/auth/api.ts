@@ -1,4 +1,9 @@
-import type { AuthResponse, SigninRequest, SignupRequest } from "openapi";
+import type {
+  AuthResponse,
+  MeResponse,
+  SigninRequest,
+  SignupRequest,
+} from "api";
 import api from "@/lib/api";
 
 /**
@@ -20,4 +25,15 @@ export const signup = async (data: SignupRequest): Promise<AuthResponse> => {
     throw new Error(errorData.error || "Signup failed");
   }
   return res.json() as Promise<AuthResponse>;
+};
+
+export const getMe = async (): Promise<MeResponse | null> => {
+  const res = await api.auth.me.$get();
+  if (res.status === 401) {
+    return null;
+  }
+  if (!res.ok) {
+    throw new Error("Failed to fetch user info");
+  }
+  return res.json() as Promise<MeResponse>;
 };

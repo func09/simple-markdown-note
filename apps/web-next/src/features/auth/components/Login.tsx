@@ -4,13 +4,13 @@ import {
   AlertCircle,
   ArrowRight,
   Loader2,
-  Mail,
   Lock,
+  Mail,
   ShieldCheck,
 } from "lucide-react";
 import Link from "next/link";
 import type React from "react";
-import { useState } from "react";
+import { useId, useState } from "react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -34,6 +34,8 @@ export function Login() {
   const { handleLogin, isLoading, error } = useLogin();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const emailId = useId();
+  const passwordId = useId();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,7 +77,7 @@ export function Login() {
 
               <div className="space-y-2">
                 <Label
-                  htmlFor="email"
+                  htmlFor={emailId}
                   className="ml-1 text-sm font-medium text-slate-700"
                 >
                   Email
@@ -83,7 +85,7 @@ export function Login() {
                 <div className="relative group">
                   <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 group-focus-within:text-slate-900" />
                   <Input
-                    id="email"
+                    id={emailId}
                     type="email"
                     required
                     value={email}
@@ -97,7 +99,7 @@ export function Login() {
 
               <div className="space-y-2">
                 <Label
-                  htmlFor="password"
+                  htmlFor={passwordId}
                   className="ml-1 text-sm font-medium text-slate-700"
                 >
                   Password
@@ -105,7 +107,7 @@ export function Login() {
                 <div className="relative group">
                   <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 group-focus-within:text-slate-900" />
                   <Input
-                    id="password"
+                    id={passwordId}
                     type="password"
                     required
                     value={password}

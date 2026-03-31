@@ -21,9 +21,10 @@ export function useLogin() {
       await authService.login(data);
       toast.success("Successfully logged in");
       // ノート一覧ページへ遷移
-      router.push("/notes/all");
-    } catch (err: any) {
-      const message = err.message || "An unexpected error occurred";
+      router.push("/notes?scope=all");
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "An unexpected error occurred";
       setError(message);
       toast.error(message);
     } finally {
@@ -52,11 +53,12 @@ export function useSignup() {
 
     try {
       await authService.signup(data);
-      toast.success("Successfully signed up! Please login.");
-      // ログインページへ遷移
-      router.push("/login");
-    } catch (err: any) {
-      const message = err.message || "An unexpected error occurred";
+      toast.success("Successfully signed up!");
+      // メインページへ遷移
+      router.push("/notes?scope=all");
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "An unexpected error occurred";
       setError(message);
       toast.error(message);
     } finally {
