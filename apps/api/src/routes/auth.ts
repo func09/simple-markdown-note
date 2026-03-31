@@ -1,91 +1,9 @@
-import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
+import { OpenAPIHono } from "@hono/zod-openapi";
 import { sign } from "hono/jwt";
-import {
-  AuthResponseSchema,
-  MeResponseSchema,
-  SigninRequestSchema,
-  SignupRequestSchema,
-} from "../schema";
+import { AuthResponseSchema, MeResponseSchema } from "../schema";
 import { getUserById, signin, signup } from "../services/authService";
 import type { AppEnv } from "../types";
-
-/** POST /signup — ユーザー登録ルート定義 */
-const signupRoute = createRoute({
-  method: "post",
-  path: "/signup",
-  summary: "ユーザー登録",
-  description: "新しいユーザーを登録し、JWTトークンを返します。",
-  request: {
-    body: {
-      content: {
-        "application/json": {
-          schema: SignupRequestSchema,
-        },
-      },
-    },
-  },
-  responses: {
-    200: {
-      content: {
-        "application/json": {
-          schema: AuthResponseSchema,
-        },
-      },
-      description: "登録成功",
-    },
-  },
-});
-
-/** POST /signin — サインインルート定義 */
-const signinRoute = createRoute({
-  method: "post",
-  path: "/signin",
-  summary: "サインイン",
-  description: "既存のユーザーでサインインし、JWTトークンを返します。",
-  request: {
-    body: {
-      content: {
-        "application/json": {
-          schema: SigninRequestSchema,
-        },
-      },
-    },
-  },
-  responses: {
-    200: {
-      content: {
-        "application/json": {
-          schema: AuthResponseSchema,
-        },
-      },
-      description: "サインイン成功",
-    },
-  },
-});
-
-/** GET /me — ログインユーザー情報取得ルート定義 */
-const meRoute = createRoute({
-  method: "get",
-  path: "/me",
-  summary: "ログインユーザー情報取得",
-  description: "トークンを使用して、現在のログインユーザーの情報を取得します。",
-  responses: {
-    200: {
-      content: {
-        "application/json": {
-          schema: MeResponseSchema,
-        },
-      },
-      description: "取得成功",
-    },
-    401: {
-      description: "認証エラー",
-    },
-    404: {
-      description: "ユーザーが見つかりません",
-    },
-  },
-});
+import { meRoute, signinRoute, signupRoute } from "./auth.schema";
 
 /**
  * 認証関連のルーター
