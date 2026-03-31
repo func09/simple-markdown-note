@@ -1,5 +1,5 @@
 import type { AuthResponse, SigninRequest, SignupRequest } from "api";
-import api from "../../lib/api";
+import api from "@/lib/api";
 
 /**
  * Hono RPC を使用した認証関連の API 通信
@@ -40,7 +40,7 @@ export const logout = async () => {
   localStorage.clear(); // キャッシュなどを念のため全クリア
 
   try {
-    const { db } = await import("../../lib/db");
+    const { db } = await import("@/lib/db");
     // IndexedDB のデータベース自体を削除して完全にリセットする
     await db.delete();
   } catch (error) {

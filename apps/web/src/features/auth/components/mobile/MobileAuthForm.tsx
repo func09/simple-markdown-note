@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { AlertCircle, ArrowRight, Loader2, Lock, Mail } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
-import { Button } from "../../../../components/common/Button";
+import { Button } from "@/components/common/Button";
 import {
   Alert,
   AlertDescription,
@@ -13,9 +13,9 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "../../../../components/common/Display";
-import { Input, Label } from "../../../../components/common/Form";
-import type { AuthFormProps } from "../../../../features/auth/types";
+} from "@/components/common/Display";
+import { Input, Label } from "@/components/common/Form";
+import type { AuthFormProps } from "@/features/auth/types";
 
 /**
  * モバイル版専用の認証フォーム
