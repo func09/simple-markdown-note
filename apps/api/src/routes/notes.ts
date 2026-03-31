@@ -1,12 +1,6 @@
-import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
+import { OpenAPIHono } from "@hono/zod-openapi";
 import { HTTPException } from "hono/http-exception";
-import {
-  NoteCreateRequestSchema,
-  NoteListResponseSchema,
-  NoteQuerySchema,
-  NoteSchema,
-  NoteUpdateRequestSchema,
-} from "../schema";
+import { NoteListResponseSchema, NoteSchema } from "../schema";
 import {
   createNote,
   deleteNote,
@@ -15,125 +9,13 @@ import {
   updateNote,
 } from "../services/noteService";
 import type { AppEnv } from "../types";
-
-// --- Routes Definition ---
-
-/** GET / — ノート一覧取得ルート定義 */
-const listNotesRoute = createRoute({
-  method: "get",
-  path: "/",
-  summary: "ノート一覧取得",
-  request: {
-    query: NoteQuerySchema,
-  },
-  responses: {
-    200: {
-      content: {
-        "application/json": {
-          schema: NoteListResponseSchema,
-        },
-      },
-      description: "取得成功",
-    },
-  },
-});
-
-/** GET /:id — ノート取得ルート定義 */
-const getNoteRoute = createRoute({
-  method: "get",
-  path: "/{id}",
-  summary: "ノート取得",
-  request: {
-    params: NoteSchema.pick({ id: true }),
-  },
-  responses: {
-    200: {
-      content: {
-        "application/json": {
-          schema: NoteSchema,
-        },
-      },
-      description: "取得成功",
-    },
-    404: {
-      description: "ノートが見つかりません",
-    },
-  },
-});
-
-/** POST / — ノート作成ルート定義 */
-const createNoteRoute = createRoute({
-  method: "post",
-  path: "/",
-  summary: "ノート作成",
-  request: {
-    body: {
-      content: {
-        "application/json": {
-          schema: NoteCreateRequestSchema,
-        },
-      },
-    },
-  },
-  responses: {
-    201: {
-      content: {
-        "application/json": {
-          schema: NoteSchema,
-        },
-      },
-      description: "作成成功",
-    },
-  },
-});
-
-/** PATCH /:id — ノート更新ルート定義 */
-const updateNoteRoute = createRoute({
-  method: "patch",
-  path: "/{id}",
-  summary: "ノート更新",
-  request: {
-    params: NoteSchema.pick({ id: true }),
-    body: {
-      content: {
-        "application/json": {
-          schema: NoteUpdateRequestSchema,
-        },
-      },
-    },
-  },
-  responses: {
-    200: {
-      content: {
-        "application/json": {
-          schema: NoteSchema,
-        },
-      },
-      description: "更新成功",
-    },
-    404: {
-      description: "ノートが見つかりません",
-    },
-  },
-});
-
-/** DELETE /:id — ノート削除ルート定義 */
-const deleteNoteRoute = createRoute({
-  method: "delete",
-  path: "/{id}",
-  summary: "ノート削除",
-  request: {
-    params: NoteSchema.pick({ id: true }),
-  },
-  responses: {
-    204: {
-      description: "削除成功",
-    },
-    404: {
-      description: "ノートが見つかりません",
-    },
-  },
-});
+import {
+  createNoteRoute,
+  deleteNoteRoute,
+  getNoteRoute,
+  listNotesRoute,
+  updateNoteRoute,
+} from "./notes.schema";
 
 /**
  * ノート関連のルーター

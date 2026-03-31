@@ -1,58 +1,8 @@
-import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
-import {
-  TagCreateRequestSchema,
-  TagListResponseSchema,
-  TagSchema,
-} from "../schema";
+import { OpenAPIHono } from "@hono/zod-openapi";
+import { TagListResponseSchema, TagSchema } from "../schema";
 import { createTag, getTagsWithNoteCount } from "../services/tagService";
 import type { AppEnv } from "../types";
-
-// --- Routes Definition ---
-
-/** GET / — タグ一覧取得ルート定義 */
-const tagsListRoute = createRoute({
-  method: "get",
-  path: "/",
-  summary: "タグ一覧の取得",
-  description: "現在のユーザーが使用している全タグの一覧を取得します。",
-  responses: {
-    200: {
-      content: {
-        "application/json": {
-          schema: TagListResponseSchema,
-        },
-      },
-      description: "取得成功",
-    },
-  },
-});
-
-/** POST / — タグ作成ルート定義 */
-const createTagRoute = createRoute({
-  method: "post",
-  path: "/",
-  summary: "タグの新規作成",
-  description: "新しいタグを作成、または既存のタグを取得します。",
-  request: {
-    body: {
-      content: {
-        "application/json": {
-          schema: TagCreateRequestSchema,
-        },
-      },
-    },
-  },
-  responses: {
-    200: {
-      content: {
-        "application/json": {
-          schema: TagSchema,
-        },
-      },
-      description: "作成または取得成功",
-    },
-  },
-});
+import { createTagRoute, tagsListRoute } from "./tags.schema";
 
 /**
  * タグ関連のルーター
