@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { authService } from "../../auth/services/authService";
+import { logout } from "@/features/auth/api";
 
 interface NotesProps {
   context: {
@@ -15,7 +15,7 @@ export function Notes({ context, selectedNoteId }: NotesProps) {
   const router = useRouter();
 
   const handleLogout = async () => {
-    await authService.logout();
+    await logout();
     router.push("/login");
   };
 
