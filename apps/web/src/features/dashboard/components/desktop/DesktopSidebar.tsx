@@ -1,5 +1,6 @@
 import { LogOut, StickyNote, Tag as TagIcon, Trash2 } from "lucide-react";
 import type React from "react";
+import { useId } from "react";
 
 import { useAuthActions } from "@/features/auth";
 import { TagList } from "@/features/dashboard/components";
@@ -21,6 +22,7 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
 }) => {
   const { isTrashSelected, selectedTag } = useDashboardState();
   const searchQuery = useDashboardStore((state) => state.searchQuery);
+  const navId = useId();
 
   const { handleLogout } = useAuthActions();
 
@@ -30,7 +32,7 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
 
   return (
     <nav
-      id="nav-container"
+      id={navId}
       aria-label="Sidebar Navigation"
       className="custom-scrollbar flex h-full flex-col overflow-y-auto px-2 focus:outline-hidden"
     >
