@@ -259,5 +259,47 @@ describe("Notes CRUD API (/notes)", () => {
       expect(body.length).toBe(1);
       expect(body[0].content).toBe("Work Note");
     });
+
+    it("should restore a note from trash and preserve content", async () => {
+      // 1. ゴミ箱のノートを特定
+      const trashedNotesRes = await app.request(
+        `/api/notes?scope=${NOTE_SCOPE.TRASH}`,
+        {
+          method: "GET",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      const trashedNotes = (await trashedNotesRes.json()) as NoteListResponse;
+      const noteToRestore = trashedNotes[0];
+      expect(noteToRestore.content).toBe("Trashed Note");
+
+      // 2. 復元リクエスト (deletedAt: null)
+      const restoreRes = await app.request(`/api/notes/${noteToRestore.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ deletedAt: null }),
+      });
+
+      expect(restoreRes.status).toBe(200);
+      const restoredNote = (await restoreRes.json()) as z.infer<
+        typeof NoteSchema
+      >;
+
+      // 検証1: deletedAt が null になっていること (不具合の修正確認用)
+      expect(restoredNote.deletedAt).toBeNull();
+      // 検証2: content が維持されていること (本文消失の有無の確認)
+      expect(restoredNote.content).toBe("Trashed Note");
+
+      // 3. 全体一覧に復帰していることを確認
+      const allNotesRes = await app.request("/api/notes", {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const allNotes = (await allNotesRes.json()) as NoteListResponse;
+      expect(allNotes.some((n) => n.id === noteToRestore.id)).toBe(true);
+    });
   });
 });

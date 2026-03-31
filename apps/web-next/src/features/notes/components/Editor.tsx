@@ -185,9 +185,9 @@ export function Editor({ noteId, isMobile }: EditorProps) {
   const handleRestore = useCallback(async () => {
     if (!noteId) return;
     await restoreNoteMutation.mutateAsync(noteId);
-    // 元のスコープ（All Notes）などで表示されるように調整
-    router.push(`/notes/${noteId}?scope=all`);
-  }, [noteId, restoreNoteMutation, router]);
+    // 元のスコープ（Trashなど）を維持するように調整
+    router.push(`/notes/${noteId}${queryString}`);
+  }, [noteId, restoreNoteMutation, router, queryString]);
 
   const handlePermanentDelete = useCallback(async () => {
     if (!noteId) return;
