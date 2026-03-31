@@ -11,9 +11,9 @@ import {
   useRestoreNote,
   useTags,
   useUpdateNote,
-} from "./useNotesQuery";
+} from "@/useNotesQuery";
 
-vi.mock("@/lib/db", () => ({
+vi.mock("../lib/db", () => ({
   db: {
     notes: {
       put: vi.fn(),
@@ -25,7 +25,7 @@ vi.mock("@/lib/db", () => ({
   },
 }));
 
-vi.mock("@/features/notes/api", () => ({
+vi.mock("../features/notes/api", () => ({
   fetchTags: vi.fn(),
 }));
 

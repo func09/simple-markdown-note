@@ -1,4 +1,4 @@
-import { z } from "@/schema/z";
+import { z } from "../z";
 import { TagSchema } from "./tag";
 
 /**
@@ -9,14 +9,14 @@ export const NoteSchema = z
     id: z.string().openapi({ example: "clvabcdef000008l1abcdefgh" }),
     content: z.string().openapi({ example: "Note content" }),
     userId: z.string().openapi({ example: "user-id" }),
-    tags: z.array(TagSchema).openapi({
+    tags: z.array(TagSchema).openapi("NoteTags", {
       example: [
         {
           id: "tag-1",
           name: "Work",
           userId: "user-id",
-          createdAt: "2026-03-25T12:00:00Z",
-          updatedAt: "2026-03-25T12:00:00Z",
+          createdAt: new Date("2026-03-25T12:00:00Z") as any,
+          updatedAt: new Date("2026-03-25T12:00:00Z") as any,
         },
       ],
     }),

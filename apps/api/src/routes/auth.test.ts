@@ -1,8 +1,8 @@
 import { db, users } from "database";
 import { beforeAll, describe, expect, it } from "vitest";
 import type { z } from "zod";
-import type { AuthResponseSchema } from "@/schema";
 import { app } from "../index";
+import type { AuthResponseSchema } from "../schema";
 
 describe("Auth API", () => {
   beforeAll(async () => {

@@ -1,6 +1,6 @@
 import type { MiddlewareHandler } from "hono";
 import { jwt } from "hono/jwt";
-import type { AppEnv } from "@/types";
+import type { AppEnv } from "../types";
 
 // JWT 認証ミドルウェア (秘密鍵は環境変数から取得)
 export const jwtAuth = (): MiddlewareHandler<AppEnv> => {

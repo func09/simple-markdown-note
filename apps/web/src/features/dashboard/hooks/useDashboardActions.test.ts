@@ -7,7 +7,7 @@ import * as useNotesQuery from "@/features/notes/hooks";
 import { useNoteStore } from "@/features/notes/stores";
 
 // Mock dependencies
-vi.mock("@/features/notes/hooks");
+vi.mock("../features/notes/hooks");
 vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
 const setupMockStore = (

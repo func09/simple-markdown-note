@@ -1,5 +1,5 @@
 import { createTagRepository, type DrizzleDB } from "database";
-import type { TagListResponse } from "@/schema";
+import type { TagListResponse } from "../schema";
 
 /**
  * ノートのタグを同期する
@@ -54,7 +54,7 @@ export async function getTagsWithNoteCount(
   const tagsRaw = await repo.findAllWithNotesByUserId(userId);
 
   // レスポンス形成: 各タグに紐付くノートの数を算出
-  return tagsRaw.map((tag) => ({
+  return tagsRaw.map((tag: (typeof tagsRaw)[number]) => ({
     id: tag.id,
     name: tag.name,
     count: tag.notesToTags.length,

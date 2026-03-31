@@ -1,12 +1,12 @@
 import { db, users } from "database";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { z } from "zod";
+import { app } from "../index";
 import type {
   AuthResponseSchema,
   SyncResponseSchema,
   TagListResponseSchema,
-} from "@/schema";
-import { app } from "../index";
+} from "../schema";
 
 describe("Tags API via Sync", () => {
   let token: string;

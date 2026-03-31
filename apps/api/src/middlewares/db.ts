@@ -1,6 +1,6 @@
 import { createDb, type DrizzleDB, db as staticDb } from "database";
 import type { MiddlewareHandler } from "hono";
-import type { AppEnv } from "@/types";
+import type { AppEnv } from "../types";
 
 // 1. データベース注入ミドルウェア
 export const dbInjector = (): MiddlewareHandler<AppEnv> => {

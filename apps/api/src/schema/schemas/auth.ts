@@ -1,5 +1,5 @@
-import { z } from "@/schema/z";
 import { UserSchema } from "../models/user";
+import { z } from "../z";
 
 // ユーザー登録リクエストのスキーマ
 export const SignupRequestSchema = z
