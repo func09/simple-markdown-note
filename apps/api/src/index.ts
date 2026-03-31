@@ -69,5 +69,5 @@ if (
   });
 }
 
-export type AppType = typeof app;
+export type AppType = typeof apiRouter;
 export default app;

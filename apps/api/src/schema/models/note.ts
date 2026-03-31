@@ -1,4 +1,4 @@
-import { z } from "../z";
+import { dateSchema, z } from "../z";
 import { TagSchema } from "./tag";
 
 /**
@@ -15,14 +15,14 @@ export const NoteSchema = z
           id: "tag-1",
           name: "Work",
           userId: "user-id",
-          createdAt: new Date("2026-03-25T12:00:00Z"),
-          updatedAt: new Date("2026-03-25T12:00:00Z"),
+          createdAt: "2026-03-25T12:00:00Z",
+          updatedAt: "2026-03-25T12:00:00Z",
         },
       ],
     }),
-    createdAt: z.date().openapi({ example: "2026-03-25T12:00:00Z" }),
-    updatedAt: z.date().openapi({ example: "2026-03-25T12:00:00Z" }),
-    deletedAt: z.date().nullable().openapi({ example: null }),
+    createdAt: dateSchema.openapi({ example: "2026-03-25T12:00:00Z" }),
+    updatedAt: dateSchema.openapi({ example: "2026-03-25T12:00:00Z" }),
+    deletedAt: dateSchema.nullable().openapi({ example: null }),
     isPermanent: z.boolean().openapi({ example: false }),
   })
   .openapi("Note");
