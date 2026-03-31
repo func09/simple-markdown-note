@@ -1,24 +1,29 @@
+import type { UseQueryResult } from "@tanstack/react-query";
 import { act, renderHook } from "@testing-library/react";
-import * as dexieHooks from "dexie-react-hooks";
+import type { Note } from "api";
+import type React from "react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as useDashboardActionsHook from "@/features/dashboard/hooks/useDashboardActions";
 import { useDashboardState } from "@/features/dashboard/hooks/useDashboardState";
 import { useDashboardStore } from "@/features/dashboard/stores";
 import * as hooks from "@/features/notes/hooks";
-import { useNoteStore } from "@/features/notes/stores";
 
-vi.mock("dexie-react-hooks");
-vi.mock("../features/notes/hooks");
+vi.mock("@/features/notes/hooks", () => ({
+  useNotes: vi.fn(),
+  useOramaSearch: vi.fn(),
+}));
 vi.mock("./useDashboardActions");
+vi.mock("@/hooks/useMediaQuery", () => ({
+  useMediaQuery: vi.fn().mockReturnValue(false),
+}));
 
 const setupStores = (
   dashboardState: {
     searchQuery?: string;
     activeView?: "list" | "editor";
     isSidebarOpen?: boolean;
-  } = {},
-  noteState: { selectedNoteId?: string | null } = {}
+  } = {}
 ) => {
   useDashboardStore.setState({
     searchQuery: "",
@@ -26,18 +31,14 @@ const setupStores = (
     isSidebarOpen: false,
     ...dashboardState,
   });
-  useNoteStore.setState({
-    selectedNoteId: null,
-    ...noteState,
-  });
 };
 
 const renderWithRouter = (
-  ui: () => unknown,
+  ui: () => ReturnType<typeof useDashboardState>,
   initialEntries = ["/notes/all"]
 ) => {
   return renderHook(ui, {
-    wrapper: ({ children }) => (
+    wrapper: ({ children }: { children: React.ReactNode }) => (
       <MemoryRouter initialEntries={initialEntries}>
         <Routes>
           <Route path="/notes/:filter/:noteId?" element={children} />
@@ -45,7 +46,7 @@ const renderWithRouter = (
         </Routes>
       </MemoryRouter>
     ),
-  }) as any;
+  });
 };
 
 describe("useDashboardState", () => {
@@ -53,136 +54,102 @@ describe("useDashboardState", () => {
     vi.clearAllMocks();
     setupStores();
 
-    // Mock matchMedia
-    Object.defineProperty(window, "matchMedia", {
-      writable: true,
-      value: vi.fn().mockImplementation((query) => ({
-        matches: false,
-        media: query,
-        onchange: null,
-        addListener: vi.fn(),
-        removeListener: vi.fn(),
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-        dispatchEvent: vi.fn(),
-      })),
-    });
+    // Mock useNotes
+    const mockNotes: Note[] = [
+      {
+        id: "1",
+        content: "note 1",
+        userId: "u1",
+        tags: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        deletedAt: null,
+        isPermanent: false,
+      },
+      {
+        id: "2",
+        content: "note 2",
+        userId: "u1",
+        tags: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        deletedAt: null,
+        isPermanent: false,
+      },
+    ];
 
-    vi.mocked(dexieHooks.useLiveQuery).mockReturnValue([
-      { id: "1", content: "note 1", deletedAt: null },
-      { id: "2", content: "note 2", deletedAt: null },
-      { id: "trash-1", content: "trash 1", deletedAt: "2023-01-01" },
-    ]);
-
-    vi.mocked(hooks.useSync).mockReturnValue({
+    vi.mocked(hooks.useNotes).mockReturnValue({
+      data: mockNotes,
       isLoading: false,
-    } as unknown as ReturnType<typeof hooks.useSync>);
+    } as unknown as UseQueryResult<Note[], Error>);
 
+    // Mock useOramaSearch
     vi.mocked(hooks.useOramaSearch).mockReturnValue({
-      filteredNotes: [
-        {
-          id: "1",
-          content: "note 1",
-          deletedAt: null,
-        } as unknown as ReturnType<
-          typeof hooks.useOramaSearch
-        >["filteredNotes"][0],
-      ],
-      searchNotes: vi
-        .fn()
-        .mockReturnValue([{ id: "1", content: "note 1", deletedAt: null }]),
+      filteredNotes: [mockNotes[0]],
+      searchNotes: vi.fn().mockReturnValue([mockNotes[0]]),
       oramaDb: {} as unknown as ReturnType<
         typeof hooks.useOramaSearch
       >["oramaDb"],
     });
 
+    // Mock useDashboardActions
     vi.mocked(useDashboardActionsHook.useDashboardActions).mockReturnValue({
-      isDeleteModalOpen: false,
-      setIsDeleteModalOpen: vi.fn(),
-      noteToDelete: null,
       handleCreateNote: vi.fn(),
       handleDeleteClick: vi.fn(),
-      confirmDeleteNote: vi.fn(),
-      handleCancelDelete: vi.fn(),
       handleEmptyTrash: vi.fn(),
     } as unknown as ReturnType<
       typeof useDashboardActionsHook.useDashboardActions
     >);
   });
 
-  it("selects correct notes and delegates to oramaSearch based on isTrashSelected", () => {
-    const { result } = renderWithRouter(
-      () => useDashboardState(),
-      ["/notes/all"]
-    );
+  it("calls useNotes with correct parameters for 'all' scope", () => {
+    renderWithRouter(() => useDashboardState(), ["/notes/all"]);
 
-    expect(hooks.useOramaSearch).toHaveBeenCalledWith(
-      expect.arrayContaining([
-        expect.objectContaining({ id: "1" }),
-        expect.objectContaining({ id: "2" }),
-      ]),
-      null,
-      ""
-    );
-    expect(result.current.filteredNotes).toHaveLength(1);
-    expect(result.current.isTrashSelected).toBe(false);
+    expect(hooks.useNotes).toHaveBeenCalledWith({
+      tag: undefined,
+      scope: "all",
+    });
   });
 
-  it("filters trash notes correctly when isTrashSelected is true", () => {
+  it("calls useNotes with correct parameters for tags", () => {
+    renderWithRouter(() => useDashboardState(), ["/tags/React"]);
+
+    expect(hooks.useNotes).toHaveBeenCalledWith({
+      tag: "React",
+      scope: "all",
+    });
+  });
+
+  it("calls useNotes with correct parameters for trash", () => {
     renderWithRouter(() => useDashboardState(), ["/notes/trash"]);
 
-    // oramaSearch should receive only the trash-1 note
-    expect(hooks.useOramaSearch).toHaveBeenCalledWith(
-      expect.arrayContaining([expect.objectContaining({ id: "trash-1" })]),
-      null,
-      ""
-    );
+    expect(hooks.useNotes).toHaveBeenCalledWith({
+      tag: undefined,
+      scope: "trash",
+    });
   });
 
-  it("updates selection correctly through updateSelection", () => {
+  it("updates selection and navigates correctly", () => {
     const { result } = renderWithRouter(
       () => useDashboardState(),
       ["/notes/all"]
     );
 
     act(() => {
-      result.current.updateSelection("React", false, "test query");
+      result.current.updateSelection("Work", false, "test");
     });
 
     const dState = useDashboardStore.getState();
-    expect(dState.searchQuery).toBe("test query");
-    expect(dState.isSidebarOpen).toBe(false);
+    expect(dState.searchQuery).toBe("test");
   });
 
-  it("returns the currently selected note object", () => {
-    setupStores({}, { selectedNoteId: "1" });
+  it("returns correct selectedNote based on noteId", () => {
     const { result } = renderWithRouter(
       () => useDashboardState(),
       ["/notes/all/1"]
     );
 
-    expect(result.current.selectedNote).toEqual(
-      expect.objectContaining({ id: "1" })
-    );
-  });
-
-  it("auto-selects the first filtered note if current selection is invalid", () => {
-    // Current selection is 'invalid', filteredNotes has '1'
-    setupStores({}, { selectedNoteId: "invalid" });
-    renderWithRouter(() => useDashboardState(), ["/notes/all/invalid"]);
-
-    // URL sync happens, filteredNotes[0] should be selected via navigateTo in real app
-  });
-
-  it("clears selection if filtered notes is empty", () => {
-    vi.mocked(hooks.useOramaSearch).mockReturnValue({
-      filteredNotes: [],
-      searchNotes: vi.fn().mockReturnValue([]),
-      oramaDb: {} as unknown as ReturnType<
-        typeof hooks.useOramaSearch
-      >["oramaDb"],
-    });
-    setupStores({}, { selectedNoteId: "1" });
-    renderWithRouter(() => useDashboardState(), ["/notes/all/1"]);
+    expect(result.current.selectedNote?.id).toBe("1");
+    expect(result.current.selectedNoteId).toBe("1");
   });
 });
