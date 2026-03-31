@@ -13,11 +13,14 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    if (!authService.isAuthenticated()) {
-      router.replace("/login");
-    } else {
-      setIsChecking(false);
-    }
+    const checkAuth = async () => {
+      if (!(await authService.isAuthenticated())) {
+        router.replace("/login");
+      } else {
+        setIsChecking(false);
+      }
+    };
+    checkAuth();
   }, [router]);
 
   if (isChecking) {

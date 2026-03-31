@@ -13,11 +13,14 @@ export function GuestGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    if (authService.isAuthenticated()) {
-      router.replace("/notes/all");
-    } else {
-      setIsChecking(false);
-    }
+    const checkAuth = async () => {
+      if (await authService.isAuthenticated()) {
+        router.replace("/notes?scope=all");
+      } else {
+        setIsChecking(false);
+      }
+    };
+    checkAuth();
   }, [router]);
 
   if (isChecking) {

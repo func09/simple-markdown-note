@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "biome check",
     "format": "biome format --write",
+    "check": "biome check .",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -22,7 +23,6 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.2.0",
     "@cloudflare/workers-types": "^4.20260329.1",
     "@radix-ui/react-label": "^2.1.8",
     "@radix-ui/react-slot": "^1.2.4",
@@ -31,7 +31,6 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "api": "workspace:*",
-    "openapi": "workspace:*",
     "babel-plugin-react-compiler": "1.0.0",
     "class-variance-authority": "^0.7.1",
     "tailwindcss": "^4",
