@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { Components } from "react-markdown";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { cn } from "@/lib/utils";
@@ -27,6 +28,18 @@ import {
 } from "../queries";
 import { useNotesStore } from "../store";
 
+const markdownComponents: Components = {
+  p: ({ children }) => <p className="whitespace-pre-wrap">{children}</p>,
+  li: ({ children }) => <li className="whitespace-pre-wrap">{children}</li>,
+};
+
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
 interface EditorProps {
   noteId?: string;
   initialContent?: string;
@@ -35,7 +48,6 @@ interface EditorProps {
 
 export function Editor({ noteId, isMobile }: EditorProps) {
   const [isPreview, setIsPreview] = useState(false);
-  const [content, setContent] = useState("");
   const router = useRouter();
   const scope = useNotesStore((s) => s.filterScope);
   const tag = useNotesStore((s) => s.filterTag);
@@ -134,7 +146,6 @@ export function Editor({ noteId, isMobile }: EditorProps) {
     },
     onUpdate: ({ editor }) => {
       const text = editor.getText({ blockSeparator: "\n" });
-      setContent(text);
       handleAutoSave(text);
     },
   });
@@ -151,13 +162,12 @@ export function Editor({ noteId, isMobile }: EditorProps) {
     if (editor && note) {
       // ノートIDが切り替わった初動のみ内容をセット
       if (note.id !== lastNoteIdRef.current) {
-        // 改行を <p> タグに変換して流し込む
+        // 改行を <p> タグに変換して流し込む（特殊文字をエスケープ）
         const html = note.content
           .split("\n")
-          .map((line) => `<p>${line}</p>`)
+          .map((line) => `<p>${escapeHtml(line)}</p>`)
           .join("");
         editor.commands.setContent(html, { emitUpdate: false });
-        setContent(note.content);
         contentRef.current = note.content;
         lastNoteIdRef.current = note.id;
         setIsPreview(false);
@@ -292,16 +302,9 @@ export function Editor({ noteId, isMobile }: EditorProps) {
           <div className="prose prose-slate max-w-none px-8 py-12 animate-in fade-in duration-300 font-sans prose-p:my-0 prose-headings:mb-2 prose-headings:mt-6 prose-ul:my-2 prose-li:my-0 prose-ol:my-2">
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
-              components={{
-                p: ({ children }) => (
-                  <p className="whitespace-pre-wrap">{children}</p>
-                ),
-                li: ({ children }) => (
-                  <li className="whitespace-pre-wrap">{children}</li>
-                ),
-              }}
+              components={markdownComponents}
             >
-              {content || ""}
+              {contentRef.current || ""}
             </ReactMarkdown>
           </div>
         ) : (
