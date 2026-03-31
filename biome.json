@@ -66,17 +66,7 @@
       "linter": {
         "rules": {
           "style": {
-            "noRestrictedImports": {
-              "level": "error",
-              "options": {
-                "patterns": [
-                  {
-                    "group": ["../../**"],
-                    "message": "1段階を超える相対パス（../）は禁止されています。代わりに '@/' エイリアスを使用してください。"
-                  }
-                ]
-              }
-            }
+            "useNodejsImportProtocol": "error"
           }
         }
       }

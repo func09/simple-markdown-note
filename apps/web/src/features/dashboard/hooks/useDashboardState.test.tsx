@@ -2,11 +2,11 @@ import { act, renderHook } from "@testing-library/react";
 import * as dexieHooks from "dexie-react-hooks";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import * as useDashboardActionsHook from "../features/dashboard/hooks/useDashboardActions";
-import { useDashboardState } from "../features/dashboard/hooks/useDashboardState";
-import { useDashboardStore } from "../features/dashboard/stores";
-import * as hooks from "../features/notes/hooks";
-import { useNoteStore } from "../features/notes/stores";
+import * as useDashboardActionsHook from "../../../features/dashboard/hooks/useDashboardActions";
+import { useDashboardState } from "../../../features/dashboard/hooks/useDashboardState";
+import { useDashboardStore } from "../../../features/dashboard/stores";
+import * as hooks from "../../../features/notes/hooks";
+import { useNoteStore } from "../../../features/notes/stores";
 
 vi.mock("dexie-react-hooks");
 vi.mock("../features/notes/hooks");

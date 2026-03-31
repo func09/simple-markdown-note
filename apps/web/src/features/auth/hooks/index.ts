@@ -1,1 +1,1 @@
-export * from "./useAuthActions";
+export * from "../../../useAuthActions";

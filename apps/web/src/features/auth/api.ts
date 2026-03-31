@@ -1,5 +1,5 @@
 import type { AuthResponse, SigninRequest, SignupRequest } from "api";
-import api from "../lib/api";
+import api from "../../lib/api";
 
 /**
  * Hono RPC を使用した認証関連の API 通信
