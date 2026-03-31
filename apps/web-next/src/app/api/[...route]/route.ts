@@ -52,6 +52,11 @@ export async function ALL(
       return new NextResponse(errorText, { status: res.status });
     }
 
+    // 204 No Content の場合は空レスポンスを返す
+    if (res.status === 204) {
+      return new NextResponse(null, { status: 204 });
+    }
+
     // JSONをパースし、any ではなく ProxyResponse として扱う
     const data = (await res.json()) as ProxyResponse;
 
