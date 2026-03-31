@@ -3,6 +3,10 @@ import type { SigninRequest, SignupRequest } from "api";
 import { logout, signin, signup } from "./api";
 import { useAuthStore } from "./store";
 
+/**
+ * ログインを実行するミューテーションフック
+ * 成功時に取得したユーザー情報をグローバルストアに保存する
+ */
 export const useLogin = () => {
   const setAuth = useAuthStore((state) => state.setAuth);
 
@@ -15,6 +19,10 @@ export const useLogin = () => {
   });
 };
 
+/**
+ * 新規登録を実行するミューテーションフック
+ * 成功時に取得したユーザー情報をグローバルストアに保存する
+ */
 export const useSignup = () => {
   const setAuth = useAuthStore((state) => state.setAuth);
 
@@ -27,6 +35,10 @@ export const useSignup = () => {
   });
 };
 
+/**
+ * ログアウトを実行するミューテーションフック
+ * 成功時にグローバルストアの認証情報をクリアする
+ */
 export const useLogout = () => {
   const clearAuth = useAuthStore((state) => state.clearAuth);
 
