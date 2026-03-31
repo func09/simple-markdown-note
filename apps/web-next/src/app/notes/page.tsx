@@ -18,7 +18,7 @@ export default async function NotesPage({ searchParams }: NotesPageProps) {
   const currentScope = scope || "all";
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="h-full w-full">
       <Notes
         context={
           tag
