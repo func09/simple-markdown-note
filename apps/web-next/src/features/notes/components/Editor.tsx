@@ -106,6 +106,8 @@ export function Editor({ noteId, isMobile }: EditorProps) {
     }, 10000);
   };
 
+  const isTrashed = !!note?.deletedAt;
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -130,13 +132,14 @@ export function Editor({ noteId, isMobile }: EditorProps) {
       }),
     ],
     content: "",
-    editable: !isPreview,
+    editable: !isPreview && !isTrashed,
     immediatelyRender: false,
     editorProps: {
       attributes: {
         class: cn(
           "max-w-none focus:outline-none min-h-[50vh] px-8 py-12 font-mono text-sm leading-relaxed",
-          isPreview ? "hidden" : "block"
+          isPreview ? "hidden" : "block",
+          isTrashed && "opacity-60 cursor-not-allowed"
         ),
       },
       handleDOMEvents: {
@@ -150,12 +153,12 @@ export function Editor({ noteId, isMobile }: EditorProps) {
     },
   });
 
-  // プレビュー切り替えの連動
+  // プレビュー切り替えおよびゴミ箱状態の連動
   useEffect(() => {
     if (editor) {
-      editor.setEditable(!isPreview);
+      editor.setEditable(!isPreview && !isTrashed);
     }
-  }, [isPreview, editor]);
+  }, [isPreview, isTrashed, editor]);
 
   // ノートが切り替わった時にエディタの内容を更新
   useEffect(() => {
@@ -325,39 +328,68 @@ export function Editor({ noteId, isMobile }: EditorProps) {
             {note?.tags?.map((tag) => (
               <span
                 key={tag.id}
-                className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 text-slate-600 rounded text-xs font-medium group transition-colors hover:bg-slate-200"
+                className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 text-slate-600 rounded text-xs font-medium group transition-colors"
               >
                 {tag.name}
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (noteId && note?.tags) {
-                      const newTags = note.tags
-                        .filter((t) => t.id !== tag.id)
-                        .map((t) => t.name);
-                      updateNoteMutation.mutate({
-                        id: noteId,
-                        data: { tags: newTags },
-                      });
-                    }
-                  }}
-                  className="p-0.5 hover:bg-slate-300 rounded-sm transition-colors text-slate-400 hover:text-slate-600"
-                >
-                  <Plus className="w-3 h-3 rotate-45" />
-                </button>
+                {!isTrashed && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (noteId && note?.tags) {
+                        const newTags = note.tags
+                          .filter((t) => t.id !== tag.id)
+                          .map((t) => t.name);
+                        updateNoteMutation.mutate({
+                          id: noteId,
+                          data: { tags: newTags },
+                        });
+                      }
+                    }}
+                    className="p-0.5 hover:bg-slate-300 rounded-sm transition-colors text-slate-400 hover:text-slate-600"
+                  >
+                    <Plus className="w-3 h-3 rotate-45" />
+                  </button>
+                )}
               </span>
             ))}
           </div>
 
           {/* New Tag Input */}
-          <input
-            type="text"
-            placeholder={note?.tags?.length ? "" : "Add tags..."}
-            className="flex-1 min-w-[120px] text-sm bg-transparent border-none outline-none focus:ring-0 placeholder-slate-300 py-1"
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === ",") {
-                e.preventDefault();
-                const val = e.currentTarget.value.trim().replace(/,$/, "");
+          {!isTrashed && (
+            <input
+              type="text"
+              placeholder={note?.tags?.length ? "" : "Add tags..."}
+              className="flex-1 min-w-[120px] text-sm bg-transparent border-none outline-none focus:ring-0 placeholder-slate-300 py-1"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === ",") {
+                  e.preventDefault();
+                  const val = e.currentTarget.value.trim().replace(/,$/, "");
+                  if (val && noteId) {
+                    const currentTags = note?.tags?.map((t) => t.name) || [];
+                    if (!currentTags.includes(val)) {
+                      updateNoteMutation.mutate({
+                        id: noteId,
+                        data: { tags: [...currentTags, val] },
+                      });
+                    }
+                    e.currentTarget.value = "";
+                  }
+                } else if (
+                  e.key === "Backspace" &&
+                  !e.currentTarget.value &&
+                  note?.tags?.length &&
+                  noteId
+                ) {
+                  // Backspace on empty input removes the last tag
+                  const newTags = note.tags.slice(0, -1).map((t) => t.name);
+                  updateNoteMutation.mutate({
+                    id: noteId,
+                    data: { tags: newTags },
+                  });
+                }
+              }}
+              onBlur={(e) => {
+                const val = e.target.value.trim();
                 if (val && noteId) {
                   const currentTags = note?.tags?.map((t) => t.name) || [];
                   if (!currentTags.includes(val)) {
@@ -366,36 +398,14 @@ export function Editor({ noteId, isMobile }: EditorProps) {
                       data: { tags: [...currentTags, val] },
                     });
                   }
-                  e.currentTarget.value = "";
+                  e.target.value = "";
                 }
-              } else if (
-                e.key === "Backspace" &&
-                !e.currentTarget.value &&
-                note?.tags?.length &&
-                noteId
-              ) {
-                // Backspace on empty input removes the last tag
-                const newTags = note.tags.slice(0, -1).map((t) => t.name);
-                updateNoteMutation.mutate({
-                  id: noteId,
-                  data: { tags: newTags },
-                });
-              }
-            }}
-            onBlur={(e) => {
-              const val = e.target.value.trim();
-              if (val && noteId) {
-                const currentTags = note?.tags?.map((t) => t.name) || [];
-                if (!currentTags.includes(val)) {
-                  updateNoteMutation.mutate({
-                    id: noteId,
-                    data: { tags: [...currentTags, val] },
-                  });
-                }
-                e.target.value = "";
-              }
-            }}
-          />
+              }}
+            />
+          )}
+          {isTrashed && note?.tags?.length === 0 && (
+            <span className="text-sm text-slate-300 italic">No tags</span>
+          )}
         </div>
       </div>
     </div>
