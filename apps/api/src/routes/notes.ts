@@ -1,4 +1,4 @@
-import { createRoute, OpenAPIHono, type z } from "@hono/zod-openapi";
+import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
 import { HTTPException } from "hono/http-exception";
 import {
   NoteCreateRequestSchema,
@@ -6,50 +6,25 @@ import {
   NoteQuerySchema,
   NoteSchema,
   NoteUpdateRequestSchema,
-  SyncRequestSchema,
-  SyncResponseSchema,
 } from "../schema";
 import {
   createNote,
   deleteNote,
   getNoteById,
   getNotes,
-  syncNotes,
   updateNote,
 } from "../services/noteService";
 import type { AppEnv } from "../types";
 
+/**
+ * ノート関連のルーター
+ * ノートの CRUD エンドポイントを提供する
+ */
 const notesRouter = new OpenAPIHono<AppEnv>();
 
 // --- Routes Definition ---
 
-const syncRoute = createRoute({
-  method: "post",
-  path: "/sync",
-  summary: "ノートの同期",
-  description:
-    "クライアントの変更をアップロードし、サーバーからの更新を取得します。",
-  request: {
-    body: {
-      content: {
-        "application/json": {
-          schema: SyncRequestSchema,
-        },
-      },
-    },
-  },
-  responses: {
-    200: {
-      content: {
-        "application/json": {
-          schema: SyncResponseSchema,
-        },
-      },
-      description: "同期成功",
-    },
-  },
-});
-
+/** GET / — ノート一覧取得ルート定義 */
 const listNotesRoute = createRoute({
   method: "get",
   path: "/",
@@ -69,6 +44,7 @@ const listNotesRoute = createRoute({
   },
 });
 
+/** GET /:id — ノート取得ルート定義 */
 const getNoteRoute = createRoute({
   method: "get",
   path: "/{id}",
@@ -91,6 +67,7 @@ const getNoteRoute = createRoute({
   },
 });
 
+/** POST / — ノート作成ルート定義 */
 const createNoteRoute = createRoute({
   method: "post",
   path: "/",
@@ -116,6 +93,7 @@ const createNoteRoute = createRoute({
   },
 });
 
+/** PATCH /:id — ノート更新ルート定義 */
 const updateNoteRoute = createRoute({
   method: "patch",
   path: "/{id}",
@@ -145,6 +123,7 @@ const updateNoteRoute = createRoute({
   },
 });
 
+/** DELETE /:id — ノート削除ルート定義 */
 const deleteNoteRoute = createRoute({
   method: "delete",
   path: "/{id}",
@@ -163,26 +142,6 @@ const deleteNoteRoute = createRoute({
 });
 
 // --- Handlers ---
-
-/**
- * 同期エンドポイント
- * クライアントの変更を受け取り、サーバー側の更新を返す
- */
-notesRouter.openapi(syncRoute, async (c) => {
-  const userId = c.get("userId");
-  const db = c.var.db;
-  const payload = c.req.valid("json");
-  const newSyncTime = new Date();
-
-  const updates = await syncNotes(userId, payload, db);
-
-  return c.json({
-    newSyncTime: newSyncTime.toISOString(),
-    updates: updates as unknown as z.infer<
-      typeof SyncResponseSchema
-    >["updates"],
-  });
-});
 
 /**
  * ノート一覧取得
