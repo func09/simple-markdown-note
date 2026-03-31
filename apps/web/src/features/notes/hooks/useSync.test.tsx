@@ -5,7 +5,7 @@ import * as noteApi from "@/features/notes/api";
 import { useSync, useTriggerSync } from "@/features/notes/hooks/useSync";
 import { db } from "@/lib/db";
 
-vi.mock("@/lib/db", () => ({
+vi.mock("../lib/db", () => ({
   db: {
     notes: {
       where: vi.fn(),
@@ -17,7 +17,7 @@ vi.mock("@/lib/db", () => ({
   },
 }));
 
-vi.mock("@/features/notes/api", () => ({
+vi.mock("../features/notes/api", () => ({
   syncNotes: vi.fn(),
 }));
 

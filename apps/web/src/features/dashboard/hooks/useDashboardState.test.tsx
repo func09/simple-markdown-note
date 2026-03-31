@@ -9,7 +9,7 @@ import * as hooks from "@/features/notes/hooks";
 import { useNoteStore } from "@/features/notes/stores";
 
 vi.mock("dexie-react-hooks");
-vi.mock("@/features/notes/hooks");
+vi.mock("../features/notes/hooks");
 vi.mock("./useDashboardActions");
 
 const setupStores = (

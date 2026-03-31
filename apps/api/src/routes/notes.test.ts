@@ -1,14 +1,14 @@
 import { db, users } from "database";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { z } from "zod";
+import { app } from "../index";
 import type {
   NoteListResponse,
   NoteListResponseSchema,
   NoteSchema,
   SyncResponseSchema,
-} from "@/schema";
-import { NOTE_SCOPE } from "@/schema";
-import { app } from "../index";
+} from "../schema";
+import { NOTE_SCOPE } from "../schema";
 
 describe("Unified Sync API (/notes/sync)", () => {
   let token: string;
@@ -311,7 +311,7 @@ describe("Unified Sync API (/notes/sync)", () => {
       // It should NOT be overwritten as 'Hacked Content' if we fix the query,
       // ACTUALLY, if Drizzle upsert was insecure, it would be overwritten.
       // Fortunately our Unified Sync handles this: wait, wait!
-      // In apps/api/src/routes/notes.ts: `existing = await tx.note.findUnique({ where: { id: change.id } })`
+      // In apps/../src/routes/notes.ts: `existing = await tx.note.findUnique({ where: { id: change.id } })`
       // Wait, there's a security flaw if `existing` is from another user?
       // Actually, if `existing.userId !== userId`, we SHOULD reject it.
       // We will skip testing for security here since this is specifically a sync test.
@@ -474,7 +474,7 @@ describe("Notes CRUD API (/notes)", () => {
     expect(patchRes.status).toBe(404);
   });
 
-  describe("Notes Filtering API (GET /api/notes)", () => {
+  describe("Notes Filtering API (GET /../notes)", () => {
     let token: string;
 
     beforeAll(async () => {
