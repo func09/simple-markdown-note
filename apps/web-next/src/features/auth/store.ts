@@ -26,7 +26,9 @@ interface AuthActions {
  */
 export const useAuthStore = create<AuthState & AuthActions>((set) => ({
   user: null,
-  isAuthenticated: false,
+  isAuthenticated:
+    typeof document !== "undefined" &&
+    document.cookie.includes("is_logged_in=true"),
   setAuth: (user) => set({ user, isAuthenticated: true }),
   clearAuth: () => set({ user: null, isAuthenticated: false }),
 }));
