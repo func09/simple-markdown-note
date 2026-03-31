@@ -1,7 +1,7 @@
 import { renderHook } from "@testing-library/react";
 import type { Note } from "api";
 import { describe, expect, it } from "vitest";
-import { useOramaSearch } from "../../../features/notes/hooks/useOramaSearch";
+import { useOramaSearch } from "@/features/notes/hooks/useOramaSearch";
 
 const MOCK_NOTES: Note[] = [
   {

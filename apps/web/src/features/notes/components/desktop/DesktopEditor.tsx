@@ -1,10 +1,7 @@
 import type { Note } from "api";
 import type React from "react";
-import { useDashboardStore } from "../../../../features/dashboard/stores";
-import {
-  DesktopEditorHeader,
-  EditorCore,
-} from "../../../../features/notes/components";
+import { useDashboardStore } from "@/features/dashboard/stores";
+import { DesktopEditorHeader, EditorCore } from "@/features/notes/components";
 
 interface EditorProps {
   note: Note | null;

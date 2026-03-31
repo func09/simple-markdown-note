@@ -3,12 +3,12 @@ import { Clock, Info } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 
-import { Textarea } from "../../../../components/common/Form";
+import { Textarea } from "@/components/common/Form";
 
-import { TagInput } from "../../../../features/notes/components";
-import { useUpdateNote } from "../../../../features/notes/hooks";
+import { TagInput } from "@/features/notes/components";
+import { useUpdateNote } from "@/features/notes/hooks";
 
-import { cn } from "../../../../lib/utils";
+import { cn } from "@/lib/utils";
 
 interface EditorCoreProps {
   note: Note | null;

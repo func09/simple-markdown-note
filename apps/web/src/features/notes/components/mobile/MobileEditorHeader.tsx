@@ -1,6 +1,6 @@
 import { ArrowLeft, RotateCw, Trash2 } from "lucide-react";
 import type React from "react";
-import { Button } from "../../../../components/common/Button";
+import { Button } from "@/components/common/Button";
 
 interface MobileEditorHeaderProps {
   selectedNoteId: string | null;
