@@ -1,4 +1,6 @@
 import { act, renderHook } from "@testing-library/react";
+import type React from "react";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { toast } from "sonner";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useDashboardActions } from "@/features/dashboard/hooks/useDashboardActions";
@@ -7,14 +9,12 @@ import * as useNotesQuery from "@/features/notes/hooks";
 import { useNoteStore } from "@/features/notes/stores";
 
 // Mock dependencies
-vi.mock("../features/notes/hooks");
+vi.mock("@/features/notes/hooks");
 vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
 const setupMockStore = (
   initialState: {
     selectedNoteId?: string | null;
-    selectedTag?: string | null;
-    isTrashSelected?: boolean;
     activeView?: "list" | "editor";
   } = {}
 ) => {
@@ -22,9 +22,23 @@ const setupMockStore = (
     selectedNoteId: initialState.selectedNoteId ?? null,
   });
   useDashboardStore.setState({
-    selectedTag: initialState.selectedTag ?? null,
-    isTrashSelected: initialState.isTrashSelected ?? false,
     activeView: initialState.activeView ?? "list",
+  });
+};
+
+const renderWithRouter = (
+  initialEntries = ["/notes/all"],
+  path = "/notes/:filter"
+) => {
+  return renderHook(() => useDashboardActions(), {
+    wrapper: ({ children }: { children: React.ReactNode }) => (
+      <MemoryRouter initialEntries={initialEntries}>
+        <Routes>
+          <Route path={path} element={children} />
+          <Route path="/tags/:tagName" element={children} />
+        </Routes>
+      </MemoryRouter>
+    ),
   });
 };
 
@@ -52,7 +66,7 @@ describe("useDashboardActions", () => {
   });
 
   it("handleCreateNote should create a note, select it, and show success toast", async () => {
-    const { result } = renderHook(() => useDashboardActions());
+    const { result } = renderWithRouter();
 
     await act(async () => {
       await result.current.handleCreateNote();
@@ -66,7 +80,7 @@ describe("useDashboardActions", () => {
   });
 
   it("handleDeleteClick should open delete modal", () => {
-    const { result } = renderHook(() => useDashboardActions());
+    const { result } = renderWithRouter();
 
     act(() => {
       result.current.handleDeleteClick("note-to-del");
@@ -82,7 +96,7 @@ describe("useDashboardActions", () => {
       mutateAsync: mockDelete,
     } as unknown as ReturnType<typeof useNotesQuery.useDeleteNote>);
 
-    const { result } = renderHook(() => useDashboardActions());
+    const { result } = renderWithRouter();
 
     // 1. Open modal
     act(() => {
@@ -107,7 +121,7 @@ describe("useDashboardActions", () => {
     } as unknown as ReturnType<typeof useNotesQuery.useEmptyTrash>);
     setupMockStore({ selectedNoteId: "trash-note" });
 
-    const { result } = renderHook(() => useDashboardActions());
+    const { result } = renderWithRouter(["/notes/trash"]);
 
     await act(async () => {
       await result.current.handleEmptyTrash();

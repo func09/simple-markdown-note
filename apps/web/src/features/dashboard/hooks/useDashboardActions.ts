@@ -1,5 +1,6 @@
 import type { Note } from "api";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
+import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useDashboardStore } from "@/features/dashboard/stores";
 import {
@@ -24,9 +25,18 @@ import { useNoteStore } from "@/features/notes/stores";
  */
 export const useDashboardActions = () => {
   const { selectedNoteId, setSelectedNoteId } = useNoteStore();
+  const { filter, tagName } = useParams<{
+    filter: string;
+    tagName: string;
+  }>();
+
+  const isTrashSelected = filter === "trash";
+  const selectedTag = useMemo(() => {
+    if (filter === "untagged") return "__untagged__";
+    return tagName || null;
+  }, [filter, tagName]);
+
   const {
-    selectedTag,
-    isTrashSelected,
     setActiveView,
     isDeleteModalOpen,
     setIsDeleteModalOpen,
