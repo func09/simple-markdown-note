@@ -22,11 +22,14 @@ export const useNotes = (query: NoteQuery) => {
 /**
  * 指定したIDのノートを取得するクエリフック
  */
-export const useNote = (id: string | null) => {
+export const useNote = (
+  id: string | null,
+  options: { enabled?: boolean } = {}
+) => {
   return useQuery({
     queryKey: ["notes", id],
     queryFn: () => (id ? getNote(id) : Promise.reject("No ID provided")),
-    enabled: !!id,
+    enabled: options.enabled !== undefined ? options.enabled && !!id : !!id,
   });
 };
 

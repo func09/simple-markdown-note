@@ -48,6 +48,7 @@ interface EditorProps {
 
 export function Editor({ noteId, isMobile }: EditorProps) {
   const [isPreview, setIsPreview] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
   const scope = useNotesStore((s) => s.filterScope);
   const tag = useNotesStore((s) => s.filterTag);
@@ -61,7 +62,9 @@ export function Editor({ noteId, isMobile }: EditorProps) {
   }, [scope, tag]);
 
   // 1. データ取得
-  const { data: note, isLoading } = useNote(noteId ?? null);
+  const { data: note, isLoading } = useNote(noteId ?? null, {
+    enabled: !isDeleting && !!noteId,
+  });
   const updateNoteMutation = useUpdateNote();
   const deleteNoteMutation = useDeleteNote();
   const restoreNoteMutation = useRestoreNote();
@@ -82,7 +85,13 @@ export function Editor({ noteId, isMobile }: EditorProps) {
         const currentNoteContent =
           lastNoteIdRef.current === noteId ? note?.content : undefined;
 
-        if (!content.trim() || !noteId || content === currentNoteContent)
+        // すでに削除中、または内容に変更がない場合は保存しない
+        if (
+          isDeleting ||
+          !content.trim() ||
+          !noteId ||
+          content === currentNoteContent
+        )
           return;
 
         // 既存更新
@@ -90,14 +99,14 @@ export function Editor({ noteId, isMobile }: EditorProps) {
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [noteId, note?.content]);
+  }, [noteId, note?.content, isDeleting]);
 
   const handleAutoSave = (content: string) => {
     contentRef.current = content;
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
-    // note?.content が最新（背景更新後）の場合があるため、それと比較
-    if (!noteId || content === note?.content) return;
+    // すでに削除中、または内容に変更がない場合は保存しない
+    if (isDeleting || !noteId || content === note?.content) return;
 
     // 既存更新は10秒デバウンス
     timeoutRef.current = setTimeout(() => {
@@ -195,6 +204,7 @@ export function Editor({ noteId, isMobile }: EditorProps) {
   const handlePermanentDelete = useCallback(async () => {
     if (!noteId) return;
     if (confirm("Are you sure you want to delete this note permanently?")) {
+      setIsDeleting(true);
       await permanentDeleteMutation.mutateAsync(noteId);
       router.push(`/notes${queryString}`);
     }
