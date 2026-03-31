@@ -82,7 +82,7 @@ const tagsRouter = new OpenAPIHono<AppEnv>()
 
     const tag = await createTag(userId, name, db);
 
-    return c.json(tag);
+    return c.json(TagSchema.parse(tag), 200);
   });
 
 export { tagsRouter };
