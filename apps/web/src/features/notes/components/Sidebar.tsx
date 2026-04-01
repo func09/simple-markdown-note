@@ -4,9 +4,9 @@ import { FileText, Hash, LogOut, Trash2 } from "lucide-react";
 import Link from "next/link";
 import type { ElementType } from "react";
 import { useCallback } from "react";
+import { useLogout } from "@/features/auth/queries";
+import { useAuthStore } from "@/features/auth/store";
 import { cn } from "@/lib/utils";
-import { useLogout } from "../../auth/queries";
-import { useAuthStore } from "../../auth/store";
 import { useTags } from "../queries";
 import { useNotesStore } from "../store";
 
