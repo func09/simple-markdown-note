@@ -4,12 +4,15 @@ import {
   Eye,
   EyeOff,
   Info,
+  Keyboard as KeyboardIcon,
+  SquarePen,
   Tag,
   Trash2,
   X,
 } from "lucide-react-native";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -50,7 +53,9 @@ export function NoteDetailScreen() {
   const [content, setContent] = useState("");
   const [isPreview, setIsPreview] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [tags, setTags] = useState<string[]>(["Project", "React"]);
+  const inputRef = useRef<TextInput>(null);
 
   const wordCount = useMemo(() => {
     return content.trim() ? content.trim().split(/\s+/).length : 0;
@@ -65,6 +70,31 @@ export function NoteDetailScreen() {
       setContent("");
     }
   }, [id]);
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
+      setIsKeyboardVisible(true);
+    });
+    const hideSubscription = Keyboard.addListener("keyboardDidHide", () => {
+      setIsKeyboardVisible(false);
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
+
+  const handleKeyboardToggle = () => {
+    if (isKeyboardVisible) {
+      Keyboard.dismiss();
+    } else {
+      if (isPreview) setIsPreview(false);
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 50);
+    }
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -95,6 +125,16 @@ export function NoteDetailScreen() {
             className="p-2 ml-1"
           >
             <Info size={22} color="#475569" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleKeyboardToggle}
+            className="p-2 -mr-1"
+          >
+            {isKeyboardVisible ? (
+              <KeyboardIcon size={22} color="#3b82f6" />
+            ) : (
+              <SquarePen size={22} color="#475569" />
+            )}
           </TouchableOpacity>
         </View>
       </View>
@@ -165,6 +205,7 @@ export function NoteDetailScreen() {
             </View>
           ) : (
             <TextInput
+              ref={inputRef}
               multiline
               placeholder="Enter content here..."
               placeholderTextColor="#cbd5e1"
