@@ -11,7 +11,7 @@ overrides:
   '@types/react-dom': 19.1.0
   typescript: 6.0.2
 
-pnpmfileChecksum: sha256-Q9RQSGHzj5Cvi1psPmGlvmNr/TvZzgRNobauBqzIsjU=
+pnpmfileChecksum: sha256-KYh7BDoFOEhA1iiARJ7o/afHLyYFKbzXhw8P4/Kal30=
 
 importers:
 
@@ -11276,9 +11276,7 @@ snapshots:
       metro-runtime: 0.83.5
     transitivePeerDependencies:
       - '@babel/core'
-      - bufferutil
       - supports-color
-      - utf-8-validate
 
   '@react-native/normalize-colors@0.74.89': {}
 
