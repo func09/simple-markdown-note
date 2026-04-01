@@ -1,11 +1,11 @@
 "use client";
 
+import { useLogout, useTags } from "common/queries";
 import { FileText, Hash, LogOut, Trash2 } from "lucide-react";
 import Link from "next/link";
 import type { ElementType } from "react";
 import { useCallback } from "react";
 import { useAuthStore } from "@/features/auth";
-import { useLogout, useTags } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useNotesStore } from "../store";
 
