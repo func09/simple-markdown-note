@@ -3,6 +3,9 @@ import type { AuthResponse, SigninRequest, SignupRequest } from "api/schema";
 import { useApi } from "../context";
 import { logout, signin, signup } from "../requests/authRequests";
 
+/**
+ * ログインを実行するミューテーションフック
+ */
 export const useLogin = (options?: {
   onSuccess?: (data: AuthResponse) => void;
 }) => {
@@ -16,6 +19,9 @@ export const useLogin = (options?: {
   });
 };
 
+/**
+ * 新規登録を実行するミューテーションフック
+ */
 export const useSignup = (options?: {
   onSuccess?: (data: AuthResponse) => void;
 }) => {
@@ -29,6 +35,9 @@ export const useSignup = (options?: {
   });
 };
 
+/**
+ * ログアウトを実行するミューテーションフック
+ */
 export const useLogout = (options?: { onSuccess?: () => void }) => {
   const api = useApi();
   const { onSuccess } = options ?? {};
