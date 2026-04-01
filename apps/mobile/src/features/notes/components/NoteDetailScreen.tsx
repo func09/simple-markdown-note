@@ -1,4 +1,4 @@
-import { useRouter, useSegments } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   ChevronLeft,
   Eye,
@@ -12,9 +12,12 @@ import {
 } from "lucide-react-native";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  Animated,
   Keyboard,
   KeyboardAvoidingView,
+  Modal,
   Platform,
+  Pressable,
   ScrollView,
   Text,
   TextInput,
@@ -24,38 +27,56 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 // Mock Data (Synced with index)
-const MOCK_NOTES: Record<string, { title: string; content: string }> = {
+const MOCK_NOTES: Record<
+  string,
+  { title: string; content: string; createdAt: Date; updatedAt: Date }
+> = {
   "1": {
     title: "Shopping List",
     content: "# Shopping List\n\nMilk, eggs, bread, apples, bananas, please.",
+    createdAt: new Date("2026-03-20T10:00:00"),
+    updatedAt: new Date("2026-03-28T14:30:00"),
   },
   "2": {
     title: "Project Ideas",
     content:
       "# Project Ideas\n\nProposal for a new web service. Using React, Next.js, and Tailwind.",
+    createdAt: new Date("2026-03-15T09:00:00"),
+    updatedAt: new Date("2026-03-29T11:00:00"),
   },
   "3": {
     title: "Diary",
     content:
       "# Diary\n\nThe weather was nice today, so I took a walk in the park. The cherry blossoms were beautiful.",
+    createdAt: new Date("2026-03-26T01:15:00"),
+    updatedAt: new Date("2026-04-01T01:56:00"),
   },
   "4": {
     title: "Meeting Notes",
     content:
       "# Meeting Notes\n\nConfirmation of the agenda for the next meeting. Discussing budget allocation.",
+    createdAt: new Date("2026-03-22T08:00:00"),
+    updatedAt: new Date("2026-03-30T16:00:00"),
   },
 };
 
+function formatDate(date: Date): string {
+  return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, "0")}/${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+}
+
 export function NoteDetailScreen() {
-  const segments = useSegments();
-  const id = segments[segments.length - 1];
+  const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const [content, setContent] = useState("");
   const [isPreview, setIsPreview] = useState(false);
-  const [showInfo, setShowInfo] = useState(false);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const [isInfoVisible, setIsInfoVisible] = useState(false);
+  const overlayOpacity = useRef(new Animated.Value(0)).current;
+  const sheetTranslateY = useRef(new Animated.Value(400)).current;
   const [tags, setTags] = useState<string[]>(["Project", "React"]);
   const inputRef = useRef<TextInput>(null);
+
+  const note = typeof id === "string" ? MOCK_NOTES[id] : undefined;
 
   const wordCount = useMemo(() => {
     return content.trim() ? content.trim().split(/\s+/).length : 0;
@@ -64,12 +85,12 @@ export function NoteDetailScreen() {
   const charCount = useMemo(() => content.length, [content]);
 
   useEffect(() => {
-    if (typeof id === "string" && MOCK_NOTES[id]) {
-      setContent(MOCK_NOTES[id].content);
+    if (note) {
+      setContent(note.content);
     } else if (id === "new") {
       setContent("");
     }
-  }, [id]);
+  }, [id, note]);
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
@@ -84,6 +105,37 @@ export function NoteDetailScreen() {
       hideSubscription.remove();
     };
   }, []);
+
+  const openInfo = () => {
+    setIsInfoVisible(true);
+    Animated.parallel([
+      Animated.timing(overlayOpacity, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(sheetTranslateY, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  const closeInfo = () => {
+    Animated.parallel([
+      Animated.timing(overlayOpacity, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(sheetTranslateY, {
+        toValue: 400,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+    ]).start(() => setIsInfoVisible(false));
+  };
 
   const handleKeyboardToggle = () => {
     if (isKeyboardVisible) {
@@ -120,10 +172,7 @@ export function NoteDetailScreen() {
               <Eye size={22} color="#475569" />
             )}
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => setShowInfo(!showInfo)}
-            className="p-2 ml-1"
-          >
+          <TouchableOpacity onPress={openInfo} className="p-2 ml-1">
             <Info size={22} color="#475569" />
           </TouchableOpacity>
           <TouchableOpacity
@@ -138,54 +187,6 @@ export function NoteDetailScreen() {
           </TouchableOpacity>
         </View>
       </View>
-
-      {/* Info Menu Overlay */}
-      {showInfo && (
-        <View
-          className="absolute right-4 top-14 w-56 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 overflow-hidden"
-          style={{
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 10 },
-            shadowOpacity: 0.1,
-            shadowRadius: 20,
-            elevation: 10,
-          }}
-        >
-          <View className="p-4 border-b border-slate-50">
-            <Text className="text-[11px] font-bold text-slate-400 uppercase mb-3">
-              Note Details
-            </Text>
-            <View className="space-y-2">
-              <View className="flex-row justify-between">
-                <Text className="text-xs text-slate-500">Words</Text>
-                <Text className="text-xs font-medium text-slate-900">
-                  {wordCount}
-                </Text>
-              </View>
-              <View className="flex-row justify-between">
-                <Text className="text-xs text-slate-500">Characters</Text>
-                <Text className="text-xs font-medium text-slate-900">
-                  {charCount}
-                </Text>
-              </View>
-            </View>
-          </View>
-
-          <TouchableOpacity
-            className="flex-row items-center p-4 active:bg-red-50"
-            onPress={() => {
-              // Delete logic would go here
-              setShowInfo(false);
-              router.back();
-            }}
-          >
-            <Trash2 size={18} color="#ef4444" />
-            <Text className="text-sm font-semibold text-red-500 ml-3">
-              Delete Note
-            </Text>
-          </TouchableOpacity>
-        </View>
-      )}
 
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -252,6 +253,76 @@ export function NoteDetailScreen() {
           </ScrollView>
         </View>
       </KeyboardAvoidingView>
+
+      {/* Info Bottom Sheet */}
+      <Modal
+        visible={isInfoVisible}
+        transparent
+        animationType="none"
+        onRequestClose={closeInfo}
+      >
+        <Pressable className="flex-1" onPress={closeInfo}>
+          <Animated.View
+            style={{
+              flex: 1,
+              backgroundColor: "rgba(0,0,0,0.2)",
+              opacity: overlayOpacity,
+            }}
+            pointerEvents="none"
+          />
+        </Pressable>
+        <Animated.View
+          className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl pb-10"
+          style={{ transform: [{ translateY: sheetTranslateY }] }}
+        >
+          <Pressable onPress={() => {}}>
+            {/* Handle */}
+            <View className="items-center pt-3 pb-4">
+              <View className="w-10 h-1 rounded-full bg-slate-300" />
+            </View>
+
+            {/* Info Rows */}
+            <View className="border-t border-slate-100">
+              {note && (
+                <>
+                  <View className="flex-row justify-between items-center px-5 py-4 border-b border-slate-100">
+                    <Text className="text-base text-slate-800">Updated at</Text>
+                    <Text className="text-base text-slate-400">
+                      {formatDate(note.updatedAt)}
+                    </Text>
+                  </View>
+                  <View className="flex-row justify-between items-center px-5 py-4 border-b border-slate-100">
+                    <Text className="text-base text-slate-800">Created at</Text>
+                    <Text className="text-base text-slate-400">
+                      {formatDate(note.createdAt)}
+                    </Text>
+                  </View>
+                </>
+              )}
+              <View className="flex-row justify-between items-center px-5 py-4 border-b border-slate-100">
+                <Text className="text-base text-slate-800">Words</Text>
+                <Text className="text-base text-slate-400">{wordCount}</Text>
+              </View>
+              <View className="flex-row justify-between items-center px-5 py-4 border-b border-slate-100">
+                <Text className="text-base text-slate-800">Characters</Text>
+                <Text className="text-base text-slate-400">{charCount}</Text>
+              </View>
+            </View>
+
+            {/* Actions */}
+            <TouchableOpacity
+              className="flex-row items-center px-5 py-4"
+              onPress={() => {
+                closeInfo();
+                setTimeout(() => router.back(), 250);
+              }}
+            >
+              <Trash2 size={20} color="#ef4444" />
+              <Text className="text-base text-red-500 ml-3">Move to Trash</Text>
+            </TouchableOpacity>
+          </Pressable>
+        </Animated.View>
+      </Modal>
     </SafeAreaView>
   );
 }
