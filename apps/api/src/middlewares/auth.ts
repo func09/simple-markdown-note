@@ -2,15 +2,13 @@ import type { MiddlewareHandler } from "hono";
 import { jwt } from "hono/jwt";
 import type { AppEnv } from "../types";
 
+// 認証不要ルート（サインイン、サインアップ、ヘルスチェック）
+const PUBLIC_PATHS = ["/api/auth/signin", "/api/auth/signup", "/health"];
+
 // JWT 認証ミドルウェア (秘密鍵は環境変数から取得)
 export const jwtAuth = (): MiddlewareHandler<AppEnv> => {
   return async (c, next) => {
-    // 認証不要ルート（サインイン、サインアップ、ヘルスチェック）のみ除外
-    if (
-      c.req.path === "/api/auth/signin" ||
-      c.req.path === "/api/auth/signup" ||
-      c.req.path === "/health"
-    ) {
+    if (PUBLIC_PATHS.includes(c.req.path)) {
       return next();
     }
     const secret = c.env?.JWT_SECRET || "dev-secret";
@@ -21,11 +19,7 @@ export const jwtAuth = (): MiddlewareHandler<AppEnv> => {
 // userId 抽出ミドルウェア (認証後に payload から ID をコンテキストにセット)
 export const authContextExtractor = (): MiddlewareHandler<AppEnv> => {
   return async (c, next) => {
-    if (
-      c.req.path === "/api/auth/signin" ||
-      c.req.path === "/api/auth/signup" ||
-      c.req.path === "/health"
-    ) {
+    if (PUBLIC_PATHS.includes(c.req.path)) {
       return next();
     }
     const payload = c.get("jwtPayload") as Record<string, unknown> | undefined;
