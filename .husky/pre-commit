@@ -1,3 +1,9 @@
+# Skip pre-commit during rebase
+GIT_DIR=$(git rev-parse --git-dir)
+if [ -d "$GIT_DIR/rebase-merge" ] || [ -d "$GIT_DIR/rebase-apply" ]; then
+  exit 0
+fi
+
 pnpm lint-staged
 pnpm check
 pnpm typecheck

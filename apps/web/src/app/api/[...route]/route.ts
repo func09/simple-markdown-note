@@ -1,3 +1,4 @@
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
@@ -6,6 +7,13 @@ import { NextResponse } from "next/server";
  */
 interface ProxyResponse {
   token?: string;
+  [key: string]: unknown;
+}
+
+interface CloudflareEnv {
+  API?: {
+    fetch: typeof fetch;
+  };
   [key: string]: unknown;
 }
 
@@ -37,15 +45,26 @@ export async function ALL(
 
   const token = cookieStore.get("token")?.value;
 
+  // Service Binding の取得（Wrangler / 本番環境用）
+  const cf = getCloudflareContext();
+  const env = cf?.env as CloudflareEnv | undefined;
+
   try {
-    const res = await fetch(targetUrl, {
+    const fetchOptions = {
       method: request.method,
       headers: {
         "Content-Type": "application/json",
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
       body: request.method !== "GET" ? await request.text() : undefined,
-    });
+    };
+
+    // Service Binding が利用可能な場合はそれを使用し、
+    // そうでない場合（next dev 等）は通常の fetch を使用する
+    const res =
+      env?.API && typeof env.API.fetch === "function"
+        ? await env.API.fetch(new Request(targetUrl, fetchOptions))
+        : await fetch(targetUrl, fetchOptions);
 
     if (!res.ok) {
       const errorText = await res.text();
