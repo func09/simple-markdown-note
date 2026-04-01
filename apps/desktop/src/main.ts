@@ -23,8 +23,8 @@ function createWindow() {
   });
 
   if (isDev) {
-    // In development, load the Vite dev server
-    mainWindow.loadURL("http://localhost:5173");
+    // In development, load the Next.js dev server
+    mainWindow.loadURL("http://localhost:3000");
     // Open the DevTools.
     mainWindow.webContents.openDevTools();
   } else {
