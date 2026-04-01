@@ -1,3 +1,9 @@
+import {
+  BottomSheetBackdrop,
+  type BottomSheetBackdropProps,
+  BottomSheetModal,
+  BottomSheetView,
+} from "@gorhom/bottom-sheet";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   ChevronLeft,
@@ -10,14 +16,11 @@ import {
   Trash2,
   X,
 } from "lucide-react-native";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  Animated,
   Keyboard,
   KeyboardAvoidingView,
-  Modal,
   Platform,
-  Pressable,
   ScrollView,
   Text,
   TextInput,
@@ -70,11 +73,9 @@ export function NoteDetailScreen() {
   const [content, setContent] = useState("");
   const [isPreview, setIsPreview] = useState(false);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-  const [isInfoVisible, setIsInfoVisible] = useState(false);
-  const overlayOpacity = useRef(new Animated.Value(0)).current;
-  const sheetTranslateY = useRef(new Animated.Value(400)).current;
   const [tags, setTags] = useState<string[]>(["Project", "React"]);
   const inputRef = useRef<TextInput>(null);
+  const infoSheetRef = useRef<BottomSheetModal>(null);
 
   const note = typeof id === "string" ? MOCK_NOTES[id] : undefined;
 
@@ -106,37 +107,6 @@ export function NoteDetailScreen() {
     };
   }, []);
 
-  const openInfo = () => {
-    setIsInfoVisible(true);
-    Animated.parallel([
-      Animated.timing(overlayOpacity, {
-        toValue: 1,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-      Animated.timing(sheetTranslateY, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  };
-
-  const closeInfo = () => {
-    Animated.parallel([
-      Animated.timing(overlayOpacity, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-      Animated.timing(sheetTranslateY, {
-        toValue: 400,
-        duration: 250,
-        useNativeDriver: true,
-      }),
-    ]).start(() => setIsInfoVisible(false));
-  };
-
   const handleKeyboardToggle = () => {
     if (isKeyboardVisible) {
       Keyboard.dismiss();
@@ -147,6 +117,18 @@ export function NoteDetailScreen() {
       }, 50);
     }
   };
+
+  const renderBackdrop = useCallback(
+    (props: BottomSheetBackdropProps) => (
+      <BottomSheetBackdrop
+        {...props}
+        disappearsOnIndex={-1}
+        appearsOnIndex={0}
+        opacity={0.2}
+      />
+    ),
+    []
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -172,7 +154,13 @@ export function NoteDetailScreen() {
               <Eye size={22} color="#475569" />
             )}
           </TouchableOpacity>
-          <TouchableOpacity onPress={openInfo} className="p-2 ml-1">
+          <TouchableOpacity
+            onPress={() => {
+              Keyboard.dismiss();
+              infoSheetRef.current?.present();
+            }}
+            className="p-2 ml-1"
+          >
             <Info size={22} color="#475569" />
           </TouchableOpacity>
           <TouchableOpacity
@@ -255,74 +243,53 @@ export function NoteDetailScreen() {
       </KeyboardAvoidingView>
 
       {/* Info Bottom Sheet */}
-      <Modal
-        visible={isInfoVisible}
-        transparent
-        animationType="none"
-        onRequestClose={closeInfo}
+      <BottomSheetModal
+        ref={infoSheetRef}
+        enablePanDownToClose
+        backdropComponent={renderBackdrop}
       >
-        <Pressable className="flex-1" onPress={closeInfo}>
-          <Animated.View
-            style={{
-              flex: 1,
-              backgroundColor: "rgba(0,0,0,0.2)",
-              opacity: overlayOpacity,
+        <BottomSheetView>
+          {/* Info Rows */}
+          <View className="border-t border-slate-100">
+            {note && (
+              <>
+                <View className="flex-row justify-between items-center px-5 py-4 border-b border-slate-100">
+                  <Text className="text-base text-slate-800">Updated at</Text>
+                  <Text className="text-base text-slate-400">
+                    {formatDate(note.updatedAt)}
+                  </Text>
+                </View>
+                <View className="flex-row justify-between items-center px-5 py-4 border-b border-slate-100">
+                  <Text className="text-base text-slate-800">Created at</Text>
+                  <Text className="text-base text-slate-400">
+                    {formatDate(note.createdAt)}
+                  </Text>
+                </View>
+              </>
+            )}
+            <View className="flex-row justify-between items-center px-5 py-4 border-b border-slate-100">
+              <Text className="text-base text-slate-800">Words</Text>
+              <Text className="text-base text-slate-400">{wordCount}</Text>
+            </View>
+            <View className="flex-row justify-between items-center px-5 py-4 border-b border-slate-100">
+              <Text className="text-base text-slate-800">Characters</Text>
+              <Text className="text-base text-slate-400">{charCount}</Text>
+            </View>
+          </View>
+
+          {/* Actions */}
+          <TouchableOpacity
+            className="flex-row items-center px-5 py-4 mb-6"
+            onPress={() => {
+              infoSheetRef.current?.dismiss();
+              setTimeout(() => router.back(), 250);
             }}
-            pointerEvents="none"
-          />
-        </Pressable>
-        <Animated.View
-          className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl pb-10"
-          style={{ transform: [{ translateY: sheetTranslateY }] }}
-        >
-          <Pressable onPress={() => {}}>
-            {/* Handle */}
-            <View className="items-center pt-3 pb-4">
-              <View className="w-10 h-1 rounded-full bg-slate-300" />
-            </View>
-
-            {/* Info Rows */}
-            <View className="border-t border-slate-100">
-              {note && (
-                <>
-                  <View className="flex-row justify-between items-center px-5 py-4 border-b border-slate-100">
-                    <Text className="text-base text-slate-800">Updated at</Text>
-                    <Text className="text-base text-slate-400">
-                      {formatDate(note.updatedAt)}
-                    </Text>
-                  </View>
-                  <View className="flex-row justify-between items-center px-5 py-4 border-b border-slate-100">
-                    <Text className="text-base text-slate-800">Created at</Text>
-                    <Text className="text-base text-slate-400">
-                      {formatDate(note.createdAt)}
-                    </Text>
-                  </View>
-                </>
-              )}
-              <View className="flex-row justify-between items-center px-5 py-4 border-b border-slate-100">
-                <Text className="text-base text-slate-800">Words</Text>
-                <Text className="text-base text-slate-400">{wordCount}</Text>
-              </View>
-              <View className="flex-row justify-between items-center px-5 py-4 border-b border-slate-100">
-                <Text className="text-base text-slate-800">Characters</Text>
-                <Text className="text-base text-slate-400">{charCount}</Text>
-              </View>
-            </View>
-
-            {/* Actions */}
-            <TouchableOpacity
-              className="flex-row items-center px-5 py-4"
-              onPress={() => {
-                closeInfo();
-                setTimeout(() => router.back(), 250);
-              }}
-            >
-              <Trash2 size={20} color="#ef4444" />
-              <Text className="text-base text-red-500 ml-3">Move to Trash</Text>
-            </TouchableOpacity>
-          </Pressable>
-        </Animated.View>
-      </Modal>
+          >
+            <Trash2 size={20} color="#ef4444" />
+            <Text className="text-base text-red-500 ml-3">Move to Trash</Text>
+          </TouchableOpacity>
+        </BottomSheetView>
+      </BottomSheetModal>
     </SafeAreaView>
   );
 }
