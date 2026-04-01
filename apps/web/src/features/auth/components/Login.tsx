@@ -26,14 +26,24 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useLogin } from "../queries";
+import { useLogin } from "@/lib/api";
+import { useAuthStore } from "../store";
 
 /**
  * ログインコンテナ
  * フォームの表示と認証ロジックを統合したコンポーネントです。
  */
 export function Login() {
-  const { mutate, isPending: isLoading, error } = useLogin();
+  const setAuth = useAuthStore((state) => state.setAuth);
+  const {
+    mutate: loginMutate,
+    isPending: isLoading,
+    error,
+  } = useLogin({
+    onSuccess: (data) => {
+      setAuth(data.user);
+    },
+  });
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -42,7 +52,7 @@ export function Login() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    mutate(
+    loginMutate(
       { email, password },
       {
         onSuccess: () => {
