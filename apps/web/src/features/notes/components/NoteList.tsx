@@ -4,8 +4,8 @@ import { Plus, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo } from "react";
+import { useCreateNote, useNotes } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import { useCreateNote, useNotes } from "../queries";
 import { useNotesStore } from "../store";
 
 interface NoteListProps {
