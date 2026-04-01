@@ -1,6 +1,6 @@
 const { getDefaultConfig } = require("expo/metro-config");
 const { withNativeWind } = require("nativewind/metro");
-const path = require("path");
+const path = require("node:path");
 
 // モノレポのルートパスを取得
 const projectRoot = __dirname;

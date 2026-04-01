@@ -1,30 +1,21 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import {
-  Menu,
-  NotebookPen,
-  Search,
-  Tag as TagIcon,
-  Trash2,
-} from "lucide-react-native";
+import { Menu, NotebookPen, Search } from "lucide-react-native";
 import { useRef, useState } from "react";
 import {
   Animated,
-  Dimensions,
   FlatList,
-  Pressable,
   Text,
   TextInput,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
-const DRAWER_WIDTH = SCREEN_WIDTH * 0.8;
+import { DRAWER_WIDTH, NoteDrawer } from "./NoteDrawer";
+import type { Note } from "./NoteListItem";
+import { NoteListItem } from "./NoteListItem";
 
 // Mock Data
-const MOCK_NOTES = [
+const MOCK_NOTES: Note[] = [
   {
     id: "1",
     title: "Shopping List",
@@ -77,12 +68,16 @@ export function NotesIndexScreen() {
   const slideAnim = useRef(new Animated.Value(-DRAWER_WIDTH)).current;
 
   const toggleDrawer = (open: boolean) => {
-    setIsDrawerOpen(open);
+    if (open) setIsDrawerOpen(true);
     Animated.timing(slideAnim, {
       toValue: open ? 0 : -DRAWER_WIDTH,
       duration: 300,
       useNativeDriver: true,
-    }).start();
+    }).start(({ finished }) => {
+      if (!open && finished) {
+        setIsDrawerOpen(false);
+      }
+    });
   };
 
   const filteredNotes = MOCK_NOTES.filter((note) => {
@@ -110,165 +105,29 @@ export function NotesIndexScreen() {
     return "All Notes";
   };
 
-  const renderItem = ({ item }: { item: (typeof MOCK_NOTES)[0] }) => (
-    <Pressable
-      onPress={() => router.push(`/(main)/notes/${item.id}`)}
-      className="px-5 py-4 bg-white border-b border-slate-100 active:bg-slate-50"
-    >
-      <View className="flex-row justify-between items-start mb-1">
-        <Text
-          className="text-base font-semibold text-slate-900 flex-1 mr-2"
-          numberOfLines={1}
-        >
-          {item.title}
-        </Text>
-        <Text className="text-[11px] font-bold text-slate-400 uppercase">
-          {item.updatedAt}
-        </Text>
-      </View>
-      <Text
-        className="text-sm text-slate-500 leading-relaxed"
-        numberOfLines={2}
-      >
-        {item.content}
-      </Text>
-    </Pressable>
-  );
+  const handleSelectScope = (newScope: string) => {
+    toggleDrawer(false);
+    router.setParams({ scope: newScope, tag: undefined });
+  };
+
+  const handleSelectTag = (newTag: string) => {
+    toggleDrawer(false);
+    router.setParams({ tag: newTag, scope: undefined });
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      {/* Drawer Overlay */}
-      {isDrawerOpen && (
-        <TouchableWithoutFeedback onPress={() => toggleDrawer(false)}>
-          <View
-            className="absolute inset-0 bg-black/40 z-40"
-            style={{ height: Dimensions.get("window").height }}
-          />
-        </TouchableWithoutFeedback>
-      )}
-
-      {/* Side Drawer */}
-      <Animated.View
-        className="absolute left-0 top-0 bottom-0 bg-white z-50 shadow-2xl"
-        style={{
-          width: DRAWER_WIDTH,
-          transform: [{ translateX: slideAnim }],
-        }}
-      >
-        <SafeAreaView className="flex-1">
-          <View className="flex-1 pt-6">
-            {/* Main Links */}
-            <View className="px-2 mb-6">
-              <TouchableOpacity
-                onPress={() => {
-                  toggleDrawer(false);
-                  router.setParams({ scope: "all", tag: undefined });
-                }}
-                className={`flex-row items-center px-4 py-3 rounded-xl ${
-                  (!scope || scope === "all") && !tag ? "bg-blue-50" : ""
-                }`}
-              >
-                <NotebookPen
-                  size={20}
-                  color={
-                    (!scope || scope === "all") && !tag ? "#3b82f6" : "#475569"
-                  }
-                />
-                <Text
-                  className={`ml-4 text-sm font-semibold ${
-                    (!scope || scope === "all") && !tag
-                      ? "text-blue-600"
-                      : "text-slate-600"
-                  }`}
-                >
-                  All Notes
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={() => {
-                  toggleDrawer(false);
-                  router.setParams({ scope: "trash", tag: undefined });
-                }}
-                className={`flex-row items-center px-4 py-3 rounded-xl mt-1 ${
-                  scope === "trash" ? "bg-slate-100" : ""
-                }`}
-              >
-                <Trash2
-                  size={20}
-                  color={scope === "trash" ? "#0f172a" : "#475569"}
-                />
-                <Text
-                  className={`ml-4 text-sm font-semibold ${
-                    scope === "trash" ? "text-slate-900" : "text-slate-600"
-                  }`}
-                >
-                  Trash
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Tags Section */}
-            <View className="px-6 mb-2">
-              <Text className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-                Tags
-              </Text>
-            </View>
-            <View className="px-2">
-              {MOCK_TAGS.map((t) => (
-                <TouchableOpacity
-                  key={t}
-                  onPress={() => {
-                    toggleDrawer(false);
-                    router.setParams({ tag: t, scope: undefined });
-                  }}
-                  className={`flex-row items-center px-4 py-2.5 rounded-xl ${
-                    tag === t ? "bg-blue-50" : ""
-                  }`}
-                >
-                  <TagIcon
-                    size={16}
-                    color={tag === t ? "#3b82f6" : "#94a3b8"}
-                  />
-                  <Text
-                    className={`ml-4 text-sm font-medium ${
-                      tag === t ? "text-blue-600" : "text-slate-600"
-                    }`}
-                  >
-                    {t}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            {/* Bottom Section */}
-            <View className="mt-auto px-2 pb-6 border-t border-slate-50 pt-4">
-              <TouchableOpacity
-                onPress={() => {
-                  toggleDrawer(false);
-                  router.setParams({ scope: "untagged", tag: undefined });
-                }}
-                className={`flex-row items-center px-4 py-3 rounded-xl ${
-                  scope === "untagged" ? "bg-blue-50" : ""
-                }`}
-              >
-                <TagIcon
-                  size={18}
-                  color={scope === "untagged" ? "#3b82f6" : "#64748b"}
-                  className="rotate-90"
-                />
-                <Text
-                  className={`ml-4 text-sm font-medium ${
-                    scope === "untagged" ? "text-blue-600" : "text-slate-500"
-                  }`}
-                >
-                  Untagged Notes...
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </SafeAreaView>
-      </Animated.View>
+      {/* Side Drawer Component */}
+      <NoteDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => toggleDrawer(false)}
+        slideAnim={slideAnim}
+        scope={scope}
+        tag={tag}
+        onSelectScope={handleSelectScope}
+        onSelectTag={handleSelectTag}
+        tags={MOCK_TAGS}
+      />
 
       {/* Header */}
       <View className="px-5 py-4 border-b border-slate-100 bg-white">
@@ -308,7 +167,12 @@ export function NotesIndexScreen() {
       {/* Note List */}
       <FlatList
         data={filteredNotes}
-        renderItem={renderItem}
+        renderItem={({ item }) => (
+          <NoteListItem
+            item={item}
+            onPress={(id) => router.push(`/(main)/notes/${id}`)}
+          />
+        )}
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ paddingBottom: 20 }}
         ListEmptyComponent={
