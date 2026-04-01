@@ -1,4 +1,9 @@
-import { createNoteRepository, type DrizzleDB, type NoteScope } from "database";
+import {
+  createNoteRepository,
+  type DrizzleDB,
+  type NoteScope,
+  type Tag,
+} from "database";
 import type { NoteCreateRequest, NoteUpdateRequest } from "../schema";
 
 import { syncTags } from "./tagService";
@@ -6,22 +11,11 @@ import { syncTags } from "./tagService";
 /**
  * Repository から取得した Notes (with tags) をレスポンス形式にマッピングする
  */
-function mapToNoteWithTags(note: {
-  notesToTags: {
-    tag: {
-      id: string;
-      name: string;
-      userId: string;
-      createdAt: Date;
-      updatedAt: Date;
-    };
-  }[];
-  [key: string]: unknown;
-}) {
+function mapToNoteWithTags<T extends { notesToTags: { tag: Tag }[] }>(note: T) {
+  const { notesToTags, ...rest } = note;
   return {
-    ...note,
-    tags: note.notesToTags.map((nt) => nt.tag),
-    notesToTags: undefined,
+    ...rest,
+    tags: notesToTags.map((nt) => nt.tag),
   };
 }
 
@@ -43,14 +37,7 @@ export async function getNotes(
  */
 export async function getNoteById(userId: string, id: string, db: DrizzleDB) {
   const repo = createNoteRepository(db);
-  const noteRaw = await repo.findByIdAndUserId(id, userId);
-
-  if (!noteRaw) return undefined;
-
-  // 単体取得の場合もタグ情報を含めるため、リレーションクエリを再利用
-  const notesRaw = await repo.findAllWithTagsSince(userId);
-  const note = notesRaw.find((n: (typeof notesRaw)[number]) => n.id === id);
-
+  const note = await repo.findByIdWithTags(id, userId);
   return note ? mapToNoteWithTags(note) : undefined;
 }
 
@@ -70,12 +57,12 @@ export async function createNote(
     isPermanent: data.isPermanent,
   });
 
-  if (data.tags && data.tags.length > 0) {
-    await syncTags(userId, note.id, data.tags, db);
-  }
+  const tags =
+    data.tags && data.tags.length > 0
+      ? await syncTags(userId, note.id, data.tags, db)
+      : [];
 
-  // 作成後のタグ情報を含めて取得し直す
-  return getNoteById(userId, note.id, db);
+  return { ...note, tags };
 }
 
 /**
