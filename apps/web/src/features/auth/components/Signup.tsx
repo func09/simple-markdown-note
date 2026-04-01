@@ -1,5 +1,6 @@
 "use client";
 
+import { useSignup } from "common/queries";
 import {
   AlertCircle,
   ArrowRight,
@@ -13,7 +14,6 @@ import { useRouter } from "next/navigation";
 import type React from "react";
 import { useId, useState } from "react";
 import { toast } from "sonner";
-
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,7 +26,6 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useSignup } from "@/lib/api";
 import { useAuthStore } from "../store";
 /**
  * 新規登録コンテナ
