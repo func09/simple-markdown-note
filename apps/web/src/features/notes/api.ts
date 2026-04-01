@@ -6,7 +6,7 @@ import type {
   NoteUpdateRequest,
   TagListResponse,
 } from "api/schema";
-import api from "@/lib/api";
+import api from "@/lib/apiClient";
 
 /**
  * ノート関連の純粋なAPI呼び出し

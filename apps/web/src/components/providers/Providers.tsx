@@ -3,8 +3,11 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useState } from "react";
+import { ApiProvider, createApiClient } from "@/lib/api";
 
 export function Providers({ children }: { children: React.ReactNode }) {
+  const [apiClient] = useState(() => createApiClient("/api"));
+
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -20,7 +23,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
+      <ApiProvider client={apiClient}>{children}</ApiProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
