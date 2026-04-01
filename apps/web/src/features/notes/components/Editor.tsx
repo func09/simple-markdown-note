@@ -6,6 +6,13 @@ import Placeholder from "@tiptap/extension-placeholder";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import {
+  useDeleteNote,
+  useNote,
+  usePermanentDelete,
+  useRestoreNote,
+  useUpdateNote,
+} from "common/queries";
+import {
   ChevronLeft,
   Edit3,
   Eye,
@@ -23,13 +30,6 @@ import type { Components } from "react-markdown";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { cn } from "@/lib/utils";
-import {
-  useDeleteNote,
-  useNote,
-  usePermanentDelete,
-  useRestoreNote,
-  useUpdateNote,
-} from "../queries";
 import { useNotesStore } from "../store";
 
 const markdownComponents: Components = {

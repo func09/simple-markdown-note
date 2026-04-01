@@ -63,3 +63,13 @@ export async function getUserById(db: DrizzleDB, id: string) {
   const userRepository = createUserRepository(db);
   return await userRepository.findById(id);
 }
+/**
+ * ユーザーのログアウト処理を行います。
+ * 現状の JWT 実装ではサーバーサイドでの状態破棄は行いませんが、
+ * 将来的な拡張性（リフレッシュトークンの無効化やブラックリスト管理など）のために
+ * プレースホルダーとして定義しておきます。
+ */
+export async function logout() {
+  // 必要に応じて将来的にトークンの無効化ロジックなどをここに記述
+  return {};
+}

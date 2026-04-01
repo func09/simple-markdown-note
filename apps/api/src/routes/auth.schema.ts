@@ -89,3 +89,17 @@ export const meRoute = createRoute({
     },
   },
 });
+
+/** DELETE /logout — ログアウトルート定義 */
+export const logoutRoute = createRoute({
+  method: "delete",
+  path: "/logout",
+  summary: "ログアウト",
+  description:
+    "サーバーサイドでログアウト処理（クッキーのクリア等）を行います。",
+  responses: {
+    204: {
+      description: "ログアウト成功",
+    },
+  },
+});

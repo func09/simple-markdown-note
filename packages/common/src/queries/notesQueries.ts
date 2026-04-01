@@ -1,21 +1,26 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { NoteQuery, NoteUpdateRequest } from "api/schema";
+import type {
+  NoteCreateRequest,
+  NoteQuery,
+  NoteUpdateRequest,
+} from "api/schema";
+import { useApi } from "../context";
 import {
   createNote,
   deleteNote,
   getNote,
   listNotes,
-  listTags,
   updateNote,
-} from "./api";
+} from "../requests/notesRequests";
 
 /**
  * ノート一覧を取得するクエリフック
  */
 export const useNotes = (query: NoteQuery) => {
+  const api = useApi();
   return useQuery({
     queryKey: ["notes", query],
-    queryFn: () => listNotes(query),
+    queryFn: () => listNotes(api, query),
     placeholderData: (prev) => prev,
   });
 };
@@ -27,9 +32,10 @@ export const useNote = (
   id: string | null,
   options: { enabled?: boolean } = {}
 ) => {
+  const api = useApi();
   return useQuery({
     queryKey: ["notes", id],
-    queryFn: () => (id ? getNote(id) : Promise.reject("No ID provided")),
+    queryFn: () => (id ? getNote(api, id) : Promise.reject("No ID provided")),
     enabled: options.enabled !== undefined ? options.enabled && !!id : !!id,
   });
 };
@@ -39,9 +45,10 @@ export const useNote = (
  */
 export const useCreateNote = () => {
   const queryClient = useQueryClient();
+  const api = useApi();
 
   return useMutation({
-    mutationFn: createNote,
+    mutationFn: (params: NoteCreateRequest) => createNote(api, params),
     onSuccess: () => {
       // ノート作成成功時に一覧を再取得
       queryClient.invalidateQueries({ queryKey: ["notes"] });
@@ -55,10 +62,11 @@ export const useCreateNote = () => {
  */
 export const useUpdateNote = () => {
   const queryClient = useQueryClient();
+  const api = useApi();
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: NoteUpdateRequest }) =>
-      updateNote(id, data),
+      updateNote(api, id, data),
     onSuccess: (data) => {
       // ノート更新成功時に一覧と該当ノートのキャッシュを更新
       queryClient.invalidateQueries({ queryKey: ["notes"] });
@@ -73,10 +81,11 @@ export const useUpdateNote = () => {
  */
 export const useDeleteNote = () => {
   const queryClient = useQueryClient();
+  const api = useApi();
 
   return useMutation({
     mutationFn: (id: string) =>
-      updateNote(id, { deletedAt: new Date().toISOString() }),
+      updateNote(api, id, { deletedAt: new Date().toISOString() }),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["notes"] });
       queryClient.setQueryData(["notes", data.id], data);
@@ -89,9 +98,10 @@ export const useDeleteNote = () => {
  */
 export const useRestoreNote = () => {
   const queryClient = useQueryClient();
+  const api = useApi();
 
   return useMutation({
-    mutationFn: (id: string) => updateNote(id, { deletedAt: null }),
+    mutationFn: (id: string) => updateNote(api, id, { deletedAt: null }),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["notes"] });
       queryClient.setQueryData(["notes", data.id], data);
@@ -104,23 +114,14 @@ export const useRestoreNote = () => {
  */
 export const usePermanentDelete = () => {
   const queryClient = useQueryClient();
+  const api = useApi();
 
   return useMutation({
-    mutationFn: deleteNote,
+    mutationFn: (id: string) => deleteNote(api, id),
     onSuccess: (_, id) => {
       // 削除成功時に一覧を再取得し、個別キャッシュを削除
       queryClient.invalidateQueries({ queryKey: ["notes"] });
       queryClient.removeQueries({ queryKey: ["notes", id] });
     },
-  });
-};
-
-/**
- * 全タグ一覧を取得するクエリフック
- */
-export const useTags = () => {
-  return useQuery({
-    queryKey: ["tags"],
-    queryFn: listTags,
   });
 };

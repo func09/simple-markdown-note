@@ -2,9 +2,9 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 import { HTTPException } from "hono/http-exception";
 import { sign } from "hono/jwt";
 import { AuthResponseSchema, MeResponseSchema } from "../schema";
-import { getUserById, signin, signup } from "../services/authService";
+import { getUserById, logout, signin, signup } from "../services/authService";
 import type { AppEnv } from "../types";
-import { meRoute, signinRoute, signupRoute } from "./auth.schema";
+import { logoutRoute, meRoute, signinRoute, signupRoute } from "./auth.schema";
 
 /**
  * 認証関連のルーター
@@ -54,4 +54,11 @@ export const authRouter = new OpenAPIHono<AppEnv>()
     }
 
     return c.json(MeResponseSchema.parse(user), 200);
+  })
+  /**
+   * ログアウトエンドポイント
+   */
+  .openapi(logoutRoute, async (c) => {
+    await logout();
+    return c.body(null, 204);
   });

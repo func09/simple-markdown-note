@@ -4,16 +4,15 @@ import type {
   SigninRequest,
   SignupRequest,
 } from "api/schema";
-import api from "@/lib/api";
+import type { ApiClient } from "../client";
 
-/**
- * 認証関連の純粋なAPI呼び出し
- * 状態管理に関与せず、通信のみを担当する
- */
 /**
  * ログインを実行する
  */
-export const signin = async (data: SigninRequest): Promise<AuthResponse> => {
+export const signin = async (
+  api: ApiClient,
+  data: SigninRequest
+): Promise<AuthResponse> => {
   const res = await api.auth.signin.$post({ json: data });
   if (!res.ok) {
     const errorData = (await res.json()) as { error?: string };
@@ -25,7 +24,10 @@ export const signin = async (data: SigninRequest): Promise<AuthResponse> => {
 /**
  * 新規登録を実行する
  */
-export const signup = async (data: SignupRequest): Promise<AuthResponse> => {
+export const signup = async (
+  api: ApiClient,
+  data: SignupRequest
+): Promise<AuthResponse> => {
   const res = await api.auth.signup.$post({ json: data });
   if (!res.ok) {
     const errorData = (await res.json()) as { error?: string };
@@ -38,7 +40,7 @@ export const signup = async (data: SignupRequest): Promise<AuthResponse> => {
  * 現在ログインしているユーザー情報を取得する
  * ログインしていない（401）場合は null を返す
  */
-export const getMe = async (): Promise<MeResponse | null> => {
+export const getMe = async (api: ApiClient): Promise<MeResponse | null> => {
   const res = await api.auth.me.$get();
   if (res.status === 401) {
     return null;
@@ -52,9 +54,9 @@ export const getMe = async (): Promise<MeResponse | null> => {
 /**
  * ログアウトを実行（サーバーサイドのクッキーをクリア）
  */
-export const logout = async (): Promise<void> => {
+export const logout = async (api: ApiClient): Promise<void> => {
   try {
-    const res = await fetch("/api/auth/logout", { method: "POST" });
+    const res = await api.auth.logout.$delete();
     if (!res.ok) {
       throw new Error("Logout failed");
     }
