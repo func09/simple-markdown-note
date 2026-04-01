@@ -25,7 +25,7 @@ app.onError((err, c) => {
   if (err instanceof HTTPException) {
     return c.json({ error: err.message }, err.status);
   }
-  console.error("Unhandle error:", err);
+  console.error("Unhandled error:", err);
   return c.json({ error: "Internal Server Error" }, 500);
 });
 

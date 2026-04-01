@@ -1,6 +1,8 @@
 import { createClient } from "@libsql/client";
+import bcryptjs from "bcryptjs";
 import { drizzle as drizzleD1 } from "drizzle-orm/d1";
 import { drizzle as drizzleLibsql } from "drizzle-orm/libsql";
+import { migrate } from "drizzle-orm/libsql/migrator";
 import * as schema from "./schema";
 
 // D1 用のDBインスタンス作成関数
@@ -25,13 +27,12 @@ export const db =
     ? getLibsqlDb()
     : (null as unknown as ReturnType<typeof getLibsqlDb>);
 
-export type DrizzleDB = ReturnType<typeof createDb>;
-
-import bcryptjs from "bcryptjs";
+export type DrizzleDB =
+  | ReturnType<typeof createDb>
+  | ReturnType<typeof getLibsqlDb>;
 
 export * from "drizzle-orm";
 
-import { migrate } from "drizzle-orm/libsql/migrator";
 export const migrateLibsql = migrate;
 export * from "./repositories/note";
 export * from "./repositories/tag";
