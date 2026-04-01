@@ -1,13 +1,17 @@
-import type { AuthResponse, SigninRequest, SignupRequest } from "api";
+import type {
+  AuthResponse,
+  MeResponse,
+  SigninRequest,
+  SignupRequest,
+} from "api/schema";
 import api from "@/lib/api";
 
 /**
- * Hono RPC を使用した認証関連の API 通信
+ * 認証関連の純粋なAPI呼び出し
+ * 状態管理に関与せず、通信のみを担当する
  */
-
 /**
- * 既存アカウントでログインする
- * @param data - メールアドレスとパスワード
+ * ログインを実行する
  */
 export const signin = async (data: SigninRequest): Promise<AuthResponse> => {
   const res = await api.auth.signin.$post({ json: data });
@@ -19,8 +23,7 @@ export const signin = async (data: SigninRequest): Promise<AuthResponse> => {
 };
 
 /**
- * 新規アカウントを作成する
- * @param data - 登録するメールアドレスとパスワード
+ * 新規登録を実行する
  */
 export const signup = async (data: SignupRequest): Promise<AuthResponse> => {
   const res = await api.auth.signup.$post({ json: data });
@@ -32,18 +35,31 @@ export const signup = async (data: SignupRequest): Promise<AuthResponse> => {
 };
 
 /**
- * ログアウトを実行し、ローカルのデータ（トークン、同期日時、IndexedDB）をすべて削除する
+ * 現在ログインしているユーザー情報を取得する
+ * ログインしていない（401）場合は null を返す
  */
-export const logout = async () => {
-  localStorage.removeItem("token");
-  localStorage.removeItem("simplenote_last_sync_key"); // 念のため
-  localStorage.clear(); // キャッシュなどを念のため全クリア
+export const getMe = async (): Promise<MeResponse | null> => {
+  const res = await api.auth.me.$get();
+  if (res.status === 401) {
+    return null;
+  }
+  if (!res.ok) {
+    throw new Error("Failed to fetch user info");
+  }
+  return res.json() as Promise<MeResponse>;
+};
 
+/**
+ * ログアウトを実行（サーバーサイドのクッキーをクリア）
+ */
+export const logout = async (): Promise<void> => {
   try {
-    const { db } = await import("@/lib/db");
-    // IndexedDB のデータベース自体を削除して完全にリセットする
-    await db.delete();
+    const res = await fetch("/api/auth/logout", { method: "POST" });
+    if (!res.ok) {
+      throw new Error("Logout failed");
+    }
   } catch (error) {
-    console.error("Failed to clear IndexedDB on logout:", error);
+    console.error("Logout error:", error);
+    throw error;
   }
 };

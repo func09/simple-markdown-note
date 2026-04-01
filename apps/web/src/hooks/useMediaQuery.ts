@@ -1,26 +1,24 @@
+"use client";
+
 import { useEffect, useState } from "react";
 
 /**
- * メディアクエリの状態を監視するフック
+ * 指定したメディアクエリにマッチするかどうかを判定するフック
  */
 export function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState(false);
+  const [value, setValue] = useState(false);
 
   useEffect(() => {
-    const media = window.matchMedia(query);
-    setMatches(media.matches);
+    function onChange(event: MediaQueryListEvent) {
+      setValue(event.matches);
+    }
 
-    const listener = (e: MediaQueryListEvent) => {
-      setMatches(e.matches);
-    };
+    const result = window.matchMedia(query);
+    result.addEventListener("change", onChange);
+    setValue(result.matches);
 
-    // modern browsers
-    media.addEventListener("change", listener);
-
-    return () => {
-      media.removeEventListener("change", listener);
-    };
+    return () => result.removeEventListener("change", onChange);
   }, [query]);
 
-  return matches;
+  return value;
 }
