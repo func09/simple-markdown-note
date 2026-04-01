@@ -8,6 +8,10 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**", ".next/**", "out/**"]
     },
+    "build:cf": {
+      "dependsOn": ["build"],
+      "outputs": [".vercel/output/**"]
+    },
     "lint": {
       "dependsOn": ["^lint"]
     },
