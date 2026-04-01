@@ -12,12 +12,18 @@
 pnpm install
 ```
 
-### 2. コンテナの起動（アプリの実行）
+### 2. アプリの起動（Turborepo）
 
-API と Web フロントエンドを一括で起動します。
+Turborepo を使用して、API と Web フロントエンドを並列で起動します。
 
 ```bash
 pnpm dev
+```
+
+デスクトップ版（Electron）も同時に起動する場合は、`--native` フラグを付与します。
+
+```bash
+pnpm dev --native
 ```
 
 - **Web UI**: [http://localhost:5173](http://localhost:5173)
@@ -70,10 +76,14 @@ pnpm lint
 pnpm format
 ```
 
-### 7. デスクトップアプリ (Electron) の起動
+### 7. ビルドとキャッシュ
 
-アプリ本体（`pnpm dev`）が起動している状態で、以下のコマンドを実行するとデスクトップ版が起動します。
+Turborepo により、プロジェクト全体のビルド、リンター、テストが高速化（キャッシュ）されます。
 
 ```bash
-pnpm -F desktop dev
+pnpm build
+pnpm check
+pnpm test
 ```
+
+一度実行したタスクは、ファイルに変更がない限りキャッシュから瞬時に結果が返されます。
