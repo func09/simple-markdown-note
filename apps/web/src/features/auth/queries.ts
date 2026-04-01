@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
-import type { SigninRequest, SignupRequest } from "api/schema";
+import type { AuthResponse, SigninRequest, SignupRequest } from "api/schema";
+import { useApi } from "@/lib/api";
 import { logout, signin, signup } from "./api";
 import { useAuthStore } from "./store";
 
