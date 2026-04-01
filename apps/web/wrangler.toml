@@ -1,0 +1,20 @@
+name = "simplenote-clone-web"
+main = ".open-next/worker.js"
+compatibility_date = "2024-12-30"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = ".open-next/assets"
+binding = "ASSETS"
+
+[vars]
+INTERNAL_API_URL = "https://simplenote-clone-api.mitsuru-haga.workers.dev/api"
+
+[[services]]
+binding = "API"
+service = "simplenote-clone-api"
+
+[observability]
+[observability.logs]
+enabled = true
+invocation_logs = true
