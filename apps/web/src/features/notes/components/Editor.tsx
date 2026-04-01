@@ -22,14 +22,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Components } from "react-markdown";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { cn } from "@/lib/utils";
 import {
   useDeleteNote,
   useNote,
   usePermanentDelete,
   useRestoreNote,
   useUpdateNote,
-} from "../queries";
+} from "@/lib/api";
+import { cn } from "@/lib/utils";
 import { useNotesStore } from "../store";
 
 const markdownComponents: Components = {
