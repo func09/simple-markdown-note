@@ -3,7 +3,6 @@ import {
   desc,
   eq,
   exists,
-  gt,
   isNotNull,
   isNull,
   notExists,
@@ -185,29 +184,6 @@ export const createNoteRepository = (db: DrizzleDB) => ({
   findByIdWithTags: async (id: string, userId: string) => {
     return await db.query.notes.findFirst({
       where: and(eq(notes.id, id), eq(notes.userId, userId)),
-      with: {
-        notesToTags: {
-          with: {
-            tag: true,
-          },
-        },
-      },
-    });
-  },
-  /**
-   * 指定した日時以降に更新されたノートを、タグ情報を含めて取得します。
-   *
-   * @param userId - 対象のユーザーID
-   * @param lastSyncedAt - 最後に同期した日時（省略時は全てのノート）
-   * @returns 更新があったノート（タグ情報を含む）の配列
-   */
-  findAllWithTagsSince: async (userId: string, lastSyncedAt?: Date) => {
-    const whereClause = lastSyncedAt
-      ? and(eq(notes.userId, userId), gt(notes.updatedAt, lastSyncedAt))
-      : eq(notes.userId, userId);
-
-    return await db.query.notes.findMany({
-      where: whereClause,
       with: {
         notesToTags: {
           with: {
