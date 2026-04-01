@@ -4,7 +4,6 @@ import type {
   NoteListResponse,
   NoteQuery,
   NoteUpdateRequest,
-  TagListResponse,
 } from "api/schema";
 import type { ApiClient } from "../client";
 
@@ -75,16 +74,4 @@ export const deleteNote = async (api: ApiClient, id: string): Promise<void> => {
     const errorData = (await res.json()) as { error?: string };
     throw new Error(errorData.error || "Failed to delete note");
   }
-};
-
-/**
- * タグ一覧を取得する
- */
-export const listTags = async (api: ApiClient): Promise<TagListResponse> => {
-  const res = await api.tags.$get();
-  if (!res.ok) {
-    const errorData = (await res.json()) as { error?: string };
-    throw new Error(errorData.error || "Failed to fetch tags");
-  }
-  return res.json() as Promise<TagListResponse>;
 };
