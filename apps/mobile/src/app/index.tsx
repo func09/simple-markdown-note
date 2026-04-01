@@ -11,7 +11,7 @@ export default function Home() {
 
   const devLinks = [
     { name: "Login", path: "/login" },
-    { name: "Register", path: "/register" },
+    { name: "Signup", path: "/signup" },
     { name: "Notes List", path: "/notes" },
     { name: "Note Detail (ID: 1)", path: "/notes/1" },
   ];
