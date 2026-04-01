@@ -7,6 +7,7 @@ export default defineConfig({
   plugins: [react(), tsconfigPaths()],
   test: {
     globals: true,
+    environment: "jsdom",
     passWithNoTests: true,
   },
   resolve: {
