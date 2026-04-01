@@ -46,7 +46,12 @@ export async function ALL(
   const token = cookieStore.get("token")?.value;
 
   // Service Binding の取得（Wrangler / 本番環境用）
-  const cf = getCloudflareContext();
+  let cf = null;
+  try {
+    cf = getCloudflareContext();
+  } catch (_e) {
+    // 開発環境などで初期化されていない場合は無視する
+  }
   const env = cf?.env as CloudflareEnv | undefined;
 
   try {
@@ -63,7 +68,7 @@ export async function ALL(
     // そうでない場合（next dev 等）は通常の fetch を使用する
     const res =
       env?.API && typeof env.API.fetch === "function"
-        ? await env.API.fetch(new Request(targetUrl, fetchOptions))
+        ? await env.API.fetch(targetUrl, fetchOptions)
         : await fetch(targetUrl, fetchOptions);
 
     if (!res.ok) {
