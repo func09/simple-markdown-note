@@ -64,4 +64,13 @@ describe("Auth API", () => {
     const body = (await res.json()) as { error: string };
     expect(body.error).toBe("Invalid credentials");
   });
+
+  it("should logout a user", async () => {
+    const res = await app.request("/api/auth/logout", {
+      method: "DELETE",
+    });
+
+    expect(res.status).toBe(204);
+    expect(res.body).toBe(null);
+  });
 });

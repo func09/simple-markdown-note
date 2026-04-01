@@ -1,5 +1,6 @@
 "use client";
 
+import { useSignup } from "common/queries";
 import {
   AlertCircle,
   ArrowRight,
@@ -13,7 +14,6 @@ import { useRouter } from "next/navigation";
 import type React from "react";
 import { useId, useState } from "react";
 import { toast } from "sonner";
-
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,14 +26,22 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useSignup } from "../queries";
-
+import { useAuthStore } from "../store";
 /**
  * 新規登録コンテナ
  * フォームの表示と認証ロジックを統合したコンポーネントです。
  */
 export function Signup() {
-  const { mutate, isPending: isLoading, error } = useSignup();
+  const setAuth = useAuthStore((state) => state.setAuth);
+  const {
+    mutate,
+    isPending: isLoading,
+    error,
+  } = useSignup({
+    onSuccess(data) {
+      setAuth(data.user);
+    },
+  });
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

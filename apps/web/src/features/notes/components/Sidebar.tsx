@@ -1,13 +1,12 @@
 "use client";
 
+import { useLogout, useTags } from "common/queries";
 import { FileText, Hash, LogOut, Trash2 } from "lucide-react";
 import Link from "next/link";
 import type { ElementType } from "react";
 import { useCallback } from "react";
-import { useLogout } from "@/features/auth/queries";
-import { useAuthStore } from "@/features/auth/store";
+import { useAuthStore } from "@/features/auth";
 import { cn } from "@/lib/utils";
-import { useTags } from "../queries";
 import { useNotesStore } from "../store";
 
 interface NavItemProps {
@@ -63,11 +62,16 @@ interface SidebarProps {
 }
 
 export function Sidebar({ onClose }: SidebarProps) {
+  const { clearAuth } = useAuthStore();
   const { filterScope, filterTag, setFilterScope, setFilterTag } =
     useNotesStore();
   const { data: tags = [], isLoading } = useTags();
   const user = useAuthStore((state) => state.user);
-  const logoutMutation = useLogout();
+  const logoutMutation = useLogout({
+    onSuccess() {
+      clearAuth();
+    },
+  });
 
   const handleLogout = useCallback(() => {
     logoutMutation.mutate();

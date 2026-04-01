@@ -1,0 +1,44 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { ApiClient } from "../client";
+import { listTags } from "./tagsRequests";
+
+const createApiMock = () => ({
+  tags: {
+    $get: vi.fn(),
+  },
+});
+
+describe("tagsRequests", () => {
+  let apiMock: ReturnType<typeof createApiMock>;
+
+  beforeEach(() => {
+    apiMock = createApiMock();
+  });
+
+  describe("listTags", () => {
+    it("should return TagListResponse on success", async () => {
+      const mockResponse = {
+        ok: true,
+        json: async () => ["tagA", "tagB"],
+      };
+      apiMock.tags.$get.mockResolvedValue(mockResponse);
+
+      const result = await listTags(apiMock as unknown as ApiClient);
+
+      expect(result).toEqual(["tagA", "tagB"]);
+      expect(apiMock.tags.$get).toHaveBeenCalled();
+    });
+
+    it("should throw error on failure", async () => {
+      const mockResponse = {
+        ok: false,
+        json: async () => ({ error: "Server error" }),
+      };
+      apiMock.tags.$get.mockResolvedValue(mockResponse);
+
+      await expect(listTags(apiMock as unknown as ApiClient)).rejects.toThrow(
+        "Server error"
+      );
+    });
+  });
+});
