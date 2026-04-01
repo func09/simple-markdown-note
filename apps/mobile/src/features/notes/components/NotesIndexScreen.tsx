@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { NotebookPen, Plus, Search } from "lucide-react-native";
+import { NotebookPen, Search } from "lucide-react-native";
 import { useState } from "react";
 import {
   FlatList,
@@ -78,7 +78,10 @@ export function NotesIndexScreen() {
       <View className="px-5 py-4 border-b border-slate-100 bg-white">
         <View className="flex-row items-center justify-between mb-4">
           <Text className="text-2xl font-bold text-slate-900">All Notes</Text>
-          <TouchableOpacity className="p-2 -mr-2">
+          <TouchableOpacity
+            onPress={() => router.push("/(main)/notes/new")}
+            className="p-2 -mr-2"
+          >
             <NotebookPen size={22} color="#0f172a" />
           </TouchableOpacity>
         </View>
@@ -101,7 +104,7 @@ export function NotesIndexScreen() {
         data={MOCK_NOTES}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingBottom: 100 }}
+        contentContainerStyle={{ paddingBottom: 20 }}
         ListEmptyComponent={
           <View className="flex-1 items-center justify-center p-10 mt-20">
             <View className="w-16 h-16 bg-slate-50 items-center justify-center rounded-full mb-4">
@@ -111,14 +114,6 @@ export function NotesIndexScreen() {
           </View>
         }
       />
-
-      {/* Floating Action Button */}
-      <TouchableOpacity
-        onPress={() => router.push("/(main)/notes/new")}
-        className="absolute right-6 bottom-8 w-14 h-14 bg-slate-900 rounded-full items-center justify-center shadow-xl shadow-slate-400"
-      >
-        <Plus size={28} color="white" />
-      </TouchableOpacity>
     </SafeAreaView>
   );
 }
