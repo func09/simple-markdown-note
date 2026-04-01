@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "mobile",
-    "slug": "mobile",
+    "name": "Simplenote Clone",
+    "slug": "simplenote-clone",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./src/assets/icon.png",
@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.func09.mobile"
+      "bundleIdentifier": "com.func09.simplenote-clone"
     },
     "android": {
       "adaptiveIcon": {
