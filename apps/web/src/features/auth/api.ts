@@ -4,7 +4,7 @@ import type {
   SigninRequest,
   SignupRequest,
 } from "api/schema";
-import api from "@/lib/api";
+import api from "@/lib/apiClient";
 
 /**
  * 認証関連の純粋なAPI呼び出し
