@@ -1,4 +1,5 @@
 const { getDefaultConfig } = require("expo/metro-config");
+const { withNativeWind } = require("nativewind/metro");
 const path = require("path");
 
 // モノレポのルートパスを取得
@@ -16,4 +17,4 @@ config.resolver.nodeModulesPaths = [
   path.resolve(workspaceRoot, "node_modules"),
 ];
 
-module.exports = config;
+module.exports = withNativeWind(config, { input: "./src/app/global.css" });
