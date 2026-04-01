@@ -18,20 +18,25 @@ export async function syncTags(
   await repo.unlinkAllFromNote(noteId);
 
   if (tagNames.length > 0) {
-    const tagIds: string[] = [];
-
-    for (const name of tagNames) {
-      // タグを作成（または既存取得）
-      const tag = await repo.upsert({ name, userId });
-      tagIds.push(tag.id);
-    }
+    // タグを並列で作成（または既存取得）
+    const tags = await Promise.all(
+      tagNames.map((name) => repo.upsert({ name, userId }))
+    );
 
     // 2. 中間テーブルに紐付けを作成
-    await repo.linkToNote(noteId, tagIds);
+    await repo.linkToNote(
+      noteId,
+      tags.map((t) => t.id)
+    );
+
+    // 3. 浮いたタグをクリーンアップ
+    await cleanupOrphanedTags(userId, client);
+    return tags;
   }
 
   // 3. 浮いたタグをクリーンアップ
   await cleanupOrphanedTags(userId, client);
+  return [];
 }
 
 /**

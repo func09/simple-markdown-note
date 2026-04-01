@@ -1,4 +1,5 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
+import { HTTPException } from "hono/http-exception";
 import { sign } from "hono/jwt";
 import { AuthResponseSchema, MeResponseSchema } from "../schema";
 import { getUserById, signin, signup } from "../services/authService";
@@ -49,7 +50,7 @@ export const authRouter = new OpenAPIHono<AppEnv>()
 
     const user = await getUserById(db, userId);
     if (!user) {
-      throw new Error("User not found");
+      throw new HTTPException(404, { message: "User not found" });
     }
 
     return c.json(MeResponseSchema.parse(user), 200);

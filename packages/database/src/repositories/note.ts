@@ -176,6 +176,25 @@ export const createNoteRepository = (db: DrizzleDB) => ({
     return note;
   },
   /**
+   * IDとユーザーIDを指定してノートをタグ情報を含めて取得します。
+   *
+   * @param id - ノートのID
+   * @param userId - 所有者のユーザーID
+   * @returns 見つかったノート（タグ情報を含む）、存在しない場合は undefined
+   */
+  findByIdWithTags: async (id: string, userId: string) => {
+    return await db.query.notes.findFirst({
+      where: and(eq(notes.id, id), eq(notes.userId, userId)),
+      with: {
+        notesToTags: {
+          with: {
+            tag: true,
+          },
+        },
+      },
+    });
+  },
+  /**
    * 指定した日時以降に更新されたノートを、タグ情報を含めて取得します。
    *
    * @param userId - 対象のユーザーID
