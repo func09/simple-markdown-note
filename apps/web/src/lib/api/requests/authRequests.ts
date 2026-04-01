@@ -55,13 +55,13 @@ export const getMe = async (api: ApiClient): Promise<MeResponse | null> => {
  * ログアウトを実行（サーバーサイドのクッキーをクリア）
  */
 export const logout = async (api: ApiClient): Promise<void> => {
-  // try {
-  //   const res = await api.auth.logout.$post();
-  //   if (!res.ok) {
-  //     throw new Error("Logout failed");
-  //   }
-  // } catch (error) {
-  //   console.error("Logout error:", error);
-  //   throw error;
-  // }
+  try {
+    const res = await api.auth.logout.$delete();
+    if (!res.ok) {
+      throw new Error("Logout failed");
+    }
+  } catch (error) {
+    console.error("Logout error:", error);
+    throw error;
+  }
 };
