@@ -5,8 +5,8 @@ const isNative = args.includes("--native");
 
 // --native があれば全ワークスペース、なければ api と web のみを起動。
 const command = isNative
-  ? "pnpm -r --parallel dev"
-  : "pnpm -F api -F web --parallel dev";
+  ? "turbo run dev"
+  : "turbo run dev --filter=api --filter=web";
 
 console.log(`> Running: ${command}`);
 

@@ -15,10 +15,13 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NODE_ENV: test
+      TURBO_CACHE_DIR: .turbo
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -28,18 +31,35 @@ jobs:
       - name: Install pnpm
         run: npm install -g pnpm@10
 
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Setup Turbo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Generate Drizzle Schema
+      - name: Run CI tasks (db:check, check, typecheck, test)
         run: |
-          pnpm -F database run generate
-
-      - name: Verify code style & Lint
-        run: pnpm check
-
-      - name: Type check
-        run: pnpm typecheck
-
-      - name: Run tests
-        run: pnpm test
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            pnpm turbo run db:check check typecheck test --filter=[${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}]
+          else
+            pnpm turbo run db:check check typecheck test
+          fi
