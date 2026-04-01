@@ -3,7 +3,12 @@ import { jwt } from "hono/jwt";
 import type { AppEnv } from "../types";
 
 // 認証不要ルート（サインイン、サインアップ、ヘルスチェック）
-const PUBLIC_PATHS = ["/api/auth/signin", "/api/auth/signup", "/health"];
+const PUBLIC_PATHS = [
+  "/api/auth/signin",
+  "/api/auth/signup",
+  "/api/auth/logout",
+  "/health",
+];
 
 // JWT 認証ミドルウェア (秘密鍵は環境変数から取得)
 export const jwtAuth = (): MiddlewareHandler<AppEnv> => {
