@@ -1,12 +1,12 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
+import type { Note } from "common/models";
+import type { NoteListResponse } from "common/schemas";
 import type React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ApiClient } from "../client";
 import { ApiProvider } from "../context";
-import type { Note } from "../models";
 import * as notesRequests from "../requests/notesRequests";
-import type { NoteListResponse } from "../schemas";
 import {
   useCreateNote,
   useDeleteNote,

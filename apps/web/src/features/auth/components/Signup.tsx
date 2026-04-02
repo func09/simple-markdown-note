@@ -1,6 +1,6 @@
 "use client";
 
-import { useSignup } from "common/hooks";
+import { useSignup } from "api-client/hooks";
 import {
   AlertCircle,
   ArrowRight,
