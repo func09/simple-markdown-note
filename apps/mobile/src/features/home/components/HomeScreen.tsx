@@ -2,7 +2,6 @@ import { StatusBar } from "expo-status-bar";
 import { NotebookPen } from "lucide-react-native";
 import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { DevNavigation } from "./DevNavigation";
 
 export function HomeScreen() {
   return (
@@ -33,8 +32,6 @@ export function HomeScreen() {
           Built with React Native & NativeWind
         </Text>
       </View>
-
-      <DevNavigation />
     </SafeAreaView>
   );
 }
