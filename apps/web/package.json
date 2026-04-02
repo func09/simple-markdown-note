@@ -39,26 +39,26 @@
     "tailwind-merge": "^3.0.2",
     "tiptap-markdown": "^0.9.0",
     "zod": "^4.3.6",
-    "zustand": "^5.0.12"
+    "zustand": "^5.0.12",
+    "common": "workspace:*",
+    "api-client": "workspace:*",
+    "@radix-ui/react-label": "^2.1.8",
+    "@radix-ui/react-slot": "^1.2.4",
+    "class-variance-authority": "^0.7.1"
   },
   "devDependencies": {
     "@opennextjs/cloudflare": "^1",
     "@cloudflare/workers-types": "^4.20260329.1",
-    "@radix-ui/react-label": "^2.1.8",
-    "@radix-ui/react-slot": "^1.2.4",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.7.0",
-    "common": "workspace:*",
-    "api-client": "workspace:*",
     "babel-plugin-react-compiler": "1.0.0",
-    "class-variance-authority": "^0.7.1",
     "jsdom": "^25.0.1",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vite-tsconfig-paths": "^6.1.1",
-    "vitest": "^4.1.2"
+    "vitest": "^3.2.4"
   }
 }
