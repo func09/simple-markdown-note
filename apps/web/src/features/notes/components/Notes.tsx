@@ -1,6 +1,6 @@
 "use client";
 
-import type { NoteScope } from "common/schemas";
+import type { NoteScope } from "common/constraints";
 import { Menu } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";

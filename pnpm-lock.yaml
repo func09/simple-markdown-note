@@ -355,12 +355,6 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@7.3.1(@types/node@25.5.0)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
-      api:
-        specifier: workspace:*
-        version: link:../../apps/api
-      database:
-        specifier: workspace:*
-        version: link:../database
       jsdom:
         specifier: ^25.0.1
         version: 25.0.1
@@ -395,6 +389,9 @@ importers:
       '@types/bcryptjs':
         specifier: ^2.4.6
         version: 2.4.6
+      common:
+        specifier: workspace:*
+        version: link:../common
       drizzle-kit:
         specifier: ^0.30.5
         version: 0.30.6

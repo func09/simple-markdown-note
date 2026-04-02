@@ -50,10 +50,6 @@ export const notes = sqliteTable("notes", {
 export type Note = typeof notes.$inferSelect;
 export type NewNote = typeof notes.$inferInsert;
 
-import { NOTE_SCOPE, NOTE_SCOPES, type NoteScope } from "./constants";
-
-export { NOTE_SCOPE, NOTE_SCOPES, type NoteScope };
-
 // タグ情報を管理するテーブル
 export const tags = sqliteTable(
   "tags",
