@@ -29,6 +29,10 @@
     "./constraints": {
       "import": "./src/constraints/index.ts",
       "types": "./src/constraints/index.ts"
+    },
+    "./routes": {
+      "import": "./src/routes/index.ts",
+      "types": "./src/routes/index.ts"
     }
   },
   "scripts": {
