@@ -1,10 +1,6 @@
-import {
-  createNoteRepository,
-  type DrizzleDB,
-  type NoteScope,
-  type Tag,
-} from "database";
-import type { NoteCreateRequest, NoteUpdateRequest } from "../schema";
+import type { NoteScope } from "common/constraints";
+import type { NoteCreateRequest, NoteUpdateRequest } from "common/schemas";
+import { createNoteRepository, type DrizzleDB, type Tag } from "database";
 
 import { syncTags } from "./tagService";
 

@@ -5,7 +5,6 @@
   "main": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./constants": "./src/constants.ts",
     "./*": "./src/*"
   },
   "scripts": {
@@ -36,7 +35,7 @@
     "@libsql/client": "^0.17.2",
     "@paralleldrive/cuid2": "^2.2.2",
     "bcryptjs": "^3.0.3",
-    "drizzle-orm": "^0.40.0",
-    "zod": "^4.3.6"
+    "common": "workspace:*",
+    "drizzle-orm": "^0.40.0"
   }
 }

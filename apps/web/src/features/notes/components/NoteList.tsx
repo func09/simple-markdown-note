@@ -1,6 +1,6 @@
 "use client";
 
-import { useCreateNote, useNotes } from "common/queries";
+import { useCreateNote, useNotes } from "api-client/hooks";
 import { Plus, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

@@ -1,7 +1,6 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "lib": ["dom", "dom.iterable", "esnext"],
     "types": ["@cloudflare/workers-types", "node"],
@@ -13,12 +12,10 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
-      "api": ["../api/src/index.ts"],
-      "api/*": ["../api/src/*"],
-      "openapi": ["../../packages/openapi/src/index.ts"],
-      "openapi/*": ["../../packages/openapi/src/*"],
       "common": ["../../packages/common/src/index.ts"],
-      "common/*": ["../../packages/common/src/*"]
+      "common/*": ["../../packages/common/src/*"],
+      "api-client": ["../../packages/api-client/src/index.ts"],
+      "api-client/*": ["../../packages/api-client/src/*"]
     }
   },
   "include": [

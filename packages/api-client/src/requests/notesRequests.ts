@@ -1,10 +1,10 @@
+import type { Note } from "common/models";
 import type {
-  Note,
   NoteCreateRequest,
   NoteListResponse,
   NoteQuery,
   NoteUpdateRequest,
-} from "api/schema";
+} from "common/schemas";
 import type { ApiClient } from "../client";
 
 /**

@@ -1,3 +1,4 @@
+import { NOTE_SCOPE, type NoteScope } from "common/constraints";
 import {
   and,
   desc,
@@ -8,15 +9,7 @@ import {
   notExists,
 } from "drizzle-orm";
 import type { DrizzleDB } from "../index";
-import {
-  type NewNote,
-  NOTE_SCOPE,
-  type Note,
-  type NoteScope,
-  notes,
-  notesToTags,
-  tags,
-} from "../schema";
+import { type NewNote, type Note, notes, notesToTags, tags } from "../schema";
 
 export const createNoteRepository = (db: DrizzleDB) => ({
   /**

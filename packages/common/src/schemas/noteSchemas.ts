@@ -1,9 +1,6 @@
-import { NOTE_SCOPE, NOTE_SCOPES } from "database/constants";
-import { NoteSchema } from "../models/note";
+import { NOTE_SCOPE, NOTE_SCOPES } from "../constraints";
+import { NoteSchema } from "../models";
 import { z } from "../z";
-
-export { NOTE_SCOPE, NOTE_SCOPES };
-export type NoteScope = (typeof NOTE_SCOPES)[number];
 
 /**
  * ノート一覧取得のレスポンススキーマ

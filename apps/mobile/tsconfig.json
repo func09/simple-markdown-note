@@ -2,12 +2,11 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
-    "ignoreDeprecations": "6.0",
     "baseUrl": ".",
+    "types": ["node", "@cloudflare/workers-types"],
     "paths": {
       "@/*": ["src/*"]
-    },
-    "types": ["node", "@cloudflare/workers-types"]
+    }
   },
   "include": ["src", "**/*.ts", "**/*.tsx", "nativewind-env.d.ts"]
 }

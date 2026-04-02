@@ -1,8 +1,8 @@
+import type { AuthResponseSchema, TagListResponseSchema } from "common/schemas";
 import { db, users } from "database";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { z } from "zod";
 import { app } from "../index";
-import type { AuthResponseSchema, TagListResponseSchema } from "../schema";
 
 describe("Tags API", () => {
   let token: string;

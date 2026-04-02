@@ -3,7 +3,7 @@ import type {
   MeResponse,
   SigninRequest,
   SignupRequest,
-} from "api/schema";
+} from "common/schemas";
 import type { ApiClient } from "../client";
 
 /**

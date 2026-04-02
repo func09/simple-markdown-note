@@ -9,3 +9,5 @@ export const UserSchema = z
     updatedAt: dateSchema.openapi({ example: "2026-03-25T12:00:00Z" }),
   })
   .openapi("User");
+
+export type User = z.infer<typeof UserSchema>;

@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ApiProvider, createApiClient } from "common";
+import { ApiProvider, createApiClient } from "api-client";
 import Constants from "expo-constants";
 import type { ReactNode } from "react";
 import { Platform } from "react-native";
