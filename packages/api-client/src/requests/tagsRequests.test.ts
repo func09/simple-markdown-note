@@ -5,6 +5,7 @@ import { listTags } from "./tagsRequests";
 const createApiMock = () => ({
   tags: {
     $get: vi.fn(),
+    $url: () => new URL("http://localhost/api/tags"),
   },
 });
 
@@ -19,6 +20,7 @@ describe("tagsRequests", () => {
     it("should return TagListResponse on success", async () => {
       const mockResponse = {
         ok: true,
+        url: "http://localhost/api/tags",
         json: async () => ["tagA", "tagB"],
       };
       apiMock.tags.$get.mockResolvedValue(mockResponse);
@@ -32,6 +34,7 @@ describe("tagsRequests", () => {
     it("should throw error on failure", async () => {
       const mockResponse = {
         ok: false,
+        url: "http://localhost/api/tags",
         json: async () => ({ error: "Server error" }),
       };
       apiMock.tags.$get.mockResolvedValue(mockResponse);

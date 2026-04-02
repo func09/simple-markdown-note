@@ -12,10 +12,12 @@ const createApiMock = () => ({
   notes: {
     $get: vi.fn(),
     $post: vi.fn(),
+    $url: () => new URL("http://localhost/api/notes"),
     ":id": {
       $get: vi.fn(),
       $patch: vi.fn(),
       $delete: vi.fn(),
+      $url: () => new URL("http://localhost/api/notes/123"),
     },
   },
 });
@@ -31,6 +33,7 @@ describe("notesRequests", () => {
     it("should return NoteListResponse on success", async () => {
       const mockResponse = {
         ok: true,
+        url: "http://localhost/api/notes",
         json: async () => [{ id: "1", content: "Note 1" }],
       };
       apiMock.notes.$get.mockResolvedValue(mockResponse);
@@ -48,6 +51,7 @@ describe("notesRequests", () => {
     it("should return Note on success", async () => {
       const mockResponse = {
         ok: true,
+        url: "http://localhost/api/notes/123",
         json: async () => ({ id: "123", title: "My Note" }),
       };
       apiMock.notes[":id"].$get.mockResolvedValue(mockResponse);
@@ -62,6 +66,7 @@ describe("notesRequests", () => {
     it("should return created Note on success", async () => {
       const mockResponse = {
         ok: true,
+        url: "http://localhost/api/notes",
         json: async () => ({ id: "new", content: "hello" }),
       };
       apiMock.notes.$post.mockResolvedValue(mockResponse);
@@ -79,6 +84,7 @@ describe("notesRequests", () => {
     it("should return updated Note on success", async () => {
       const mockResponse = {
         ok: true,
+        url: "http://localhost/api/notes/123",
         json: async () => ({ id: "123", content: "updated" }),
       };
       apiMock.notes[":id"].$patch.mockResolvedValue(mockResponse);
@@ -95,6 +101,7 @@ describe("notesRequests", () => {
     it("should succeed on 200/204", async () => {
       const mockResponse = {
         ok: true,
+        url: "http://localhost/api/notes/123",
       };
       apiMock.notes[":id"].$delete.mockResolvedValue(mockResponse);
 
