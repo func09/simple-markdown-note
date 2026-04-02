@@ -1,6 +1,6 @@
+import type { SigninRequest, SignupRequest } from "common/schemas";
 import { bcryptjs, createUserRepository, type DrizzleDB } from "database";
 import { HTTPException } from "hono/http-exception";
-import type { SigninRequest, SignupRequest } from "../schema";
 
 /**
  * ユーザーの新規登録処理を行い、データベースに保存します。

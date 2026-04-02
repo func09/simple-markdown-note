@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
-import type { AuthResponse, SigninRequest, SignupRequest } from "api/schema";
 import { useApi } from "../context";
 import { logout, signin, signup } from "../requests/authRequests";
+import type { AuthResponse, SigninRequest, SignupRequest } from "../schemas";
 
 /**
  * ログインを実行するミューテーションフック

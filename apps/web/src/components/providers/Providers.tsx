@@ -2,7 +2,8 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { ApiProvider, createApiClient } from "common";
+import { createApiClient } from "common/client";
+import { ApiProvider } from "common/context";
 import { useState } from "react";
 
 export function Providers({ children }: { children: React.ReactNode }) {

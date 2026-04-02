@@ -5,7 +5,27 @@
   "main": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./*": "./src/*"
+    "./*": "./src/*",
+    "./client": {
+      "import": "./src/client/index.ts",
+      "types": "./src/client/index.ts"
+    },
+    "./context": {
+      "import": "./src/context/index.ts",
+      "types": "./src/context/index.ts"
+    },
+    "./hooks": {
+      "import": "./src/hooks/index.ts",
+      "types": "./src/hooks/index.ts"
+    },
+    "./schemas": {
+      "import": "./src/schemas/index.ts",
+      "types": "./src/schemas/index.ts"
+    },
+    "./models": {
+      "import": "./src/models/index.ts",
+      "types": "./src/models/index.ts"
+    }
   },
   "scripts": {
     "lint": "biome lint .",
@@ -35,7 +55,6 @@
     "@types/node": "^25.5.0",
     "@types/react": "^19.0.0",
     "@vitejs/plugin-react": "^4.7.0",
-    "api": "workspace:*",
     "database": "workspace:*",
     "jsdom": "^25.0.1",
     "tsx": "^4.21.0",

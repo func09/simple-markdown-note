@@ -1,5 +1,5 @@
-import type { TagListResponse } from "api/schema";
 import type { ApiClient } from "../client";
+import type { TagListResponse } from "../schemas";
 
 /**
  * タグ一覧を取得する

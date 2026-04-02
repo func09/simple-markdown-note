@@ -1,5 +1,5 @@
 import { createContext, type ReactNode, useContext } from "react";
-import type { ApiClient } from "./client";
+import type { ApiClient } from "../client";
 
 // ApiClient インスタンスを React ツリー全体で共有するためのコンテキスト
 const ApiContext = createContext<ApiClient | null>(null);

@@ -1,12 +1,12 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
-import type { TagListResponse } from "api/schema";
 import type React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ApiClient } from "../client";
 import { ApiProvider } from "../context";
 import * as tagsRequests from "../requests/tagsRequests";
-import { useTags } from "./tagsQueries";
+import type { TagListResponse } from "../schemas";
+import { useTags } from "./tagsHooks";
 
 vi.mock("../requests/tagsRequests");
 
