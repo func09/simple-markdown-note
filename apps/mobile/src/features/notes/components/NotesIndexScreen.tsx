@@ -10,51 +10,9 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useNoteStore } from "../";
 import { DRAWER_WIDTH, NoteDrawer } from "./NoteDrawer";
-import type { Note } from "./NoteListItem";
 import { NoteListItem } from "./NoteListItem";
-
-// Mock Data
-const MOCK_NOTES: Note[] = [
-  {
-    id: "1",
-    title: "Shopping List",
-    content:
-      "Milk, eggs, bread, apples, bananas, please. Also, don't forget to buy chicken and cabbage for dinner. We also need cereal for tomorrow breakfast.",
-    updatedAt: "10:30",
-    tags: ["Free"],
-    isTrash: false,
-  },
-  {
-    id: "2",
-    title: "Project Ideas",
-    content:
-      "Proposal for a new web service. Using React, Next.js, and Tailwind, with Expo Router for the mobile app. Aiming for an offline-first design using IndexedDB.",
-    updatedAt: "Yesterday",
-    tags: ["Test", "User"],
-    isTrash: false,
-  },
-  {
-    id: "3",
-    title: "Diary",
-    content:
-      "The weather was nice today, so I took a walk in the park. The cherry blossoms were beautiful. On the way back, I stopped at a cafe and finished a book I've been reading. It was a very fulfilling day.",
-    updatedAt: "Mar 28",
-    tags: ["User"],
-    isTrash: false,
-  },
-  {
-    id: "4",
-    title: "Meeting Notes",
-    content:
-      "Confirmation of the agenda for the next meeting. Discussing budget allocation. We plan to discuss progress reports from each department, Q2 KPI settings, and the formulation of a new marketing strategy.",
-    updatedAt: "Mar 25",
-    tags: ["Test"],
-    isTrash: true,
-  },
-];
-
-const MOCK_TAGS = ["Test", "User", "Free"];
 
 export function NotesIndexScreen() {
   const router = useRouter();
@@ -63,6 +21,7 @@ export function NotesIndexScreen() {
     tag?: string;
   }>();
 
+  const { notes, tags } = useNoteStore();
   const [searchQuery, setSearchQuery] = useState("");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const slideAnim = useRef(new Animated.Value(-DRAWER_WIDTH)).current;
@@ -80,7 +39,7 @@ export function NotesIndexScreen() {
     });
   };
 
-  const filteredNotes = MOCK_NOTES.filter((note) => {
+  const filteredNotes = notes.filter((note) => {
     // Search query filter
     const matchesSearch =
       note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -126,7 +85,7 @@ export function NotesIndexScreen() {
         tag={tag}
         onSelectScope={handleSelectScope}
         onSelectTag={handleSelectTag}
-        tags={MOCK_TAGS}
+        tags={tags}
       />
 
       {/* Header */}
