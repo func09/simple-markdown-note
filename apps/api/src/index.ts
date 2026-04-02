@@ -18,8 +18,6 @@ import {
 } from "./middlewares";
 import { apiRouter } from "./routes";
 
-export * from "./schema";
-
 // エラーハンドラー (JSONレスポンス)
 app.onError((err, c) => {
   if (err instanceof HTTPException) {
@@ -56,5 +54,4 @@ app.doc("/doc", {
 // Swagger UI の設定
 app.get("/ui", swaggerUI({ url: "/doc" }));
 
-export type AppType = typeof apiRouter;
 export default app;

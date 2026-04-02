@@ -2,13 +2,9 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "baseUrl": ".",
-    "ignoreDeprecations": "6.0",
-    "types": ["node", "@cloudflare/workers-types"],
-    "jsx": "react-jsx",
+    "types": ["node"],
     "paths": {
-      "@/*": ["./src/*"],
-      "api": ["../../apps/api/src/index.ts"],
-      "api/*": ["../../apps/api/src/*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx"],

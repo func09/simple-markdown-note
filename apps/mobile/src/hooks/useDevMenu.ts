@@ -18,7 +18,7 @@ export function useDevMenu() {
         const keys = await AsyncStorage.getAllKeys();
         const items = await AsyncStorage.multiGet(keys);
         console.log("--- AsyncStorage Debug ---");
-        items.forEach(([key, value]) => {
+        items.forEach(([key, value]: [string, string | null]) => {
           try {
             console.log(`${key}:`, value ? JSON.parse(value) : null);
           } catch {

@@ -1,10 +1,10 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
+import { logoutRoute, meRoute, signinRoute, signupRoute } from "common/routes";
+import { AuthResponseSchema, MeResponseSchema } from "common/schemas";
 import { HTTPException } from "hono/http-exception";
 import { sign } from "hono/jwt";
-import { AuthResponseSchema, MeResponseSchema } from "../schema";
 import { getUserById, logout, signin, signup } from "../services/authService";
 import type { AppEnv } from "../types";
-import { logoutRoute, meRoute, signinRoute, signupRoute } from "./auth.schema";
 
 /**
  * 認証関連のルーター

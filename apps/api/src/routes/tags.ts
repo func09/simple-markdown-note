@@ -1,8 +1,9 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
-import { TagListResponseSchema, TagSchema } from "../schema";
+import { TagSchema } from "common/models";
+import { createTagRoute, tagsListRoute } from "common/routes";
+import { TagListResponseSchema } from "common/schemas";
 import { createTag, getTagsWithNoteCount } from "../services/tagService";
 import type { AppEnv } from "../types";
-import { createTagRoute, tagsListRoute } from "./tags.schema";
 
 /**
  * タグ関連のルーター

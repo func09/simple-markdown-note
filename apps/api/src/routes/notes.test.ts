@@ -1,12 +1,9 @@
+import { NOTE_SCOPE } from "common/constraints";
+import type { NoteSchema } from "common/models";
+import type { NoteListResponse, NoteListResponseSchema } from "common/schemas";
 import { beforeAll, describe, expect, it } from "vitest";
 import type { z } from "zod";
 import { app } from "../index";
-import type {
-  NoteListResponse,
-  NoteListResponseSchema,
-  NoteSchema,
-} from "../schema";
-import { NOTE_SCOPE } from "../schema";
 
 describe("Notes CRUD API (/notes)", () => {
   let token: string;
