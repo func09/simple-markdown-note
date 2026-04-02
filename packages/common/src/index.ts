@@ -4,3 +4,4 @@ export type { ApiClient } from "./client";
 export { createApiClient } from "./client";
 export { ApiProvider, useApi } from "./context";
 export * from "./queries";
+export * from "./schema";
