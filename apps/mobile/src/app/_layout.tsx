@@ -2,8 +2,10 @@ import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import "./global.css";
 import { Stack } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { useDevMenu } from "@/hooks/useDevMenu";
 
 export default function RootLayout() {
+  useDevMenu();
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <BottomSheetModalProvider>
