@@ -1,7 +1,9 @@
+import { useSignup } from "api-client/hooks";
 import { Link, useRouter } from "expo-router";
-import { Lock, Mail, UserPlus } from "lucide-react-native";
+import { AlertCircle, Lock, Mail, UserPlus } from "lucide-react-native";
 import { useState } from "react";
 import {
+  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   Text,
@@ -10,17 +12,28 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useAuthStore } from "../store";
 
 export function SignupScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
+  const setAuth = useAuthStore((state) => state.setAuth);
+
+  const {
+    mutate: signupMutate,
+    isPending: isLoading,
+    error,
+  } = useSignup({
+    onSuccess: (data) => {
+      setAuth(data.user, data.token);
+      router.replace("/(main)/notes");
+    },
+  });
 
   const handleSignup = () => {
-    // API integration not implemented, dummy registration process
-    console.log("Signup with:", email, password);
-    // If successful, navigate to the next screen
-    router.replace("/(main)/notes");
+    if (!email || !password) return;
+    signupMutate({ email, password });
   };
 
   return (
@@ -41,6 +54,15 @@ export function SignupScreen() {
           </View>
 
           <View className="space-y-4">
+            {error && (
+              <View className="bg-red-50 p-4 rounded-xl border border-red-100 flex-row items-center mb-4">
+                <AlertCircle size={18} color="#ef4444" />
+                <Text className="text-red-600 ml-2 flex-1 text-sm">
+                  {error instanceof Error ? error.message : "Signup failed"}
+                </Text>
+              </View>
+            )}
+
             <View>
               <Text className="text-sm font-medium text-slate-700 mb-1 ml-1">
                 Email Address
@@ -55,6 +77,7 @@ export function SignupScreen() {
                   onChangeText={setEmail}
                   autoCapitalize="none"
                   keyboardType="email-address"
+                  editable={!isLoading}
                 />
               </View>
             </View>
@@ -72,22 +95,30 @@ export function SignupScreen() {
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry
+                  editable={!isLoading}
                 />
               </View>
             </View>
 
             <TouchableOpacity
               onPress={handleSignup}
-              className="bg-slate-900 h-12 rounded-xl items-center justify-center mt-4 shadow-lg shadow-slate-300"
+              disabled={isLoading}
+              className={`h-12 rounded-xl items-center justify-center mt-4 shadow-lg ${
+                isLoading ? "bg-slate-700" : "bg-slate-900 shadow-slate-300"
+              }`}
             >
-              <Text className="text-white font-bold text-lg">Sign Up</Text>
+              {isLoading ? (
+                <ActivityIndicator color="white" />
+              ) : (
+                <Text className="text-white font-bold text-lg">Sign Up</Text>
+              )}
             </TouchableOpacity>
           </View>
 
           <View className="mt-8 flex-row justify-center">
             <Text className="text-slate-500">Already have an account? </Text>
             <Link href="/(auth)/login" asChild>
-              <TouchableOpacity>
+              <TouchableOpacity disabled={isLoading}>
                 <Text className="text-slate-900 font-semibold underline">
                   Log In
                 </Text>

@@ -4,6 +4,14 @@ import {
   BottomSheetModal,
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
+import {
+  useCreateNote,
+  useDeleteNote,
+  useNote,
+  usePermanentDelete,
+  useRestoreNote,
+  useUpdateNote,
+} from "api-client/hooks";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   ChevronLeft,
@@ -18,6 +26,7 @@ import {
 } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+  Alert,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -29,55 +38,37 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-// Mock Data (Synced with index)
-const MOCK_NOTES: Record<
-  string,
-  { title: string; content: string; createdAt: Date; updatedAt: Date }
-> = {
-  "1": {
-    title: "Shopping List",
-    content: "# Shopping List\n\nMilk, eggs, bread, apples, bananas, please.",
-    createdAt: new Date("2026-03-20T10:00:00"),
-    updatedAt: new Date("2026-03-28T14:30:00"),
-  },
-  "2": {
-    title: "Project Ideas",
-    content:
-      "# Project Ideas\n\nProposal for a new web service. Using React, Next.js, and Tailwind.",
-    createdAt: new Date("2026-03-15T09:00:00"),
-    updatedAt: new Date("2026-03-29T11:00:00"),
-  },
-  "3": {
-    title: "Diary",
-    content:
-      "# Diary\n\nThe weather was nice today, so I took a walk in the park. The cherry blossoms were beautiful.",
-    createdAt: new Date("2026-03-26T01:15:00"),
-    updatedAt: new Date("2026-04-01T01:56:00"),
-  },
-  "4": {
-    title: "Meeting Notes",
-    content:
-      "# Meeting Notes\n\nConfirmation of the agenda for the next meeting. Discussing budget allocation.",
-    createdAt: new Date("2026-03-22T08:00:00"),
-    updatedAt: new Date("2026-03-30T16:00:00"),
-  },
-};
-
-function formatDate(date: Date): string {
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
   return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, "0")}/${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
 }
 
 export function NoteDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const isNew = id === "new";
   const router = useRouter();
+
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // API Hooks
+  const { data: note, isLoading } = useNote(isNew ? null : id, {
+    enabled: !isDeleting,
+  });
+  const createNoteMutation = useCreateNote();
+  const updateNoteMutation = useUpdateNote();
+  const deleteNoteMutation = useDeleteNote();
+  const restoreNoteMutation = useRestoreNote();
+  const permanentDeleteMutation = usePermanentDelete();
+
   const [content, setContent] = useState("");
   const [isPreview, setIsPreview] = useState(false);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-  const [tags, setTags] = useState<string[]>(["Project", "React"]);
+  const [tags, setTags] = useState<string[]>([]);
   const inputRef = useRef<TextInput>(null);
   const infoSheetRef = useRef<BottomSheetModal>(null);
 
-  const note = typeof id === "string" ? MOCK_NOTES[id] : undefined;
+  const initializedId = useRef<string | null>(null);
+  const currentNoteId = useRef<string | null>(isNew ? null : id);
 
   const wordCount = useMemo(() => {
     return content.trim() ? content.trim().split(/\s+/).length : 0;
@@ -85,13 +76,74 @@ export function NoteDetailScreen() {
 
   const charCount = useMemo(() => content.length, [content]);
 
+  // Handle Initial Load and external data updates
   useEffect(() => {
-    if (note) {
+    if (isNew) {
+      if (initializedId.current !== "new") {
+        setContent("");
+        setTags([]);
+        initializedId.current = "new";
+      }
+    } else if (note && initializedId.current !== note.id) {
       setContent(note.content);
-    } else if (id === "new") {
-      setContent("");
+      setTags(note.tags.map((t) => t.name));
+      initializedId.current = note.id;
+      currentNoteId.current = note.id;
     }
-  }, [id, note]);
+  }, [isNew, note]);
+
+  // Debounced Auto-save
+  useEffect(() => {
+    if (isLoading) return;
+    if (!content.trim() && isNew) return;
+
+    const timer = setTimeout(async () => {
+      const activeId = currentNoteId.current;
+
+      if (isNew && !activeId) {
+        // Create new note
+        try {
+          const result = await createNoteMutation.mutateAsync({
+            content,
+            tags,
+            isPermanent: false,
+          });
+          currentNoteId.current = result.id;
+          // Update URL to the new ID without push to avoid back-button issues if possible
+          // But router.setParams might work best here
+          router.setParams({ id: result.id });
+          initializedId.current = result.id;
+        } catch (error) {
+          console.error("Failed to create note:", error);
+        }
+      } else if (activeId) {
+        // Update existing note
+        // Only update if content or tags actually changed compared to the last fetched note
+        if (
+          note &&
+          (content !== note.content ||
+            JSON.stringify(tags) !==
+              JSON.stringify(note.tags.map((t) => t.name)))
+        ) {
+          updateNoteMutation.mutate({
+            id: activeId,
+            data: { content, tags },
+          });
+        }
+      }
+    }, 1000); // 1s debounce for API calls
+
+    return () => clearTimeout(timer);
+  }, [
+    content,
+    tags,
+    isNew,
+    note,
+    isLoading,
+    createNoteMutation,
+    updateNoteMutation,
+    router,
+  ]);
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
@@ -118,6 +170,41 @@ export function NoteDetailScreen() {
     }
   };
 
+  const handleGoBack = () => {
+    router.back();
+  };
+
+  const handleTrashAction = async () => {
+    if (!currentNoteId.current) return;
+
+    setIsDeleting(true);
+    try {
+      if (note?.deletedAt) {
+        await restoreNoteMutation.mutateAsync(currentNoteId.current);
+      } else {
+        await deleteNoteMutation.mutateAsync(currentNoteId.current);
+      }
+      infoSheetRef.current?.dismiss();
+      setTimeout(() => router.back(), 250);
+    } catch (error) {
+      setIsDeleting(false);
+      console.error("Failed to toggle trash:", error);
+    }
+  };
+
+  const handlePermanentDelete = async () => {
+    if (!currentNoteId.current) return;
+    setIsDeleting(true);
+    try {
+      await permanentDeleteMutation.mutateAsync(currentNoteId.current);
+      infoSheetRef.current?.dismiss();
+      setTimeout(() => router.back(), 250);
+    } catch (error) {
+      setIsDeleting(false);
+      console.error("Failed to permanently delete note:", error);
+    }
+  };
+
   const renderBackdrop = useCallback(
     (props: BottomSheetBackdropProps) => (
       <BottomSheetBackdrop
@@ -135,7 +222,7 @@ export function NoteDetailScreen() {
       {/* Custom Header */}
       <View className="flex-row items-center justify-between px-4 py-2 border-b border-slate-100 bg-white z-10">
         <TouchableOpacity
-          onPress={() => router.back()}
+          onPress={handleGoBack}
           className="flex-row items-center p-2 -ml-2"
         >
           <ChevronLeft size={24} color="#0f172a" />
@@ -202,7 +289,7 @@ export function NoteDetailScreen() {
               style={{ textAlignVertical: "top" }}
               value={content}
               onChangeText={setContent}
-              autoFocus={id === "new"}
+              autoFocus={isNew}
             />
           )}
         </ScrollView>
@@ -232,7 +319,27 @@ export function NoteDetailScreen() {
                   </TouchableOpacity>
                 </View>
               ))}
-              <TouchableOpacity className="px-3 py-1.5 border border-dashed border-slate-300 rounded-full">
+              <TouchableOpacity
+                className="px-3 py-1.5 border border-dashed border-slate-300 rounded-full"
+                onPress={() => {
+                  if (Platform.OS === "ios") {
+                    Alert.prompt(
+                      "Add Tag",
+                      "Enter a name for the new tag",
+                      (text) => {
+                        if (text.trim() && !tags.includes(text.trim())) {
+                          setTags([...tags, text.trim()]);
+                        }
+                      }
+                    );
+                  } else {
+                    Alert.alert(
+                      "Pending",
+                      "Tag input for Android is currently pending."
+                    );
+                  }
+                }}
+              >
                 <Text className="text-xs font-medium text-slate-400">
                   + Add Tag
                 </Text>
@@ -260,9 +367,12 @@ export function NoteDetailScreen() {
                   </Text>
                 </View>
                 <View className="flex-row justify-between items-center px-5 py-4 border-b border-slate-100">
-                  <Text className="text-base text-slate-800">Created at</Text>
-                  <Text className="text-base text-slate-400">
-                    {formatDate(note.createdAt)}
+                  <Text className="text-base text-slate-800">Note ID</Text>
+                  <Text
+                    className="text-base text-slate-400 truncate ml-4"
+                    numberOfLines={1}
+                  >
+                    {note.id}
                   </Text>
                 </View>
               </>
@@ -278,16 +388,36 @@ export function NoteDetailScreen() {
           </View>
 
           {/* Actions */}
-          <TouchableOpacity
-            className="flex-row items-center px-5 py-4 mb-6"
-            onPress={() => {
-              infoSheetRef.current?.dismiss();
-              setTimeout(() => router.back(), 250);
-            }}
-          >
-            <Trash2 size={20} color="#ef4444" />
-            <Text className="text-base text-red-500 ml-3">Move to Trash</Text>
-          </TouchableOpacity>
+          <View className="mb-6">
+            <TouchableOpacity
+              className="flex-row items-center px-5 py-4 border-b border-slate-50"
+              onPress={handleTrashAction}
+            >
+              <Trash2
+                size={20}
+                color={note?.deletedAt ? "#3b82f6" : "#ef4444"}
+              />
+              <Text
+                className={`text-base ml-3 ${
+                  note?.deletedAt ? "text-blue-500" : "text-red-500"
+                }`}
+              >
+                {note?.deletedAt ? "Restore from Trash" : "Move to Trash"}
+              </Text>
+            </TouchableOpacity>
+
+            {note?.deletedAt && (
+              <TouchableOpacity
+                className="flex-row items-center px-5 py-4"
+                onPress={handlePermanentDelete}
+              >
+                <X size={20} color="#ef4444" />
+                <Text className="text-base text-red-500 ml-3">
+                  Permanently Delete
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
         </BottomSheetView>
       </BottomSheetModal>
     </SafeAreaView>
