@@ -19,7 +19,7 @@ import {
 export const useNotes = (query: NoteQuery) => {
   const api = useApi();
   return useQuery({
-    queryKey: ["notes", query],
+    queryKey: ["notes", "list", query],
     queryFn: () => listNotes(api, query),
     placeholderData: (prev) => prev,
   });
@@ -34,7 +34,7 @@ export const useNote = (
 ) => {
   const api = useApi();
   return useQuery({
-    queryKey: ["notes", id],
+    queryKey: ["notes", "detail", id],
     queryFn: () => (id ? getNote(api, id) : Promise.reject("No ID provided")),
     enabled: options.enabled !== undefined ? options.enabled && !!id : !!id,
   });
@@ -51,7 +51,7 @@ export const useCreateNote = () => {
     mutationFn: (params: NoteCreateRequest) => createNote(api, params),
     onSuccess: () => {
       // ノート作成成功時に一覧を再取得
-      queryClient.invalidateQueries({ queryKey: ["notes"] });
+      queryClient.invalidateQueries({ queryKey: ["notes", "list"] });
       queryClient.invalidateQueries({ queryKey: ["tags"] });
     },
   });
@@ -69,8 +69,8 @@ export const useUpdateNote = () => {
       updateNote(api, id, data),
     onSuccess: (data) => {
       // ノート更新成功時に一覧と該当ノートのキャッシュを更新
-      queryClient.invalidateQueries({ queryKey: ["notes"] });
-      queryClient.setQueryData(["notes", data.id], data);
+      queryClient.invalidateQueries({ queryKey: ["notes", "list"] });
+      queryClient.setQueryData(["notes", "detail", data.id], data);
       queryClient.invalidateQueries({ queryKey: ["tags"] });
     },
   });
@@ -87,8 +87,8 @@ export const useDeleteNote = () => {
     mutationFn: (id: string) =>
       updateNote(api, id, { deletedAt: new Date().toISOString() }),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["notes"] });
-      queryClient.setQueryData(["notes", data.id], data);
+      queryClient.invalidateQueries({ queryKey: ["notes", "list"] });
+      queryClient.setQueryData(["notes", "detail", data.id], data);
     },
   });
 };
@@ -103,8 +103,8 @@ export const useRestoreNote = () => {
   return useMutation({
     mutationFn: (id: string) => updateNote(api, id, { deletedAt: null }),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["notes"] });
-      queryClient.setQueryData(["notes", data.id], data);
+      queryClient.invalidateQueries({ queryKey: ["notes", "list"] });
+      queryClient.setQueryData(["notes", "detail", data.id], data);
     },
   });
 };
@@ -119,9 +119,9 @@ export const usePermanentDelete = () => {
   return useMutation({
     mutationFn: (id: string) => deleteNote(api, id),
     onSuccess: (_, id) => {
-      // 削除成功時に一覧を再取得し、個別キャッシュを削除
-      queryClient.invalidateQueries({ queryKey: ["notes"] });
-      queryClient.removeQueries({ queryKey: ["notes", id] });
+      // 削除成功時に一覧を再取得し、個別キャッシュを削除して再取得を防止
+      queryClient.invalidateQueries({ queryKey: ["notes", "list"] });
+      queryClient.removeQueries({ queryKey: ["notes", "detail", id] });
     },
   });
 };

@@ -1,27 +1,40 @@
+import { useNotes, useTags } from "api-client/hooks";
+import { NOTE_SCOPE } from "common/constraints";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Menu, NotebookPen, Search } from "lucide-react-native";
 import { useRef, useState } from "react";
 import {
   Animated,
   FlatList,
+  RefreshControl,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useNoteStore } from "../";
 import { DRAWER_WIDTH, NoteDrawer } from "./NoteDrawer";
 import { NoteListItem } from "./NoteListItem";
 
 export function NotesIndexScreen() {
   const router = useRouter();
-  const { scope, tag } = useLocalSearchParams<{
+  const { scope = NOTE_SCOPE.ALL, tag } = useLocalSearchParams<{
     scope?: string;
     tag?: string;
   }>();
 
-  const { notes, tags } = useNoteStore();
+  // API からノート一覧とタグ一覧を取得
+  const {
+    data: notes = [],
+    isLoading: isNotesLoading,
+    refetch: refetchNotes,
+  } = useNotes({
+    scope: scope as import("common/constraints").NoteScope,
+    tag,
+  });
+  const { data: apiTags = [] } = useTags();
+  const tags = apiTags.map((t) => t.name);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const slideAnim = useRef(new Animated.Value(-DRAWER_WIDTH)).current;
@@ -40,27 +53,18 @@ export function NotesIndexScreen() {
   };
 
   const filteredNotes = notes.filter((note) => {
-    // Search query filter
-    const matchesSearch =
-      note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      note.content.toLowerCase().includes(searchQuery.toLowerCase());
+    // 検索クエリによるフィルタリング（API が未対応のためローカルで実施）
+    const matchesSearch = note.content
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
 
-    if (!matchesSearch) return false;
-
-    // Scope/Tag filter
-    if (scope === "trash") return note.isTrash;
-    if (note.isTrash && scope !== "trash") return false; // Hide trash by default
-
-    if (scope === "untagged") return note.tags.length === 0;
-    if (tag) return note.tags.includes(tag);
-
-    return true;
+    return matchesSearch;
   });
 
   const getHeaderTitle = () => {
     if (tag) return tag;
-    if (scope === "trash") return "Trash";
-    if (scope === "untagged") return "Untagged";
+    if (scope === NOTE_SCOPE.TRASH) return "Trash";
+    if (scope === NOTE_SCOPE.UNTAGGED) return "Untagged";
     return "All Notes";
   };
 
@@ -134,13 +138,21 @@ export function NotesIndexScreen() {
         )}
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ paddingBottom: 20 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={isNotesLoading}
+            onRefresh={refetchNotes}
+          />
+        }
         ListEmptyComponent={
-          <View className="flex-1 items-center justify-center p-10 mt-20">
-            <View className="w-16 h-16 bg-slate-50 items-center justify-center rounded-full mb-4">
-              <Search size={24} color="#cbd5e1" />
+          !isNotesLoading ? (
+            <View className="flex-1 items-center justify-center p-10 mt-20">
+              <View className="w-16 h-16 bg-slate-50 items-center justify-center rounded-full mb-4">
+                <Search size={24} color="#cbd5e1" />
+              </View>
+              <Text className="text-slate-400 font-medium">No notes found</Text>
             </View>
-            <Text className="text-slate-400 font-medium">No notes found</Text>
-          </View>
+          ) : null
         }
       />
     </SafeAreaView>

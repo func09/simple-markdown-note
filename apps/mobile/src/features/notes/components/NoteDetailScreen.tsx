@@ -4,6 +4,14 @@ import {
   BottomSheetModal,
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
+import {
+  useCreateNote,
+  useDeleteNote,
+  useNote,
+  usePermanentDelete,
+  useRestoreNote,
+  useUpdateNote,
+} from "api-client/hooks";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   ChevronLeft,
@@ -18,6 +26,7 @@ import {
 } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+  Alert,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -28,7 +37,6 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useNoteStore } from "../";
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
@@ -37,8 +45,20 @@ function formatDate(dateString: string): string {
 
 export function NoteDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const isNew = id === "new";
   const router = useRouter();
-  const { notes, addNote, updateNote, toggleTrash } = useNoteStore();
+
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // API Hooks
+  const { data: note, isLoading } = useNote(isNew ? null : id, {
+    enabled: !isDeleting,
+  });
+  const createNoteMutation = useCreateNote();
+  const updateNoteMutation = useUpdateNote();
+  const deleteNoteMutation = useDeleteNote();
+  const restoreNoteMutation = useRestoreNote();
+  const permanentDeleteMutation = usePermanentDelete();
 
   const [content, setContent] = useState("");
   const [isPreview, setIsPreview] = useState(false);
@@ -47,9 +67,8 @@ export function NoteDetailScreen() {
   const inputRef = useRef<TextInput>(null);
   const infoSheetRef = useRef<BottomSheetModal>(null);
 
-  const note = useMemo(() => notes.find((n) => n.id === id), [id, notes]);
-
-  const initialized = useRef<string | null>(null);
+  const initializedId = useRef<string | null>(null);
+  const currentNoteId = useRef<string | null>(isNew ? null : id);
 
   const wordCount = useMemo(() => {
     return content.trim() ? content.trim().split(/\s+/).length : 0;
@@ -57,53 +76,74 @@ export function NoteDetailScreen() {
 
   const charCount = useMemo(() => content.length, [content]);
 
-  // Handle Initial Load only
+  // Handle Initial Load and external data updates
   useEffect(() => {
-    if (initialized.current !== id) {
-      if (note) {
-        setContent(note.content);
-        setTags(note.tags);
-      } else if (id === "new") {
+    if (isNew) {
+      if (initializedId.current !== "new") {
         setContent("");
         setTags([]);
+        initializedId.current = "new";
       }
-      initialized.current = id ?? null;
+    } else if (note && initializedId.current !== note.id) {
+      setContent(note.content);
+      setTags(note.tags.map((t) => t.name));
+      initializedId.current = note.id;
+      currentNoteId.current = note.id;
     }
-  }, [id, note]); // note is fine here for initial load as we check initialized.current
+  }, [isNew, note]);
 
-  // Debounced Auto-save to avoid infinite loop and excessive updates
+  // Debounced Auto-save
   useEffect(() => {
-    if (initialized.current !== id) return; // Wait for initial load
+    if (isLoading) return;
+    if (!content.trim() && isNew) return;
 
-    const timer = setTimeout(() => {
-      if (id === "new") {
-        if (content.trim()) {
-          const title = content.split("\n")[0].substring(0, 30) || "Untitled";
-          addNote({
-            title,
+    const timer = setTimeout(async () => {
+      const activeId = currentNoteId.current;
+
+      if (isNew && !activeId) {
+        // Create new note
+        try {
+          const result = await createNoteMutation.mutateAsync({
             content,
             tags,
-            isTrash: false,
+            isPermanent: false,
+          });
+          currentNoteId.current = result.id;
+          // Update URL to the new ID without push to avoid back-button issues if possible
+          // But router.setParams might work best here
+          router.setParams({ id: result.id });
+          initializedId.current = result.id;
+        } catch (error) {
+          console.error("Failed to create note:", error);
+        }
+      } else if (activeId) {
+        // Update existing note
+        // Only update if content or tags actually changed compared to the last fetched note
+        if (
+          note &&
+          (content !== note.content ||
+            JSON.stringify(tags) !==
+              JSON.stringify(note.tags.map((t) => t.name)))
+        ) {
+          updateNoteMutation.mutate({
+            id: activeId,
+            data: { content, tags },
           });
         }
-      } else {
-        // Use getState to get current store values without causing re-renders
-        const currentNote = useNoteStore
-          .getState()
-          .notes.find((n) => n.id === id);
-        if (
-          currentNote &&
-          (content !== currentNote.content ||
-            JSON.stringify(tags) !== JSON.stringify(currentNote.tags))
-        ) {
-          const title = content.split("\n")[0].substring(0, 30) || "Untitled";
-          updateNote(currentNote.id, { content, title, tags });
-        }
       }
-    }, 500); // 500ms debounce
+    }, 1000); // 1s debounce for API calls
 
     return () => clearTimeout(timer);
-  }, [content, tags, id, addNote, updateNote]); // Now linter is happy (no 'note' dependency needed)
+  }, [
+    content,
+    tags,
+    isNew,
+    note,
+    isLoading,
+    createNoteMutation,
+    updateNoteMutation,
+    router,
+  ]);
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
@@ -131,9 +171,38 @@ export function NoteDetailScreen() {
   };
 
   const handleGoBack = () => {
-    // If it's a new empty note, don't save or handle accordingly
-    // Our existing useEffect handles saving
     router.back();
+  };
+
+  const handleTrashAction = async () => {
+    if (!currentNoteId.current) return;
+
+    setIsDeleting(true);
+    try {
+      if (note?.deletedAt) {
+        await restoreNoteMutation.mutateAsync(currentNoteId.current);
+      } else {
+        await deleteNoteMutation.mutateAsync(currentNoteId.current);
+      }
+      infoSheetRef.current?.dismiss();
+      setTimeout(() => router.back(), 250);
+    } catch (error) {
+      setIsDeleting(false);
+      console.error("Failed to toggle trash:", error);
+    }
+  };
+
+  const handlePermanentDelete = async () => {
+    if (!currentNoteId.current) return;
+    setIsDeleting(true);
+    try {
+      await permanentDeleteMutation.mutateAsync(currentNoteId.current);
+      infoSheetRef.current?.dismiss();
+      setTimeout(() => router.back(), 250);
+    } catch (error) {
+      setIsDeleting(false);
+      console.error("Failed to permanently delete note:", error);
+    }
   };
 
   const renderBackdrop = useCallback(
@@ -220,7 +289,7 @@ export function NoteDetailScreen() {
               style={{ textAlignVertical: "top" }}
               value={content}
               onChangeText={setContent}
-              autoFocus={id === "new"}
+              autoFocus={isNew}
             />
           )}
         </ScrollView>
@@ -250,7 +319,27 @@ export function NoteDetailScreen() {
                   </TouchableOpacity>
                 </View>
               ))}
-              <TouchableOpacity className="px-3 py-1.5 border border-dashed border-slate-300 rounded-full">
+              <TouchableOpacity
+                className="px-3 py-1.5 border border-dashed border-slate-300 rounded-full"
+                onPress={() => {
+                  if (Platform.OS === "ios") {
+                    Alert.prompt(
+                      "Add Tag",
+                      "Enter a name for the new tag",
+                      (text) => {
+                        if (text.trim() && !tags.includes(text.trim())) {
+                          setTags([...tags, text.trim()]);
+                        }
+                      }
+                    );
+                  } else {
+                    Alert.alert(
+                      "Pending",
+                      "Tag input for Android is currently pending."
+                    );
+                  }
+                }}
+              >
                 <Text className="text-xs font-medium text-slate-400">
                   + Add Tag
                 </Text>
@@ -299,21 +388,36 @@ export function NoteDetailScreen() {
           </View>
 
           {/* Actions */}
-          <TouchableOpacity
-            className="flex-row items-center px-5 py-4 mb-6"
-            onPress={() => {
-              if (note) {
-                toggleTrash(note.id);
-                infoSheetRef.current?.dismiss();
-                setTimeout(() => router.back(), 250);
-              }
-            }}
-          >
-            <Trash2 size={20} color="#ef4444" />
-            <Text className="text-base text-red-500 ml-3">
-              {note?.isTrash ? "Restore from Trash" : "Move to Trash"}
-            </Text>
-          </TouchableOpacity>
+          <View className="mb-6">
+            <TouchableOpacity
+              className="flex-row items-center px-5 py-4 border-b border-slate-50"
+              onPress={handleTrashAction}
+            >
+              <Trash2
+                size={20}
+                color={note?.deletedAt ? "#3b82f6" : "#ef4444"}
+              />
+              <Text
+                className={`text-base ml-3 ${
+                  note?.deletedAt ? "text-blue-500" : "text-red-500"
+                }`}
+              >
+                {note?.deletedAt ? "Restore from Trash" : "Move to Trash"}
+              </Text>
+            </TouchableOpacity>
+
+            {note?.deletedAt && (
+              <TouchableOpacity
+                className="flex-row items-center px-5 py-4"
+                onPress={handlePermanentDelete}
+              >
+                <X size={20} color="#ef4444" />
+                <Text className="text-base text-red-500 ml-3">
+                  Permanently Delete
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
         </BottomSheetView>
       </BottomSheetModal>
     </SafeAreaView>

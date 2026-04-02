@@ -1,4 +1,4 @@
-import { useLogin } from "api-client";
+import { useLogin } from "api-client/hooks";
 import { Link, useRouter } from "expo-router";
 import { AlertCircle, Lock, LogIn, Mail } from "lucide-react-native";
 import { useState } from "react";
@@ -26,7 +26,7 @@ export function LoginScreen() {
     error,
   } = useLogin({
     onSuccess: (data) => {
-      setAuth(data.user);
+      setAuth(data.user, data.token);
       router.replace("/(main)/notes");
     },
   });
