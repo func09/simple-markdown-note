@@ -24,7 +24,9 @@
     "react": "^19.0.0"
   },
   "dependencies": {
-    "hono": "^4.12.9"
+    "hono": "^4.12.9",
+    "@hono/zod-openapi": "^0.18.4",
+    "zod": "^4.1.13"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260329.1",
@@ -34,6 +36,7 @@
     "@types/react": "^19.0.0",
     "@vitejs/plugin-react": "^4.7.0",
     "api": "workspace:*",
+    "database": "workspace:*",
     "jsdom": "^25.0.1",
     "tsx": "^4.21.0",
     "vite-tsconfig-paths": "^6.1.1",
