@@ -56,5 +56,4 @@ app.doc("/doc", {
 // Swagger UI の設定
 app.get("/ui", swaggerUI({ url: "/doc" }));
 
-export type AppType = typeof apiRouter;
 export default app;

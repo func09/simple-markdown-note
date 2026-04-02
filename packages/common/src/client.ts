@@ -1,4 +1,4 @@
-import type { AppType } from "api"; // Honoの型
+import type { AppType } from "api/types"; // Honoの型
 import { hc } from "hono/client";
 
 // 接続設定を引数で受け取れるようにする
