@@ -1,10 +1,10 @@
-import type { ApiClient } from "../client";
 import type {
   AuthResponse,
   MeResponse,
   SigninRequest,
   SignupRequest,
-} from "../schemas";
+} from "common/schemas";
+import type { ApiClient } from "../client";
 
 /**
  * ログインを実行する

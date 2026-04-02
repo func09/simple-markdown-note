@@ -14,7 +14,9 @@
     "paths": {
       "@/*": ["./src/*"],
       "common": ["../../packages/common/src/index.ts"],
-      "common/*": ["../../packages/common/src/*"]
+      "common/*": ["../../packages/common/src/*"],
+      "api-client": ["../../packages/api-client/src/index.ts"],
+      "api-client/*": ["../../packages/api-client/src/*"]
     }
   },
   "include": [
