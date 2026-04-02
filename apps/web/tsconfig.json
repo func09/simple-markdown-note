@@ -13,8 +13,6 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
-      "api": ["../api/src/index.ts"],
-      "api/*": ["../api/src/*"],
       "common": ["../../packages/common/src/index.ts"],
       "common/*": ["../../packages/common/src/*"]
     }
