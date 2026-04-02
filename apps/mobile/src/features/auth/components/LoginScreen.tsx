@@ -10,15 +10,19 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useAuthStore } from "../";
 
 export function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
+  const { setAuth } = useAuthStore();
 
   const handleLogin = () => {
     // API integration not implemented, dummy login process
     console.log("Login with:", email, password);
+    // Real store update
+    setAuth(email, "dummy-token");
     // If successful, navigate to main screen (currently simulating direct transition to /notes)
     router.replace("/(main)/notes");
   };

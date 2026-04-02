@@ -28,56 +28,28 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useNoteStore } from "../";
 
-// Mock Data (Synced with index)
-const MOCK_NOTES: Record<
-  string,
-  { title: string; content: string; createdAt: Date; updatedAt: Date }
-> = {
-  "1": {
-    title: "Shopping List",
-    content: "# Shopping List\n\nMilk, eggs, bread, apples, bananas, please.",
-    createdAt: new Date("2026-03-20T10:00:00"),
-    updatedAt: new Date("2026-03-28T14:30:00"),
-  },
-  "2": {
-    title: "Project Ideas",
-    content:
-      "# Project Ideas\n\nProposal for a new web service. Using React, Next.js, and Tailwind.",
-    createdAt: new Date("2026-03-15T09:00:00"),
-    updatedAt: new Date("2026-03-29T11:00:00"),
-  },
-  "3": {
-    title: "Diary",
-    content:
-      "# Diary\n\nThe weather was nice today, so I took a walk in the park. The cherry blossoms were beautiful.",
-    createdAt: new Date("2026-03-26T01:15:00"),
-    updatedAt: new Date("2026-04-01T01:56:00"),
-  },
-  "4": {
-    title: "Meeting Notes",
-    content:
-      "# Meeting Notes\n\nConfirmation of the agenda for the next meeting. Discussing budget allocation.",
-    createdAt: new Date("2026-03-22T08:00:00"),
-    updatedAt: new Date("2026-03-30T16:00:00"),
-  },
-};
-
-function formatDate(date: Date): string {
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
   return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, "0")}/${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
 }
 
 export function NoteDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const { notes, addNote, updateNote, toggleTrash } = useNoteStore();
+
   const [content, setContent] = useState("");
   const [isPreview, setIsPreview] = useState(false);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-  const [tags, setTags] = useState<string[]>(["Project", "React"]);
+  const [tags, setTags] = useState<string[]>([]);
   const inputRef = useRef<TextInput>(null);
   const infoSheetRef = useRef<BottomSheetModal>(null);
 
-  const note = typeof id === "string" ? MOCK_NOTES[id] : undefined;
+  const note = useMemo(() => notes.find((n) => n.id === id), [id, notes]);
+
+  const initialized = useRef<string | null>(null);
 
   const wordCount = useMemo(() => {
     return content.trim() ? content.trim().split(/\s+/).length : 0;
@@ -85,13 +57,53 @@ export function NoteDetailScreen() {
 
   const charCount = useMemo(() => content.length, [content]);
 
+  // Handle Initial Load only
   useEffect(() => {
-    if (note) {
-      setContent(note.content);
-    } else if (id === "new") {
-      setContent("");
+    if (initialized.current !== id) {
+      if (note) {
+        setContent(note.content);
+        setTags(note.tags);
+      } else if (id === "new") {
+        setContent("");
+        setTags([]);
+      }
+      initialized.current = id ?? null;
     }
-  }, [id, note]);
+  }, [id, note]); // note is fine here for initial load as we check initialized.current
+
+  // Debounced Auto-save to avoid infinite loop and excessive updates
+  useEffect(() => {
+    if (initialized.current !== id) return; // Wait for initial load
+
+    const timer = setTimeout(() => {
+      if (id === "new") {
+        if (content.trim()) {
+          const title = content.split("\n")[0].substring(0, 30) || "Untitled";
+          addNote({
+            title,
+            content,
+            tags,
+            isTrash: false,
+          });
+        }
+      } else {
+        // Use getState to get current store values without causing re-renders
+        const currentNote = useNoteStore
+          .getState()
+          .notes.find((n) => n.id === id);
+        if (
+          currentNote &&
+          (content !== currentNote.content ||
+            JSON.stringify(tags) !== JSON.stringify(currentNote.tags))
+        ) {
+          const title = content.split("\n")[0].substring(0, 30) || "Untitled";
+          updateNote(currentNote.id, { content, title, tags });
+        }
+      }
+    }, 500); // 500ms debounce
+
+    return () => clearTimeout(timer);
+  }, [content, tags, id, addNote, updateNote]); // Now linter is happy (no 'note' dependency needed)
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
@@ -118,6 +130,12 @@ export function NoteDetailScreen() {
     }
   };
 
+  const handleGoBack = () => {
+    // If it's a new empty note, don't save or handle accordingly
+    // Our existing useEffect handles saving
+    router.back();
+  };
+
   const renderBackdrop = useCallback(
     (props: BottomSheetBackdropProps) => (
       <BottomSheetBackdrop
@@ -135,7 +153,7 @@ export function NoteDetailScreen() {
       {/* Custom Header */}
       <View className="flex-row items-center justify-between px-4 py-2 border-b border-slate-100 bg-white z-10">
         <TouchableOpacity
-          onPress={() => router.back()}
+          onPress={handleGoBack}
           className="flex-row items-center p-2 -ml-2"
         >
           <ChevronLeft size={24} color="#0f172a" />
@@ -260,9 +278,12 @@ export function NoteDetailScreen() {
                   </Text>
                 </View>
                 <View className="flex-row justify-between items-center px-5 py-4 border-b border-slate-100">
-                  <Text className="text-base text-slate-800">Created at</Text>
-                  <Text className="text-base text-slate-400">
-                    {formatDate(note.createdAt)}
+                  <Text className="text-base text-slate-800">Note ID</Text>
+                  <Text
+                    className="text-base text-slate-400 truncate ml-4"
+                    numberOfLines={1}
+                  >
+                    {note.id}
                   </Text>
                 </View>
               </>
@@ -281,12 +302,17 @@ export function NoteDetailScreen() {
           <TouchableOpacity
             className="flex-row items-center px-5 py-4 mb-6"
             onPress={() => {
-              infoSheetRef.current?.dismiss();
-              setTimeout(() => router.back(), 250);
+              if (note) {
+                toggleTrash(note.id);
+                infoSheetRef.current?.dismiss();
+                setTimeout(() => router.back(), 250);
+              }
             }}
           >
             <Trash2 size={20} color="#ef4444" />
-            <Text className="text-base text-red-500 ml-3">Move to Trash</Text>
+            <Text className="text-base text-red-500 ml-3">
+              {note?.isTrash ? "Restore from Trash" : "Move to Trash"}
+            </Text>
           </TouchableOpacity>
         </BottomSheetView>
       </BottomSheetModal>
