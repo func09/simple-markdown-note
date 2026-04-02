@@ -1,7 +1,6 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "types": ["node", "@cloudflare/workers-types"],
     "jsx": "react-jsx",
