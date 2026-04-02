@@ -11,7 +11,7 @@ import {
   usePermanentDelete,
   useRestoreNote,
   useUpdateNote,
-} from "common/queries";
+} from "common/hooks";
 import {
   ChevronLeft,
   Edit3,

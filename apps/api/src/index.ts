@@ -18,8 +18,6 @@ import {
 } from "./middlewares";
 import { apiRouter } from "./routes";
 
-export * from "./schema";
-
 // エラーハンドラー (JSONレスポンス)
 app.onError((err, c) => {
   if (err instanceof HTTPException) {

@@ -1,9 +1,6 @@
 import { createRoute } from "@hono/zod-openapi";
-import {
-  TagCreateRequestSchema,
-  TagListResponseSchema,
-  TagSchema,
-} from "../schema";
+import { TagSchema } from "common/models";
+import { TagCreateRequestSchema, TagListResponseSchema } from "common/schemas";
 
 /** GET / — タグ一覧取得ルート定義 */
 export const tagsListRoute = createRoute({

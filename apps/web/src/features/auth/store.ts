@@ -1,4 +1,4 @@
-import type { MeResponse } from "api/schema";
+import type { MeResponse } from "common/schemas";
 import { create } from "zustand";
 
 /**

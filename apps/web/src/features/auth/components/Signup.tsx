@@ -1,6 +1,6 @@
 "use client";
 
-import { useSignup } from "common/queries";
+import { useSignup } from "common/hooks";
 import {
   AlertCircle,
   ArrowRight,

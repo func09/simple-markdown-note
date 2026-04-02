@@ -1,4 +1,4 @@
-import type { NoteScope } from "api/schema";
+import type { NoteScope } from "common/schemas";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 
