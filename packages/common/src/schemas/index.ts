@@ -1,3 +1,3 @@
-export * from "./auth";
-export * from "./note";
-export * from "./tag";
+export * from "./authSchemas";
+export * from "./noteSchemas";
+export * from "./tagSchemas";

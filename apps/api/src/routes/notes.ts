@@ -1,5 +1,12 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { NoteSchema } from "common/models";
+import {
+  createNoteRoute,
+  deleteNoteRoute,
+  getNoteRoute,
+  listNotesRoute,
+  updateNoteRoute,
+} from "common/routes";
 import { NoteListResponseSchema } from "common/schemas";
 import { HTTPException } from "hono/http-exception";
 import {
@@ -10,13 +17,6 @@ import {
   updateNote,
 } from "../services/noteService";
 import type { AppEnv } from "../types";
-import {
-  createNoteRoute,
-  deleteNoteRoute,
-  getNoteRoute,
-  listNotesRoute,
-  updateNoteRoute,
-} from "./notes.schema";
 
 /**
  * ノート関連のルーター
