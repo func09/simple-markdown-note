@@ -1,6 +1,6 @@
 "use client";
 
-import { useLogin } from "common/queries";
+import { useLogin } from "api-client/hooks";
 import {
   AlertCircle,
   ArrowRight,

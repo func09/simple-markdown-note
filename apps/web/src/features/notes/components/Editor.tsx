@@ -11,7 +11,7 @@ import {
   usePermanentDelete,
   useRestoreNote,
   useUpdateNote,
-} from "common/queries";
+} from "api-client/hooks";
 import {
   ChevronLeft,
   Edit3,

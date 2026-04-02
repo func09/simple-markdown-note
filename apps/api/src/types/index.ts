@@ -1,4 +1,5 @@
 import type { DrizzleDB } from "database";
+import type { apiRouter } from "../routes";
 
 // アプリケーション共通の環境変数型定義
 export type AppEnv = {
@@ -11,3 +12,5 @@ export type AppEnv = {
     db: DrizzleDB;
   };
 };
+
+export type AppType = typeof apiRouter;

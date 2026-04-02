@@ -1,6 +1,7 @@
+import { NOTE_SCOPE } from "common/constraints";
 import { beforeEach, describe, expect, it } from "vitest";
 import { db } from "../index";
-import { NOTE_SCOPE, notes, notesToTags, tags, users } from "../schema";
+import { notes, notesToTags, tags, users } from "../schema";
 import { createNoteRepository } from "./note";
 import { createTagRepository } from "./tag";
 import { createUserRepository } from "./user";
