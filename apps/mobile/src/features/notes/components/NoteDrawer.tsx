@@ -1,4 +1,9 @@
-import { NotebookPen, Tag as TagIcon, Trash2 } from "lucide-react-native";
+import {
+  LogOut,
+  NotebookPen,
+  Tag as TagIcon,
+  Trash2,
+} from "lucide-react-native";
 import {
   Animated,
   Dimensions,
@@ -8,6 +13,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useAuthStore } from "../../auth/store";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 export const DRAWER_WIDTH = SCREEN_WIDTH * 0.8;
@@ -33,7 +39,14 @@ export function NoteDrawer({
   onSelectTag,
   tags,
 }: NoteDrawerProps) {
+  const clearAuth = useAuthStore((state) => state.clearAuth);
+
   if (!isOpen) return null;
+
+  const handleLogout = () => {
+    onClose();
+    clearAuth();
+  };
 
   return (
     <>
@@ -149,6 +162,16 @@ export function NoteDrawer({
                   }`}
                 >
                   Untagged Notes...
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={handleLogout}
+                className="flex-row items-center px-4 py-3 rounded-xl mt-1"
+              >
+                <LogOut size={18} color="#ef4444" />
+                <Text className="ml-4 text-sm font-medium text-red-500">
+                  Log Out
                 </Text>
               </TouchableOpacity>
             </View>
