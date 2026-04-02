@@ -1,37 +1,53 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import type { MeResponse } from "common";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-type User = {
-  id: string;
-  email: string;
-};
-
+/**
+ * 認証状態の型定義
+ */
 interface AuthState {
-  user: User | null;
-  token: string | null;
+  /** ユーザー情報 */
+  user: MeResponse | null;
+  /** 認証済みかどうか */
   isAuthenticated: boolean;
-  setAuth: (email: string, token: string) => void;
-  clearAuth: () => void;
+  /** ストアが永続化ストレージから復元されたか */
+  _hasHydrated: boolean;
 }
 
-export const useAuthStore = create<AuthState>()(
+/**
+ * 認証アクションの型定義
+ */
+interface AuthActions {
+  /** 認証情報をセットする */
+  setAuth: (user: MeResponse) => void;
+  /** 認証情報をクリアする */
+  clearAuth: () => void;
+  /** ハイドレーション状態をセットする */
+  setHasHydrated: (state: boolean) => void;
+}
+
+/**
+ * 認証状態を管理するグローバルストア（Zustand + Persistence）
+ */
+export const useAuthStore = create<AuthState & AuthActions>()(
   persist(
     (set) => ({
       user: null,
-      token: null,
       isAuthenticated: false,
-      setAuth: (email, token) =>
-        set({
-          user: { id: Math.random().toString(36).substring(2, 11), email },
-          token,
-          isAuthenticated: true,
-        }),
-      clearAuth: () => set({ user: null, token: null, isAuthenticated: false }),
+      _hasHydrated: false,
+      setAuth: (user) => set({ user, isAuthenticated: true }),
+      clearAuth: () => set({ user: null, isAuthenticated: false }),
+      setHasHydrated: (state) => set({ _hasHydrated: state }),
     }),
     {
       name: "auth-storage",
       storage: createJSONStorage(() => AsyncStorage),
+      onRehydrateStorage: (state) => {
+        return () => {
+          state?.setHasHydrated(true);
+        };
+      },
     }
   )
 );

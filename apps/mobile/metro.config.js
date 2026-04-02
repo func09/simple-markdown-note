@@ -14,7 +14,6 @@ config.watchFolders = [workspaceRoot];
 // モバイル以外のアプリディレクトリの変更でリロードされないよう除外
 const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 config.resolver.blockList = [
-  new RegExp(`^${escapeRegExp(path.resolve(workspaceRoot, "apps/api"))}/.*`),
   new RegExp(`^${escapeRegExp(path.resolve(workspaceRoot, "apps/web"))}/.*`),
   new RegExp(
     `^${escapeRegExp(path.resolve(workspaceRoot, "apps/desktop"))}/.*`
