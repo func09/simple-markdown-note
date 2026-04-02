@@ -1,6 +1,6 @@
 "use client";
 
-import { useLogout, useTags } from "common/queries";
+import { useLogout, useTags } from "api-client/hooks";
 import { FileText, Hash, LogOut, Trash2 } from "lucide-react";
 import Link from "next/link";
 import type { ElementType } from "react";

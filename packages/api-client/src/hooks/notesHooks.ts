@@ -3,7 +3,7 @@ import type {
   NoteCreateRequest,
   NoteQuery,
   NoteUpdateRequest,
-} from "api/schema";
+} from "common/schemas";
 import { useApi } from "../context";
 import {
   createNote,

@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "types": ["node", "@cloudflare/workers-types"],
+    "jsx": "react-jsx",
+    "paths": {
+      "@/*": ["./src/*"],
+      "api": ["../../apps/api/src/index.ts"],
+      "api/*": ["../../apps/api/src/*"]
+    }
+  },
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
+}

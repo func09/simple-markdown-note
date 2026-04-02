@@ -1,4 +1,4 @@
-import type { TagListResponse } from "api/schema";
+import type { TagListResponse } from "common/schemas";
 import type { ApiClient } from "../client";
 
 /**

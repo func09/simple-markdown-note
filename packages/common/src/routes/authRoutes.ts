@@ -4,7 +4,7 @@ import {
   MeResponseSchema,
   SigninRequestSchema,
   SignupRequestSchema,
-} from "../schema";
+} from "../schemas";
 
 /** POST /signup — ユーザー登録ルート定義 */
 export const signupRoute = createRoute({
