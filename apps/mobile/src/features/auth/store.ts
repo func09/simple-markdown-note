@@ -9,6 +9,8 @@ import { createJSONStorage, persist } from "zustand/middleware";
 interface AuthState {
   /** ユーザー情報 */
   user: MeResponse | null;
+  /** JWTトークン */
+  token: string | null;
   /** 認証済みかどうか */
   isAuthenticated: boolean;
   /** ストアが永続化ストレージから復元されたか */
@@ -20,7 +22,7 @@ interface AuthState {
  */
 interface AuthActions {
   /** 認証情報をセットする */
-  setAuth: (user: MeResponse) => void;
+  setAuth: (user: MeResponse, token: string) => void;
   /** 認証情報をクリアする */
   clearAuth: () => void;
   /** ハイドレーション状態をセットする */
@@ -34,10 +36,11 @@ export const useAuthStore = create<AuthState & AuthActions>()(
   persist(
     (set) => ({
       user: null,
+      token: null,
       isAuthenticated: false,
       _hasHydrated: false,
-      setAuth: (user) => set({ user, isAuthenticated: true }),
-      clearAuth: () => set({ user: null, isAuthenticated: false }),
+      setAuth: (user, token) => set({ user, token, isAuthenticated: true }),
+      clearAuth: () => set({ user: null, token: null, isAuthenticated: false }),
       setHasHydrated: (state) => set({ _hasHydrated: state }),
     }),
     {

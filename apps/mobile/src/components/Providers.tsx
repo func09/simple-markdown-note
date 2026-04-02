@@ -3,6 +3,7 @@ import { ApiProvider, createApiClient } from "api-client";
 import Constants from "expo-constants";
 import type { ReactNode } from "react";
 import { Platform } from "react-native";
+import { useAuthStore } from "../features/auth/store";
 
 // 開発環境ではマシンのIPアドレス、それ以外は環境変数から取得
 const getBaseUrl = () => {
@@ -22,7 +23,16 @@ const getBaseUrl = () => {
   return process.env.EXPO_PUBLIC_API_URL || "https://api.example.com/api";
 };
 
-const apiClient = createApiClient(getBaseUrl());
+const apiClient = createApiClient(getBaseUrl(), {
+  headers: () => {
+    const token = useAuthStore.getState().token;
+    const headers: Record<string, string> = {};
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+    return headers;
+  },
+});
 
 const queryClient = new QueryClient({
   defaultOptions: {

@@ -1,5 +1,5 @@
+import type { Note } from "common/models";
 import { Pressable, Text, View } from "react-native";
-import type { Note } from "../types";
 
 type NoteListItemProps = {
   item: Note;
@@ -7,6 +7,22 @@ type NoteListItemProps = {
 };
 
 export function NoteListItem({ item, onPress }: NoteListItemProps) {
+  // 本文の1行目をタイトル、残りをサマリーとして抽出
+  const lines = item.content.trim().split("\n");
+  const title = lines[0] || "New Note";
+  const summary =
+    lines.slice(1).join(" ").trim() ||
+    (item.content.length > title.length
+      ? item.content.slice(title.length).trim()
+      : "No additional content");
+
+  // 日付の簡易フォーマット
+  const date = new Date(item.updatedAt);
+  const formattedDate = date.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+  });
+
   return (
     <Pressable
       onPress={() => onPress(item.id)}
@@ -17,17 +33,17 @@ export function NoteListItem({ item, onPress }: NoteListItemProps) {
           className="text-base font-semibold text-slate-900 flex-1 mr-2"
           numberOfLines={1}
         >
-          {item.title}
+          {title}
         </Text>
         <Text className="text-[11px] font-bold text-slate-400 uppercase">
-          {item.updatedAt}
+          {formattedDate}
         </Text>
       </View>
       <Text
         className="text-sm text-slate-500 leading-relaxed"
         numberOfLines={2}
       >
-        {item.content}
+        {summary}
       </Text>
     </Pressable>
   );
