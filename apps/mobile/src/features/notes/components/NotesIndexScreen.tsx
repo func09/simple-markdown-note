@@ -1,9 +1,12 @@
+import { useNotes, useTags } from "api-client/hooks";
+import { NOTE_SCOPE } from "common/constraints";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Menu, NotebookPen, Search } from "lucide-react-native";
 import { useRef, useState } from "react";
 import {
   Animated,
   FlatList,
+  RefreshControl,
   Text,
   TextInput,
   TouchableOpacity,
@@ -11,57 +14,26 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { DRAWER_WIDTH, NoteDrawer } from "./NoteDrawer";
-import type { Note } from "./NoteListItem";
 import { NoteListItem } from "./NoteListItem";
-
-// Mock Data
-const MOCK_NOTES: Note[] = [
-  {
-    id: "1",
-    title: "Shopping List",
-    content:
-      "Milk, eggs, bread, apples, bananas, please. Also, don't forget to buy chicken and cabbage for dinner. We also need cereal for tomorrow breakfast.",
-    updatedAt: "10:30",
-    tags: ["Free"],
-    isTrash: false,
-  },
-  {
-    id: "2",
-    title: "Project Ideas",
-    content:
-      "Proposal for a new web service. Using React, Next.js, and Tailwind, with Expo Router for the mobile app. Aiming for an offline-first design using IndexedDB.",
-    updatedAt: "Yesterday",
-    tags: ["Test", "User"],
-    isTrash: false,
-  },
-  {
-    id: "3",
-    title: "Diary",
-    content:
-      "The weather was nice today, so I took a walk in the park. The cherry blossoms were beautiful. On the way back, I stopped at a cafe and finished a book I've been reading. It was a very fulfilling day.",
-    updatedAt: "Mar 28",
-    tags: ["User"],
-    isTrash: false,
-  },
-  {
-    id: "4",
-    title: "Meeting Notes",
-    content:
-      "Confirmation of the agenda for the next meeting. Discussing budget allocation. We plan to discuss progress reports from each department, Q2 KPI settings, and the formulation of a new marketing strategy.",
-    updatedAt: "Mar 25",
-    tags: ["Test"],
-    isTrash: true,
-  },
-];
-
-const MOCK_TAGS = ["Test", "User", "Free"];
 
 export function NotesIndexScreen() {
   const router = useRouter();
-  const { scope, tag } = useLocalSearchParams<{
+  const { scope = NOTE_SCOPE.ALL, tag } = useLocalSearchParams<{
     scope?: string;
     tag?: string;
   }>();
+
+  // API からノート一覧とタグ一覧を取得
+  const {
+    data: notes = [],
+    isLoading: isNotesLoading,
+    refetch: refetchNotes,
+  } = useNotes({
+    scope: scope as import("common/constraints").NoteScope,
+    tag,
+  });
+  const { data: apiTags = [] } = useTags();
+  const tags = apiTags.map((t) => t.name);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -80,28 +52,19 @@ export function NotesIndexScreen() {
     });
   };
 
-  const filteredNotes = MOCK_NOTES.filter((note) => {
-    // Search query filter
-    const matchesSearch =
-      note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      note.content.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredNotes = notes.filter((note) => {
+    // 検索クエリによるフィルタリング（API が未対応のためローカルで実施）
+    const matchesSearch = note.content
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
 
-    if (!matchesSearch) return false;
-
-    // Scope/Tag filter
-    if (scope === "trash") return note.isTrash;
-    if (note.isTrash && scope !== "trash") return false; // Hide trash by default
-
-    if (scope === "untagged") return note.tags.length === 0;
-    if (tag) return note.tags.includes(tag);
-
-    return true;
+    return matchesSearch;
   });
 
   const getHeaderTitle = () => {
     if (tag) return tag;
-    if (scope === "trash") return "Trash";
-    if (scope === "untagged") return "Untagged";
+    if (scope === NOTE_SCOPE.TRASH) return "Trash";
+    if (scope === NOTE_SCOPE.UNTAGGED) return "Untagged";
     return "All Notes";
   };
 
@@ -126,7 +89,7 @@ export function NotesIndexScreen() {
         tag={tag}
         onSelectScope={handleSelectScope}
         onSelectTag={handleSelectTag}
-        tags={MOCK_TAGS}
+        tags={tags}
       />
 
       {/* Header */}
@@ -175,13 +138,21 @@ export function NotesIndexScreen() {
         )}
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ paddingBottom: 20 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={isNotesLoading}
+            onRefresh={refetchNotes}
+          />
+        }
         ListEmptyComponent={
-          <View className="flex-1 items-center justify-center p-10 mt-20">
-            <View className="w-16 h-16 bg-slate-50 items-center justify-center rounded-full mb-4">
-              <Search size={24} color="#cbd5e1" />
+          !isNotesLoading ? (
+            <View className="flex-1 items-center justify-center p-10 mt-20">
+              <View className="w-16 h-16 bg-slate-50 items-center justify-center rounded-full mb-4">
+                <Search size={24} color="#cbd5e1" />
+              </View>
+              <Text className="text-slate-400 font-medium">No notes found</Text>
             </View>
-            <Text className="text-slate-400 font-medium">No notes found</Text>
-          </View>
+          ) : null
         }
       />
     </SafeAreaView>

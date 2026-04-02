@@ -16,8 +16,13 @@
   "dependencies": {
     "@expo/metro-runtime": "~6.1.2",
     "@gorhom/bottom-sheet": "^5.2.8",
+    "@react-native-async-storage/async-storage": "^2.2.0",
+    "@tanstack/react-query": "^5.95.2",
+    "api-client": "workspace:*",
+    "common": "workspace:*",
     "expo": "~54.0.33",
     "expo-constants": "^18.0.13",
+    "expo-dev-client": "~6.0.20",
     "expo-linking": "^8.0.11",
     "expo-router": "^6.0.23",
     "expo-status-bar": "~3.0.9",
@@ -33,9 +38,11 @@
     "react-native-svg": "^15.12.1",
     "react-native-web": "^0.21.2",
     "zod": "^4.3.6",
-    "common": "workspace:*"
+    "zustand": "^5.0.12"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260402.1",
+    "@types/node": "^22.0.0",
     "@types/react": "19.1.17",
     "@types/react-dom": "^19.1.0",
     "nativewind": "^4.2.3",

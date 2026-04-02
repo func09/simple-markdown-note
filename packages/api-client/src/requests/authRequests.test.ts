@@ -4,10 +4,19 @@ import { getMe, logout, signin, signup } from "./authRequests";
 
 const createApiMock = () => ({
   auth: {
-    signin: { $post: vi.fn() },
-    signup: { $post: vi.fn() },
-    me: { $get: vi.fn() },
-    logout: { $delete: vi.fn() },
+    signin: {
+      $post: vi.fn(),
+      $url: () => new URL("http://localhost/api/auth/signin"),
+    },
+    signup: {
+      $post: vi.fn(),
+      $url: () => new URL("http://localhost/api/auth/signup"),
+    },
+    me: { $get: vi.fn(), $url: () => new URL("http://localhost/api/auth/me") },
+    logout: {
+      $delete: vi.fn(),
+      $url: () => new URL("http://localhost/api/auth/logout"),
+    },
   },
 });
 
@@ -22,6 +31,7 @@ describe("authRequests", () => {
     it("should return AuthResponse on success", async () => {
       const mockResponse = {
         ok: true,
+        url: "http://localhost/api/auth/signin",
         json: async () => ({
           user: { id: "1", email: "test@example.com" },
           token: "token123",
@@ -43,6 +53,7 @@ describe("authRequests", () => {
     it("should throw error on failure", async () => {
       const mockResponse = {
         ok: false,
+        url: "http://localhost/api/auth/signin",
         json: async () => ({ error: "Invalid credentials" }),
       };
       apiMock.auth.signin.$post.mockResolvedValue(mockResponse);
@@ -60,6 +71,7 @@ describe("authRequests", () => {
     it("should return AuthResponse on success", async () => {
       const mockResponse = {
         ok: true,
+        url: "http://localhost/api/auth/signup",
         json: async () => ({
           user: { id: "1", email: "test@example.com" },
           token: "token123",
@@ -80,6 +92,7 @@ describe("authRequests", () => {
     it("should return MeResponse on success", async () => {
       const mockResponse = {
         ok: true,
+        url: "http://localhost/api/auth/me",
         json: async () => ({ id: "1", email: "test@example.com" }),
       };
       apiMock.auth.me.$get.mockResolvedValue(mockResponse);
@@ -93,6 +106,7 @@ describe("authRequests", () => {
       const mockResponse = {
         ok: false,
         status: 401,
+        url: "http://localhost/api/auth/me",
       };
       apiMock.auth.me.$get.mockResolvedValue(mockResponse);
 
@@ -106,6 +120,7 @@ describe("authRequests", () => {
     it("should succeed on 200/204", async () => {
       const mockResponse = {
         ok: true,
+        url: "http://localhost/api/auth/logout",
       };
       apiMock.auth.logout.$delete.mockResolvedValue(mockResponse);
 
@@ -117,6 +132,7 @@ describe("authRequests", () => {
     it("should throw on failure", async () => {
       const mockResponse = {
         ok: false,
+        url: "http://localhost/api/auth/logout",
       };
       apiMock.auth.logout.$delete.mockResolvedValue(mockResponse);
 

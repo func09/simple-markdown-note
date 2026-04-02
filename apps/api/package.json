@@ -9,7 +9,7 @@
     "./schema": "./src/schema/index.ts"
   },
   "scripts": {
-    "dev": "wrangler dev --show-interactive-dev-session=false",
+    "dev": "wrangler dev --ip 0.0.0.0 --show-interactive-dev-session=false",
     "test": "vitest run",
     "deploy": "wrangler deploy",
     "check": "biome check .",
