@@ -1,5 +1,10 @@
 import { Slot } from "expo-router";
+import { AuthGuard } from "@/features/auth/components/AuthGuard";
 
 export default function MainLayout() {
-  return <Slot />;
+  return (
+    <AuthGuard>
+      <Slot />
+    </AuthGuard>
+  );
 }

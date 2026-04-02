@@ -1,0 +1,46 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ApiProvider, createApiClient } from "common";
+import Constants from "expo-constants";
+import type { ReactNode } from "react";
+import { Platform } from "react-native";
+
+// 開発環境ではマシンのIPアドレス、それ以外は環境変数から取得
+const getBaseUrl = () => {
+  if (__DEV__) {
+    // 1. ExpoのマシンIPを優先
+    const host = Constants.expoConfig?.hostUri?.split(":")[0];
+    if (host && !host.includes("localhost") && !host.includes("127.0.0.1")) {
+      return `http://${host}:8787/api`;
+    }
+    // 2. Androidエミュレータ用
+    if (Platform.OS === "android") {
+      return "http://10.0.2.2:8787/api";
+    }
+    // 3. iOSシミュレータ用
+    return "http://localhost:8787/api";
+  }
+  return process.env.EXPO_PUBLIC_API_URL || "https://api.example.com/api";
+};
+
+const apiClient = createApiClient(getBaseUrl());
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
+interface ProvidersProps {
+  children: ReactNode;
+}
+
+export function Providers({ children }: ProvidersProps) {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ApiProvider client={apiClient}>{children}</ApiProvider>
+    </QueryClientProvider>
+  );
+}
