@@ -25,6 +25,10 @@
     "./models": {
       "import": "./src/models/index.ts",
       "types": "./src/models/index.ts"
+    },
+    "./constraints": {
+      "import": "./src/constraints/index.ts",
+      "types": "./src/constraints/index.ts"
     }
   },
   "scripts": {
@@ -55,7 +59,6 @@
     "@types/node": "^25.5.0",
     "@types/react": "^19.0.0",
     "@vitejs/plugin-react": "^4.7.0",
-    "database": "workspace:*",
     "jsdom": "^25.0.1",
     "tsx": "^4.21.0",
     "vite-tsconfig-paths": "^6.1.1",

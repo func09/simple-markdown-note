@@ -5,7 +5,6 @@
   "main": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./constants": "./src/constants.ts",
     "./*": "./src/*"
   },
   "scripts": {
@@ -27,6 +26,7 @@
   "description": "",
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
+    "common": "workspace:*",
     "drizzle-kit": "^0.30.5",
     "drizzle-seed": "^0.2.1",
     "tsx": "^4.21.0",
