@@ -61,13 +61,21 @@ interface SidebarProps {
 
 export function Sidebar({ onClose }: SidebarProps) {
   const { clearAuth } = useAuthStore();
-  const { filterScope, filterTag, setFilterScope, setFilterTag } =
-    useNotesStore();
+  const {
+    filterScope,
+    filterTag,
+    setFilterScope,
+    setFilterTag,
+    resetFilters,
+    setSelectedNoteId,
+  } = useNotesStore();
   const { data: tags = [], isLoading } = useTags();
   const user = useAuthStore((state) => state.user);
   const logoutMutation = useLogout({
     onSuccess() {
       clearAuth();
+      resetFilters();
+      setSelectedNoteId(null);
     },
   });
 

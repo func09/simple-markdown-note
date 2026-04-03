@@ -1,9 +1,12 @@
-import { AuthGuard, GuestGuard } from "@/features/auth/components";
+import { Navigate } from "react-router-dom";
+import { useAuthStore } from "@/features/auth";
 
 export default function IndexPage() {
-  return (
-    <GuestGuard>
-      <AuthGuard>{null}</AuthGuard>
-    </GuestGuard>
-  );
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  if (isAuthenticated) {
+    return <Navigate to="/notes?scope=all" replace />;
+  }
+
+  return <Navigate to="/login" replace />;
 }
