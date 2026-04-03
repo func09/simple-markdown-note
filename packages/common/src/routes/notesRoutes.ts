@@ -2,8 +2,9 @@ import { createRoute } from "@hono/zod-openapi";
 import { NoteSchema } from "../models";
 import {
   NoteCreateRequestSchema,
+  NoteListRequestSchema,
   NoteListResponseSchema,
-  NoteQuerySchema,
+  NoteResponseSchema,
   NoteUpdateRequestSchema,
 } from "../schemas";
 
@@ -13,7 +14,7 @@ export const listNotesRoute = createRoute({
   path: "/",
   summary: "ノート一覧取得",
   request: {
-    query: NoteQuerySchema,
+    query: NoteListRequestSchema,
   },
   responses: {
     200: {
@@ -39,7 +40,7 @@ export const getNoteRoute = createRoute({
     200: {
       content: {
         "application/json": {
-          schema: NoteSchema,
+          schema: NoteResponseSchema,
         },
       },
       description: "取得成功",
@@ -68,7 +69,7 @@ export const createNoteRoute = createRoute({
     201: {
       content: {
         "application/json": {
-          schema: NoteSchema,
+          schema: NoteResponseSchema,
         },
       },
       description: "作成成功",
@@ -95,7 +96,7 @@ export const updateNoteRoute = createRoute({
     200: {
       content: {
         "application/json": {
-          schema: NoteSchema,
+          schema: NoteResponseSchema,
         },
       },
       description: "更新成功",
