@@ -26,8 +26,8 @@ pnpm dev
 pnpm dev --native
 ```
 
-- **Web UI**: [http://localhost:5173](http://localhost:5173)
-- **API**: [http://localhost:3000](http://localhost:3000)
+- **Web UI**: [http://localhost:3000](http://localhost:3000)
+- **API**: [http://localhost:8787](http://localhost:8787)
 - **Drizzle Studio**: [pnpm -F database db:studio](pnpm -F database db:studio) (DB の中身をブラウザで見れます)
 
 ### 3. テストの実行
