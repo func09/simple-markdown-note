@@ -6,7 +6,7 @@ import { ApiClientError, createApiClient } from "api-client/client";
 import { ApiProvider } from "api-client/context";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { useAuthStore } from "@/features/auth";
+import { AuthInitializer, useAuthStore } from "@/features/auth";
 import { queryClient, setGlobalErrorHandler } from "@/lib/queryClient";
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -33,6 +33,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <AuthInitializer />
       <ApiProvider client={apiClient}>{children}</ApiProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
