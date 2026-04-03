@@ -47,7 +47,7 @@ app
           const originUrl = new URL(origin);
           const allowedUrl = new URL(allowed);
           // 例: *.simplenote-clone-web.pages.dev を許可
-          if (originUrl.hostname.endsWith("." + allowedUrl.hostname)) {
+          if (originUrl.hostname.endsWith(`.${allowedUrl.hostname}`)) {
             return origin;
           }
         } catch {

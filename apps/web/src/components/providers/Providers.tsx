@@ -33,8 +33,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthInitializer />
-      <ApiProvider client={apiClient}>{children}</ApiProvider>
+      <ApiProvider client={apiClient}>
+        <AuthInitializer />
+        {children}
+      </ApiProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );

@@ -31,5 +31,6 @@
       "cache": false,
       "persistent": true
     }
-  }
+  },
+  "globalDependencies": ["pnpm-lock.yaml"]
 }
