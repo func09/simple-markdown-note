@@ -36,9 +36,9 @@
     "react": "^19.0.0"
   },
   "dependencies": {
-    "hono": "^4.12.9",
     "api": "workspace:*",
-    "common": "workspace:*"
+    "common": "workspace:*",
+    "hono": "^4.12.9"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260329.1",
@@ -52,7 +52,6 @@
     "jsdom": "^25.0.1",
     "react": "^19.0.0",
     "tsx": "^4.21.0",
-    "vite-tsconfig-paths": "^6.1.1",
-    "vitest": "^3.0.7"
+    "vitest": "3.2.4"
   }
 }
