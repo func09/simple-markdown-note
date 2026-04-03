@@ -5,8 +5,7 @@
   "main": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./types": "./src/types/index.ts",
-    "./schema": "./src/schema/index.ts"
+    "./types": "./src/types/index.ts"
   },
   "scripts": {
     "dev": "wrangler dev --ip 0.0.0.0 --show-interactive-dev-session=false",
@@ -17,8 +16,8 @@
   },
   "dependencies": {
     "@hono/zod-openapi": "^0.18.4",
-    "database": "workspace:*",
     "common": "workspace:*",
+    "database": "workspace:*",
     "hono": "^4.12.9",
     "zod": "^4.3.6"
   },
@@ -26,8 +25,7 @@
     "@cloudflare/workers-types": "^4.20241218.0",
     "@hono/node-server": "^1.19.12",
     "@hono/swagger-ui": "^0.6.1",
-    "vite-tsconfig-paths": "^6.1.1",
-    "vitest": "^3.2.4",
+    "vitest": "3.2.4",
     "wrangler": "^4.79.0"
   }
 }
