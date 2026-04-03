@@ -1,5 +1,6 @@
 import * as path from "node:path";
 import { app, BrowserWindow } from "electron";
+import { setupMenu } from "./menu";
 
 // Disable hardware acceleration to avoid some GPU-related glitches (optional, but good for simple apps)
 // app.disableHardwareAcceleration();
@@ -25,8 +26,6 @@ function createWindow() {
   if (isDev) {
     // In development, load the Vite dev server
     mainWindow.loadURL("http://localhost:3000");
-    // Open the DevTools.
-    mainWindow.webContents.openDevTools();
   } else {
     // In production, load the built index.html from the web app
     mainWindow.loadFile(path.join(__dirname, "../../web/dist/index.html"));
@@ -38,6 +37,7 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  setupMenu();
   createWindow();
 
   app.on("activate", () => {
