@@ -18,5 +18,53 @@ export default defineConfig({
   build: {
     outDir: "dist",
     chunkSizeWarningLimit: 500,
+    rolldownOptions: {
+      output: {
+        manualChunks(id: string) {
+          if (id.includes("node_modules")) {
+            // Core React/Routing
+            if (
+              id.includes("/node_modules/react/") ||
+              id.includes("/node_modules/react-dom/") ||
+              id.includes("/node_modules/react-router") ||
+              id.includes("/node_modules/scheduler/")
+            ) {
+              return "vendor-react";
+            }
+            // Tiptap (this can be large, so keep it separate)
+            if (id.includes("/node_modules/@tiptap/")) {
+              return "vendor-tiptap";
+            }
+            // Markdown rendering
+            if (
+              id.includes("/node_modules/react-markdown/") ||
+              id.includes("/node_modules/remark-") ||
+              id.includes("/node_modules/rehype-") ||
+              id.includes("/node_modules/micromark-") ||
+              id.includes("/node_modules/vfile-") ||
+              id.includes("/node_modules/unified/") ||
+              id.includes("/node_modules/decode-named-character-reference/") ||
+              id.includes("/node_modules/mdast-")
+            ) {
+              return "vendor-markdown";
+            }
+            // Tanstack / Query
+            if (id.includes("/node_modules/@tanstack/")) {
+              return "vendor-query";
+            }
+            // UI Components and Icons
+            if (
+              id.includes("/node_modules/lucide-react/") ||
+              id.includes("/node_modules/@radix-ui/") ||
+              id.includes("/node_modules/sonner/")
+            ) {
+              return "vendor-ui";
+            }
+            // The rest goes to a general vendor chunk
+            return "vendor";
+          }
+        },
+      },
+    },
   },
 });
