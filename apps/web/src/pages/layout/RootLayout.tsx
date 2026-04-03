@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
 import { Toaster } from "sonner";
 import { Providers } from "@/components/providers/Providers";
-import "../index.css";
+import "@/index.css";
 
 export default function RootLayout() {
   return (

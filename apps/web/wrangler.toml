@@ -1,19 +1,4 @@
 name = "simplenote-clone-web"
-compatibility_date = "2024-12-30"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-03-29"
 compatibility_flags = ["nodejs_compat"]
-
-[assets]
-directory = "dist"
-binding = "ASSETS"
-
-[vars]
-INTERNAL_API_URL = "https://simplenote-clone-api.mitsuru-haga.workers.dev/api"
-
-[[services]]
-binding = "API"
-service = "simplenote-clone-api"
-
-[observability]
-[observability.logs]
-enabled = true
-invocation_logs = true
