@@ -1,10 +1,7 @@
-"use client";
-
 import { useCreateNote, useNotes } from "api-client/hooks";
 import { Plus, Search } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useCallback, useMemo } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useNotesStore } from "../store";
 
@@ -33,7 +30,7 @@ function formatDate(dateStr: string) {
 }
 
 export function NoteList({ selectedNoteId }: NoteListProps) {
-  const router = useRouter();
+  const navigate = useNavigate();
 
   // ストアの個別の値をセレクタ形式で購読（不要な再描画を防ぐ）
   const searchQuery = useNotesStore((s) => s.searchQuery);
@@ -73,11 +70,11 @@ export function NoteList({ selectedNoteId }: NoteListProps) {
         tags: tag ? [tag] : [],
       });
       setSelectedNoteId(result.id);
-      router.push(`/notes/${result.id}${queryString}`);
+      navigate(`/notes/${result.id}${queryString}`);
     } catch (error) {
       console.error("Failed to create note:", error);
     }
-  }, [createNoteMutation, setSelectedNoteId, router, queryString, tag]);
+  }, [createNoteMutation, setSelectedNoteId, navigate, queryString, tag]);
 
   // データがある場合は isLoading が真（フェッチ中）であってもリストを表示し続け、DOMの再生成を防ぐ
   const shouldShowSkeleton = isLoading && notes.length === 0;
@@ -134,7 +131,7 @@ export function NoteList({ selectedNoteId }: NoteListProps) {
               return (
                 <Link
                   key={note.id}
-                  href={href}
+                  to={href}
                   onClick={() => setSelectedNoteId(note.id)}
                   className={cn(
                     "block px-5 py-4 transition-colors text-left",

@@ -8,9 +8,7 @@ import { useState } from "react";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [apiClient] = useState(() =>
-    createApiClient(
-      process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787/api"
-    )
+    createApiClient(import.meta.env.VITE_API_URL || "http://localhost:8787/api")
   );
 
   const [queryClient] = useState(
