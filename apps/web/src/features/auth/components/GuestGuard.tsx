@@ -1,7 +1,5 @@
-"use client";
-
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store";
 
 /**
@@ -11,15 +9,15 @@ import { useAuthStore } from "../store";
 export function GuestGuard({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const [isChecking, setIsChecking] = useState(true);
-  const router = useRouter();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.replace("/notes?scope=all");
+      navigate("/notes?scope=all", { replace: true });
     } else {
       setIsChecking(false);
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, navigate]);
 
   if (isChecking) {
     return null;

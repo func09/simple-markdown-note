@@ -1,5 +1,3 @@
-"use client";
-
 import { useLogin } from "api-client/hooks";
 import {
   AlertCircle,
@@ -9,10 +7,9 @@ import {
   Mail,
   ShieldCheck,
 } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import type React from "react";
 import { useId, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -43,7 +40,7 @@ export function Login() {
       setAuth(data.user);
     },
   });
-  const router = useRouter();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const emailId = useId();
@@ -56,7 +53,7 @@ export function Login() {
       {
         onSuccess: () => {
           toast.success("Successfully logged in");
-          router.push("/notes?scope=all");
+          navigate("/notes?scope=all");
         },
         onError: (err: Error) => {
           toast.error(err.message || "Login failed");
@@ -163,7 +160,7 @@ export function Login() {
             <div className="mt-8 text-center text-sm text-slate-500">
               Don't have an account?{" "}
               <Link
-                href="/signup"
+                to="/signup"
                 className="font-semibold text-slate-900 hover:underline"
               >
                 Create Account
@@ -173,7 +170,7 @@ export function Login() {
 
           <CardFooter className="justify-center border-t border-slate-100 py-6">
             <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">
-              Powered by Next.js & Hono
+              Powered by Vite & Hono
             </p>
           </CardFooter>
         </Card>

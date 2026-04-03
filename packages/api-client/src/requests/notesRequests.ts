@@ -6,6 +6,7 @@ import type {
   NoteUpdateRequest,
 } from "common/schemas";
 import type { ApiClient } from "../client";
+import { ApiClientError } from "../client";
 
 /**
  * ノート一覧を取得する
@@ -21,7 +22,11 @@ export const listNotes = async (
   if (!res.ok) {
     const errorData = (await res.json()) as { error?: string };
     console.error("[API] [listNotes] Error:", errorData);
-    throw new Error(errorData.error || "Failed to fetch notes");
+    throw new ApiClientError(
+      errorData.error || "Failed to fetch notes",
+      res.status,
+      errorData
+    );
   }
   return res.json() as Promise<NoteListResponse>;
 };
@@ -37,7 +42,11 @@ export const getNote = async (api: ApiClient, id: string): Promise<Note> => {
   if (!res.ok) {
     const errorData = (await res.json()) as { error?: string };
     console.error("[API] [getNote] Error:", errorData);
-    throw new Error(errorData.error || "Failed to fetch note");
+    throw new ApiClientError(
+      errorData.error || "Failed to fetch note",
+      res.status,
+      errorData
+    );
   }
   return res.json() as Promise<Note>;
 };
@@ -56,7 +65,11 @@ export const createNote = async (
   if (!res.ok) {
     const errorData = (await res.json()) as { error?: string };
     console.error("[API] [createNote] Error:", errorData);
-    throw new Error(errorData.error || "Failed to create note");
+    throw new ApiClientError(
+      errorData.error || "Failed to create note",
+      res.status,
+      errorData
+    );
   }
   return res.json() as Promise<Note>;
 };
@@ -76,7 +89,11 @@ export const updateNote = async (
   if (!res.ok) {
     const errorData = (await res.json()) as { error?: string };
     console.error("[API] [updateNote] Error:", errorData);
-    throw new Error(errorData.error || "Failed to update note");
+    throw new ApiClientError(
+      errorData.error || "Failed to update note",
+      res.status,
+      errorData
+    );
   }
   return res.json() as Promise<Note>;
 };
@@ -92,6 +109,10 @@ export const deleteNote = async (api: ApiClient, id: string): Promise<void> => {
   if (!res.ok) {
     const errorData = (await res.json()) as { error?: string };
     console.error("[API] [deleteNote] Error:", errorData);
-    throw new Error(errorData.error || "Failed to delete note");
+    throw new ApiClientError(
+      errorData.error || "Failed to delete note",
+      res.status,
+      errorData
+    );
   }
 };

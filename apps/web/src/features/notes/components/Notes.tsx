@@ -1,9 +1,7 @@
-"use client";
-
 import type { NoteScope } from "common/constraints";
 import { Menu } from "lucide-react";
-import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { cn } from "@/lib/utils";
 import { useNotesStore } from "../store";
@@ -19,7 +17,7 @@ export function Notes({ selectedNoteId: propSelectedNoteId }: NotesProps) {
   const isDesktop = useMediaQuery("(min-width: 1024px)");
   const isTablet = useMediaQuery("(min-width: 768px)");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const searchParams = useSearchParams();
+  const [searchParams] = useSearchParams();
 
   const setSelectedNoteId = useNotesStore((s) => s.setSelectedNoteId);
   const setFilterScope = useNotesStore((s) => s.setFilterScope);

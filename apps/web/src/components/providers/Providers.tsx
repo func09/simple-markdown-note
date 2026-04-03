@@ -1,30 +1,35 @@
 "use client";
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { createApiClient } from "api-client/client";
+import { ApiClientError, createApiClient } from "api-client/client";
 import { ApiProvider } from "api-client/context";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { useAuthStore } from "@/features/auth";
+import { queryClient, setGlobalErrorHandler } from "@/lib/queryClient";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [apiClient] = useState(() =>
-    createApiClient(
-      process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787/api"
-    )
+    createApiClient(import.meta.env.VITE_API_URL || "http://localhost:8787/api")
   );
 
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            // With SSR, we usually want to set some default staleTime
-            // above 0 to avoid refetching immediately on the client
-            staleTime: 60 * 1000,
-          },
-        },
-      })
-  );
+  useEffect(() => {
+    // 401エラーを検知して自動ログアウトする共通ハンドラ
+    setGlobalErrorHandler((error: Error) => {
+      if (error instanceof ApiClientError && error.status === 401) {
+        const { clearAuth, isAuthenticated } = useAuthStore.getState();
+        if (isAuthenticated) {
+          clearAuth();
+          toast.error("ログアウトしました。再度ログインしてください。");
+        }
+      }
+    });
+
+    return () => {
+      setGlobalErrorHandler(() => {});
+    };
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

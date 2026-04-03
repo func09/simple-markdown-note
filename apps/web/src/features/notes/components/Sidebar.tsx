@@ -1,10 +1,8 @@
-"use client";
-
 import { useLogout, useTags } from "api-client/hooks";
 import { FileText, Hash, LogOut, Trash2 } from "lucide-react";
-import Link from "next/link";
 import type { ElementType } from "react";
 import { useCallback } from "react";
+import { Link } from "react-router-dom";
 import { useAuthStore } from "@/features/auth";
 import { cn } from "@/lib/utils";
 import { useNotesStore } from "../store";
@@ -28,7 +26,7 @@ function NavItem({
 }: NavItemProps) {
   return (
     <Link
-      href={href}
+      to={href}
       onClick={onClick}
       className={cn(
         "group flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-colors",
@@ -63,13 +61,21 @@ interface SidebarProps {
 
 export function Sidebar({ onClose }: SidebarProps) {
   const { clearAuth } = useAuthStore();
-  const { filterScope, filterTag, setFilterScope, setFilterTag } =
-    useNotesStore();
+  const {
+    filterScope,
+    filterTag,
+    setFilterScope,
+    setFilterTag,
+    resetFilters,
+    setSelectedNoteId,
+  } = useNotesStore();
   const { data: tags = [], isLoading } = useTags();
   const user = useAuthStore((state) => state.user);
   const logoutMutation = useLogout({
     onSuccess() {
       clearAuth();
+      resetFilters();
+      setSelectedNoteId(null);
     },
   });
 

@@ -3,13 +3,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "lib": ["dom", "dom.iterable", "esnext"],
-    "types": ["@cloudflare/workers-types", "node"],
+    "types": ["node", "@cloudflare/workers-types"],
     "jsx": "react-jsx",
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
     "paths": {
       "@/*": ["./src/*"],
       "common": ["../../packages/common/src/index.ts"],
@@ -18,13 +13,6 @@
       "api-client/*": ["../../packages/api-client/src/*"]
     }
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts",
-    "**/*.mts"
-  ],
+  "include": ["**/*.ts", "**/*.tsx", "**/*.mts"],
   "exclude": ["node_modules"]
 }
