@@ -25,14 +25,18 @@ export const authRouter = new OpenAPIHono<AppEnv>()
     const secret = c.env?.JWT_SECRET || "dev-secret";
     const token = await sign({ userId: user.id }, secret, "HS256");
 
-    // クッキーをセット
-    setCookie(c, "token", token, {
+    const isProd =
+      c.env?.NODE_ENV === "production" || c.req.url.startsWith("https://");
+    const cookieOptions = {
       httpOnly: true,
-      secure: c.env?.NODE_ENV === "production",
-      sameSite: "Lax",
+      secure: isProd,
+      sameSite: (isProd ? "None" : "Lax") as "None" | "Lax",
       path: "/",
       maxAge: 60 * 60 * 24 * 7, // 1 week
-    });
+    };
+
+    // クッキーをセット
+    setCookie(c, "token", token, cookieOptions);
 
     return c.json(AuthResponseSchema.parse({ user, token }), 200);
   })
@@ -49,14 +53,18 @@ export const authRouter = new OpenAPIHono<AppEnv>()
     const secret = c.env?.JWT_SECRET || "dev-secret";
     const token = await sign({ userId: user.id }, secret, "HS256");
 
-    // クッキーをセット
-    setCookie(c, "token", token, {
+    const isProd =
+      c.env?.NODE_ENV === "production" || c.req.url.startsWith("https://");
+    const cookieOptions = {
       httpOnly: true,
-      secure: c.env?.NODE_ENV === "production",
-      sameSite: "Lax",
+      secure: isProd,
+      sameSite: (isProd ? "None" : "Lax") as "None" | "Lax",
       path: "/",
       maxAge: 60 * 60 * 24 * 7, // 1 week
-    });
+    };
+
+    // クッキーをセット
+    setCookie(c, "token", token, cookieOptions);
 
     return c.json(AuthResponseSchema.parse({ user, token }), 200);
   })
@@ -79,10 +87,12 @@ export const authRouter = new OpenAPIHono<AppEnv>()
    */
   .openapi(logoutRoute, async (c) => {
     await logout();
+    const isProd =
+      c.env?.NODE_ENV === "production" || c.req.url.startsWith("https://");
     deleteCookie(c, "token", {
       path: "/",
-      secure: c.env?.NODE_ENV === "production",
-      sameSite: "Lax",
+      secure: isProd,
+      sameSite: (isProd ? "None" : "Lax") as "None" | "Lax",
     });
     return c.body(null, 204);
   });
