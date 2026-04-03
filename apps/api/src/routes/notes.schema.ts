@@ -1,12 +1,12 @@
 import { createRoute } from "@hono/zod-openapi";
-import { NoteSchema } from "../models";
+import { NoteSchema } from "common/models";
 import {
   NoteCreateRequestSchema,
   NoteListRequestSchema,
   NoteListResponseSchema,
   NoteResponseSchema,
   NoteUpdateRequestSchema,
-} from "../schemas";
+} from "common/schemas";
 
 /** GET / — ノート一覧取得ルート定義 */
 export const listNotesRoute = createRoute({

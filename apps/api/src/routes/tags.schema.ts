@@ -3,7 +3,7 @@ import {
   TagCreateRequestSchema,
   TagListResponseSchema,
   TagResponseSchema,
-} from "../schemas";
+} from "common/schemas";
 
 /** GET / — タグ一覧取得ルート定義 */
 export const tagsListRoute = createRoute({
