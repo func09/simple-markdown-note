@@ -38,8 +38,8 @@
 }
 
 /* Custom styles for Tiptap editor */
-.ProseMirror {
-  outline: none !important;
+.ProseMirror:focus {
+  outline: none;
 }
 
 .ProseMirror p.is-editor-empty:first-child::before {
