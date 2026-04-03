@@ -1,5 +1,6 @@
 import type { TagListResponse } from "common/schemas";
 import type { ApiClient } from "../client";
+import { ApiClientError } from "../client";
 
 /**
  * タグ一覧を取得する
@@ -12,7 +13,11 @@ export const listTags = async (api: ApiClient): Promise<TagListResponse> => {
   if (!res.ok) {
     const errorData = (await res.json()) as { error?: string };
     console.error("[API] [listTags] Error:", errorData);
-    throw new Error(errorData.error || "Failed to fetch tags");
+    throw new ApiClientError(
+      errorData.error || "Failed to fetch tags",
+      res.status,
+      errorData
+    );
   }
   return res.json() as Promise<TagListResponse>;
 };

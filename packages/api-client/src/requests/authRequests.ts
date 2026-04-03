@@ -5,6 +5,7 @@ import type {
   SignupRequest,
 } from "common/schemas";
 import type { ApiClient } from "../client";
+import { ApiClientError } from "../client";
 
 /**
  * ログインを実行する
@@ -20,7 +21,11 @@ export const signin = async (
   if (!res.ok) {
     const errorData = (await res.json()) as { error?: string };
     console.error("[API] [signin] Error:", errorData);
-    throw new Error(errorData.error || "Login failed");
+    throw new ApiClientError(
+      errorData.error || "Login failed",
+      res.status,
+      errorData
+    );
   }
   return res.json() as Promise<AuthResponse>;
 };
@@ -39,7 +44,11 @@ export const signup = async (
   if (!res.ok) {
     const errorData = (await res.json()) as { error?: string };
     console.error("[API] [signup] Error:", errorData);
-    throw new Error(errorData.error || "Signup failed");
+    throw new ApiClientError(
+      errorData.error || "Signup failed",
+      res.status,
+      errorData
+    );
   }
   return res.json() as Promise<AuthResponse>;
 };
@@ -58,7 +67,7 @@ export const getMe = async (api: ApiClient): Promise<MeResponse | null> => {
   }
   if (!res.ok) {
     console.error("[API] [getMe] Error:", res.status);
-    throw new Error("Failed to fetch user info");
+    throw new ApiClientError("Failed to fetch user info", res.status);
   }
   return res.json() as Promise<MeResponse>;
 };
@@ -73,7 +82,7 @@ export const logout = async (api: ApiClient): Promise<void> => {
     const res = await api.auth.logout.$delete();
     console.log(`[API] [logout] Response: ${res.status} ${res.url}`);
     if (!res.ok) {
-      throw new Error("Logout failed");
+      throw new ApiClientError("Logout failed", res.status);
     }
   } catch (error) {
     console.error("Logout error:", error);

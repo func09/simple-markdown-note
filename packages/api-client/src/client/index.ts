@@ -1,6 +1,8 @@
 import type { AppType } from "api/types"; // Honoの型
 import { hc } from "hono/client";
 
+export { ApiClientError } from "./error";
+
 // 接続設定を引数で受け取れるようにする
 export const createApiClient = (
   baseUrl: string,

@@ -1,17 +1,19 @@
-import tsconfigPaths from "vite-tsconfig-paths";
+import path from "node:path";
 import { defineConfig } from "vitest/config";
 
+// https://vitest.dev/config/
 export default defineConfig({
-  plugins: [tsconfigPaths()],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
   test: {
-    // SQLiteのロックを避けるため
-    fileParallelism: false,
+    globals: true,
+    environment: "node",
+    setupFiles: ["./vitest.setup.ts"],
     env: {
       DATABASE_URL: ":memory:",
-      NODE_ENV: "test",
-      JWT_SECRET: "test-secret",
     },
-    globals: true,
-    setupFiles: ["./vitest.setup.ts"],
   },
 });
