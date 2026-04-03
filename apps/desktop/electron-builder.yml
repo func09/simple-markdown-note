@@ -1,0 +1,17 @@
+appId: com.simplenote.clone
+productName: Simplenote Clone
+electronVersion: 33.4.11
+directories:
+  output: dist_electron
+files:
+  - dist/**/*
+  - from: ../web/dist
+    to: renderer
+    filter:
+      - "!**/*.map"
+mac:
+  category: public.app-category.productivity
+  target:
+    - target: dmg
+      arch:
+        - arm64

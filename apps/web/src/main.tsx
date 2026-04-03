@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, HashRouter, Route, Routes } from "react-router-dom";
 import LoginPage from "./pages/auth/LoginPage";
 import SignupPage from "./pages/auth/SignupPage";
 import IndexPage from "./pages/home/IndexPage";
@@ -11,9 +11,12 @@ import NotesPage from "./pages/notes/NotesPage";
 const rootElement = document.getElementById("root");
 if (!rootElement) throw new Error("Failed to find the root element");
 
+const isElectron = navigator.userAgent.toLowerCase().includes("electron");
+const Router = isElectron ? HashRouter : BrowserRouter;
+
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
-    <BrowserRouter>
+    <Router>
       <Routes>
         <Route element={<RootLayout />}>
           <Route path="/" element={<IndexPage />} />
@@ -23,6 +26,6 @@ ReactDOM.createRoot(rootElement).render(
           <Route path="/notes/:noteId" element={<NoteDetailPage />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </Router>
   </React.StrictMode>
 );

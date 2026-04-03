@@ -2,6 +2,7 @@
 node_modules/
 dist/
 dist-ssr/
+dist_electron/
 build/
 out/
 .turbo/
