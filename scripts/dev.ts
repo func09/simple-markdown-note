@@ -1,7 +1,18 @@
 import { spawn } from "node:child_process";
+import { existsSync, rmSync } from "node:fs";
+import { join } from "node:path";
 
 const args = process.argv.slice(2);
 const isNative = args.includes("--native");
+
+// --native の場合は Vite キャッシュをクリアする (Tailwind v4 の反映漏れ対策)
+if (isNative) {
+  const viteCachePath = join(process.cwd(), "apps/web/node_modules/.vite");
+  if (existsSync(viteCachePath)) {
+    console.log(`> Cleaning Vite cache: ${viteCachePath}`);
+    rmSync(viteCachePath, { recursive: true, force: true });
+  }
+}
 
 // --native があれば全ワークスペース、なければ api と web のみを起動。
 const command = isNative

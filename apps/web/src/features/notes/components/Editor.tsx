@@ -34,7 +34,6 @@ import { useNotesStore } from "../store";
 
 const markdownComponents: Components = {
   p: ({ children }) => <p className="whitespace-pre-wrap">{children}</p>,
-  li: ({ children }) => <li className="whitespace-pre-wrap">{children}</li>,
 };
 
 function formatDate(date?: string | Date) {
@@ -206,10 +205,10 @@ export function Editor({ noteId, isMobile }: EditorProps) {
     }
   }, [isPreview, isTrashed, editor]);
 
-  // ノートが切り替わった時にエディタの内容を更新
+  // ノートが切り替わった時、または外部から内容が更新された時に内容を同期
   useEffect(() => {
     if (editor && note) {
-      // ノートIDが切り替わった初動のみ内容をセット
+      // 1. ノートIDが切り替わった場合
       if (note.id !== lastNoteIdRef.current) {
         // 改行を <p> タグに変換して流し込む（特殊文字をエスケープ）
         const html = note.content
@@ -220,6 +219,15 @@ export function Editor({ noteId, isMobile }: EditorProps) {
         contentRef.current = note.content;
         lastNoteIdRef.current = note.id;
         setIsPreview(false);
+      }
+      // 2. 同じノートで内容が外部から更新された場合（エディタにフォーカスがない、かつプレビュー中の場合など）
+      else if (!editor.isFocused && note.content !== contentRef.current) {
+        const html = note.content
+          .split("\n")
+          .map((line) => `<p>${escapeHtml(line)}</p>`)
+          .join("");
+        editor.commands.setContent(html, { emitUpdate: false });
+        contentRef.current = note.content;
       }
     }
   }, [note, editor]);
