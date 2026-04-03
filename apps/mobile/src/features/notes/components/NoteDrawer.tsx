@@ -1,3 +1,4 @@
+import { useLogout } from "api-client/hooks";
 import {
   LogOut,
   NotebookPen,
@@ -40,12 +41,17 @@ export function NoteDrawer({
   tags,
 }: NoteDrawerProps) {
   const clearAuth = useAuthStore((state) => state.clearAuth);
+  const logoutMutation = useLogout({
+    onSuccess: () => {
+      onClose();
+      clearAuth();
+    },
+  });
 
   if (!isOpen) return null;
 
   const handleLogout = () => {
-    onClose();
-    clearAuth();
+    logoutMutation.mutate();
   };
 
   return (

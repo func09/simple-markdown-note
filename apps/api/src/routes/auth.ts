@@ -1,5 +1,6 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { AuthResponseSchema, MeResponseSchema } from "common/schemas";
+import { deleteCookie, setCookie } from "hono/cookie";
 import { HTTPException } from "hono/http-exception";
 import { sign } from "hono/jwt";
 import { getUserById, logout, signin, signup } from "../services/authService";
@@ -22,7 +23,16 @@ export const authRouter = new OpenAPIHono<AppEnv>()
     const user = await signup(db, payload);
 
     const secret = c.env?.JWT_SECRET || "dev-secret";
-    const token = await sign({ userId: user.id }, secret);
+    const token = await sign({ userId: user.id }, secret, "HS256");
+
+    // クッキーをセット
+    setCookie(c, "token", token, {
+      httpOnly: true,
+      secure: c.env?.NODE_ENV === "production",
+      sameSite: "Lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7, // 1 week
+    });
 
     return c.json(AuthResponseSchema.parse({ user, token }), 200);
   })
@@ -37,7 +47,16 @@ export const authRouter = new OpenAPIHono<AppEnv>()
     const user = await signin(db, payload);
 
     const secret = c.env?.JWT_SECRET || "dev-secret";
-    const token = await sign({ userId: user.id }, secret);
+    const token = await sign({ userId: user.id }, secret, "HS256");
+
+    // クッキーをセット
+    setCookie(c, "token", token, {
+      httpOnly: true,
+      secure: c.env?.NODE_ENV === "production",
+      sameSite: "Lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7, // 1 week
+    });
 
     return c.json(AuthResponseSchema.parse({ user, token }), 200);
   })
@@ -60,5 +79,10 @@ export const authRouter = new OpenAPIHono<AppEnv>()
    */
   .openapi(logoutRoute, async (c) => {
     await logout();
+    deleteCookie(c, "token", {
+      path: "/",
+      secure: c.env?.NODE_ENV === "production",
+      sameSite: "Lax",
+    });
     return c.body(null, 204);
   });
