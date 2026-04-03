@@ -24,10 +24,10 @@ import {
   Tag as TagIcon,
   Trash2,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Components } from "react-markdown";
 import ReactMarkdown from "react-markdown";
+import { useNavigate } from "react-router-dom";
 import remarkGfm from "remark-gfm";
 import { cn } from "@/lib/utils";
 import { useNotesStore } from "../store";
@@ -69,7 +69,7 @@ export function Editor({ noteId, isMobile }: EditorProps) {
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
   const infoRef = useRef<HTMLDivElement>(null);
   const optionsRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
+  const navigate = useNavigate();
   const scope = useNotesStore((s) => s.filterScope);
   const tag = useNotesStore((s) => s.filterTag);
 
@@ -228,24 +228,27 @@ export function Editor({ noteId, isMobile }: EditorProps) {
   const handleDelete = useCallback(async () => {
     if (!noteId) return;
     await deleteNoteMutation.mutateAsync(noteId);
-    router.push(`/notes${queryString}`);
-  }, [noteId, deleteNoteMutation, router, queryString]);
+    navigate(`/notes${queryString}`);
+  }, [noteId, deleteNoteMutation, navigate, queryString]);
 
   const handleRestore = useCallback(async () => {
     if (!noteId) return;
     await restoreNoteMutation.mutateAsync(noteId);
     // 元のスコープ（Trashなど）を維持するように調整
-    router.push(`/notes/${noteId}${queryString}`);
-  }, [noteId, restoreNoteMutation, router, queryString]);
+    navigate(`/notes/${noteId}${queryString}`);
+  }, [noteId, restoreNoteMutation, navigate, queryString]);
 
   const handlePermanentDelete = useCallback(async () => {
     if (!noteId) return;
     if (confirm("Are you sure you want to delete this note permanently?")) {
       setIsDeleting(true);
-      await permanentDeleteMutation.mutateAsync(noteId);
-      router.push(`/notes${queryString}`);
+      await permanentDeleteMutation.mutateAsync(noteId, {
+        onSuccess: () => {
+          navigate("/notes?scope=trash");
+        },
+      });
     }
-  }, [noteId, permanentDeleteMutation, router, queryString]);
+  }, [noteId, permanentDeleteMutation, navigate]);
 
   if (!noteId) {
     return (
@@ -279,7 +282,7 @@ export function Editor({ noteId, isMobile }: EditorProps) {
           {isMobile && (
             <button
               type="button"
-              onClick={() => router.push(`/notes${queryString}`)}
+              onClick={() => navigate(`/notes${queryString}`)}
               className="p-2 hover:bg-slate-100 rounded-full transition-colors mr-2"
             >
               <ChevronLeft className="w-5 h-5 text-slate-600" />
