@@ -3,13 +3,6 @@ import { NoteSchema } from "../models";
 import { z } from "../z";
 
 /**
- * ノート一覧取得のレスポンススキーマ
- */
-export const NoteListResponseSchema = z
-  .array(NoteSchema)
-  .openapi("NoteListResponse");
-
-/**
  * ノート作成リクエストのスキーマ
  */
 export const NoteCreateRequestSchema = z
@@ -44,9 +37,9 @@ export const NoteUpdateRequestSchema = z
   .openapi("NoteUpdateRequest");
 
 /**
- * ノート一覧取得のクバリデーションスキーマ
+ * ノート一覧取得のバリデーションスキーマ
  */
-export const NoteQuerySchema = z
+export const NoteListRequestSchema = z
   .object({
     tag: z.string().optional().openapi({ example: "work" }),
     scope: z
@@ -55,9 +48,22 @@ export const NoteQuerySchema = z
       .default(NOTE_SCOPE.ALL)
       .openapi({ example: "all" }),
   })
-  .openapi("NoteQuery");
+  .openapi("NoteListRequest");
+
+/**
+ * 単一ノートのレスポンススキーマ
+ */
+export const NoteResponseSchema = NoteSchema.openapi("NoteResponse");
+
+/**
+ * ノート一覧取得のレスポンススキーマ
+ */
+export const NoteListResponseSchema = z
+  .array(NoteSchema)
+  .openapi("NoteListResponse");
 
 export type NoteCreateRequest = z.infer<typeof NoteCreateRequestSchema>;
 export type NoteUpdateRequest = z.infer<typeof NoteUpdateRequestSchema>;
+export type NoteListRequest = z.infer<typeof NoteListRequestSchema>;
+export type NoteResponse = z.infer<typeof NoteResponseSchema>;
 export type NoteListResponse = z.infer<typeof NoteListResponseSchema>;
-export type NoteQuery = z.infer<typeof NoteQuerySchema>;

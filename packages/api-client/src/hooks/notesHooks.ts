@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type {
   NoteCreateRequest,
-  NoteQuery,
+  NoteListRequest,
   NoteUpdateRequest,
 } from "common/schemas";
 import { useApi } from "../context";
@@ -16,7 +16,7 @@ import {
 /**
  * ノート一覧を取得するクエリフック
  */
-export const useNotes = (query: NoteQuery) => {
+export const useNotes = (query: NoteListRequest) => {
   const api = useApi();
   return useQuery({
     queryKey: ["notes", "list", query],

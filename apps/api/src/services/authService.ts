@@ -1,4 +1,3 @@
-import type { SigninRequest, SignupRequest } from "common/schemas";
 import { bcryptjs, createUserRepository, type DrizzleDB } from "database";
 import { HTTPException } from "hono/http-exception";
 
@@ -6,11 +5,14 @@ import { HTTPException } from "hono/http-exception";
  * ユーザーの新規登録処理を行い、データベースに保存します。
  *
  * @param db - Drizzle ORM のデータベースインスタンス
- * @param data - サインアップに必要なリクエストデータ（メールアドレス、パスワード）
+ * @param data - サインアップに必要なデータ（メールアドレス、パスワード）
  * @returns 登録されたユーザーオブジェクト
  * @throws {HTTPException} すでに同じメールアドレスのユーザーが存在する場合（400 Bad Request）
  */
-export async function signup(db: DrizzleDB, data: SignupRequest) {
+export async function signup(
+  db: DrizzleDB,
+  data: { email: string; password: string }
+) {
   const userRepository = createUserRepository(db);
 
   const existingUser = await userRepository.findByEmail(data.email);
@@ -32,11 +34,14 @@ export async function signup(db: DrizzleDB, data: SignupRequest) {
  * ユーザーの認証（サインイン）処理を行います。
  *
  * @param db - Drizzle ORM のデータベースインスタンス
- * @param data - サインインに必要なリクエストデータ（メールアドレス、パスワード）
+ * @param data - サインインに必要なデータ（メールアドレス、パスワード）
  * @returns 認証に成功したユーザーオブジェクト
  * @throws {HTTPException} メールアドレスまたはパスワードが正しくない場合（401 Unauthorized）
  */
-export async function signin(db: DrizzleDB, data: SigninRequest) {
+export async function signin(
+  db: DrizzleDB,
+  data: { email: string; password: string }
+) {
   const userRepository = createUserRepository(db);
 
   const user = await userRepository.findByEmail(data.email);

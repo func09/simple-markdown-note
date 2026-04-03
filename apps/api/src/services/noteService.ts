@@ -1,5 +1,4 @@
 import type { NoteScope } from "common/constraints";
-import type { NoteCreateRequest, NoteUpdateRequest } from "common/schemas";
 import { createNoteRepository, type DrizzleDB, type Tag } from "database";
 
 import { syncTags } from "./tagService";
@@ -42,7 +41,11 @@ export async function getNoteById(userId: string, id: string, db: DrizzleDB) {
  */
 export async function createNote(
   userId: string,
-  data: NoteCreateRequest,
+  data: {
+    content: string;
+    tags?: string[];
+    isPermanent?: boolean;
+  },
   db: DrizzleDB
 ) {
   const repo = createNoteRepository(db);
@@ -67,7 +70,12 @@ export async function createNote(
 export async function updateNote(
   userId: string,
   id: string,
-  data: NoteUpdateRequest,
+  data: {
+    content?: string;
+    tags?: string[];
+    isPermanent?: boolean;
+    deletedAt?: string | null;
+  },
   db: DrizzleDB
 ) {
   const repo = createNoteRepository(db);

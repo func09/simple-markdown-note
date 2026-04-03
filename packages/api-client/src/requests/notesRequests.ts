@@ -1,8 +1,8 @@
 import type { Note } from "common/models";
 import type {
   NoteCreateRequest,
+  NoteListRequest,
   NoteListResponse,
-  NoteQuery,
   NoteUpdateRequest,
 } from "common/schemas";
 import type { ApiClient } from "../client";
@@ -12,7 +12,7 @@ import type { ApiClient } from "../client";
  */
 export const listNotes = async (
   api: ApiClient,
-  query: NoteQuery
+  query: NoteListRequest
 ): Promise<NoteListResponse> => {
   const url = api.notes.$url({ query });
   console.log(`[API] [listNotes] GET ${url}`, query);
