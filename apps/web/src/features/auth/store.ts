@@ -1,5 +1,6 @@
 import type { MeResponse } from "common/schemas";
 import { create } from "zustand";
+import { queryClient } from "@/lib/queryClient";
 
 /**
  * 認証状態の型定義
@@ -30,5 +31,9 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
     typeof document !== "undefined" &&
     document.cookie.includes("is_logged_in=true"),
   setAuth: (user) => set({ user, isAuthenticated: true }),
-  clearAuth: () => set({ user: null, isAuthenticated: false }),
+  clearAuth: () => {
+    set({ user: null, isAuthenticated: false });
+    // キャッシュを完全にクリア
+    queryClient.clear();
+  },
 }));
