@@ -1,7 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
   AuthResponse,
-  MeResponse,
   SigninRequest,
   SignupRequest,
 } from "common/schemas";
