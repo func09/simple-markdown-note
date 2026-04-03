@@ -1,6 +1,9 @@
 import { createRoute } from "@hono/zod-openapi";
-import { TagSchema } from "../models";
-import { TagCreateRequestSchema, TagListResponseSchema } from "../schemas";
+import {
+  TagCreateRequestSchema,
+  TagListResponseSchema,
+  TagResponseSchema,
+} from "../schemas";
 
 /** GET / — タグ一覧取得ルート定義 */
 export const tagsListRoute = createRoute({
@@ -39,7 +42,7 @@ export const createTagRoute = createRoute({
     200: {
       content: {
         "application/json": {
-          schema: TagSchema,
+          schema: TagResponseSchema,
         },
       },
       description: "作成または取得成功",

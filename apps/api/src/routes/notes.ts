@@ -1,5 +1,4 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
-import { NoteSchema } from "common/models";
 import {
   createNoteRoute,
   deleteNoteRoute,
@@ -7,7 +6,7 @@ import {
   listNotesRoute,
   updateNoteRoute,
 } from "common/routes";
-import { NoteListResponseSchema } from "common/schemas";
+import { NoteListResponseSchema, NoteResponseSchema } from "common/schemas";
 import { HTTPException } from "hono/http-exception";
 import {
   createNote,
@@ -47,7 +46,7 @@ const notesRouter = new OpenAPIHono<AppEnv>()
       throw new HTTPException(404, { message: "Note not found" });
     }
 
-    return c.json(NoteSchema.parse(note), 200);
+    return c.json(NoteResponseSchema.parse(note), 200);
   })
   /**
    * ノート新規作成
@@ -62,7 +61,7 @@ const notesRouter = new OpenAPIHono<AppEnv>()
       throw new HTTPException(500, { message: "Failed to create note" });
     }
 
-    return c.json(NoteSchema.parse(note), 201);
+    return c.json(NoteResponseSchema.parse(note), 201);
   })
   /**
    * ノート更新
@@ -78,7 +77,7 @@ const notesRouter = new OpenAPIHono<AppEnv>()
       throw new HTTPException(404, { message: "Note not found" });
     }
 
-    return c.json(NoteSchema.parse(note), 200);
+    return c.json(NoteResponseSchema.parse(note), 200);
   })
   /**
    * ノート削除

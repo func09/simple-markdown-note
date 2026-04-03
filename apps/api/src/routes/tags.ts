@@ -1,7 +1,6 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
-import { TagSchema } from "common/models";
 import { createTagRoute, tagsListRoute } from "common/routes";
-import { TagListResponseSchema } from "common/schemas";
+import { TagListResponseSchema, TagResponseSchema } from "common/schemas";
 import { createTag, getTagsWithNoteCount } from "../services/tagService";
 import type { AppEnv } from "../types";
 
@@ -33,7 +32,7 @@ const tagsRouter = new OpenAPIHono<AppEnv>()
 
     const tag = await createTag(userId, name, db);
 
-    return c.json(TagSchema.parse(tag), 200);
+    return c.json(TagResponseSchema.parse(tag), 200);
   });
 
 export { tagsRouter };
