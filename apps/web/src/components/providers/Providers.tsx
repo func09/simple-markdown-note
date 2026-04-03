@@ -8,7 +8,9 @@ import { useState } from "react";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [apiClient] = useState(() =>
-    createApiClient(`${window.location.origin}/api`)
+    createApiClient(
+      typeof window !== "undefined" ? `${window.location.origin}/api` : "/api"
+    )
   );
 
   const [queryClient] = useState(
