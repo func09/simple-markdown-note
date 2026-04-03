@@ -49,3 +49,6 @@ Thumbs.db
 *.db-journal
 *.db-shm
 *.db-wal
+
+# Temporary files
+/tmp/
