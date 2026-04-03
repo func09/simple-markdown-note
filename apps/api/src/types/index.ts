@@ -7,6 +7,7 @@ export type AppEnv = {
     DB: D1Database;
     JWT_SECRET: string;
     NODE_ENV?: string;
+    ALLOWED_ORIGIN?: string;
   };
   Variables: {
     userId: string;
