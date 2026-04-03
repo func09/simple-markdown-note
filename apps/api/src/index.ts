@@ -35,8 +35,33 @@ app
   .use(
     "*",
     cors({
-      origin: (origin) => origin, // 開発環境などではリクエスト元を許可（本番では設定により制限）
+      origin: (origin, c) => {
+        const allowed = c.env?.ALLOWED_ORIGIN;
+        if (!allowed || !origin) return origin;
+
+        // 1. 完全一致
+        if (origin === allowed) return origin;
+
+        // 2. サブドメインの判定 (プレビュー URL 対策)
+        try {
+          const originUrl = new URL(origin);
+          const allowedUrl = new URL(allowed);
+          // 例: *.simplenote-clone-web.pages.dev を許可
+          if (originUrl.hostname.endsWith("." + allowedUrl.hostname)) {
+            return origin;
+          }
+        } catch {
+          // URL形式でない場合はスキップ
+        }
+
+        // 3. ローカル開発環境は常に許可
+        if (origin.startsWith("http://localhost:")) return origin;
+
+        return allowed;
+      },
       credentials: true,
+      allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      allowHeaders: ["Content-Type", "Authorization"],
     })
   )
   // JWT 認証ミドルウェア (秘密鍵は環境変数から取得)
