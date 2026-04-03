@@ -7,7 +7,9 @@ import { ApiProvider } from "api-client/context";
 import { useState } from "react";
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  const [apiClient] = useState(() => createApiClient("/api"));
+  const [apiClient] = useState(() =>
+    createApiClient(`${window.location.origin}/api`)
+  );
 
   const [queryClient] = useState(
     () =>
