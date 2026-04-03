@@ -1,5 +1,7 @@
 import type { MiddlewareHandler } from "hono";
-import { jwt } from "hono/jwt";
+import { getCookie } from "hono/cookie";
+import { HTTPException } from "hono/http-exception";
+import { verify } from "hono/jwt";
 import type { AppEnv } from "../types";
 
 // 認証不要ルート（サインイン、サインアップ、ヘルスチェック）
@@ -10,14 +12,41 @@ const PUBLIC_PATHS = [
   "/health",
 ];
 
-// JWT 認証ミドルウェア (秘密鍵は環境変数から取得)
+// JWT 認証ミドルウェア (クッキーと Authorization ヘッダーの両方に対応)
 export const jwtAuth = (): MiddlewareHandler<AppEnv> => {
   return async (c, next) => {
     if (PUBLIC_PATHS.includes(c.req.path)) {
       return next();
     }
+
     const secret = c.env?.JWT_SECRET || "dev-secret";
-    return jwt({ secret, alg: "HS256" })(c, next);
+
+    // 1. Authorization ヘッダーのチェック
+    const authHeader = c.req.header("Authorization");
+    let token: string | undefined;
+
+    if (authHeader) {
+      token = authHeader.replace(/^Bearer\s+/i, "");
+    }
+
+    // 2. クッキーのチェック
+    if (!token) {
+      token = getCookie(c, "token");
+    }
+
+    if (!token) {
+      throw new HTTPException(401, { message: "Unauthorized" });
+    }
+
+    try {
+      // トークンの検証とペイロードのセット
+      const payload = await verify(token, secret, "HS256");
+      c.set("jwtPayload", payload);
+      await next();
+    } catch (e) {
+      console.error("JWT Verification failed:", e);
+      throw new HTTPException(401, { message: "Invalid token" });
+    }
   };
 };
 

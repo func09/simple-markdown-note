@@ -10,7 +10,10 @@ export const createApiClient = (
       | (() => Record<string, string> | Promise<Record<string, string>>);
   }
 ) => {
-  return hc<AppType>(baseUrl, options);
+  return hc<AppType>(baseUrl, {
+    ...options,
+    init: { credentials: "include" },
+  });
 };
 
 // 型定義だけ export しておくと、各アプリで補完が効いて便利

@@ -6,6 +6,7 @@ export type AppEnv = {
   Bindings: {
     DB: D1Database;
     JWT_SECRET: string;
+    NODE_ENV?: string;
   };
   Variables: {
     userId: string;
