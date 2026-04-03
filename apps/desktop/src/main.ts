@@ -20,6 +20,7 @@ function createWindow() {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: false,
       contextIsolation: true,
+      devTools: true, // Allow devTools in production for convenience
     },
   });
 
@@ -27,8 +28,8 @@ function createWindow() {
     // In development, load the Vite dev server
     mainWindow.loadURL("http://localhost:3000");
   } else {
-    // In production, load the built index.html from the web app
-    mainWindow.loadFile(path.join(__dirname, "../../web/dist/index.html"));
+    // In production, load the built index.html from the 'renderer' directory
+    mainWindow.loadFile(path.join(__dirname, "../renderer/index.html"));
   }
 
   mainWindow.on("closed", () => {
