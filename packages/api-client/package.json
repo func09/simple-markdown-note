@@ -11,8 +11,8 @@
       "types": "./src/client/index.ts"
     },
     "./context": {
-      "import": "./src/context/index.ts",
-      "types": "./src/context/index.ts"
+      "import": "./src/context/index.tsx",
+      "types": "./src/context/index.tsx"
     },
     "./hooks": {
       "import": "./src/hooks/index.ts",
