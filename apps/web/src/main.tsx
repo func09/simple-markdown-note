@@ -1,12 +1,12 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import IndexPage from "./pages/IndexPage";
-import LoginPage from "./pages/LoginPage";
-import NoteDetailPage from "./pages/NoteDetailPage";
-import NotesPage from "./pages/NotesPage";
-import RootLayout from "./pages/RootLayout";
-import SignupPage from "./pages/SignupPage";
+import LoginPage from "./pages/auth/LoginPage";
+import SignupPage from "./pages/auth/SignupPage";
+import IndexPage from "./pages/home/IndexPage";
+import RootLayout from "./pages/layout/RootLayout";
+import NoteDetailPage from "./pages/notes/NoteDetailPage";
+import NotesPage from "./pages/notes/NotesPage";
 
 const rootElement = document.getElementById("root");
 if (!rootElement) throw new Error("Failed to find the root element");
