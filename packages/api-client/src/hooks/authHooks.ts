@@ -1,11 +1,12 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
   AuthResponse,
+  MeResponse,
   SigninRequest,
   SignupRequest,
 } from "common/schemas";
 import { useApi } from "../context";
-import { logout, signin, signup } from "../requests/authRequests";
+import { getMe, logout, signin, signup } from "../requests/authRequests";
 
 /**
  * ログインを実行するミューテーションフック
@@ -51,5 +52,17 @@ export const useLogout = (options?: { onSuccess?: () => void }) => {
     onSuccess: () => {
       onSuccess?.();
     },
+  });
+};
+
+/**
+ * ログインユーザー情報を取得するクエリフック
+ */
+export const useMe = (options?: { enabled?: boolean }) => {
+  const api = useApi();
+  return useQuery({
+    queryKey: ["auth", "me"],
+    queryFn: () => getMe(api),
+    ...options,
   });
 };

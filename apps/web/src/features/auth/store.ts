@@ -28,10 +28,14 @@ interface AuthActions {
 export const useAuthStore = create<AuthState & AuthActions>((set) => ({
   user: null,
   isAuthenticated:
-    typeof document !== "undefined" &&
-    document.cookie.includes("is_logged_in=true"),
-  setAuth: (user) => set({ user, isAuthenticated: true }),
+    typeof window !== "undefined" &&
+    localStorage.getItem("isAuthenticated") === "true",
+  setAuth: (user) => {
+    localStorage.setItem("isAuthenticated", "true");
+    set({ user, isAuthenticated: true });
+  },
   clearAuth: () => {
+    localStorage.removeItem("isAuthenticated");
     set({ user: null, isAuthenticated: false });
     // キャッシュを完全にクリア
     queryClient.clear();
