@@ -32,7 +32,13 @@ app
   .use("*", dbInjector())
   // 2. シンプルで情報密度の高いロガー
   .use("*", requestLogger())
-  .use("*", cors())
+  .use(
+    "*",
+    cors({
+      origin: (origin) => origin, // 開発環境などではリクエスト元を許可（本番では設定により制限）
+      credentials: true,
+    })
+  )
   // JWT 認証ミドルウェア (秘密鍵は環境変数から取得)
   .use("/api/*", jwtAuth())
   // userId 抽出ミドルウェア (認証後に payload から ID をコンテキストにセット)

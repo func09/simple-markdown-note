@@ -9,7 +9,7 @@ import { useState } from "react";
 export function Providers({ children }: { children: React.ReactNode }) {
   const [apiClient] = useState(() =>
     createApiClient(
-      typeof window !== "undefined" ? `${window.location.origin}/api` : "/api"
+      process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787/api"
     )
   );
 
