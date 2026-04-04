@@ -1,5 +1,5 @@
-appId: com.simplenote.clone
-productName: Simplenote Clone
+appId: com.func09.simple-markdown-note
+productName: Simple Markdown Note
 electronVersion: 33.4.11
 directories:
   output: dist_electron
