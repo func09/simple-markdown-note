@@ -101,7 +101,7 @@ export function Sidebar({ onClose }: SidebarProps) {
           <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center text-white">
             S
           </div>
-          Simplenote
+          Simple Markdown Note
         </h1>
       </div>
 
