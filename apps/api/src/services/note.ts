@@ -1,7 +1,7 @@
 import type { NoteScope } from "common/types";
 import { createNoteRepository, type DrizzleDB, type Tag } from "database";
 
-import { syncTags } from "./tagService";
+import { syncTags } from "./tag";
 
 /**
  * Repository から取得した Notes (with tags) をレスポンス形式にマッピングする
