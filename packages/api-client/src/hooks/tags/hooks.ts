@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { useApi } from "../context";
-import { listTags } from "../requests/tagsRequests";
+import { useApi } from "api-client/context";
+import { listTags } from "api-client/requests/tagsRequests";
 
 /**
  * タグ一覧を取得するクエリフック
