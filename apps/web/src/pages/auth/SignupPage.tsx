@@ -1,10 +1,10 @@
 import { GuestGuard } from "@/features/auth/components/GuestGuard";
-import { Signup } from "@/features/auth/components/Signup";
+import { SignupScreen } from "@/features/auth/components/SignupScreen";
 
 export default function SignupPage() {
   return (
     <GuestGuard>
-      <Signup />
+      <SignupScreen />
     </GuestGuard>
   );
 }
