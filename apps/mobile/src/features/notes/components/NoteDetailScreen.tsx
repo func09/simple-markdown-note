@@ -31,12 +31,92 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import Markdown from "react-native-markdown-display";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+const markdownStyles = StyleSheet.create({
+  body: {
+    fontSize: 16,
+    lineHeight: 16 * 1.6,
+    color: "#334155", // slate-700
+  },
+  heading1: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#0f172a", // slate-900
+    marginVertical: 10,
+  },
+  heading2: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#0f172a",
+    marginVertical: 8,
+  },
+  heading3: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#0f172a",
+    marginVertical: 6,
+  },
+  paragraph: {
+    fontSize: 16,
+    lineHeight: 16 * 1.6,
+    color: "#334155",
+    marginBottom: 8,
+  },
+  list_item: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    alignItems: "flex-start",
+    marginBottom: 4,
+  },
+  bullet_list: {
+    marginBottom: 8,
+  },
+  ordered_list: {
+    marginBottom: 8,
+  },
+  code_inline: {
+    backgroundColor: "#f1f5f9", // slate-100
+    color: "#475569", // slate-600
+    paddingHorizontal: 4,
+    borderRadius: 4,
+    fontFamily: Platform.OS === "ios" ? "Menlo" : "monospace",
+  },
+  code_block: {
+    backgroundColor: "#1e293b", // slate-800
+    color: "#f8fafc", // slate-50
+    padding: 12,
+    borderRadius: 8,
+    marginVertical: 8,
+    fontFamily: Platform.OS === "ios" ? "Menlo" : "monospace",
+  },
+  fence: {
+    backgroundColor: "#1e293b",
+    color: "#f8fafc",
+    padding: 12,
+    borderRadius: 8,
+    marginVertical: 8,
+    fontFamily: Platform.OS === "ios" ? "Menlo" : "monospace",
+  },
+  blockquote: {
+    borderLeftWidth: 4,
+    borderLeftColor: "#cbd5e1", // slate-300
+    paddingLeft: 12,
+    marginVertical: 8,
+    fontStyle: "italic",
+  },
+  link: {
+    color: "#3b82f6", // blue-500
+    textDecorationLine: "underline",
+  },
+});
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
@@ -273,11 +353,11 @@ export function NoteDetailScreen() {
         >
           {isPreview ? (
             <View className="flex-1 p-6">
-              <Text className="text-lg text-slate-800 leading-relaxed">
-                {content || (
-                  <Text className="text-slate-300 italic">No content</Text>
-                )}
-              </Text>
+              {content ? (
+                <Markdown style={markdownStyles}>{content}</Markdown>
+              ) : (
+                <Text className="text-slate-300 italic">No content</Text>
+              )}
             </View>
           ) : (
             <TextInput
