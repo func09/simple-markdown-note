@@ -1,4 +1,8 @@
-import { bcryptjs, createUserRepository, type DrizzleDB } from "database";
+import {
+  bcryptjs,
+  createUserRepository,
+  type DrizzleDB,
+} from "@simple-markdown-note/database";
 import { HTTPException } from "hono/http-exception";
 
 /**

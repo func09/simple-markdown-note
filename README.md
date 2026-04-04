@@ -1,4 +1,4 @@
-# simplenote-clone
+# simple-markdown-note
 
 ## 開発環境の起動
 

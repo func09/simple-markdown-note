@@ -17,7 +17,7 @@ if (isNative) {
 // --native があれば全ワークスペース、なければ api と web のみを起動。
 const command = isNative
   ? "turbo run dev"
-  : "turbo run dev --filter=api --filter=web";
+  : "turbo run dev --filter=@simple-markdown-note/api --filter=@simple-markdown-note/web";
 
 console.log(`> Running: ${command}`);
 

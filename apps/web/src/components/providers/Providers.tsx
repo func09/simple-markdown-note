@@ -1,9 +1,12 @@
 "use client";
 
+import {
+  ApiClientError,
+  createApiClient,
+} from "@simple-markdown-note/api-client/client";
+import { ApiProvider } from "@simple-markdown-note/api-client/context";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { ApiClientError, createApiClient } from "api-client/client";
-import { ApiProvider } from "api-client/context";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AuthInitializer, useAuthStore } from "@/features/auth";

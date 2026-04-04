@@ -1,4 +1,4 @@
-import { useLogout, useTags } from "api-client/hooks";
+import { useLogout, useTags } from "@simple-markdown-note/api-client/hooks";
 import { FileText, Hash, LogOut, Trash2 } from "lucide-react";
 import type { ElementType } from "react";
 import { useCallback } from "react";
@@ -101,7 +101,7 @@ export function Sidebar({ onClose }: SidebarProps) {
           <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center text-white">
             S
           </div>
-          Simplenote
+          Simple Markdown Note
         </h1>
       </div>
 

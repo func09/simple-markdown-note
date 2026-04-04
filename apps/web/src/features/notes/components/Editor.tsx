@@ -1,17 +1,17 @@
 "use client";
 
-import CharacterCount from "@tiptap/extension-character-count";
-import Link from "@tiptap/extension-link";
-import Placeholder from "@tiptap/extension-placeholder";
-import { EditorContent, useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
 import {
   useDeleteNote,
   useNote,
   usePermanentDelete,
   useRestoreNote,
   useUpdateNote,
-} from "api-client/hooks";
+} from "@simple-markdown-note/api-client/hooks";
+import CharacterCount from "@tiptap/extension-character-count";
+import Link from "@tiptap/extension-link";
+import Placeholder from "@tiptap/extension-placeholder";
+import { EditorContent, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
 import {
   ChevronLeft,
   Edit3,

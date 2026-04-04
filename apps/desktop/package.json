@@ -1,7 +1,7 @@
 {
-  "name": "desktop",
+  "name": "@simple-markdown-note/desktop",
   "version": "1.0.0",
-  "description": "Electron shell for Simplenote Clone",
+  "description": "Electron shell for SimpleMarkdownNote",
   "main": "dist/main.js",
   "scripts": {
     "start": "electron .",
@@ -15,8 +15,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "api": "workspace:*",
-    "database": "workspace:*"
+    "@simple-markdown-note/api": "workspace:*",
+    "@simple-markdown-note/database": "workspace:*"
   },
   "devDependencies": {
     "dotenv-cli": "^11.0.0",

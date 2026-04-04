@@ -17,7 +17,7 @@ export function HomeScreen() {
         {/* Text Section */}
         <View className="items-center">
           <Text className="mb-2 text-4xl font-bold tracking-tight text-slate-900 text-center">
-            Simplenote Clone
+            Simple Markdown Note
           </Text>
           <Text className="text-center text-lg leading-6 text-slate-500">
             The simplest way to keep notes.{"\n"}

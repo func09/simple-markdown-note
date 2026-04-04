@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Simplenote Clone",
-    "slug": "simplenote-clone",
+    "name": "Simple Markdown Note",
+    "slug": "simple-markdown-note",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./src/assets/icon.png",
-    "scheme": "simplenote-clone",
+    "scheme": "simple-markdown-note",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./src/assets/splash-icon.png",
@@ -13,8 +13,7 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.func09.simplenote-clone"
+      "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {

@@ -1,4 +1,4 @@
-import type { NoteScope } from "common/types";
+import type { NoteScope } from "@simple-markdown-note/common/types";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 

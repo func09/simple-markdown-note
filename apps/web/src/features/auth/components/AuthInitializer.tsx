@@ -1,4 +1,4 @@
-import { useMe } from "api-client/hooks";
+import { useMe } from "@simple-markdown-note/api-client/hooks";
 import { useEffect } from "react";
 import { useAuthStore } from "@/features/auth";
 

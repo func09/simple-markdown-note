@@ -1,5 +1,5 @@
 {
-  "name": "api-client",
+  "name": "@simple-markdown-note/api-client",
   "version": "1.0.0",
   "type": "module",
   "main": "./src/index.ts",
@@ -36,8 +36,8 @@
     "react": "^19.0.0"
   },
   "dependencies": {
-    "api": "workspace:*",
-    "common": "workspace:*",
+    "@simple-markdown-note/api": "workspace:*",
+    "@simple-markdown-note/common": "workspace:*",
     "hono": "^4.12.9"
   },
   "devDependencies": {

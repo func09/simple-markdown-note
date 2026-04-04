@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import type { MeResponse } from "common";
+import type { MeResponse } from "@simple-markdown-note/common";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 

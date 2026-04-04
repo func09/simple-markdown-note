@@ -1,5 +1,5 @@
 import path from "node:path";
-import { db, migrateLibsql } from "database";
+import { db, migrateLibsql } from "@simple-markdown-note/database";
 import { beforeAll } from "vitest";
 
 beforeAll(async () => {
