@@ -1,4 +1,8 @@
-import { createDb, type DrizzleDB, db as staticDb } from "database";
+import {
+  createDb,
+  type DrizzleDB,
+  db as staticDb,
+} from "@simple-markdown-note/database";
 import type { MiddlewareHandler } from "hono";
 import type { AppEnv } from "../types";
 

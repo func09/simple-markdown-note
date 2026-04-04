@@ -1,4 +1,8 @@
-import { createTagRepository, type DrizzleDB, type Tag } from "database";
+import {
+  createTagRepository,
+  type DrizzleDB,
+  type Tag,
+} from "@simple-markdown-note/database";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createTag, getTagsWithNoteCount, syncTags } from "./tag";
 

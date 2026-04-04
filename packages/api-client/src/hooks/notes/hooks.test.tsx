@@ -1,6 +1,9 @@
+import type {
+  Note,
+  NoteListResponse,
+} from "@simple-markdown-note/common/schemas";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
-import type { Note, NoteListResponse } from "common/schemas";
 import type React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ApiClient } from "@/client";

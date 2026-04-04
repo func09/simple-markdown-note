@@ -1,5 +1,9 @@
-import type { NoteScope } from "common/types";
-import { createNoteRepository, type DrizzleDB, type Tag } from "database";
+import type { NoteScope } from "@simple-markdown-note/common/types";
+import {
+  createNoteRepository,
+  type DrizzleDB,
+  type Tag,
+} from "@simple-markdown-note/database";
 
 import { syncTags } from "./tag";
 
