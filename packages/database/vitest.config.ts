@@ -15,6 +15,7 @@ export default defineConfig({
       NODE_ENV: "test",
     },
     globals: true,
+    passWithNoTests: true,
     setupFiles: ["./vitest.setup.ts"],
   },
 });

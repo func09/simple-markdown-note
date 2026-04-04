@@ -11,6 +11,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "node",
+    passWithNoTests: true,
     setupFiles: ["./vitest.setup.ts"],
     env: {
       DATABASE_URL: ":memory:",
