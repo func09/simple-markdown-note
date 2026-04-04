@@ -4,8 +4,8 @@ import type {
   SigninRequest,
   SignupRequest,
 } from "common/schemas";
-import type { ApiClient } from "../client";
-import { ApiClientError } from "../client";
+import type { ApiClient } from "../../client";
+import { ApiClientError } from "../../client";
 
 /**
  * ログインを実行する

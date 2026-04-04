@@ -1,10 +1,10 @@
 import { createRoute } from "@hono/zod-openapi";
-import { NoteSchema } from "common/models";
 import {
   NoteCreateRequestSchema,
   NoteListRequestSchema,
   NoteListResponseSchema,
   NoteResponseSchema,
+  NoteSchema,
   NoteUpdateRequestSchema,
 } from "common/schemas";
 

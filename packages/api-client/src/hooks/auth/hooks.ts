@@ -1,11 +1,11 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useApi } from "api-client/context";
 import type {
   AuthResponse,
   SigninRequest,
   SignupRequest,
 } from "common/schemas";
-import { useApi } from "../context";
-import { getMe, logout, signin, signup } from "../requests/authRequests";
+import { getMe, logout, signin, signup } from "./requests";
 
 /**
  * ログインを実行するミューテーションフック

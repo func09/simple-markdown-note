@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { ApiClient } from "../client";
-import { listTags } from "./tagsRequests";
+import type { ApiClient } from "../../client";
+import { listTags } from "./requests";
 
 const createApiMock = () => ({
   tags: {

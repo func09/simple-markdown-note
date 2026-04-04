@@ -1,12 +1,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
-import type { Note } from "common/models";
-import type { NoteListResponse } from "common/schemas";
+import type { Note, NoteListResponse } from "common/schemas";
 import type React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { ApiClient } from "../client";
-import { ApiProvider } from "../context";
-import * as notesRequests from "../requests/notesRequests";
+import type { ApiClient } from "@/client";
+import { ApiProvider } from "@/context";
 import {
   useCreateNote,
   useDeleteNote,
@@ -15,9 +13,10 @@ import {
   usePermanentDelete,
   useRestoreNote,
   useUpdateNote,
-} from "./notesHooks";
+} from "./hooks";
+import * as notesRequests from "./requests";
 
-vi.mock("../requests/notesRequests");
+vi.mock("./requests");
 
 const createWrapper = () => {
   const queryClient = new QueryClient({

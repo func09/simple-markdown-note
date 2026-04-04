@@ -141,7 +141,7 @@ describe("Auth API", () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: "valid@example.com",
-          password: "A".repeat(33) + "a1",
+          password: `${"A".repeat(33)}a1`,
         }),
       });
       expect(res.status).toBe(400);
