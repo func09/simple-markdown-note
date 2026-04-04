@@ -5,10 +5,10 @@ import type React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ApiClient } from "@/client";
 import { ApiProvider } from "@/context";
-import * as authRequests from "@/requests/authRequests";
 import { useLogin, useLogout, useSignup } from "./hooks";
+import * as authRequests from "./requests";
 
-vi.mock("@/requests/authRequests");
+vi.mock("./requests");
 
 const createWrapper = () => {
   const queryClient = new QueryClient({

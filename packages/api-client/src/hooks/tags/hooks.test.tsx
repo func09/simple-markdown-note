@@ -5,10 +5,10 @@ import type React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ApiClient } from "@/client";
 import { ApiProvider } from "@/context";
-import * as tagsRequests from "@/requests/tagsRequests";
 import { useTags } from "./hooks";
+import * as tagsRequests from "./requests";
 
-vi.mock("@/requests/tagsRequests");
+vi.mock("./requests");
 
 const createWrapper = () => {
   const queryClient = new QueryClient({

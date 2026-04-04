@@ -5,8 +5,8 @@ import type {
   NoteListResponse,
   NoteUpdateRequest,
 } from "common/schemas";
-import type { ApiClient } from "../client";
-import { ApiClientError } from "../client";
+import type { ApiClient } from "../../client";
+import { ApiClientError } from "../../client";
 
 /**
  * ノート一覧を取得する

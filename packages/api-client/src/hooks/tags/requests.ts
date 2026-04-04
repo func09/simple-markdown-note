@@ -1,6 +1,6 @@
 import type { TagListResponse } from "common/schemas";
-import type { ApiClient } from "../client";
-import { ApiClientError } from "../client";
+import type { ApiClient } from "../../client";
+import { ApiClientError } from "../../client";
 
 /**
  * タグ一覧を取得する
