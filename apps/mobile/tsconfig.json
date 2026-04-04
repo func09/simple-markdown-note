@@ -3,7 +3,7 @@
   "compilerOptions": {
     "strict": true,
     "baseUrl": ".",
-    "types": ["node", "@cloudflare/workers-types"],
+    "types": ["node", "@cloudflare/workers-types", "jest"],
     "paths": {
       "@/*": ["src/*"],
       "@simple-markdown-note/common": ["../../packages/common/src/index.ts"],

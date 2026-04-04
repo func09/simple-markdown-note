@@ -15,7 +15,7 @@ const FOCUS_DELAY = 50;
 /**
  * ノート編集画面におけるキーボードの表示状態や入力フォーカスなど、OS/プラットフォーム固有の挙動を管理します。
  */
-export function useNoteEditorLayout(
+export function useNoteEditorUI(
   isPreview: boolean,
   setIsPreview: (val: boolean) => void
 ) {
@@ -51,7 +51,7 @@ export function useNoteEditorLayout(
 /**
  * Animated APIを利用したドロワーの開閉スライドアニメーションを制御します。
  */
-export function useNoteDrawerAnimation() {
+export function useNoteDrawer() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const slideAnim = useRef(new Animated.Value(-DRAWER_WIDTH)).current;
 
@@ -77,7 +77,7 @@ export function useNoteDrawerAnimation() {
 /**
  * iOS/Androidごとのタグ追加用プロンプト・ダイアログの表示を制御します。
  */
-export function useTagPrompt() {
+export function useNoteTagPrompt() {
   const promptForTag = useCallback(
     (currentTags: string[], onAdd: (tag: string) => void) => {
       if (Platform.OS === "ios") {
