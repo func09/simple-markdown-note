@@ -8,33 +8,29 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import {
-  useNotesDrawerState,
-  useNotesIndexData,
-  useNotesIndexNavigation,
-  useNotesSearch,
-} from "../hooks";
+import { useNoteListController } from "../hooks";
 import { NoteDrawer } from "./NoteDrawer";
 import { NoteListItem } from "./NoteListItem";
 
 export function NotesIndexScreen() {
   const {
-    notes,
+    notes: filteredNotes,
     isNotesLoading,
     refetchNotes,
     tags,
+    searchQuery,
+    setSearchQuery,
+    isDrawerOpen,
+    toggleDrawer,
+    slideAnim,
     scope,
     tag,
     getHeaderTitle,
-  } = useNotesIndexData();
-  const { searchQuery, setSearchQuery, filteredNotes } = useNotesSearch(notes);
-  const { isDrawerOpen, toggleDrawer, slideAnim } = useNotesDrawerState();
-  const {
     handleSelectScope,
     handleSelectTag,
     handleNewNote,
     handleSelectNote,
-  } = useNotesIndexNavigation(toggleDrawer);
+  } = useNoteListController();
 
   const insets = useSafeAreaInsets();
 
@@ -43,7 +39,6 @@ export function NotesIndexScreen() {
       className="flex-1 bg-white"
       style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
     >
-      {/* Side Drawer Component */}
       <NoteDrawer
         isOpen={isDrawerOpen}
         onClose={() => toggleDrawer(false)}
@@ -55,7 +50,6 @@ export function NotesIndexScreen() {
         tags={tags}
       />
 
-      {/* Header */}
       <View className="px-5 py-4 border-b border-slate-100 bg-white">
         <View className="flex-row items-center justify-between mb-4">
           <View className="flex-row items-center">
@@ -74,7 +68,6 @@ export function NotesIndexScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Search Bar */}
         <View className="flex-row items-center bg-slate-100 rounded-xl px-4 h-11">
           <Search size={18} color="#94a3b8" />
           <TextInput
@@ -87,7 +80,6 @@ export function NotesIndexScreen() {
         </View>
       </View>
 
-      {/* Note List */}
       <FlatList
         data={filteredNotes}
         renderItem={({ item }) => (

@@ -4,8 +4,6 @@ import {
   BottomSheetModal,
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
-import { useNote } from "@simple-markdown-note/api-client/hooks";
-import { useLocalSearchParams } from "expo-router";
 import {
   Check,
   ChevronLeft,
@@ -35,12 +33,7 @@ import Markdown, {
   type RenderRules,
 } from "react-native-markdown-display";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import {
-  useNoteEditorState,
-  useNoteMetrics,
-  useNoteOperations,
-  useNoteUIController,
-} from "../hooks";
+import { useNoteEditorController } from "../hooks";
 import { formatDate, getNodeText } from "../utils";
 
 const markdownStyles = StyleSheet.create({
@@ -122,33 +115,18 @@ const markdownStyles = StyleSheet.create({
 });
 
 export function NoteDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const isNew = id === "new";
-
-  // 1. UI制御
-  const ui = useNoteUIController();
-
-  // 2. データ取得
-  const { data: note, isLoading } = useNote(isNew ? null : id);
-
-  // 3. 編集状態
-  const editor = useNoteEditorState(isNew, note);
-
-  // 4. 計算
-  const metrics = useNoteMetrics(editor.content);
-
-  // 5. 操作（保存・削除）
-  const ops = useNoteOperations({
+  const {
     isNew,
-    content: editor.content,
-    tags: editor.tags,
-    currentNoteId: editor.currentNoteId,
-    initializedId: editor.initializedId,
-    infoSheetRef: ui.infoSheetRef,
-    handleGoBack: ui.handleGoBack,
     note,
-    isLoading,
-  });
+    content,
+    setContent,
+    tags,
+    isPreview,
+    setIsPreview,
+    metrics,
+    ui,
+    ops,
+  } = useNoteEditorController();
 
   const insets = useSafeAreaInsets();
 
@@ -187,7 +165,7 @@ export function NoteDetailScreen() {
               marginBottom: 6,
               paddingVertical: 2,
             }}
-            onPress={() => editor.handleCheckboxToggle(currentIndex)}
+            onPress={() => ops.handleCheckboxToggle(currentIndex)}
             activeOpacity={0.6}
           >
             <View
@@ -233,7 +211,6 @@ export function NoteDetailScreen() {
       className="flex-1 bg-white"
       style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
     >
-      {/* Custom Header */}
       <View className="flex-row items-center justify-between px-4 py-2 border-b border-slate-100 bg-white z-10">
         <TouchableOpacity
           onPress={ui.handleGoBack}
@@ -245,11 +222,11 @@ export function NoteDetailScreen() {
 
         <View className="flex-row items-center space-x-2">
           <TouchableOpacity
-            onPress={() => ui.setIsPreview(!ui.isPreview)}
+            onPress={() => setIsPreview(!isPreview)}
             className="p-2"
             activeOpacity={0.7}
           >
-            {ui.isPreview ? (
+            {isPreview ? (
               <EyeOff size={22} color="#475569" />
             ) : (
               <Eye size={22} color="#475569" />
@@ -285,11 +262,11 @@ export function NoteDetailScreen() {
           className="flex-1 bg-white"
           contentContainerStyle={{ flexGrow: 1 }}
         >
-          {ui.isPreview ? (
+          {isPreview ? (
             <View className="flex-1 p-6">
-              {editor.content ? (
+              {content ? (
                 <Markdown style={markdownStyles} rules={markdownRules}>
-                  {editor.content}
+                  {content}
                 </Markdown>
               ) : (
                 <Text className="text-slate-300 italic">No content</Text>
@@ -303,14 +280,13 @@ export function NoteDetailScreen() {
               placeholderTextColor="#cbd5e1"
               className="flex-1 p-6 text-lg text-slate-800 leading-relaxed text-left align-top"
               style={{ textAlignVertical: "top" }}
-              value={editor.content}
-              onChangeText={editor.setContent}
+              value={content}
+              onChangeText={setContent}
               autoFocus={isNew}
             />
           )}
         </ScrollView>
 
-        {/* Tags Section */}
         <View className="px-4 py-3 border-t border-slate-100 bg-white flex-row items-center">
           <Tag size={16} color="#94a3b8" />
           <ScrollView
@@ -319,7 +295,7 @@ export function NoteDetailScreen() {
             className="ml-2"
           >
             <View className="flex-row items-center space-x-2">
-              {editor.tags.map((tag) => (
+              {tags.map((tag) => (
                 <View
                   key={tag}
                   className="bg-slate-100 px-3 py-1.5 rounded-full flex-row items-center"
@@ -329,7 +305,7 @@ export function NoteDetailScreen() {
                   </Text>
                   <TouchableOpacity
                     className="ml-1.5 p-0.5"
-                    onPress={() => editor.handleRemoveTag(tag)}
+                    onPress={() => ops.handleRemoveTag(tag)}
                   >
                     <X size={10} color="#94a3b8" />
                   </TouchableOpacity>
@@ -337,7 +313,7 @@ export function NoteDetailScreen() {
               ))}
               <TouchableOpacity
                 className="px-3 py-1.5 border border-dashed border-slate-300 rounded-full"
-                onPress={() => editor.handleAddTag(editor.tags)}
+                onPress={() => ops.handleAddTag()}
               >
                 <Text className="text-xs font-medium text-slate-400">
                   + Add Tag
@@ -348,14 +324,12 @@ export function NoteDetailScreen() {
         </View>
       </KeyboardAvoidingView>
 
-      {/* Info Bottom Sheet */}
       <BottomSheetModal
         ref={ui.infoSheetRef}
         enablePanDownToClose
         backdropComponent={renderBackdrop}
       >
         <BottomSheetView>
-          {/* Info Rows */}
           <View className="border-t border-slate-100">
             {note && (
               <>
@@ -390,7 +364,6 @@ export function NoteDetailScreen() {
             </View>
           </View>
 
-          {/* Actions */}
           <View className="mb-6">
             <TouchableOpacity
               className="flex-row items-center px-5 py-4 border-b border-slate-50"
