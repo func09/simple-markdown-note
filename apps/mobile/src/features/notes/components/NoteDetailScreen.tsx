@@ -5,15 +5,6 @@ import {
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
 import {
-  useCreateNote,
-  useDeleteNote,
-  useNote,
-  usePermanentDelete,
-  useRestoreNote,
-  useUpdateNote,
-} from "@simple-markdown-note/api-client/hooks";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import {
   Check,
   ChevronLeft,
   Eye,
@@ -25,16 +16,8 @@ import {
   Trash2,
   X,
 } from "lucide-react-native";
+import { type ReactNode, useCallback } from "react";
 import {
-  type ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import {
-  Alert,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -49,7 +32,9 @@ import Markdown, {
   type ASTNode,
   type RenderRules,
 } from "react-native-markdown-display";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useNoteEditorController } from "../hooks";
+import { formatDate, getNodeText } from "../utils";
 
 const markdownStyles = StyleSheet.create({
   body: {
@@ -93,6 +78,20 @@ const markdownStyles = StyleSheet.create({
   ordered_list: {
     marginBottom: 8,
   },
+  bullet_list_icon: {
+    marginLeft: 4,
+    marginRight: 8,
+    marginTop: 0,
+    fontSize: 16,
+    lineHeight: 16 * 1.6,
+  },
+  ordered_list_icon: {
+    marginLeft: 4,
+    marginRight: 8,
+    marginTop: 0,
+    fontSize: 16,
+    lineHeight: 16 * 1.6,
+  },
   code_inline: {
     backgroundColor: "#f1f5f9", // slate-100
     color: "#475569", // slate-600
@@ -129,195 +128,21 @@ const markdownStyles = StyleSheet.create({
   },
 });
 
-function getNodeText(node: ASTNode): string {
-  if (node.content) {
-    return node.content;
-  }
-  if (node.children && node.children.length > 0) {
-    return node.children.map(getNodeText).join("");
-  }
-  return "";
-}
-
-function formatDate(dateString: string): string {
-  const date = new Date(dateString);
-  return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, "0")}/${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
-}
-
 export function NoteDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const isNew = id === "new";
-  const router = useRouter();
-
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  // API Hooks
-  const { data: note, isLoading } = useNote(isNew ? null : id, {
-    enabled: !isDeleting,
-  });
-  const createNoteMutation = useCreateNote();
-  const updateNoteMutation = useUpdateNote();
-  const deleteNoteMutation = useDeleteNote();
-  const restoreNoteMutation = useRestoreNote();
-  const permanentDeleteMutation = usePermanentDelete();
-
-  const [content, setContent] = useState("");
-  const [isPreview, setIsPreview] = useState(false);
-  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-  const [tags, setTags] = useState<string[]>([]);
-  const inputRef = useRef<TextInput>(null);
-  const infoSheetRef = useRef<BottomSheetModal>(null);
-
-  const initializedId = useRef<string | null>(null);
-  const currentNoteId = useRef<string | null>(isNew ? null : id);
-
-  const wordCount = useMemo(() => {
-    return content.trim() ? content.trim().split(/\s+/).length : 0;
-  }, [content]);
-
-  const charCount = useMemo(() => content.length, [content]);
-
-  const handleCheckboxToggle = useCallback((index: number) => {
-    setContent((prev) => {
-      const regex = /^(\s*[-*+]\s+)\[([ x])\]/gim;
-      let count = 0;
-      return prev.replace(regex, (match, prefix, state: string) => {
-        if (count++ === index) {
-          return `${prefix}[${state.toLowerCase() === "x" ? " " : "x"}]`;
-        }
-        return match;
-      });
-    });
-  }, []);
-
-  // Handle Initial Load and external data updates
-  useEffect(() => {
-    if (isNew) {
-      if (initializedId.current !== "new") {
-        setContent("");
-        setTags([]);
-        initializedId.current = "new";
-      }
-    } else if (note && initializedId.current !== note.id) {
-      setContent(note.content);
-      setTags(note.tags.map((t) => t.name));
-      initializedId.current = note.id;
-      currentNoteId.current = note.id;
-    }
-  }, [isNew, note]);
-
-  // Debounced Auto-save
-  useEffect(() => {
-    if (isLoading) return;
-    if (!content.trim() && isNew) return;
-
-    const timer = setTimeout(async () => {
-      const activeId = currentNoteId.current;
-
-      if (isNew && !activeId) {
-        // Create new note
-        try {
-          const result = await createNoteMutation.mutateAsync({
-            content,
-            tags,
-            isPermanent: false,
-          });
-          currentNoteId.current = result.id;
-          // Update URL to the new ID without push to avoid back-button issues if possible
-          // But router.setParams might work best here
-          router.setParams({ id: result.id });
-          initializedId.current = result.id;
-        } catch (error) {
-          console.error("Failed to create note:", error);
-        }
-      } else if (activeId) {
-        // Update existing note
-        // Only update if content or tags actually changed compared to the last fetched note
-        if (
-          note &&
-          (content !== note.content ||
-            JSON.stringify(tags) !==
-              JSON.stringify(note.tags.map((t) => t.name)))
-        ) {
-          updateNoteMutation.mutate({
-            id: activeId,
-            data: { content, tags },
-          });
-        }
-      }
-    }, 1000); // 1s debounce for API calls
-
-    return () => clearTimeout(timer);
-  }, [
-    content,
-    tags,
+  const {
     isNew,
     note,
-    isLoading,
-    createNoteMutation,
-    updateNoteMutation,
-    router,
-  ]);
+    content,
+    setContent,
+    tags,
+    isPreview,
+    setIsPreview,
+    metrics,
+    ui,
+    ops,
+  } = useNoteEditorController();
 
-  useEffect(() => {
-    const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
-      setIsKeyboardVisible(true);
-    });
-    const hideSubscription = Keyboard.addListener("keyboardDidHide", () => {
-      setIsKeyboardVisible(false);
-    });
-
-    return () => {
-      showSubscription.remove();
-      hideSubscription.remove();
-    };
-  }, []);
-
-  const handleKeyboardToggle = () => {
-    if (isKeyboardVisible) {
-      Keyboard.dismiss();
-    } else {
-      if (isPreview) setIsPreview(false);
-      setTimeout(() => {
-        inputRef.current?.focus();
-      }, 50);
-    }
-  };
-
-  const handleGoBack = () => {
-    router.back();
-  };
-
-  const handleTrashAction = async () => {
-    if (!currentNoteId.current) return;
-
-    setIsDeleting(true);
-    try {
-      if (note?.deletedAt) {
-        await restoreNoteMutation.mutateAsync(currentNoteId.current);
-      } else {
-        await deleteNoteMutation.mutateAsync(currentNoteId.current);
-      }
-      infoSheetRef.current?.dismiss();
-      setTimeout(() => router.back(), 250);
-    } catch (error) {
-      setIsDeleting(false);
-      console.error("Failed to toggle trash:", error);
-    }
-  };
-
-  const handlePermanentDelete = async () => {
-    if (!currentNoteId.current) return;
-    setIsDeleting(true);
-    try {
-      await permanentDeleteMutation.mutateAsync(currentNoteId.current);
-      infoSheetRef.current?.dismiss();
-      setTimeout(() => router.back(), 250);
-    } catch (error) {
-      setIsDeleting(false);
-      console.error("Failed to permanently delete note:", error);
-    }
-  };
+  const insets = useSafeAreaInsets();
 
   const renderBackdrop = useCallback(
     (props: BottomSheetBackdropProps) => (
@@ -354,7 +179,7 @@ export function NoteDetailScreen() {
               marginBottom: 6,
               paddingVertical: 2,
             }}
-            onPress={() => handleCheckboxToggle(currentIndex)}
+            onPress={() => ops.handleCheckboxToggle(currentIndex)}
             activeOpacity={0.6}
           >
             <View
@@ -387,6 +212,52 @@ export function NoteDetailScreen() {
           </TouchableOpacity>
         );
       }
+
+      if (_parentNodes.some((p) => p.type === "bullet_list")) {
+        return (
+          <View key={node.key} style={styles.list_item as object}>
+            <Text
+              style={[
+                styles.bullet_list_icon as object,
+                { color: "#334155", fontWeight: "bold" },
+              ]}
+              accessible={false}
+            >
+              {Platform.select({
+                android: "\u2022",
+                ios: "\u00B7",
+                default: "\u2022",
+              })}
+            </Text>
+            <View style={{ flex: 1 }}>{children}</View>
+          </View>
+        );
+      }
+
+      const orderedListIndex = _parentNodes.findIndex(
+        (p) => p.type === "ordered_list"
+      );
+      if (orderedListIndex > -1) {
+        const orderedList = _parentNodes[orderedListIndex];
+        let listItemNumber: number;
+        if (orderedList.attributes?.start) {
+          listItemNumber = orderedList.attributes.start + node.index;
+        } else {
+          listItemNumber = node.index + 1;
+        }
+        return (
+          <View key={node.key} style={styles.list_item as object}>
+            <Text
+              style={[styles.ordered_list_icon as object, { color: "#334155" }]}
+            >
+              {listItemNumber}
+              {node.markup}
+            </Text>
+            <View style={{ flex: 1 }}>{children}</View>
+          </View>
+        );
+      }
+
       return (
         <View key={node.key} style={styles.list_item as object}>
           {children}
@@ -396,11 +267,13 @@ export function NoteDetailScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      {/* Custom Header */}
+    <View
+      className="flex-1 bg-white"
+      style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
+    >
       <View className="flex-row items-center justify-between px-4 py-2 border-b border-slate-100 bg-white z-10">
         <TouchableOpacity
-          onPress={handleGoBack}
+          onPress={ui.handleGoBack}
           className="flex-row items-center p-2 -ml-2"
         >
           <ChevronLeft size={24} color="#0f172a" />
@@ -422,17 +295,17 @@ export function NoteDetailScreen() {
           <TouchableOpacity
             onPress={() => {
               Keyboard.dismiss();
-              infoSheetRef.current?.present();
+              ui.infoSheetRef.current?.present();
             }}
             className="p-2 ml-1"
           >
             <Info size={22} color="#475569" />
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={handleKeyboardToggle}
+            onPress={ui.handleKeyboardToggle}
             className="p-2 -mr-1"
           >
-            {isKeyboardVisible ? (
+            {ui.isKeyboardVisible ? (
               <KeyboardIcon size={22} color="#3b82f6" />
             ) : (
               <SquarePen size={22} color="#475569" />
@@ -461,7 +334,7 @@ export function NoteDetailScreen() {
             </View>
           ) : (
             <TextInput
-              ref={inputRef}
+              ref={ui.inputRef}
               multiline
               placeholder="Enter content here..."
               placeholderTextColor="#cbd5e1"
@@ -474,7 +347,6 @@ export function NoteDetailScreen() {
           )}
         </ScrollView>
 
-        {/* Tags Section */}
         <View className="px-4 py-3 border-t border-slate-100 bg-white flex-row items-center">
           <Tag size={16} color="#94a3b8" />
           <ScrollView
@@ -493,7 +365,7 @@ export function NoteDetailScreen() {
                   </Text>
                   <TouchableOpacity
                     className="ml-1.5 p-0.5"
-                    onPress={() => setTags(tags.filter((t) => t !== tag))}
+                    onPress={() => ops.handleRemoveTag(tag)}
                   >
                     <X size={10} color="#94a3b8" />
                   </TouchableOpacity>
@@ -501,24 +373,7 @@ export function NoteDetailScreen() {
               ))}
               <TouchableOpacity
                 className="px-3 py-1.5 border border-dashed border-slate-300 rounded-full"
-                onPress={() => {
-                  if (Platform.OS === "ios") {
-                    Alert.prompt(
-                      "Add Tag",
-                      "Enter a name for the new tag",
-                      (text) => {
-                        if (text.trim() && !tags.includes(text.trim())) {
-                          setTags([...tags, text.trim()]);
-                        }
-                      }
-                    );
-                  } else {
-                    Alert.alert(
-                      "Pending",
-                      "Tag input for Android is currently pending."
-                    );
-                  }
-                }}
+                onPress={() => ops.handleAddTag()}
               >
                 <Text className="text-xs font-medium text-slate-400">
                   + Add Tag
@@ -529,14 +384,12 @@ export function NoteDetailScreen() {
         </View>
       </KeyboardAvoidingView>
 
-      {/* Info Bottom Sheet */}
       <BottomSheetModal
-        ref={infoSheetRef}
+        ref={ui.infoSheetRef}
         enablePanDownToClose
         backdropComponent={renderBackdrop}
       >
         <BottomSheetView>
-          {/* Info Rows */}
           <View className="border-t border-slate-100">
             {note && (
               <>
@@ -559,19 +412,22 @@ export function NoteDetailScreen() {
             )}
             <View className="flex-row justify-between items-center px-5 py-4 border-b border-slate-100">
               <Text className="text-base text-slate-800">Words</Text>
-              <Text className="text-base text-slate-400">{wordCount}</Text>
+              <Text className="text-base text-slate-400">
+                {metrics.wordCount}
+              </Text>
             </View>
             <View className="flex-row justify-between items-center px-5 py-4 border-b border-slate-100">
               <Text className="text-base text-slate-800">Characters</Text>
-              <Text className="text-base text-slate-400">{charCount}</Text>
+              <Text className="text-base text-slate-400">
+                {metrics.charCount}
+              </Text>
             </View>
           </View>
 
-          {/* Actions */}
           <View className="mb-6">
             <TouchableOpacity
               className="flex-row items-center px-5 py-4 border-b border-slate-50"
-              onPress={handleTrashAction}
+              onPress={ops.handleTrashAction}
             >
               <Trash2
                 size={20}
@@ -589,7 +445,7 @@ export function NoteDetailScreen() {
             {note?.deletedAt && (
               <TouchableOpacity
                 className="flex-row items-center px-5 py-4"
-                onPress={handlePermanentDelete}
+                onPress={ops.handlePermanentDelete}
               >
                 <X size={20} color="#ef4444" />
                 <Text className="text-base text-red-500 ml-3">
@@ -600,6 +456,6 @@ export function NoteDetailScreen() {
           </View>
         </BottomSheetView>
       </BottomSheetModal>
-    </SafeAreaView>
+    </View>
   );
 }

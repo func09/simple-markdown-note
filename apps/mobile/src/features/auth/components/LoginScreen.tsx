@@ -1,10 +1,6 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useLogin } from "@simple-markdown-note/api-client/hooks";
-import type { SigninRequest } from "@simple-markdown-note/common/schemas";
-import { SigninRequestSchema } from "@simple-markdown-note/common/schemas";
-import { Link, useRouter } from "expo-router";
+import { Link } from "expo-router";
 import { AlertCircle, Lock, LogIn, Mail } from "lucide-react-native";
-import { Controller, useForm } from "react-hook-form";
+import { Controller } from "react-hook-form";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -14,42 +10,18 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useAuthStore } from "../store";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useLogin } from "../hooks";
 
 export function LoginScreen() {
-  const router = useRouter();
-  const setAuth = useAuthStore((state) => state.setAuth);
-
-  const {
-    mutate: loginMutate,
-    isPending: isLoading,
-    error: apiError,
-  } = useLogin({
-    onSuccess: (data) => {
-      setAuth(data.user, data.token);
-      router.replace("/(main)/notes");
-    },
-  });
-
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<SigninRequest>({
-    resolver: zodResolver(SigninRequestSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
-
-  const onSubmit = (data: SigninRequest) => {
-    loginMutate(data);
-  };
+  const { control, handleSubmit, errors, isLoading, apiError } = useLogin();
+  const insets = useSafeAreaInsets();
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <View
+      className="flex-1 bg-white"
+      style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
@@ -149,7 +121,7 @@ export function LoginScreen() {
             />
 
             <TouchableOpacity
-              onPress={handleSubmit(onSubmit)}
+              onPress={handleSubmit}
               disabled={isLoading}
               className={`h-12 rounded-xl items-center justify-center mt-4 shadow-lg ${
                 isLoading ? "bg-slate-700" : "bg-slate-900 shadow-slate-300"
@@ -175,6 +147,6 @@ export function LoginScreen() {
           </View>
         </View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
