@@ -2,35 +2,26 @@ import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import {
   useCreateNote,
   useDeleteNote,
-  useLogout,
-  useNotes,
   usePermanentDelete,
   useRestoreNote,
-  useTags,
   useUpdateNote,
 } from "@simple-markdown-note/api-client/hooks";
 import type { Note } from "@simple-markdown-note/common/schemas";
-import { NOTE_SCOPE, type NoteScope } from "@simple-markdown-note/common/types";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
+import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  Alert,
-  Animated,
-  Keyboard,
-  Platform,
-  type TextInput,
-} from "react-native";
-import { useAuthStore } from "../auth/store";
-import { DRAWER_WIDTH } from "./components/NoteDrawer";
+import { Alert, Keyboard, Platform, type TextInput } from "react-native";
 
-// Constants for magic numbers
 const AUTO_SAVE_DELAY = 1000;
-const DRAWER_ANIM_DURATION = 300;
 const NAVIGATION_DELAY = 250;
 const FOCUS_DELAY = 50;
 
 /**
- * 1. ノートの編集状態を管理する Hook
+ * ノートの編集状態（コンテンツやタグ）とその初期化状態を管理するカスタムフックです。
+ * 外部からのデータ更新とローカルの編集状態の同期、および小項目のチェックボックス切り替えロジックなどを提供します。
+ *
+ * @param isNew 新規ノートの作成かどうかを指定します。
+ * @param note 既存のノートデータを指定します（編集時のみ使用します）。
  */
 export function useNoteEditorState(isNew: boolean, note?: Note) {
   const [content, setContent] = useState("");
@@ -38,7 +29,6 @@ export function useNoteEditorState(isNew: boolean, note?: Note) {
   const initializedId = useRef<string | null>(null);
   const currentNoteId = useRef<string | null>(isNew ? null : note?.id || null);
 
-  // 初期読み込みと外部データ更新の同期
   useEffect(() => {
     if (isNew) {
       if (initializedId.current !== "new") {
@@ -97,7 +87,10 @@ export function useNoteEditorState(isNew: boolean, note?: Note) {
 }
 
 /**
- * 2. ノートの計算値を管理する Hook
+ * ノートのコンテンツから単語数や文字数などの指標を計算し、提供するカスタムフックです。
+ * 計算結果はメモ化され、パフォーマンスを最適化します。
+ *
+ * @param content 計算対象となるノートの本文を指定します。
  */
 export function useNoteMetrics(content: string) {
   const wordCount = useMemo(() => {
@@ -110,7 +103,8 @@ export function useNoteMetrics(content: string) {
 }
 
 /**
- * 3. 画面のUI状態と挙動を管理する Hook
+ * ノート編集画面におけるUIの状態（キーボードの表示状態やプレビューモードの切り替えなど）を管理するカスタムフックです。
+ * キーボードの開閉イベントの購読や、入力フィールドへのフォーカス制御を提供します。
  */
 export function useNoteUIController() {
   const router = useRouter();
@@ -160,7 +154,10 @@ export function useNoteUIController() {
 }
 
 /**
- * 4. ノートのデータ操作（API連携・保存）を管理する Hook
+ * ノートのデータ操作（API経由での作成・更新・削除・復元など）を統括するカスタムフックです。
+ * 入力内容の変更を検知して一定時間後に自動保存を行うロジックや、ゴミ箱への移動および完全削除の処理を提供します。
+ *
+ * @param params バックグラウンドでの保存や削除に必要な状態・関数を含んだオブジェクトを指定します。
  */
 export function useNoteOperations({
   isNew,
@@ -192,7 +189,6 @@ export function useNoteOperations({
 
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // 自動保存ロジック
   useEffect(() => {
     if (isLoading || isDeleting) return;
     if (!content.trim() && isNew) return;
@@ -280,169 +276,5 @@ export function useNoteOperations({
   return {
     handleTrashAction,
     handlePermanentDelete,
-  };
-}
-
-/**
- * NotesIndexScreen: 1. データ取得・URLパラメータ管理
- */
-export function useNotesIndexData() {
-  const { scope = NOTE_SCOPE.ALL, tag } = useLocalSearchParams<{
-    scope?: string;
-    tag?: string;
-  }>();
-
-  const {
-    data: notes = [],
-    isLoading: isNotesLoading,
-    refetch: refetchNotes,
-  } = useNotes({
-    scope: scope as NoteScope,
-    tag,
-  });
-  const { data: apiTags = [] } = useTags();
-  const tags = apiTags.map((t) => t.name);
-
-  const getHeaderTitle = () => {
-    if (tag) return tag;
-    if (scope === NOTE_SCOPE.TRASH) return "Trash";
-    if (scope === NOTE_SCOPE.UNTAGGED) return "Untagged";
-    return "All Notes";
-  };
-
-  return {
-    notes,
-    isNotesLoading,
-    refetchNotes,
-    tags,
-    scope,
-    tag,
-    getHeaderTitle,
-  };
-}
-
-/**
- * NotesIndexScreen: 2. 検索・フィルタリング管理
- */
-export function useNotesSearch(notes: Note[]) {
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const filteredNotes = notes.filter((note) => {
-    return note.content.toLowerCase().includes(searchQuery.toLowerCase());
-  });
-
-  return {
-    searchQuery,
-    setSearchQuery,
-    filteredNotes,
-  };
-}
-
-/**
- * NotesIndexScreen: 3. ドロワーUIの状態管理
- */
-export function useNotesDrawerState() {
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const slideAnim = useRef(new Animated.Value(-DRAWER_WIDTH)).current;
-
-  const toggleDrawer = (open: boolean) => {
-    if (open) setIsDrawerOpen(true);
-    Animated.timing(slideAnim, {
-      toValue: open ? 0 : -DRAWER_WIDTH,
-      duration: DRAWER_ANIM_DURATION,
-      useNativeDriver: true,
-    }).start(({ finished }) => {
-      if (!open && finished) {
-        setIsDrawerOpen(false);
-      }
-    });
-  };
-
-  return {
-    isDrawerOpen,
-    toggleDrawer,
-    slideAnim,
-  };
-}
-
-/**
- * NotesIndexScreen: 4. ナビゲーション操作
- */
-export function useNotesIndexNavigation(toggleDrawer: (open: boolean) => void) {
-  const router = useRouter();
-
-  const handleSelectScope = (newScope: string) => {
-    toggleDrawer(false);
-    router.setParams({ scope: newScope, tag: undefined });
-  };
-
-  const handleSelectTag = (newTag: string) => {
-    toggleDrawer(false);
-    router.setParams({ tag: newTag, scope: undefined });
-  };
-
-  const handleNewNote = () => {
-    router.push("/(main)/notes/new");
-  };
-
-  const handleSelectNote = (id: string) => {
-    router.push(`/(main)/notes/${id}`);
-  };
-
-  return {
-    handleSelectScope,
-    handleSelectTag,
-    handleNewNote,
-    handleSelectNote,
-  };
-}
-
-/**
- * NoteDrawer 用の Hook
- */
-export function useNoteDrawer(onClose: () => void) {
-  const clearAuth = useAuthStore((state) => state.clearAuth);
-  const logoutMutation = useLogout({
-    onSuccess: () => {
-      onClose();
-      clearAuth();
-    },
-  });
-
-  const handleLogout = () => {
-    logoutMutation.mutate();
-  };
-
-  return {
-    handleLogout,
-  };
-}
-
-/**
- * NoteListItem 用の Hook (タイトル・サマリー抽出)
- */
-export function useNoteItem(item: Note) {
-  const { title, summary, formattedDate } = useMemo(() => {
-    const lines = item.content.trim().split("\n");
-    const t = lines[0] || "New Note";
-    const s =
-      lines.slice(1).join(" ").trim() ||
-      (item.content.length > t.length
-        ? item.content.slice(t.length).trim()
-        : "No additional content");
-
-    const date = new Date(item.updatedAt);
-    const fd = date.toLocaleDateString(undefined, {
-      month: "short",
-      day: "numeric",
-    });
-
-    return { title: t, summary: s, formattedDate: fd };
-  }, [item.content, item.updatedAt]);
-
-  return {
-    title,
-    summary,
-    formattedDate,
   };
 }
