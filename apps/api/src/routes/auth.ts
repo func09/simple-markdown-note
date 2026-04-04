@@ -3,7 +3,7 @@ import { AuthResponseSchema, MeResponseSchema } from "common/schemas";
 import { deleteCookie, setCookie } from "hono/cookie";
 import { HTTPException } from "hono/http-exception";
 import { sign } from "hono/jwt";
-import { getUserById, logout, signin, signup } from "../services/authService";
+import { getUserById, logout, signin, signup } from "../services/auth";
 import type { AppEnv } from "../types";
 import { logoutRoute, meRoute, signinRoute, signupRoute } from "./auth.schema";
 
