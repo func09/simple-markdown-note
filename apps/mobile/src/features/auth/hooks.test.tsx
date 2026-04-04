@@ -1,7 +1,7 @@
 import { useLogin as useLoginMutation } from "@simple-markdown-note/api-client/hooks";
 import { act, renderHook } from "@testing-library/react-native";
 import { useRouter } from "expo-router";
-import { useLogin } from "./hooks";
+import { useLoginScreen } from "./hooks";
 import { useAuthStore } from "./store";
 
 // Mock dependencies
@@ -40,7 +40,7 @@ describe("useLogin hook", () => {
   });
 
   it("should return the necessary form and mutation states", () => {
-    const { result } = renderHook(() => useLogin());
+    const { result } = renderHook(() => useLoginScreen());
 
     expect(result.current.control).toBeDefined();
     expect(typeof result.current.handleSubmit).toBe("function");
@@ -66,7 +66,7 @@ describe("useLogin hook", () => {
       };
     });
 
-    renderHook(() => useLogin());
+    renderHook(() => useLoginScreen());
 
     // 内部で設定されたonSuccessコールバックを手動でトリガーする
     act(() => {
