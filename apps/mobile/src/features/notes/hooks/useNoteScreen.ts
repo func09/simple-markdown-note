@@ -10,15 +10,11 @@ import {
   useNoteMetrics,
 } from "./useNoteLogic";
 import {
-  useNoteDrawerAnimation,
-  useNoteEditorLayout,
-  useTagPrompt,
-} from "./useNotePlatform";
-import {
   useNoteDetailQuery,
   useNoteListQuery,
   useNoteMutations,
 } from "./useNoteResource";
+import { useNoteDrawer, useNoteEditorUI, useNoteTagPrompt } from "./useNoteUI";
 
 const AUTO_SAVE_DELAY = 1000;
 const NAVIGATION_DELAY = 250;
@@ -151,7 +147,7 @@ export function useNoteListScreen() {
   const { filteredNotes } = useNoteFilter(notes, searchQuery);
 
   // Platform
-  const { isDrawerOpen, slideAnim, toggleDrawer } = useNoteDrawerAnimation();
+  const { isDrawerOpen, slideAnim, toggleDrawer } = useNoteDrawer();
 
   const getHeaderTitle = () => {
     if (tag) return tag;
@@ -247,8 +243,8 @@ export function useNoteEditorScreen() {
   });
 
   // Platform
-  const uiLayout = useNoteEditorLayout(isPreview, setIsPreview);
-  const { promptForTag } = useTagPrompt();
+  const uiLayout = useNoteEditorUI(isPreview, setIsPreview);
+  const { promptForTag } = useNoteTagPrompt();
 
   // Logic
   const { toggleCheckboxInContent } = useNoteCheckbox();
