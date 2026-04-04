@@ -3,9 +3,9 @@ import { renderHook, waitFor } from "@testing-library/react";
 import type { Note, NoteListResponse } from "common/schemas";
 import type React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { ApiClient } from "../client";
-import { ApiProvider } from "../context";
-import * as notesRequests from "../requests/notesRequests";
+import type { ApiClient } from "@/client";
+import { ApiProvider } from "@/context";
+import * as notesRequests from "@/requests/notesRequests";
 import {
   useCreateNote,
   useDeleteNote,
@@ -14,9 +14,9 @@ import {
   usePermanentDelete,
   useRestoreNote,
   useUpdateNote,
-} from "./notesHooks";
+} from "./hooks";
 
-vi.mock("../requests/notesRequests");
+vi.mock("@/requests/notesRequests");
 
 const createWrapper = () => {
   const queryClient = new QueryClient({

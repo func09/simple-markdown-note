@@ -3,12 +3,12 @@ import { renderHook, waitFor } from "@testing-library/react";
 import type { TagListResponse } from "common/schemas";
 import type React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { ApiClient } from "../client";
-import { ApiProvider } from "../context";
-import * as tagsRequests from "../requests/tagsRequests";
-import { useTags } from "./tagsHooks";
+import type { ApiClient } from "@/client";
+import { ApiProvider } from "@/context";
+import * as tagsRequests from "@/requests/tagsRequests";
+import { useTags } from "./hooks";
 
-vi.mock("../requests/tagsRequests");
+vi.mock("@/requests/tagsRequests");
 
 const createWrapper = () => {
   const queryClient = new QueryClient({
