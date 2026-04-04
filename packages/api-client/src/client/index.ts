@@ -1,4 +1,4 @@
-import type { AppType } from "api/types"; // Honoの型
+import type { AppType } from "@simple-markdown-note/api/types"; // Honoの型
 import { hc } from "hono/client";
 
 export { ApiClientError } from "./error";
