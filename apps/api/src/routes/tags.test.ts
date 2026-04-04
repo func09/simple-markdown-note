@@ -17,7 +17,7 @@ describe("Tags API", () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         email: "tag-test@example.com",
-        password: "password123",
+        password: "Password123",
       }),
     });
     const body = (await signupRes.json()) as z.infer<typeof AuthResponseSchema>;
@@ -86,7 +86,7 @@ describe("Tags API", () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: "tag-other@example.com",
-          password: "password123",
+          password: "Password123",
         }),
       });
       const loginBody = (await signupRes.json()) as z.infer<

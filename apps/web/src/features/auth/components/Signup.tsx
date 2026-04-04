@@ -1,4 +1,7 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useSignup } from "api-client/hooks";
+import type { SignupRequest } from "common/schemas";
+import { SignupRequestSchema } from "common/schemas";
 import {
   AlertCircle,
   ArrowRight,
@@ -7,8 +10,8 @@ import {
   Mail,
   ShieldCheck,
 } from "lucide-react";
-import type React from "react";
-import { useId, useState } from "react";
+import { useId } from "react";
+import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -24,6 +27,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuthStore } from "../store";
+
 /**
  * 新規登録コンテナ
  * フォームの表示と認証ロジックを統合したコンポーネントです。
@@ -33,32 +37,38 @@ export function Signup() {
   const {
     mutate,
     isPending: isLoading,
-    error,
+    error: apiError,
   } = useSignup({
     onSuccess(data) {
       setAuth(data.user);
     },
   });
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const emailId = useId();
   const passwordId = useId();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    mutate(
-      { email, password },
-      {
-        onSuccess: () => {
-          toast.success("Successfully signed up!");
-          navigate("/notes?scope=all");
-        },
-        onError: (err: Error) => {
-          toast.error(err.message || "Signup failed");
-        },
-      }
-    );
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignupRequest>({
+    resolver: zodResolver(SignupRequestSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = (data: SignupRequest) => {
+    mutate(data, {
+      onSuccess: () => {
+        toast.success("Successfully signed up!");
+        navigate("/notes?scope=all");
+      },
+      onError: (err: Error) => {
+        toast.error(err.message || "Signup failed");
+      },
+    });
   };
 
   return (
@@ -82,8 +92,12 @@ export function Signup() {
           </CardHeader>
 
           <CardContent className="px-8 pb-8">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {error && (
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              noValidate
+              className="space-y-4"
+            >
+              {apiError && (
                 <Alert
                   variant="destructive"
                   className="rounded-xl border-red-200 bg-red-50 text-red-600"
@@ -91,7 +105,9 @@ export function Signup() {
                   <AlertCircle className="h-4 w-4" />
                   <AlertTitle>Error</AlertTitle>
                   <AlertDescription>
-                    {error instanceof Error ? error.message : "Signup failed"}
+                    {apiError instanceof Error
+                      ? apiError.message
+                      : "Signup failed"}
                   </AlertDescription>
                 </Alert>
               )}
@@ -106,16 +122,23 @@ export function Signup() {
                 <div className="relative group">
                   <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 group-focus-within:text-slate-900" />
                   <Input
+                    {...register("email")}
                     id={emailId}
                     type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@example.com"
-                    className="h-11 rounded-xl border-slate-200 bg-white pl-10 text-slate-900 placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-slate-900/10"
+                    className={`h-11 rounded-xl border-slate-200 bg-white pl-10 text-slate-900 placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-slate-900/10 ${
+                      errors.email
+                        ? "border-red-500 focus-visible:ring-red-500/10"
+                        : ""
+                    }`}
                     disabled={isLoading}
                   />
                 </div>
+                {errors.email && (
+                  <p className="mt-1 ml-1 text-xs text-red-500 font-medium">
+                    {errors.email.message}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -128,16 +151,23 @@ export function Signup() {
                 <div className="relative group">
                   <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 group-focus-within:text-slate-900" />
                   <Input
+                    {...register("password")}
                     id={passwordId}
                     type="password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="h-11 rounded-xl border-slate-200 bg-white pl-10 text-slate-900 placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-slate-900/10"
+                    className={`h-11 rounded-xl border-slate-200 bg-white pl-10 text-slate-900 placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-slate-900/10 ${
+                      errors.password
+                        ? "border-red-500 focus-visible:ring-red-500/10"
+                        : ""
+                    }`}
                     disabled={isLoading}
                   />
                 </div>
+                {errors.password && (
+                  <p className="mt-1 ml-1 text-xs text-red-500 font-medium">
+                    {errors.password.message}
+                  </p>
+                )}
               </div>
 
               <Button
