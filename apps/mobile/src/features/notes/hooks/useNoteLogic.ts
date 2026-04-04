@@ -31,7 +31,7 @@ export function useNoteFilter(notes: Note[], searchQuery: string) {
 /**
  * ノート要素からタイトル抽出やサマリーの生成、日付のフォーマット処理を行うロジックフック。
  */
-export function useNoteFormatter(item: Note) {
+export function useNoteListItem(item: Note) {
   const { title, summary, formattedDate } = useMemo(() => {
     const lines = item.content.trim().split("\n");
     const t = lines[0] || "New Note";
