@@ -14,6 +14,7 @@ import {
 } from "@simple-markdown-note/api-client/hooks";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
+  Check,
   ChevronLeft,
   Eye,
   EyeOff,
@@ -24,19 +25,119 @@ import {
   Trash2,
   X,
 } from "lucide-react-native";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   Alert,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import Markdown, {
+  type ASTNode,
+  type RenderRules,
+} from "react-native-markdown-display";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+const markdownStyles = StyleSheet.create({
+  body: {
+    fontSize: 16,
+    lineHeight: 16 * 1.6,
+    color: "#334155", // slate-700
+  },
+  heading1: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#0f172a", // slate-900
+    marginVertical: 10,
+  },
+  heading2: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#0f172a",
+    marginVertical: 8,
+  },
+  heading3: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#0f172a",
+    marginVertical: 6,
+  },
+  paragraph: {
+    fontSize: 16,
+    lineHeight: 16 * 1.6,
+    color: "#334155",
+    marginBottom: 8,
+  },
+  list_item: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    alignItems: "flex-start",
+    marginBottom: 4,
+  },
+  bullet_list: {
+    marginBottom: 8,
+  },
+  ordered_list: {
+    marginBottom: 8,
+  },
+  code_inline: {
+    backgroundColor: "#f1f5f9", // slate-100
+    color: "#475569", // slate-600
+    paddingHorizontal: 4,
+    borderRadius: 4,
+    fontFamily: Platform.OS === "ios" ? "Menlo" : "monospace",
+  },
+  code_block: {
+    backgroundColor: "#1e293b", // slate-800
+    color: "#f8fafc", // slate-50
+    padding: 12,
+    borderRadius: 8,
+    marginVertical: 8,
+    fontFamily: Platform.OS === "ios" ? "Menlo" : "monospace",
+  },
+  fence: {
+    backgroundColor: "#1e293b",
+    color: "#f8fafc",
+    padding: 12,
+    borderRadius: 8,
+    marginVertical: 8,
+    fontFamily: Platform.OS === "ios" ? "Menlo" : "monospace",
+  },
+  blockquote: {
+    borderLeftWidth: 4,
+    borderLeftColor: "#cbd5e1", // slate-300
+    paddingLeft: 12,
+    marginVertical: 8,
+    fontStyle: "italic",
+  },
+  link: {
+    color: "#3b82f6", // blue-500
+    textDecorationLine: "underline",
+  },
+});
+
+function getNodeText(node: ASTNode): string {
+  if (node.content) {
+    return node.content;
+  }
+  if (node.children && node.children.length > 0) {
+    return node.children.map(getNodeText).join("");
+  }
+  return "";
+}
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
@@ -75,6 +176,19 @@ export function NoteDetailScreen() {
   }, [content]);
 
   const charCount = useMemo(() => content.length, [content]);
+
+  const handleCheckboxToggle = useCallback((index: number) => {
+    setContent((prev) => {
+      const regex = /^(\s*[-*+]\s+)\[([ x])\]/gim;
+      let count = 0;
+      return prev.replace(regex, (match, prefix, state: string) => {
+        if (count++ === index) {
+          return `${prefix}[${state.toLowerCase() === "x" ? " " : "x"}]`;
+        }
+        return match;
+      });
+    });
+  }, []);
 
   // Handle Initial Load and external data updates
   useEffect(() => {
@@ -217,6 +331,70 @@ export function NoteDetailScreen() {
     []
   );
 
+  let checkboxCount = 0;
+  const markdownRules: RenderRules = {
+    list_item: (
+      node: ASTNode,
+      children: ReactNode[],
+      _parentNodes: ASTNode[],
+      styles: Record<string, unknown>
+    ) => {
+      const rawText = getNodeText(node);
+      const checkboxMatch = rawText.match(/^\[( |x|X)\]\s*([\s\S]*)/);
+      if (checkboxMatch) {
+        const isChecked = checkboxMatch[1].toLowerCase() === "x";
+        const itemText = checkboxMatch[2];
+        const currentIndex = checkboxCount++;
+        return (
+          <TouchableOpacity
+            key={node.key}
+            style={{
+              flexDirection: "row",
+              alignItems: "flex-start",
+              marginBottom: 6,
+              paddingVertical: 2,
+            }}
+            onPress={() => handleCheckboxToggle(currentIndex)}
+            activeOpacity={0.6}
+          >
+            <View
+              style={{
+                width: 20,
+                height: 20,
+                borderRadius: 4,
+                borderWidth: 2,
+                borderColor: isChecked ? "#3b82f6" : "#94a3b8",
+                backgroundColor: isChecked ? "#3b82f6" : "transparent",
+                marginRight: 10,
+                marginTop: 2,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {isChecked && <Check size={12} color="white" />}
+            </View>
+            <Text
+              style={{
+                flex: 1,
+                fontSize: 16,
+                lineHeight: 16 * 1.6,
+                color: isChecked ? "#94a3b8" : "#334155",
+                textDecorationLine: isChecked ? "line-through" : "none",
+              }}
+            >
+              {itemText}
+            </Text>
+          </TouchableOpacity>
+        );
+      }
+      return (
+        <View key={node.key} style={styles.list_item as object}>
+          {children}
+        </View>
+      );
+    },
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Custom Header */}
@@ -273,11 +451,13 @@ export function NoteDetailScreen() {
         >
           {isPreview ? (
             <View className="flex-1 p-6">
-              <Text className="text-lg text-slate-800 leading-relaxed">
-                {content || (
-                  <Text className="text-slate-300 italic">No content</Text>
-                )}
-              </Text>
+              {content ? (
+                <Markdown style={markdownStyles} rules={markdownRules}>
+                  {content}
+                </Markdown>
+              ) : (
+                <Text className="text-slate-300 italic">No content</Text>
+              )}
             </View>
           ) : (
             <TextInput
