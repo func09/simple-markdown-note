@@ -1,5 +1,6 @@
 import type { Note } from "@simple-markdown-note/common/schemas";
 import { Pressable, Text, View } from "react-native";
+import { useNoteFormatter } from "../hooks";
 
 type NoteListItemProps = {
   item: Note;
@@ -7,21 +8,7 @@ type NoteListItemProps = {
 };
 
 export function NoteListItem({ item, onPress }: NoteListItemProps) {
-  // 本文の1行目をタイトル、残りをサマリーとして抽出
-  const lines = item.content.trim().split("\n");
-  const title = lines[0] || "New Note";
-  const summary =
-    lines.slice(1).join(" ").trim() ||
-    (item.content.length > title.length
-      ? item.content.slice(title.length).trim()
-      : "No additional content");
-
-  // 日付の簡易フォーマット
-  const date = new Date(item.updatedAt);
-  const formattedDate = date.toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-  });
+  const { title, summary, formattedDate } = useNoteFormatter(item);
 
   return (
     <Pressable
