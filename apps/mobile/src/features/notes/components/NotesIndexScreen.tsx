@@ -8,7 +8,12 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useNotesIndex } from "../hooks";
+import {
+  useNotesDrawerState,
+  useNotesIndexData,
+  useNotesIndexNavigation,
+  useNotesSearch,
+} from "../hooks";
 import { NoteDrawer } from "./NoteDrawer";
 import { NoteListItem } from "./NoteListItem";
 
@@ -18,19 +23,18 @@ export function NotesIndexScreen() {
     isNotesLoading,
     refetchNotes,
     tags,
-    searchQuery,
-    setSearchQuery,
-    isDrawerOpen,
-    toggleDrawer,
-    slideAnim,
     scope,
     tag,
     getHeaderTitle,
+  } = useNotesIndexData();
+  const { searchQuery, setSearchQuery, filteredNotes } = useNotesSearch(notes);
+  const { isDrawerOpen, toggleDrawer, slideAnim } = useNotesDrawerState();
+  const {
     handleSelectScope,
     handleSelectTag,
     handleNewNote,
     handleSelectNote,
-  } = useNotesIndex();
+  } = useNotesIndexNavigation(toggleDrawer);
 
   const insets = useSafeAreaInsets();
 
@@ -85,7 +89,7 @@ export function NotesIndexScreen() {
 
       {/* Note List */}
       <FlatList
-        data={notes}
+        data={filteredNotes}
         renderItem={({ item }) => (
           <NoteListItem item={item} onPress={handleSelectNote} />
         )}
