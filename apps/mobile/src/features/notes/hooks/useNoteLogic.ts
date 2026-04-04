@@ -1,5 +1,5 @@
 import type { Note } from "@simple-markdown-note/common/schemas";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 
 /**
  * ノートのコンテンツから単語数や文字数などの指標を計算する純粋なロジックフック。
