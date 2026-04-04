@@ -1,7 +1,3 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useSignup } from "@simple-markdown-note/api-client/hooks";
-import type { SignupRequest } from "@simple-markdown-note/common/schemas";
-import { SignupRequestSchema } from "@simple-markdown-note/common/schemas";
 import {
   AlertCircle,
   ArrowRight,
@@ -10,10 +6,7 @@ import {
   Mail,
   ShieldCheck,
 } from "lucide-react";
-import { useId } from "react";
-import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+import { Link } from "react-router-dom";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,50 +19,23 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAuthStore } from "../store";
+import { useSignupForm } from "../hooks";
 
 /**
- * 新規登録コンテナ
- * フォームの表示と認証ロジックを統合したコンポーネントです。
+ * 新規登録画面
+ * `useSignupForm` フックを使用してロジックとUIを分離しています。
  */
-export function Signup() {
-  const setAuth = useAuthStore((state) => state.setAuth);
-  const {
-    mutate,
-    isPending: isLoading,
-    error: apiError,
-  } = useSignup({
-    onSuccess(data) {
-      setAuth(data.user);
-    },
-  });
-  const navigate = useNavigate();
-  const emailId = useId();
-  const passwordId = useId();
-
+export function SignupScreen() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm<SignupRequest>({
-    resolver: zodResolver(SignupRequestSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
-
-  const onSubmit = (data: SignupRequest) => {
-    mutate(data, {
-      onSuccess: () => {
-        toast.success("Successfully signed up!");
-        navigate("/notes?scope=all");
-      },
-      onError: (err: Error) => {
-        toast.error(err.message || "Signup failed");
-      },
-    });
-  };
+    onSubmit,
+    errors,
+    isLoading,
+    apiError,
+    emailId,
+    passwordId,
+  } = useSignupForm();
 
   return (
     <div className="flex min-h-[80vh] items-center justify-center p-4">

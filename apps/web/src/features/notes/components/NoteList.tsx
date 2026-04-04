@@ -1,86 +1,24 @@
-import {
-  useCreateNote,
-  useNotes,
-} from "@simple-markdown-note/api-client/hooks";
 import { Plus, Search } from "lucide-react";
-import { useCallback, useMemo } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { cn } from "@/lib/utils";
-import { useNotesStore } from "../store";
+import { useCreateNoteAction, useFilteredNotes } from "../hooks";
+import { NoteListItem } from "./NoteListItem";
 
 interface NoteListProps {
   selectedNoteId?: string;
 }
 
-function formatNotePreview(content: string) {
-  const lines = content.split("\n");
-  const title = lines[0].replace(/^#\s*/, "").trim() || "Untitled";
-  const preview = lines.slice(1).join(" ").trim() || "No additional text";
-  return { title, preview };
-}
-
-function formatDate(dateStr: string) {
-  const date = new Date(dateStr);
-  const now = new Date();
-  const diff = now.getTime() - date.getTime();
-  if (diff < 1000 * 60 * 60 * 24) {
-    return date.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  }
-  return date.toLocaleDateString([], { month: "short", day: "numeric" });
-}
-
 export function NoteList({ selectedNoteId }: NoteListProps) {
-  const navigate = useNavigate();
-
-  // ストアの個別の値をセレクタ形式で購読（不要な再描画を防ぐ）
-  const searchQuery = useNotesStore((s) => s.searchQuery);
-  const setSearchQuery = useNotesStore((s) => s.setSearchQuery);
-  const scope = useNotesStore((s) => s.filterScope);
-  const tag = useNotesStore((s) => s.filterTag);
-  const setSelectedNoteId = useNotesStore((s) => s.setSelectedNoteId);
-
-  const { data: notes = [], isLoading } = useNotes({
+  const {
+    filteredNotes,
+    shouldShowSkeleton,
+    searchQuery,
+    setSearchQuery,
+    setSelectedNoteId,
     scope,
-    tag: tag || undefined,
-  });
+    tag,
+    queryString,
+  } = useFilteredNotes();
 
-  const createNoteMutation = useCreateNote();
-
-  const filteredNotes = useMemo(
-    () =>
-      notes.filter((note) =>
-        note.content.toLowerCase().includes(searchQuery.toLowerCase())
-      ),
-    [notes, searchQuery]
-  );
-
-  const queryString = useMemo(() => {
-    const params = new URLSearchParams();
-    if (scope !== "all") params.set("scope", scope);
-    if (tag) params.set("tag", tag);
-    const qs = params.toString();
-    return qs ? `?${qs}` : "";
-  }, [scope, tag]);
-
-  const handleAddNote = useCallback(async () => {
-    try {
-      const result = await createNoteMutation.mutateAsync({
-        content: "",
-        isPermanent: false,
-        tags: tag ? [tag] : [],
-      });
-      setSelectedNoteId(result.id);
-      navigate(`/notes/${result.id}${queryString}`);
-    } catch (error) {
-      console.error("Failed to create note:", error);
-    }
-  }, [createNoteMutation, setSelectedNoteId, navigate, queryString, tag]);
-
-  // データがある場合は isLoading が真（フェッチ中）であってもリストを表示し続け、DOMの再生成を防ぐ
-  const shouldShowSkeleton = isLoading && notes.length === 0;
+  const { handleAddNote } = useCreateNoteAction();
 
   return (
     <div className="flex flex-col h-full bg-white border-r border-slate-200">
@@ -126,37 +64,15 @@ export function NoteList({ selectedNoteId }: NoteListProps) {
           </div>
         ) : filteredNotes.length > 0 ? (
           <div className="divide-y divide-slate-100">
-            {filteredNotes.map((note) => {
-              const { title, preview } = formatNotePreview(note.content);
-              const isSelected = selectedNoteId === note.id;
-              const href = `/notes/${note.id}${queryString}`;
-
-              return (
-                <Link
-                  key={note.id}
-                  to={href}
-                  onClick={() => setSelectedNoteId(note.id)}
-                  className={cn(
-                    "block px-5 py-4 transition-colors text-left",
-                    isSelected
-                      ? "bg-slate-100 ring-1 ring-inset ring-slate-200"
-                      : "hover:bg-slate-50"
-                  )}
-                >
-                  <div className="flex justify-between items-start mb-1 gap-2">
-                    <h3 className="text-sm font-semibold text-slate-900 truncate flex-1">
-                      {title}
-                    </h3>
-                    <span className="text-[10px] uppercase font-bold text-slate-400 whitespace-nowrap">
-                      {formatDate(note.updatedAt)}
-                    </span>
-                  </div>
-                  <p className="text-sm text-slate-500 line-clamp-2 leading-relaxed">
-                    {preview}
-                  </p>
-                </Link>
-              );
-            })}
+            {filteredNotes.map((note) => (
+              <NoteListItem
+                key={note.id}
+                note={note}
+                isSelected={selectedNoteId === note.id}
+                href={`/notes/${note.id}${queryString}`}
+                onClick={setSelectedNoteId}
+              />
+            ))}
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center p-12 text-center">
