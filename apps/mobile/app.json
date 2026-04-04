@@ -13,8 +13,7 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.func09.simple-markdown-note"
+      "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
