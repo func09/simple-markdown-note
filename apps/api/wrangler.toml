@@ -1,12 +1,12 @@
-name = "simplenote-clone-api"
+name = "simple-markdown-note-api"
 main = "src/index.ts"
 compatibility_date = "2026-03-29"
 compatibility_flags = [ "nodejs_compat" ]
 
 [[d1_databases]]
 binding = "DB"
-database_name = "simplenote-clone-db"
-database_id = "d4613c62-4f01-450a-a9eb-b127c07da0f3"
+database_name = "simple-markdown-note-db"
+database_id = "YOUR_DATABASE_ID_HERE"
 migrations_dir = "../../packages/database/migrations"
 
 [vars]
