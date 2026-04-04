@@ -6,7 +6,7 @@ import {
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createTag, getTagsWithNoteCount, syncTags } from "./tag";
 
-vi.mock("database", () => ({
+vi.mock("@simple-markdown-note/database", () => ({
   createTagRepository: vi.fn(),
 }));
 
