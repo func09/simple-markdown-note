@@ -1,5 +1,5 @@
-import type { Note } from "common/models";
 import type {
+  Note,
   NoteCreateRequest,
   NoteListRequest,
   NoteListResponse,

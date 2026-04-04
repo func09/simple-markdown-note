@@ -1,6 +1,34 @@
 import { NOTE_SCOPE, NOTE_SCOPES } from "../constraints";
-import { NoteSchema } from "../models";
-import { z } from "../z";
+import { dateSchema, z } from "../z";
+import { TagSchema } from "./tagSchemas";
+
+/**
+ * ノートモデルのスキーマ
+ */
+export const NoteSchema = z
+  .object({
+    id: z.string().openapi({ example: "clvabcdef000008l1abcdefgh" }),
+    content: z.string().openapi({ example: "Note content" }),
+    userId: z.string().openapi({ example: "user-id" }),
+    tags: z.array(TagSchema).openapi("NoteTags", {
+      example: [
+        {
+          id: "tag-1",
+          name: "Work",
+          userId: "user-id",
+          createdAt: "2026-03-25T12:00:00Z",
+          updatedAt: "2026-03-25T12:00:00Z",
+        },
+      ],
+    }),
+    createdAt: dateSchema.openapi({ example: "2026-03-25T12:00:00Z" }),
+    updatedAt: dateSchema.openapi({ example: "2026-03-25T12:00:00Z" }),
+    deletedAt: dateSchema.nullable().openapi({ example: null }),
+    isPermanent: z.boolean().openapi({ example: false }),
+  })
+  .openapi("Note");
+
+export type Note = z.infer<typeof NoteSchema>;
 
 /**
  * ノート作成リクエストのスキーマ
