@@ -13,7 +13,7 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useNoteDrawer } from "../hooks";
+import { useNoteDrawerController } from "../hooks";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 export const DRAWER_WIDTH = SCREEN_WIDTH * 0.8;
@@ -39,14 +39,13 @@ export function NoteDrawer({
   onSelectTag,
   tags,
 }: NoteDrawerProps) {
-  const { handleLogout } = useNoteDrawer(onClose);
+  const { handleLogout } = useNoteDrawerController(onClose);
   const insets = useSafeAreaInsets();
 
   if (!isOpen) return null;
 
   return (
     <>
-      {/* Drawer Overlay */}
       <TouchableWithoutFeedback onPress={onClose}>
         <View
           className="absolute inset-0 bg-black/40 z-40"
@@ -54,7 +53,6 @@ export function NoteDrawer({
         />
       </TouchableWithoutFeedback>
 
-      {/* Side Drawer */}
       <Animated.View
         className="absolute left-0 top-0 bottom-0 bg-white z-50 shadow-2xl"
         style={{
@@ -67,7 +65,6 @@ export function NoteDrawer({
           style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
         >
           <View className="flex-1 pt-6">
-            {/* Main Links */}
             <View className="px-2 mb-6">
               <TouchableOpacity
                 onPress={() => onSelectScope("all")}
@@ -112,7 +109,6 @@ export function NoteDrawer({
               </TouchableOpacity>
             </View>
 
-            {/* Tags Section */}
             <View className="px-6 mb-2">
               <Text className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
                 Tags
@@ -142,7 +138,6 @@ export function NoteDrawer({
               ))}
             </View>
 
-            {/* Bottom Section */}
             <View className="mt-auto px-2 pb-6 border-t border-slate-50 pt-4">
               <TouchableOpacity
                 onPress={() => onSelectScope("untagged")}
