@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { ApiClient } from "../client";
+import type { ApiClient } from "../../client";
 import {
   createNote,
   deleteNote,
   getNote,
   listNotes,
   updateNote,
-} from "./notesRequests";
+} from "./requests";
 
 const createApiMock = () => ({
   notes: {

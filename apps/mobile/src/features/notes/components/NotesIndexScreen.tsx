@@ -1,5 +1,5 @@
 import { useNotes, useTags } from "api-client/hooks";
-import { NOTE_SCOPE } from "common/constraints";
+import { NOTE_SCOPE, type NoteScope } from "common/types";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Menu, NotebookPen, Search } from "lucide-react-native";
 import { useRef, useState } from "react";
@@ -29,7 +29,7 @@ export function NotesIndexScreen() {
     isLoading: isNotesLoading,
     refetch: refetchNotes,
   } = useNotes({
-    scope: scope as import("common/constraints").NoteScope,
+    scope: scope as NoteScope,
     tag,
   });
   const { data: apiTags = [] } = useTags();

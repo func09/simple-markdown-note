@@ -1,12 +1,12 @@
-import type { Note } from "common/models";
 import type {
+  Note,
   NoteCreateRequest,
   NoteListRequest,
   NoteListResponse,
   NoteUpdateRequest,
 } from "common/schemas";
-import type { ApiClient } from "../client";
-import { ApiClientError } from "../client";
+import type { ApiClient } from "../../client";
+import { ApiClientError } from "../../client";
 
 /**
  * ノート一覧を取得する
