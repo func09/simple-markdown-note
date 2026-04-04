@@ -1,8 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  useLogin as useLoginMutation,
-  useSignup as useSignupMutation,
-} from "@simple-markdown-note/api-client/hooks";
+import { useLogin, useSignup } from "@simple-markdown-note/api-client/hooks";
 import type {
   SigninRequest,
   SignupRequest,
@@ -13,31 +10,27 @@ import {
 } from "@simple-markdown-note/common/schemas";
 import { useRouter } from "expo-router";
 import { useForm } from "react-hook-form";
-import { useAuthStore } from "./store";
+import { useAuthStore } from "../store";
 
 /**
  * ログイン画面用のカスタムフック
  * フォーム管理、API連携、認証情報の保存、画面遷移を制御します。
  */
-export function useLogin() {
+export function useLoginScreen() {
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
 
-  // ログインミューテーションの設定
   const {
     mutate: loginMutate,
     isPending: isLoading,
     error: apiError,
-  } = useLoginMutation({
+  } = useLogin({
     onSuccess: (data) => {
-      // 認証情報をストアに保存
       setAuth(data.user, data.token);
-      // メイン画面へ遷移
       router.replace("/(main)/notes");
     },
   });
 
-  // フォームの初期化
   const {
     control,
     handleSubmit,
@@ -50,9 +43,6 @@ export function useLogin() {
     },
   });
 
-  /**
-   * フォーム送信時の処理
-   */
   const onSubmit = (data: SigninRequest) => {
     loginMutate(data);
   };
@@ -70,25 +60,21 @@ export function useLogin() {
  * サインアップ画面用のカスタムフック
  * フォーム管理、API連携、認証情報の保存、画面遷移を制御します。
  */
-export function useSignup() {
+export function useSignupScreen() {
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
 
-  // サインアップミューテーションの設定
   const {
     mutate: signupMutate,
     isPending: isLoading,
     error: apiError,
-  } = useSignupMutation({
+  } = useSignup({
     onSuccess: (data) => {
-      // 認証情報をストアに保存
       setAuth(data.user, data.token);
-      // メイン画面へ遷移
       router.replace("/(main)/notes");
     },
   });
 
-  // フォームの初期化
   const {
     control,
     handleSubmit,
@@ -101,9 +87,6 @@ export function useSignup() {
     },
   });
 
-  /**
-   * フォーム送信時の処理
-   */
   const onSubmit = (data: SignupRequest) => {
     signupMutate(data);
   };

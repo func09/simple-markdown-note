@@ -11,10 +11,11 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useSignup } from "../hooks";
+import { useSignupScreen } from "../hooks";
 
 export function SignupScreen() {
-  const { control, handleSubmit, errors, isLoading, apiError } = useSignup();
+  const { control, handleSubmit, errors, isLoading, apiError } =
+    useSignupScreen();
   const insets = useSafeAreaInsets();
 
   return (
