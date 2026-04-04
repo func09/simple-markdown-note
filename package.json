@@ -16,6 +16,8 @@
     "build": "turbo build",
     "typecheck": "turbo typecheck",
     "test": "turbo test",
+    "clean:cache": "find . -name \"*.tsbuildinfo\" -delete",
+    "check:all": "pnpm clean:cache && turbo check typecheck test --force",
     "prepare": "husky"
   },
   "keywords": [],
