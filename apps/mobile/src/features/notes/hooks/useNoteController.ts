@@ -1,9 +1,14 @@
 import { useLogout } from "@simple-markdown-note/api-client/hooks";
 import { NOTE_SCOPE, type NoteScope } from "@simple-markdown-note/common/types";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAuthStore } from "../../auth/store";
-import { useNoteCheckbox, useNoteFilter, useNoteMetrics } from "./useNoteLogic";
+import {
+  useNoteCheckbox,
+  useNoteEditorState,
+  useNoteFilter,
+  useNoteMetrics,
+} from "./useNoteLogic";
 import {
   useNoteDrawerAnimation,
   useNoteEditorLayout,
@@ -17,6 +22,112 @@ import {
 
 const AUTO_SAVE_DELAY = 1000;
 const NAVIGATION_DELAY = 250;
+
+// ---------------------------------------------------------------------------
+// Private: 自動保存の副作用を担うフック
+// ---------------------------------------------------------------------------
+
+function useNoteAutoSave({
+  content,
+  tags,
+  isNew,
+  note,
+  isLoading,
+  isDeleting,
+  mutations,
+  router,
+  currentNoteId,
+  markAsInitialized,
+}: {
+  content: string;
+  tags: string[];
+  isNew: boolean;
+  note: ReturnType<typeof useNoteDetailQuery>["note"];
+  isLoading: boolean;
+  isDeleting: boolean;
+  mutations: ReturnType<typeof useNoteMutations>;
+  router: ReturnType<typeof useRouter>;
+  currentNoteId: { current: string | null };
+  markAsInitialized: (id: string) => void;
+}) {
+  useEffect(() => {
+    if (isLoading || isDeleting) return;
+    if (!content.trim() && isNew) return;
+
+    const timer = setTimeout(async () => {
+      const activeId = currentNoteId.current;
+
+      if (isNew && !activeId) {
+        try {
+          const result = await mutations.createNote({
+            content,
+            tags,
+            isPermanent: false,
+          });
+          markAsInitialized(result.id);
+          router.setParams({ id: result.id });
+        } catch (error) {
+          console.error("Failed to create note:", error);
+        }
+      } else if (activeId) {
+        if (
+          note &&
+          (content !== note.content ||
+            JSON.stringify(tags) !==
+              JSON.stringify(note.tags.map((t) => t.name)))
+        ) {
+          mutations.updateNote({ id: activeId, data: { content, tags } });
+        }
+      }
+    }, AUTO_SAVE_DELAY);
+
+    return () => clearTimeout(timer);
+  }, [
+    content,
+    tags,
+    isNew,
+    note,
+    isLoading,
+    isDeleting,
+    mutations,
+    router,
+    currentNoteId,
+    markAsInitialized,
+  ]);
+}
+
+// ---------------------------------------------------------------------------
+// Private: 削除・復元操作の共通パターンをまとめたフック
+// ---------------------------------------------------------------------------
+
+function useNoteDeleteAction({
+  setIsDeleting,
+  infoSheetRef,
+  handleGoBack,
+}: {
+  setIsDeleting: (v: boolean) => void;
+  infoSheetRef: { current: { dismiss(): void } | null };
+  handleGoBack: () => void;
+}) {
+  return useCallback(
+    async (action: () => Promise<unknown>, label: string) => {
+      setIsDeleting(true);
+      try {
+        await action();
+        infoSheetRef.current?.dismiss();
+        setTimeout(handleGoBack, NAVIGATION_DELAY);
+      } catch (error) {
+        setIsDeleting(false);
+        console.error(`Failed to ${label}:`, error);
+      }
+    },
+    [setIsDeleting, infoSheetRef, handleGoBack]
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Public hooks
+// ---------------------------------------------------------------------------
 
 /**
  * ノート一覧画面の全体の司令塔となるコントローラーフック。
@@ -107,14 +218,33 @@ export function useNoteEditorController() {
   const { note, isLoading } = useNoteDetailQuery(isNew ? null : id);
   const mutations = useNoteMutations();
 
-  // State
-  const [content, setContent] = useState("");
-  const [tags, setTags] = useState<string[]>([]);
-  const [isPreview, setIsPreview] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  // State（初期化・サーバーデータとの同期を含む）
+  const {
+    content,
+    setContent,
+    tags,
+    setTags,
+    isPreview,
+    setIsPreview,
+    isDeleting,
+    setIsDeleting,
+    currentNoteId,
+    markAsInitialized,
+  } = useNoteEditorState(note, isNew);
 
-  const initializedId = useRef<string | null>(null);
-  const currentNoteId = useRef<string | null>(isNew ? null : note?.id || null);
+  // Auto-save
+  useNoteAutoSave({
+    content,
+    tags,
+    isNew,
+    note,
+    isLoading,
+    isDeleting,
+    mutations,
+    router,
+    currentNoteId,
+    markAsInitialized,
+  });
 
   // Platform
   const uiLayout = useNoteEditorLayout(isPreview, setIsPreview);
@@ -125,108 +255,51 @@ export function useNoteEditorController() {
   const metrics = useNoteMetrics(content);
 
   const handleGoBack = useCallback(() => router.back(), [router]);
-
-  // 初期読み込みと外部データ更新の同期
-  useEffect(() => {
-    if (isNew) {
-      if (initializedId.current !== "new") {
-        setContent("");
-        setTags([]);
-        initializedId.current = "new";
-      }
-    } else if (note && initializedId.current !== note.id) {
-      setContent(note.content);
-      setTags(note.tags.map((t) => t.name));
-      initializedId.current = note.id;
-      currentNoteId.current = note.id;
-    }
-  }, [isNew, note]);
-
-  // 自動保存ロジック
-  useEffect(() => {
-    if (isLoading || isDeleting) return;
-    if (!content.trim() && isNew) return;
-
-    const timer = setTimeout(async () => {
-      const activeId = currentNoteId.current;
-
-      if (isNew && !activeId) {
-        try {
-          const result = await mutations.createNote({
-            content,
-            tags,
-            isPermanent: false,
-          });
-          currentNoteId.current = result.id;
-          router.setParams({ id: result.id });
-          initializedId.current = result.id;
-        } catch (error) {
-          console.error("Failed to create note:", error);
-        }
-      } else if (activeId) {
-        if (
-          note &&
-          (content !== note.content ||
-            JSON.stringify(tags) !==
-              JSON.stringify(note.tags.map((t) => t.name)))
-        ) {
-          mutations.updateNote({ id: activeId, data: { content, tags } });
-        }
-      }
-    }, AUTO_SAVE_DELAY);
-
-    return () => clearTimeout(timer);
-  }, [content, tags, isNew, note, isLoading, isDeleting, mutations, router]);
+  const executeDelete = useNoteDeleteAction({
+    setIsDeleting,
+    infoSheetRef: uiLayout.infoSheetRef,
+    handleGoBack,
+  });
 
   // Handlers
   const handleCheckboxToggle = useCallback(
     (index: number) => {
       setContent((prev) => toggleCheckboxInContent(prev, index));
     },
-    [toggleCheckboxInContent]
+    [toggleCheckboxInContent, setContent]
   );
 
   const handleAddTag = useCallback(() => {
     promptForTag(tags, (newTag) => setTags((prev) => [...prev, newTag]));
-  }, [promptForTag, tags]);
+  }, [promptForTag, tags, setTags]);
 
-  const handleRemoveTag = useCallback((tagToRemove: string) => {
-    setTags((prev) => prev.filter((t) => t !== tagToRemove));
-  }, []);
+  const handleRemoveTag = useCallback(
+    (tagToRemove: string) => {
+      setTags((prev) => prev.filter((t) => t !== tagToRemove));
+    },
+    [setTags]
+  );
 
-  const handleTrashAction = async () => {
+  const handleTrashAction = useCallback(() => {
     const activeId = currentNoteId.current;
     if (!activeId) return;
+    const action = note?.deletedAt
+      ? () => mutations.restoreNote(activeId)
+      : () => mutations.deleteNote(activeId);
+    return executeDelete(
+      action,
+      note?.deletedAt ? "restore note" : "trash note"
+    );
+  }, [currentNoteId, note, mutations, executeDelete]);
 
-    setIsDeleting(true);
-    try {
-      if (note?.deletedAt) {
-        await mutations.restoreNote(activeId);
-      } else {
-        await mutations.deleteNote(activeId);
-      }
-      uiLayout.infoSheetRef.current?.dismiss();
-      setTimeout(handleGoBack, NAVIGATION_DELAY);
-    } catch (error) {
-      setIsDeleting(false);
-      console.error("Failed to toggle trash:", error);
-    }
-  };
-
-  const handlePermanentDelete = async () => {
+  const handlePermanentDelete = useCallback(() => {
     const activeId = currentNoteId.current;
     if (!activeId) return;
-
-    setIsDeleting(true);
-    try {
-      await mutations.permanentDelete(activeId);
-      uiLayout.infoSheetRef.current?.dismiss();
-      setTimeout(handleGoBack, NAVIGATION_DELAY);
-    } catch (error) {
-      setIsDeleting(false);
-      console.error("Failed to permanently delete note:", error);
-    }
-  };
+    return executeDelete(
+      () => mutations.permanentDelete(activeId),
+      "permanently delete note"
+    );
+  }, [currentNoteId, mutations, executeDelete]);
 
   return {
     isNew,
@@ -266,9 +339,9 @@ export function useNoteDrawerController(onClose: () => void) {
     },
   });
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     logoutMutation.mutate();
-  };
+  }, [logoutMutation]);
 
   return {
     handleLogout,
