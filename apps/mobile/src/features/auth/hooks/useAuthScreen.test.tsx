@@ -13,7 +13,7 @@ jest.mock("@simple-markdown-note/api-client/hooks", () => ({
   useLogin: jest.fn(),
 }));
 
-jest.mock("./store", () => ({
+jest.mock("../store", () => ({
   useAuthStore: jest.fn(),
 }));
 
