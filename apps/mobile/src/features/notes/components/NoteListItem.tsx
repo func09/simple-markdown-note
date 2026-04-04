@@ -1,4 +1,4 @@
-import type { Note } from "common/schemas";
+import type { Note } from "@simple-markdown-note/common/schemas";
 import { Pressable, Text, View } from "react-native";
 
 type NoteListItemProps = {

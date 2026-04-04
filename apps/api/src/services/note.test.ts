@@ -1,4 +1,7 @@
-import { createNoteRepository, type DrizzleDB } from "database";
+import {
+  createNoteRepository,
+  type DrizzleDB,
+} from "@simple-markdown-note/database";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   createNote,

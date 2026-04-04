@@ -1,4 +1,4 @@
-import { useLogout } from "api-client/hooks";
+import { useLogout } from "@simple-markdown-note/api-client/hooks";
 import {
   LogOut,
   NotebookPen,

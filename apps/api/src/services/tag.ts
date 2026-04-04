@@ -1,4 +1,7 @@
-import { createTagRepository, type DrizzleDB } from "database";
+import {
+  createTagRepository,
+  type DrizzleDB,
+} from "@simple-markdown-note/database";
 
 /**
  * ノートのタグを同期する

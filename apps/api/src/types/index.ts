@@ -1,4 +1,4 @@
-import type { DrizzleDB } from "database";
+import type { DrizzleDB } from "@simple-markdown-note/database";
 import type { apiRouter } from "../routes";
 
 // アプリケーション共通の環境変数型定義
