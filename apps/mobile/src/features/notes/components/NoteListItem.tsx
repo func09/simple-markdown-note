@@ -1,4 +1,4 @@
-import type { Note } from "common/models";
+import type { Note } from "common/schemas";
 import { Pressable, Text, View } from "react-native";
 
 type NoteListItemProps = {

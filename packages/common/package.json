@@ -10,10 +10,6 @@
       "import": "./src/schemas/index.ts",
       "types": "./src/schemas/index.ts"
     },
-    "./models": {
-      "import": "./src/models/index.ts",
-      "types": "./src/models/index.ts"
-    },
     "./constraints": {
       "import": "./src/constraints/index.ts",
       "types": "./src/constraints/index.ts"
