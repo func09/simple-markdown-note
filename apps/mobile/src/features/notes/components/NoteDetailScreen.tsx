@@ -14,6 +14,7 @@ import {
 } from "@simple-markdown-note/api-client/hooks";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
+  Check,
   ChevronLeft,
   Eye,
   EyeOff,
@@ -24,7 +25,14 @@ import {
   Trash2,
   X,
 } from "lucide-react-native";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   Alert,
   Keyboard,
@@ -37,7 +45,10 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import Markdown from "react-native-markdown-display";
+import Markdown, {
+  type ASTNode,
+  type RenderRules,
+} from "react-native-markdown-display";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const markdownStyles = StyleSheet.create({
@@ -118,6 +129,16 @@ const markdownStyles = StyleSheet.create({
   },
 });
 
+function getNodeText(node: ASTNode): string {
+  if (node.content) {
+    return node.content;
+  }
+  if (node.children && node.children.length > 0) {
+    return node.children.map(getNodeText).join("");
+  }
+  return "";
+}
+
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
   return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, "0")}/${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
@@ -155,6 +176,19 @@ export function NoteDetailScreen() {
   }, [content]);
 
   const charCount = useMemo(() => content.length, [content]);
+
+  const handleCheckboxToggle = useCallback((index: number) => {
+    setContent((prev) => {
+      const regex = /^(\s*[-*+]\s+)\[([ x])\]/gim;
+      let count = 0;
+      return prev.replace(regex, (match, prefix, state: string) => {
+        if (count++ === index) {
+          return `${prefix}[${state.toLowerCase() === "x" ? " " : "x"}]`;
+        }
+        return match;
+      });
+    });
+  }, []);
 
   // Handle Initial Load and external data updates
   useEffect(() => {
@@ -297,6 +331,70 @@ export function NoteDetailScreen() {
     []
   );
 
+  let checkboxCount = 0;
+  const markdownRules: RenderRules = {
+    list_item: (
+      node: ASTNode,
+      children: ReactNode[],
+      _parentNodes: ASTNode[],
+      styles: Record<string, unknown>
+    ) => {
+      const rawText = getNodeText(node);
+      const checkboxMatch = rawText.match(/^\[( |x|X)\]\s*([\s\S]*)/);
+      if (checkboxMatch) {
+        const isChecked = checkboxMatch[1].toLowerCase() === "x";
+        const itemText = checkboxMatch[2];
+        const currentIndex = checkboxCount++;
+        return (
+          <TouchableOpacity
+            key={node.key}
+            style={{
+              flexDirection: "row",
+              alignItems: "flex-start",
+              marginBottom: 6,
+              paddingVertical: 2,
+            }}
+            onPress={() => handleCheckboxToggle(currentIndex)}
+            activeOpacity={0.6}
+          >
+            <View
+              style={{
+                width: 20,
+                height: 20,
+                borderRadius: 4,
+                borderWidth: 2,
+                borderColor: isChecked ? "#3b82f6" : "#94a3b8",
+                backgroundColor: isChecked ? "#3b82f6" : "transparent",
+                marginRight: 10,
+                marginTop: 2,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {isChecked && <Check size={12} color="white" />}
+            </View>
+            <Text
+              style={{
+                flex: 1,
+                fontSize: 16,
+                lineHeight: 16 * 1.6,
+                color: isChecked ? "#94a3b8" : "#334155",
+                textDecorationLine: isChecked ? "line-through" : "none",
+              }}
+            >
+              {itemText}
+            </Text>
+          </TouchableOpacity>
+        );
+      }
+      return (
+        <View key={node.key} style={styles.list_item as object}>
+          {children}
+        </View>
+      );
+    },
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Custom Header */}
@@ -354,7 +452,9 @@ export function NoteDetailScreen() {
           {isPreview ? (
             <View className="flex-1 p-6">
               {content ? (
-                <Markdown style={markdownStyles}>{content}</Markdown>
+                <Markdown style={markdownStyles} rules={markdownRules}>
+                  {content}
+                </Markdown>
               ) : (
                 <Text className="text-slate-300 italic">No content</Text>
               )}
