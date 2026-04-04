@@ -1,57 +1,25 @@
-import type { NoteScope } from "@simple-markdown-note/common/types";
 import { Menu } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { cn } from "@/lib/utils";
-import { useNotesStore } from "../store";
+import { useNotesNavigationSync, useNotesSidebar } from "../hooks";
 import { Editor } from "./Editor";
 import { NoteList } from "./NoteList";
 import { Sidebar } from "./Sidebar";
 
-interface NotesProps {
+interface NotesIndexScreenProps {
   selectedNoteId?: string;
 }
 
-export function Notes({ selectedNoteId: propSelectedNoteId }: NotesProps) {
+export function NotesIndexScreen({
+  selectedNoteId: propSelectedNoteId,
+}: NotesIndexScreenProps) {
   const isDesktop = useMediaQuery("(min-width: 1024px)");
   const isTablet = useMediaQuery("(min-width: 768px)");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [searchParams] = useSearchParams();
 
-  const setSelectedNoteId = useNotesStore((s) => s.setSelectedNoteId);
-  const setFilterScope = useNotesStore((s) => s.setFilterScope);
-  const setFilterTag = useNotesStore((s) => s.setFilterTag);
-
-  const urlScope = searchParams.get("scope");
-  const urlTag = searchParams.get("tag");
-
-  // URLパラメータをストアに同期（初期化・ブラウザバック対応）
-  useEffect(() => {
-    const currentState = useNotesStore.getState();
-    if (urlTag && urlTag !== currentState.filterTag) {
-      setFilterTag(urlTag);
-    } else if (urlScope && urlScope !== currentState.filterScope) {
-      setFilterScope(urlScope as NoteScope);
-    } else if (!urlTag && !urlScope && currentState.filterScope !== "all") {
-      setFilterScope("all");
-    }
-  }, [urlScope, urlTag, setFilterScope, setFilterTag]);
-
-  useEffect(() => {
-    const targetId = propSelectedNoteId || null;
-    if (targetId !== useNotesStore.getState().selectedNoteId) {
-      setSelectedNoteId(targetId);
-    }
-  }, [propSelectedNoteId, setSelectedNoteId]);
-
-  const closeSidebar = useCallback(() => setIsSidebarOpen(false), []);
-  const openSidebar = useCallback(() => setIsSidebarOpen(true), []);
-
-  // Handle drawer close on resize to desktop
-  useEffect(() => {
-    if (isDesktop) setIsSidebarOpen(false);
-  }, [isDesktop]);
+  // カスタムHookによる状態管理と同期
+  const { isSidebarOpen, openSidebar, closeSidebar } =
+    useNotesSidebar(isDesktop);
+  useNotesNavigationSync(propSelectedNoteId);
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-slate-50">

@@ -1,7 +1,3 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useLogin } from "@simple-markdown-note/api-client/hooks";
-import type { SigninRequest } from "@simple-markdown-note/common/schemas";
-import { SigninRequestSchema } from "@simple-markdown-note/common/schemas";
 import {
   AlertCircle,
   ArrowRight,
@@ -10,10 +6,7 @@ import {
   Mail,
   ShieldCheck,
 } from "lucide-react";
-import { useId } from "react";
-import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+import { Link } from "react-router-dom";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,50 +19,23 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAuthStore } from "../store";
+import { useLoginForm } from "../hooks";
 
 /**
- * ログインコンテナ
- * フォームの表示と認証ロジックを統合したコンポーネントです。
+ * ログイン画面コンポーネント
+ * UIの表示とフォームの状態管理（カスタムフック経由）を担当します。
  */
-export function Login() {
-  const setAuth = useAuthStore((state) => state.setAuth);
-  const {
-    mutate: loginMutate,
-    isPending: isLoading,
-    error: apiError,
-  } = useLogin({
-    onSuccess: (data) => {
-      setAuth(data.user);
-    },
-  });
-  const navigate = useNavigate();
-  const emailId = useId();
-  const passwordId = useId();
-
+export function LoginScreen() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm<SigninRequest>({
-    resolver: zodResolver(SigninRequestSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
-
-  const onSubmit = (data: SigninRequest) => {
-    loginMutate(data, {
-      onSuccess: () => {
-        toast.success("Successfully logged in");
-        navigate("/notes?scope=all");
-      },
-      onError: (err: Error) => {
-        toast.error(err.message || "Login failed");
-      },
-    });
-  };
+    onSubmit,
+    errors,
+    isLoading,
+    apiError,
+    emailId,
+    passwordId,
+  } = useLoginForm();
 
   return (
     <div className="flex min-h-[80vh] items-center justify-center p-4">
