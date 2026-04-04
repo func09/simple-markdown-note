@@ -13,7 +13,7 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useNoteDrawerController } from "../hooks";
+import { useNoteDrawerScreen } from "../hooks";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 export const DRAWER_WIDTH = SCREEN_WIDTH * 0.8;
@@ -39,7 +39,7 @@ export function NoteDrawer({
   onSelectTag,
   tags,
 }: NoteDrawerProps) {
-  const { handleLogout } = useNoteDrawerController(onClose);
+  const { handleLogout } = useNoteDrawerScreen(onClose);
   const insets = useSafeAreaInsets();
 
   if (!isOpen) return null;

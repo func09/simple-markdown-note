@@ -100,7 +100,7 @@ function useNoteAutoSave({
 // Private: 削除・復元操作の共通パターンをまとめたフック
 // ---------------------------------------------------------------------------
 
-function useNoteDeleteAction({
+function useNoteDelete({
   setIsDeleting,
   infoSheetRef,
   handleGoBack,
@@ -130,10 +130,10 @@ function useNoteDeleteAction({
 // ---------------------------------------------------------------------------
 
 /**
- * ノート一覧画面の全体の司令塔となるコントローラーフック。
+ * ノート一覧画面の全体を統合するフック。
  * Resourceからデータを受け取り、Logicでフィルタリングし、UIへのアクションを伝達します。
  */
-export function useNoteListController() {
+export function useNoteListScreen() {
   const router = useRouter();
   const { scope = NOTE_SCOPE.ALL, tag } = useLocalSearchParams<{
     scope?: string;
@@ -206,10 +206,10 @@ export function useNoteListController() {
 }
 
 /**
- * ノート編集画面の司令塔となるコントローラーフック。
+ * ノート編集画面を統合するフック。
  * ローカルのテキスト状態の保持と自動保存メカニズムの統合を行います。
  */
-export function useNoteEditorController() {
+export function useNoteEditorScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const isNew = id === "new";
   const router = useRouter();
@@ -255,7 +255,7 @@ export function useNoteEditorController() {
   const metrics = useNoteMetrics(content);
 
   const handleGoBack = useCallback(() => router.back(), [router]);
-  const executeDelete = useNoteDeleteAction({
+  const executeDelete = useNoteDelete({
     setIsDeleting,
     infoSheetRef: uiLayout.infoSheetRef,
     handleGoBack,
@@ -328,9 +328,9 @@ export function useNoteEditorController() {
 }
 
 /**
- * サイドドロワー内でのログアウト等の操作を制御するフック。
+ * サイドドロワー画面を統合するフック。
  */
-export function useNoteDrawerController(onClose: () => void) {
+export function useNoteDrawerScreen(onClose: () => void) {
   const clearAuth = useAuthStore((state) => state.clearAuth);
   const logoutMutation = useLogout({
     onSuccess: () => {

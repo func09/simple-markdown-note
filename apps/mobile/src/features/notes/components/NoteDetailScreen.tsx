@@ -33,7 +33,7 @@ import Markdown, {
   type RenderRules,
 } from "react-native-markdown-display";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useNoteEditorController } from "../hooks";
+import { useNoteEditorScreen } from "../hooks";
 import { formatDate, getNodeText } from "../utils";
 
 const markdownStyles = StyleSheet.create({
@@ -140,7 +140,7 @@ export function NoteDetailScreen() {
     metrics,
     ui,
     ops,
-  } = useNoteEditorController();
+  } = useNoteEditorScreen();
 
   const insets = useSafeAreaInsets();
 
