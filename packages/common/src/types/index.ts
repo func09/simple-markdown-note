@@ -15,4 +15,6 @@ export const NOTE_SCOPES = [
   NOTE_SCOPE.UNTAGGED,
 ] as const;
 
-export type NoteScope = (typeof NOTE_SCOPES)[number];
+type ScopeConfig = typeof NOTE_SCOPE;
+
+export type NoteScope = ScopeConfig[keyof ScopeConfig];
