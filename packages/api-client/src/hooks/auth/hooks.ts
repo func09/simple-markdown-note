@@ -1,10 +1,10 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { useApi } from "api-client/context";
+import { useApi } from "@simple-markdown-note/api-client/context";
 import type {
   AuthResponse,
   SigninRequest,
   SignupRequest,
-} from "common/schemas";
+} from "@simple-markdown-note/common/schemas";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { getMe, logout, signin, signup } from "./requests";
 
 /**

@@ -1,4 +1,7 @@
-import { useCreateNote, useDeleteNote } from "api-client/hooks";
+import {
+  useCreateNote,
+  useDeleteNote,
+} from "@simple-markdown-note/api-client/hooks";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useNotesStore } from "@/features/notes/store";

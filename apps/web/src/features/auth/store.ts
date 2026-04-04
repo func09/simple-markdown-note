@@ -1,4 +1,4 @@
-import type { MeResponse } from "common/schemas";
+import type { MeResponse } from "@simple-markdown-note/common/schemas";
 import { create } from "zustand";
 import { queryClient } from "@/lib/queryClient";
 

@@ -1,5 +1,8 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
-import { NoteListResponseSchema, NoteResponseSchema } from "common/schemas";
+import {
+  NoteListResponseSchema,
+  NoteResponseSchema,
+} from "@simple-markdown-note/common/schemas";
 import { HTTPException } from "hono/http-exception";
 import {
   createNote,

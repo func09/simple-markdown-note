@@ -1,4 +1,4 @@
-import type { NoteScope } from "common/types";
+import type { NoteScope } from "@simple-markdown-note/common/types";
 import { Menu } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
