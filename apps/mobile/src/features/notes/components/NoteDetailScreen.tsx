@@ -4,15 +4,8 @@ import {
   BottomSheetModal,
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
-import {
-  useCreateNote,
-  useDeleteNote,
-  useNote,
-  usePermanentDelete,
-  useRestoreNote,
-  useUpdateNote,
-} from "@simple-markdown-note/api-client/hooks";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useNote } from "@simple-markdown-note/api-client/hooks";
+import { useLocalSearchParams } from "expo-router";
 import {
   Check,
   ChevronLeft,
@@ -25,16 +18,8 @@ import {
   Trash2,
   X,
 } from "lucide-react-native";
+import { type ReactNode, useCallback } from "react";
 import {
-  type ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import {
-  Alert,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -49,7 +34,14 @@ import Markdown, {
   type ASTNode,
   type RenderRules,
 } from "react-native-markdown-display";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  useNoteEditorState,
+  useNoteMetrics,
+  useNoteOperations,
+  useNoteUIController,
+} from "../hooks";
+import { formatDate, getNodeText } from "../utils";
 
 const markdownStyles = StyleSheet.create({
   body: {
@@ -129,195 +121,36 @@ const markdownStyles = StyleSheet.create({
   },
 });
 
-function getNodeText(node: ASTNode): string {
-  if (node.content) {
-    return node.content;
-  }
-  if (node.children && node.children.length > 0) {
-    return node.children.map(getNodeText).join("");
-  }
-  return "";
-}
-
-function formatDate(dateString: string): string {
-  const date = new Date(dateString);
-  return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, "0")}/${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
-}
-
 export function NoteDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const isNew = id === "new";
-  const router = useRouter();
 
-  const [isDeleting, setIsDeleting] = useState(false);
+  // 1. UI制御
+  const ui = useNoteUIController();
 
-  // API Hooks
-  const { data: note, isLoading } = useNote(isNew ? null : id, {
-    enabled: !isDeleting,
-  });
-  const createNoteMutation = useCreateNote();
-  const updateNoteMutation = useUpdateNote();
-  const deleteNoteMutation = useDeleteNote();
-  const restoreNoteMutation = useRestoreNote();
-  const permanentDeleteMutation = usePermanentDelete();
+  // 2. データ取得
+  const { data: note, isLoading } = useNote(isNew ? null : id);
 
-  const [content, setContent] = useState("");
-  const [isPreview, setIsPreview] = useState(false);
-  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-  const [tags, setTags] = useState<string[]>([]);
-  const inputRef = useRef<TextInput>(null);
-  const infoSheetRef = useRef<BottomSheetModal>(null);
+  // 3. 編集状態
+  const editor = useNoteEditorState(isNew, note);
 
-  const initializedId = useRef<string | null>(null);
-  const currentNoteId = useRef<string | null>(isNew ? null : id);
+  // 4. 計算
+  const metrics = useNoteMetrics(editor.content);
 
-  const wordCount = useMemo(() => {
-    return content.trim() ? content.trim().split(/\s+/).length : 0;
-  }, [content]);
-
-  const charCount = useMemo(() => content.length, [content]);
-
-  const handleCheckboxToggle = useCallback((index: number) => {
-    setContent((prev) => {
-      const regex = /^(\s*[-*+]\s+)\[([ x])\]/gim;
-      let count = 0;
-      return prev.replace(regex, (match, prefix, state: string) => {
-        if (count++ === index) {
-          return `${prefix}[${state.toLowerCase() === "x" ? " " : "x"}]`;
-        }
-        return match;
-      });
-    });
-  }, []);
-
-  // Handle Initial Load and external data updates
-  useEffect(() => {
-    if (isNew) {
-      if (initializedId.current !== "new") {
-        setContent("");
-        setTags([]);
-        initializedId.current = "new";
-      }
-    } else if (note && initializedId.current !== note.id) {
-      setContent(note.content);
-      setTags(note.tags.map((t) => t.name));
-      initializedId.current = note.id;
-      currentNoteId.current = note.id;
-    }
-  }, [isNew, note]);
-
-  // Debounced Auto-save
-  useEffect(() => {
-    if (isLoading) return;
-    if (!content.trim() && isNew) return;
-
-    const timer = setTimeout(async () => {
-      const activeId = currentNoteId.current;
-
-      if (isNew && !activeId) {
-        // Create new note
-        try {
-          const result = await createNoteMutation.mutateAsync({
-            content,
-            tags,
-            isPermanent: false,
-          });
-          currentNoteId.current = result.id;
-          // Update URL to the new ID without push to avoid back-button issues if possible
-          // But router.setParams might work best here
-          router.setParams({ id: result.id });
-          initializedId.current = result.id;
-        } catch (error) {
-          console.error("Failed to create note:", error);
-        }
-      } else if (activeId) {
-        // Update existing note
-        // Only update if content or tags actually changed compared to the last fetched note
-        if (
-          note &&
-          (content !== note.content ||
-            JSON.stringify(tags) !==
-              JSON.stringify(note.tags.map((t) => t.name)))
-        ) {
-          updateNoteMutation.mutate({
-            id: activeId,
-            data: { content, tags },
-          });
-        }
-      }
-    }, 1000); // 1s debounce for API calls
-
-    return () => clearTimeout(timer);
-  }, [
-    content,
-    tags,
+  // 5. 操作（保存・削除）
+  const ops = useNoteOperations({
     isNew,
+    content: editor.content,
+    tags: editor.tags,
+    currentNoteId: editor.currentNoteId,
+    initializedId: editor.initializedId,
+    infoSheetRef: ui.infoSheetRef,
+    handleGoBack: ui.handleGoBack,
     note,
     isLoading,
-    createNoteMutation,
-    updateNoteMutation,
-    router,
-  ]);
+  });
 
-  useEffect(() => {
-    const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
-      setIsKeyboardVisible(true);
-    });
-    const hideSubscription = Keyboard.addListener("keyboardDidHide", () => {
-      setIsKeyboardVisible(false);
-    });
-
-    return () => {
-      showSubscription.remove();
-      hideSubscription.remove();
-    };
-  }, []);
-
-  const handleKeyboardToggle = () => {
-    if (isKeyboardVisible) {
-      Keyboard.dismiss();
-    } else {
-      if (isPreview) setIsPreview(false);
-      setTimeout(() => {
-        inputRef.current?.focus();
-      }, 50);
-    }
-  };
-
-  const handleGoBack = () => {
-    router.back();
-  };
-
-  const handleTrashAction = async () => {
-    if (!currentNoteId.current) return;
-
-    setIsDeleting(true);
-    try {
-      if (note?.deletedAt) {
-        await restoreNoteMutation.mutateAsync(currentNoteId.current);
-      } else {
-        await deleteNoteMutation.mutateAsync(currentNoteId.current);
-      }
-      infoSheetRef.current?.dismiss();
-      setTimeout(() => router.back(), 250);
-    } catch (error) {
-      setIsDeleting(false);
-      console.error("Failed to toggle trash:", error);
-    }
-  };
-
-  const handlePermanentDelete = async () => {
-    if (!currentNoteId.current) return;
-    setIsDeleting(true);
-    try {
-      await permanentDeleteMutation.mutateAsync(currentNoteId.current);
-      infoSheetRef.current?.dismiss();
-      setTimeout(() => router.back(), 250);
-    } catch (error) {
-      setIsDeleting(false);
-      console.error("Failed to permanently delete note:", error);
-    }
-  };
+  const insets = useSafeAreaInsets();
 
   const renderBackdrop = useCallback(
     (props: BottomSheetBackdropProps) => (
@@ -354,7 +187,7 @@ export function NoteDetailScreen() {
               marginBottom: 6,
               paddingVertical: 2,
             }}
-            onPress={() => handleCheckboxToggle(currentIndex)}
+            onPress={() => editor.handleCheckboxToggle(currentIndex)}
             activeOpacity={0.6}
           >
             <View
@@ -396,11 +229,14 @@ export function NoteDetailScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <View
+      className="flex-1 bg-white"
+      style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
+    >
       {/* Custom Header */}
       <View className="flex-row items-center justify-between px-4 py-2 border-b border-slate-100 bg-white z-10">
         <TouchableOpacity
-          onPress={handleGoBack}
+          onPress={ui.handleGoBack}
           className="flex-row items-center p-2 -ml-2"
         >
           <ChevronLeft size={24} color="#0f172a" />
@@ -409,11 +245,11 @@ export function NoteDetailScreen() {
 
         <View className="flex-row items-center space-x-2">
           <TouchableOpacity
-            onPress={() => setIsPreview(!isPreview)}
+            onPress={() => ui.setIsPreview(!ui.isPreview)}
             className="p-2"
             activeOpacity={0.7}
           >
-            {isPreview ? (
+            {ui.isPreview ? (
               <EyeOff size={22} color="#475569" />
             ) : (
               <Eye size={22} color="#475569" />
@@ -422,17 +258,17 @@ export function NoteDetailScreen() {
           <TouchableOpacity
             onPress={() => {
               Keyboard.dismiss();
-              infoSheetRef.current?.present();
+              ui.infoSheetRef.current?.present();
             }}
             className="p-2 ml-1"
           >
             <Info size={22} color="#475569" />
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={handleKeyboardToggle}
+            onPress={ui.handleKeyboardToggle}
             className="p-2 -mr-1"
           >
-            {isKeyboardVisible ? (
+            {ui.isKeyboardVisible ? (
               <KeyboardIcon size={22} color="#3b82f6" />
             ) : (
               <SquarePen size={22} color="#475569" />
@@ -449,11 +285,11 @@ export function NoteDetailScreen() {
           className="flex-1 bg-white"
           contentContainerStyle={{ flexGrow: 1 }}
         >
-          {isPreview ? (
+          {ui.isPreview ? (
             <View className="flex-1 p-6">
-              {content ? (
+              {editor.content ? (
                 <Markdown style={markdownStyles} rules={markdownRules}>
-                  {content}
+                  {editor.content}
                 </Markdown>
               ) : (
                 <Text className="text-slate-300 italic">No content</Text>
@@ -461,14 +297,14 @@ export function NoteDetailScreen() {
             </View>
           ) : (
             <TextInput
-              ref={inputRef}
+              ref={ui.inputRef}
               multiline
               placeholder="Enter content here..."
               placeholderTextColor="#cbd5e1"
               className="flex-1 p-6 text-lg text-slate-800 leading-relaxed text-left align-top"
               style={{ textAlignVertical: "top" }}
-              value={content}
-              onChangeText={setContent}
+              value={editor.content}
+              onChangeText={editor.setContent}
               autoFocus={isNew}
             />
           )}
@@ -483,7 +319,7 @@ export function NoteDetailScreen() {
             className="ml-2"
           >
             <View className="flex-row items-center space-x-2">
-              {tags.map((tag) => (
+              {editor.tags.map((tag) => (
                 <View
                   key={tag}
                   className="bg-slate-100 px-3 py-1.5 rounded-full flex-row items-center"
@@ -493,7 +329,7 @@ export function NoteDetailScreen() {
                   </Text>
                   <TouchableOpacity
                     className="ml-1.5 p-0.5"
-                    onPress={() => setTags(tags.filter((t) => t !== tag))}
+                    onPress={() => editor.handleRemoveTag(tag)}
                   >
                     <X size={10} color="#94a3b8" />
                   </TouchableOpacity>
@@ -501,24 +337,7 @@ export function NoteDetailScreen() {
               ))}
               <TouchableOpacity
                 className="px-3 py-1.5 border border-dashed border-slate-300 rounded-full"
-                onPress={() => {
-                  if (Platform.OS === "ios") {
-                    Alert.prompt(
-                      "Add Tag",
-                      "Enter a name for the new tag",
-                      (text) => {
-                        if (text.trim() && !tags.includes(text.trim())) {
-                          setTags([...tags, text.trim()]);
-                        }
-                      }
-                    );
-                  } else {
-                    Alert.alert(
-                      "Pending",
-                      "Tag input for Android is currently pending."
-                    );
-                  }
-                }}
+                onPress={() => editor.handleAddTag(editor.tags)}
               >
                 <Text className="text-xs font-medium text-slate-400">
                   + Add Tag
@@ -531,7 +350,7 @@ export function NoteDetailScreen() {
 
       {/* Info Bottom Sheet */}
       <BottomSheetModal
-        ref={infoSheetRef}
+        ref={ui.infoSheetRef}
         enablePanDownToClose
         backdropComponent={renderBackdrop}
       >
@@ -559,11 +378,15 @@ export function NoteDetailScreen() {
             )}
             <View className="flex-row justify-between items-center px-5 py-4 border-b border-slate-100">
               <Text className="text-base text-slate-800">Words</Text>
-              <Text className="text-base text-slate-400">{wordCount}</Text>
+              <Text className="text-base text-slate-400">
+                {metrics.wordCount}
+              </Text>
             </View>
             <View className="flex-row justify-between items-center px-5 py-4 border-b border-slate-100">
               <Text className="text-base text-slate-800">Characters</Text>
-              <Text className="text-base text-slate-400">{charCount}</Text>
+              <Text className="text-base text-slate-400">
+                {metrics.charCount}
+              </Text>
             </View>
           </View>
 
@@ -571,7 +394,7 @@ export function NoteDetailScreen() {
           <View className="mb-6">
             <TouchableOpacity
               className="flex-row items-center px-5 py-4 border-b border-slate-50"
-              onPress={handleTrashAction}
+              onPress={ops.handleTrashAction}
             >
               <Trash2
                 size={20}
@@ -589,7 +412,7 @@ export function NoteDetailScreen() {
             {note?.deletedAt && (
               <TouchableOpacity
                 className="flex-row items-center px-5 py-4"
-                onPress={handlePermanentDelete}
+                onPress={ops.handlePermanentDelete}
               >
                 <X size={20} color="#ef4444" />
                 <Text className="text-base text-red-500 ml-3">
@@ -600,6 +423,6 @@ export function NoteDetailScreen() {
           </View>
         </BottomSheetView>
       </BottomSheetModal>
-    </SafeAreaView>
+    </View>
   );
 }

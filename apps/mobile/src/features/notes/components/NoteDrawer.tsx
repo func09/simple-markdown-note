@@ -1,4 +1,3 @@
-import { useLogout } from "@simple-markdown-note/api-client/hooks";
 import {
   LogOut,
   NotebookPen,
@@ -13,8 +12,8 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useAuthStore } from "../../auth/store";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useNoteDrawer } from "../hooks";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 export const DRAWER_WIDTH = SCREEN_WIDTH * 0.8;
@@ -40,19 +39,10 @@ export function NoteDrawer({
   onSelectTag,
   tags,
 }: NoteDrawerProps) {
-  const clearAuth = useAuthStore((state) => state.clearAuth);
-  const logoutMutation = useLogout({
-    onSuccess: () => {
-      onClose();
-      clearAuth();
-    },
-  });
+  const { handleLogout } = useNoteDrawer(onClose);
+  const insets = useSafeAreaInsets();
 
   if (!isOpen) return null;
-
-  const handleLogout = () => {
-    logoutMutation.mutate();
-  };
 
   return (
     <>
@@ -72,7 +62,10 @@ export function NoteDrawer({
           transform: [{ translateX: slideAnim }],
         }}
       >
-        <SafeAreaView className="flex-1">
+        <View
+          className="flex-1"
+          style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
+        >
           <View className="flex-1 pt-6">
             {/* Main Links */}
             <View className="px-2 mb-6">
@@ -182,7 +175,7 @@ export function NoteDrawer({
               </TouchableOpacity>
             </View>
           </View>
-        </SafeAreaView>
+        </View>
       </Animated.View>
     </>
   );

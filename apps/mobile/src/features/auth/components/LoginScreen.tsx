@@ -10,14 +10,18 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLogin } from "../hooks";
 
 export function LoginScreen() {
   const { control, handleSubmit, errors, isLoading, apiError } = useLogin();
+  const insets = useSafeAreaInsets();
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <View
+      className="flex-1 bg-white"
+      style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
@@ -143,6 +147,6 @@ export function LoginScreen() {
           </View>
         </View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
