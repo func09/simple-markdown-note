@@ -10,9 +10,9 @@
       "import": "./src/schemas/index.ts",
       "types": "./src/schemas/index.ts"
     },
-    "./constraints": {
-      "import": "./src/constraints/index.ts",
-      "types": "./src/constraints/index.ts"
+    "./types": {
+      "import": "./src/types/index.ts",
+      "types": "./src/types/index.ts"
     }
   },
   "scripts": {

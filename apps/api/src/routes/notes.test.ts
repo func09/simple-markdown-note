@@ -1,9 +1,9 @@
-import { NOTE_SCOPE } from "common/constraints";
 import type {
   NoteListResponse,
   NoteListResponseSchema,
   NoteSchema,
 } from "common/schemas";
+import { NOTE_SCOPE } from "common/types";
 import { beforeAll, describe, expect, it } from "vitest";
 import type { z } from "zod";
 import { app } from "../index";
