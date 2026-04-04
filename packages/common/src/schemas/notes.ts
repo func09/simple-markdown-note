@@ -1,6 +1,6 @@
 import { NOTE_SCOPE, NOTE_SCOPES } from "../constraints";
 import { dateSchema, z } from "../z";
-import { TagSchema } from "./tagSchemas";
+import { TagSchema } from "./tags";
 
 /**
  * ノートモデルのスキーマ
