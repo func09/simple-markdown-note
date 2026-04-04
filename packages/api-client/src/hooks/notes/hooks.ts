@@ -1,10 +1,10 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useApi } from "api-client/context";
+import { useApi } from "@simple-markdown-note/api-client/context";
 import type {
   NoteCreateRequest,
   NoteListRequest,
   NoteUpdateRequest,
-} from "common/schemas";
+} from "@simple-markdown-note/common/schemas";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createNote,
   deleteNote,

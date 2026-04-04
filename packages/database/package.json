@@ -1,5 +1,5 @@
 {
-  "name": "database",
+  "name": "@simple-markdown-note/database",
   "version": "1.0.0",
   "type": "module",
   "main": "./src/index.ts",
@@ -34,7 +34,7 @@
     "@libsql/client": "^0.17.2",
     "@paralleldrive/cuid2": "^2.2.2",
     "bcryptjs": "^3.0.3",
-    "common": "workspace:*",
+    "@simple-markdown-note/common": "workspace:*",
     "drizzle-orm": "^0.40.0"
   }
 }

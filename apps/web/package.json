@@ -1,5 +1,5 @@
 {
-  "name": "web",
+  "name": "@simple-markdown-note/web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -27,10 +27,10 @@
     "@tiptap/pm": "^3.21.0",
     "@tiptap/react": "^3.21.0",
     "@tiptap/starter-kit": "^3.21.0",
-    "api-client": "workspace:*",
+    "@simple-markdown-note/api-client": "workspace:*",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "common": "workspace:*",
+    "@simple-markdown-note/common": "workspace:*",
     "lucide-react": "^0.479.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",

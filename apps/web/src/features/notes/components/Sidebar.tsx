@@ -1,4 +1,4 @@
-import { useLogout, useTags } from "api-client/hooks";
+import { useLogout, useTags } from "@simple-markdown-note/api-client/hooks";
 import { FileText, Hash, LogOut, Trash2 } from "lucide-react";
 import type { ElementType } from "react";
 import { useCallback } from "react";

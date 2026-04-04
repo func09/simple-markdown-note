@@ -1,5 +1,5 @@
+import { ApiClientError } from "@simple-markdown-note/api-client/client";
 import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
-import { ApiClientError } from "api-client/client";
 
 /**
  * グローバルなエラーハンドラを注入するための関数
