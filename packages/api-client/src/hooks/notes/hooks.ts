@@ -1,17 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useApi } from "api-client/context";
+import type {
+  NoteCreateRequest,
+  NoteListRequest,
+  NoteUpdateRequest,
+} from "common/schemas";
 import {
   createNote,
   deleteNote,
   getNote,
   listNotes,
   updateNote,
-} from "api-client/requests/notesRequests";
-import type {
-  NoteCreateRequest,
-  NoteListRequest,
-  NoteUpdateRequest,
-} from "common/schemas";
+} from "./requests";
 
 /**
  * ノート一覧を取得するクエリフック

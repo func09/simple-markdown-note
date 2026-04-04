@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { ApiClient } from "../client";
-import { getMe, logout, signin, signup } from "./authRequests";
+import type { ApiClient } from "../../client";
+import { getMe, logout, signin, signup } from "./requests";
 
 const createApiMock = () => ({
   auth: {

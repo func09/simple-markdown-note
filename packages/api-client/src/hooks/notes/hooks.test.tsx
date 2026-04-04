@@ -5,7 +5,6 @@ import type React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ApiClient } from "@/client";
 import { ApiProvider } from "@/context";
-import * as notesRequests from "@/requests/notesRequests";
 import {
   useCreateNote,
   useDeleteNote,
@@ -15,8 +14,9 @@ import {
   useRestoreNote,
   useUpdateNote,
 } from "./hooks";
+import * as notesRequests from "./requests";
 
-vi.mock("@/requests/notesRequests");
+vi.mock("./requests");
 
 const createWrapper = () => {
   const queryClient = new QueryClient({
