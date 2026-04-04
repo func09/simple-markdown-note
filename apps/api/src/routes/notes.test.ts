@@ -16,7 +16,7 @@ describe("Notes CRUD API (/notes)", () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         email: "crud-test-merged@example.com",
-        password: "password123",
+        password: "Password123",
       }),
     });
     const body = (await signupRes.json()) as { token: string };
@@ -124,7 +124,7 @@ describe("Notes CRUD API (/notes)", () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         email: "crud-other-merged@example.com",
-        password: "password123",
+        password: "Password123",
       }),
     });
     const body2 = (await signupRes2.json()) as { token: string };
@@ -169,7 +169,7 @@ describe("Notes CRUD API (/notes)", () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: "filter-test@example.com",
-          password: "password123",
+          password: "Password123",
         }),
       });
       const body = (await signupRes.json()) as { token: string };

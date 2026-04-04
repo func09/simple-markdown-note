@@ -20,7 +20,7 @@ describe("Auth API", () => {
       },
       body: JSON.stringify({
         email: "test-test@example.com",
-        password: "password123",
+        password: "Password123",
       }),
     });
 
@@ -38,7 +38,7 @@ describe("Auth API", () => {
       },
       body: JSON.stringify({
         email: "test-test@example.com",
-        password: "password123",
+        password: "Password123",
       }),
     });
 
