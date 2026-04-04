@@ -7,7 +7,7 @@ import { HTTPException } from "hono/http-exception";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { getUserById, signin, signup } from "./auth";
 
-vi.mock("database", () => ({
+vi.mock("@simple-markdown-note/database", () => ({
   bcryptjs: {
     hash: vi.fn(),
     compare: vi.fn(),

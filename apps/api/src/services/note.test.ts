@@ -12,7 +12,7 @@ import {
 } from "./note";
 import * as tagService from "./tag";
 
-vi.mock("database", () => ({
+vi.mock("@simple-markdown-note/database", () => ({
   createNoteRepository: vi.fn(),
 }));
 
