@@ -1,17 +1,4 @@
-"use client";
-
-import {
-  useDeleteNote,
-  useNote,
-  usePermanentDelete,
-  useRestoreNote,
-  useUpdateNote,
-} from "@simple-markdown-note/api-client/hooks";
-import CharacterCount from "@tiptap/extension-character-count";
-import Link from "@tiptap/extension-link";
-import Placeholder from "@tiptap/extension-placeholder";
-import { EditorContent, useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
+import { EditorContent } from "@tiptap/react";
 import {
   ChevronLeft,
   Edit3,
@@ -24,36 +11,23 @@ import {
   Tag as TagIcon,
   Trash2,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import type { Components } from "react-markdown";
 import ReactMarkdown from "react-markdown";
 import { useNavigate } from "react-router-dom";
 import remarkGfm from "remark-gfm";
 import { cn } from "@/lib/utils";
-import { useNotesStore } from "../store";
+import {
+  useEditorPopovers,
+  useNoteActions,
+  useNoteAutoSave,
+  useNoteEditor,
+} from "../hooks";
+import { formatDate } from "../utils";
 
 const markdownComponents: Components = {
   p: ({ children }) => <p className="whitespace-pre-wrap">{children}</p>,
 };
-
-function formatDate(date?: string | Date) {
-  if (!date) return "N/A";
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  }).format(new Date(date));
-}
-
-function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
-}
 
 interface EditorProps {
   noteId?: string;
@@ -64,187 +38,49 @@ interface EditorProps {
 export function Editor({ noteId, isMobile }: EditorProps) {
   const [isPreview, setIsPreview] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isInfoOpen, setIsInfoOpen] = useState(false);
-  const [isOptionsOpen, setIsOptionsOpen] = useState(false);
-  const infoRef = useRef<HTMLDivElement>(null);
-  const optionsRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const scope = useNotesStore((s) => s.filterScope);
-  const tag = useNotesStore((s) => s.filterTag);
 
-  // ポップオーバー外クリックの検知
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (infoRef.current && !infoRef.current.contains(event.target as Node)) {
-        setIsInfoOpen(false);
-      }
-      if (
-        optionsRef.current &&
-        !optionsRef.current.contains(event.target as Node)
-      ) {
-        setIsOptionsOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  // 1. 各種アクションとデータ取得の管理
+  const {
+    note,
+    isLoading,
+    handleDelete,
+    handleRestore,
+    handleUpdateTags,
+    permanentDeleteMutation,
+    queryString,
+  } = useNoteActions(noteId);
 
-  const queryString = useMemo(() => {
-    const params = new URLSearchParams();
-    if (scope !== "all") params.set("scope", scope);
-    if (tag) params.set("tag", tag);
-    const qs = params.toString();
-    return qs ? `?${qs}` : "";
-  }, [scope, tag]);
+  // 2. ポップオーバーの管理
+  const {
+    isInfoOpen,
+    setIsInfoOpen,
+    isOptionsOpen,
+    setIsOptionsOpen,
+    infoRef,
+    optionsRef,
+  } = useEditorPopovers();
 
-  // 1. データ取得
-  const { data: note, isLoading } = useNote(noteId ?? null, {
-    enabled: !isDeleting && !!noteId,
-  });
-  const updateNoteMutation = useUpdateNote();
-  const deleteNoteMutation = useDeleteNote();
-  const restoreNoteMutation = useRestoreNote();
-  const permanentDeleteMutation = usePermanentDelete();
-
-  // 2. オートセーブロジック
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // 3. オートセーブとエディタの管理 (Refを共有)
   const contentRef = useRef("");
   const lastNoteIdRef = useRef<string | null>(null);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: updateNoteMutation is excluded to prevent render loops
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-        timeoutRef.current = null;
-        const content = contentRef.current;
-        const currentNoteContent =
-          lastNoteIdRef.current === noteId ? note?.content : undefined;
-
-        // すでに削除中、または内容に変更がない場合は保存しない
-        if (
-          isDeleting ||
-          !content.trim() ||
-          !noteId ||
-          content === currentNoteContent
-        )
-          return;
-
-        // 既存更新
-        updateNoteMutation.mutate({ id: noteId, data: { content } });
-      }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [noteId, note?.content, isDeleting]);
-
-  const handleAutoSave = (content: string) => {
-    contentRef.current = content;
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-
-    // すでに削除中、または内容に変更がない場合は保存しない
-    if (isDeleting || !noteId || content === note?.content) return;
-
-    // 既存更新は10秒デバウンス
-    timeoutRef.current = setTimeout(() => {
-      timeoutRef.current = null;
-      updateNoteMutation.mutate({ id: noteId, data: { content } });
-    }, 10000);
-  };
-
-  const isTrashed = !!note?.deletedAt;
-
-  const editor = useEditor({
-    extensions: [
-      StarterKit.configure({
-        heading: false,
-        codeBlock: false,
-        bulletList: false,
-        orderedList: false,
-        blockquote: false,
-        bold: false,
-        italic: false,
-        strike: false,
-        code: false,
-        horizontalRule: false,
-        hardBreak: false,
-      }),
-      Placeholder.configure({
-        placeholder: "Start writing...",
-      }),
-      CharacterCount,
-      Link.configure({
-        openOnClick: false,
-      }),
-    ],
-    content: "",
-    editable: !isPreview && !isTrashed,
-    immediatelyRender: false,
-    editorProps: {
-      attributes: {
-        class: cn(
-          "max-w-none focus:outline-none min-h-[50vh] px-8 py-12 font-mono text-sm leading-relaxed",
-          isPreview ? "hidden" : "block",
-          isTrashed && "opacity-60 cursor-not-allowed"
-        ),
-      },
-      handleDOMEvents: {
-        keydown: () => false,
-      },
-      transformPastedText: (text) => text,
-    },
-    onUpdate: ({ editor }) => {
-      const text = editor.getText({ blockSeparator: "\n" });
-      handleAutoSave(text);
-    },
+  const { handleAutoSave } = useNoteAutoSave({
+    noteId,
+    noteContent: note?.content,
+    isDeleting,
+    contentRef,
+    lastNoteIdRef,
   });
 
-  // プレビュー切り替えおよびゴミ箱状態の連動
-  useEffect(() => {
-    if (editor) {
-      editor.setEditable(!isPreview && !isTrashed);
-    }
-  }, [isPreview, isTrashed, editor]);
-
-  // ノートが切り替わった時、または外部から内容が更新された時に内容を同期
-  useEffect(() => {
-    if (editor && note) {
-      // 1. ノートIDが切り替わった場合
-      if (note.id !== lastNoteIdRef.current) {
-        // 改行を <p> タグに変換して流し込む（特殊文字をエスケープ）
-        const html = note.content
-          .split("\n")
-          .map((line) => `<p>${escapeHtml(line)}</p>`)
-          .join("");
-        editor.commands.setContent(html, { emitUpdate: false });
-        contentRef.current = note.content;
-        lastNoteIdRef.current = note.id;
-        setIsPreview(false);
-      }
-      // 2. 同じノートで内容が外部から更新された場合（エディタにフォーカスがない、かつプレビュー中の場合など）
-      else if (!editor.isFocused && note.content !== contentRef.current) {
-        const html = note.content
-          .split("\n")
-          .map((line) => `<p>${escapeHtml(line)}</p>`)
-          .join("");
-        editor.commands.setContent(html, { emitUpdate: false });
-        contentRef.current = note.content;
-      }
-    }
-  }, [note, editor]);
-
-  // 3. アクションハンドラ
-  const handleDelete = useCallback(async () => {
-    if (!noteId) return;
-    await deleteNoteMutation.mutateAsync(noteId);
-    navigate(`/notes${queryString}`);
-  }, [noteId, deleteNoteMutation, navigate, queryString]);
-
-  const handleRestore = useCallback(async () => {
-    if (!noteId) return;
-    await restoreNoteMutation.mutateAsync(noteId);
-    // 元のスコープ（Trashなど）を維持するように調整
-    navigate(`/notes/${noteId}${queryString}`);
-  }, [noteId, restoreNoteMutation, navigate, queryString]);
+  const { editor } = useNoteEditor({
+    note,
+    isPreview,
+    setIsPreview,
+    onUpdate: handleAutoSave,
+    contentRef,
+    lastNoteIdRef,
+  });
 
   const handlePermanentDelete = useCallback(async () => {
     if (!noteId) return;
@@ -275,7 +111,8 @@ export function Editor({ noteId, isMobile }: EditorProps) {
     return <div className="flex-1 bg-white animate-pulse" />;
   }
 
-  const isTrashView = scope === "trash";
+  const isTrashed = !!note?.deletedAt;
+  const isTrashView = isTrashed;
 
   return (
     <div
@@ -486,14 +323,11 @@ export function Editor({ noteId, isMobile }: EditorProps) {
                   <button
                     type="button"
                     onClick={() => {
-                      if (noteId && note?.tags) {
+                      if (note?.tags) {
                         const newTags = note.tags
                           .filter((t) => t.id !== tag.id)
                           .map((t) => t.name);
-                        updateNoteMutation.mutate({
-                          id: noteId,
-                          data: { tags: newTags },
-                        });
+                        handleUpdateTags(newTags);
                       }
                     }}
                     className="p-0.5 hover:bg-slate-300 rounded-sm transition-colors text-slate-400 hover:text-slate-600"
@@ -515,39 +349,29 @@ export function Editor({ noteId, isMobile }: EditorProps) {
                 if (e.key === "Enter" || e.key === ",") {
                   e.preventDefault();
                   const val = e.currentTarget.value.trim().replace(/,$/, "");
-                  if (val && noteId) {
+                  if (val) {
                     const currentTags = note?.tags?.map((t) => t.name) || [];
                     if (!currentTags.includes(val)) {
-                      updateNoteMutation.mutate({
-                        id: noteId,
-                        data: { tags: [...currentTags, val] },
-                      });
+                      handleUpdateTags([...currentTags, val]);
                     }
                     e.currentTarget.value = "";
                   }
                 } else if (
                   e.key === "Backspace" &&
                   !e.currentTarget.value &&
-                  note?.tags?.length &&
-                  noteId
+                  note?.tags?.length
                 ) {
                   // Backspace on empty input removes the last tag
                   const newTags = note.tags.slice(0, -1).map((t) => t.name);
-                  updateNoteMutation.mutate({
-                    id: noteId,
-                    data: { tags: newTags },
-                  });
+                  handleUpdateTags(newTags);
                 }
               }}
               onBlur={(e) => {
                 const val = e.target.value.trim();
-                if (val && noteId) {
+                if (val) {
                   const currentTags = note?.tags?.map((t) => t.name) || [];
                   if (!currentTags.includes(val)) {
-                    updateNoteMutation.mutate({
-                      id: noteId,
-                      data: { tags: [...currentTags, val] },
-                    });
+                    handleUpdateTags([...currentTags, val]);
                   }
                   e.target.value = "";
                 }
