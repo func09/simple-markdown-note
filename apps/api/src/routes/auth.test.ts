@@ -73,4 +73,78 @@ describe("Auth API", () => {
     expect(res.status).toBe(204);
     expect(res.body).toBe(null);
   });
+
+  describe("Validation", () => {
+    it("should return 400 for invalid email format", async () => {
+      const res = await app.request("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: "invalid-email",
+          password: "Password123",
+        }),
+      });
+      expect(res.status).toBe(400);
+    });
+
+    it("should return 400 for short password", async () => {
+      const res = await app.request("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: "valid@example.com",
+          password: "Pass1",
+        }),
+      });
+      expect(res.status).toBe(400);
+    });
+
+    it("should return 400 for password missing uppercase", async () => {
+      const res = await app.request("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: "valid@example.com",
+          password: "password123",
+        }),
+      });
+      expect(res.status).toBe(400);
+    });
+
+    it("should return 400 for password missing lowercase", async () => {
+      const res = await app.request("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: "valid@example.com",
+          password: "PASSWORD123",
+        }),
+      });
+      expect(res.status).toBe(400);
+    });
+
+    it("should return 400 for password missing digits", async () => {
+      const res = await app.request("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: "valid@example.com",
+          password: "Password",
+        }),
+      });
+      expect(res.status).toBe(400);
+    });
+
+    it("should return 400 for too long password", async () => {
+      const res = await app.request("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: "valid@example.com",
+          password: "A".repeat(33) + "a1",
+        }),
+      });
+      expect(res.status).toBe(400);
+    });
+  });
 });
