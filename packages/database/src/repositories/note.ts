@@ -1,4 +1,4 @@
-import { NOTE_SCOPE, type NoteScope } from "common/constraints";
+import { NOTE_SCOPE, type NoteScope } from "common/types";
 import {
   and,
   desc,

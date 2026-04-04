@@ -1,4 +1,4 @@
-import type { NoteScope } from "common/constraints";
+import type { NoteScope } from "common/types";
 import { createNoteRepository, type DrizzleDB, type Tag } from "database";
 
 import { syncTags } from "./tagService";

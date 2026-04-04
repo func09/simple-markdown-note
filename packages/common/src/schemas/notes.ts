@@ -1,4 +1,4 @@
-import { NOTE_SCOPE, NOTE_SCOPES } from "../constraints";
+import { NOTE_SCOPE, NOTE_SCOPES } from "../types";
 import { dateSchema, z } from "../z";
 import { TagSchema } from "./tags";
 
