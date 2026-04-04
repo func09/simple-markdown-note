@@ -1,8 +1,8 @@
 import { useLogin as useLoginMutation } from "@simple-markdown-note/api-client/hooks";
 import { act, renderHook } from "@testing-library/react-native";
 import { useRouter } from "expo-router";
-import { useLoginScreen } from "./hooks";
-import { useAuthStore } from "./store";
+import { useLoginScreen } from "../hooks";
+import { useAuthStore } from "../store";
 
 // Mock dependencies
 jest.mock("expo-router", () => ({
