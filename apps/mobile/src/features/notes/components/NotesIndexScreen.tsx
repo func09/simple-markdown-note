@@ -8,7 +8,7 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useNoteListController } from "../hooks";
+import { useNoteListScreen } from "../hooks";
 import { NoteDrawer } from "./NoteDrawer";
 import { NoteListItem } from "./NoteListItem";
 
@@ -30,7 +30,7 @@ export function NotesIndexScreen() {
     handleSelectTag,
     handleNewNote,
     handleSelectNote,
-  } = useNoteListController();
+  } = useNoteListScreen();
 
   const insets = useSafeAreaInsets();
 
