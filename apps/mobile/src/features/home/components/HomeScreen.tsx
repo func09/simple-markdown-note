@@ -1,11 +1,15 @@
 import { StatusBar } from "expo-status-bar";
 import { NotebookPen } from "lucide-react-native";
 import { Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export function HomeScreen() {
+  const insets = useSafeAreaInsets();
   return (
-    <SafeAreaView className="flex-1 bg-slate-50">
+    <View
+      className="flex-1 bg-slate-50"
+      style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
+    >
       <StatusBar style="dark" />
 
       <View className="flex-1 items-center justify-center px-6">
@@ -32,6 +36,6 @@ export function HomeScreen() {
           Built with React Native & NativeWind
         </Text>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }

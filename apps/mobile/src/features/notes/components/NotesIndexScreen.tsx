@@ -1,10 +1,5 @@
-import { useNotes, useTags } from "@simple-markdown-note/api-client/hooks";
-import { NOTE_SCOPE, type NoteScope } from "@simple-markdown-note/common/types";
-import { useLocalSearchParams, useRouter } from "expo-router";
 import { Menu, NotebookPen, Search } from "lucide-react-native";
-import { useRef, useState } from "react";
 import {
-  Animated,
   FlatList,
   RefreshControl,
   Text,
@@ -12,74 +7,38 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { DRAWER_WIDTH, NoteDrawer } from "./NoteDrawer";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useNotesIndex } from "../hooks";
+import { NoteDrawer } from "./NoteDrawer";
 import { NoteListItem } from "./NoteListItem";
 
 export function NotesIndexScreen() {
-  const router = useRouter();
-  const { scope = NOTE_SCOPE.ALL, tag } = useLocalSearchParams<{
-    scope?: string;
-    tag?: string;
-  }>();
-
-  // API からノート一覧とタグ一覧を取得
   const {
-    data: notes = [],
-    isLoading: isNotesLoading,
-    refetch: refetchNotes,
-  } = useNotes({
-    scope: scope as NoteScope,
+    notes,
+    isNotesLoading,
+    refetchNotes,
+    tags,
+    searchQuery,
+    setSearchQuery,
+    isDrawerOpen,
+    toggleDrawer,
+    slideAnim,
+    scope,
     tag,
-  });
-  const { data: apiTags = [] } = useTags();
-  const tags = apiTags.map((t) => t.name);
+    getHeaderTitle,
+    handleSelectScope,
+    handleSelectTag,
+    handleNewNote,
+    handleSelectNote,
+  } = useNotesIndex();
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const slideAnim = useRef(new Animated.Value(-DRAWER_WIDTH)).current;
-
-  const toggleDrawer = (open: boolean) => {
-    if (open) setIsDrawerOpen(true);
-    Animated.timing(slideAnim, {
-      toValue: open ? 0 : -DRAWER_WIDTH,
-      duration: 300,
-      useNativeDriver: true,
-    }).start(({ finished }) => {
-      if (!open && finished) {
-        setIsDrawerOpen(false);
-      }
-    });
-  };
-
-  const filteredNotes = notes.filter((note) => {
-    // 検索クエリによるフィルタリング（API が未対応のためローカルで実施）
-    const matchesSearch = note.content
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
-
-    return matchesSearch;
-  });
-
-  const getHeaderTitle = () => {
-    if (tag) return tag;
-    if (scope === NOTE_SCOPE.TRASH) return "Trash";
-    if (scope === NOTE_SCOPE.UNTAGGED) return "Untagged";
-    return "All Notes";
-  };
-
-  const handleSelectScope = (newScope: string) => {
-    toggleDrawer(false);
-    router.setParams({ scope: newScope, tag: undefined });
-  };
-
-  const handleSelectTag = (newTag: string) => {
-    toggleDrawer(false);
-    router.setParams({ tag: newTag, scope: undefined });
-  };
+  const insets = useSafeAreaInsets();
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <View
+      className="flex-1 bg-white"
+      style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
+    >
       {/* Side Drawer Component */}
       <NoteDrawer
         isOpen={isDrawerOpen}
@@ -106,10 +65,7 @@ export function NotesIndexScreen() {
               {getHeaderTitle()}
             </Text>
           </View>
-          <TouchableOpacity
-            onPress={() => router.push("/(main)/notes/new")}
-            className="p-2 -mr-2"
-          >
+          <TouchableOpacity onPress={handleNewNote} className="p-2 -mr-2">
             <NotebookPen size={22} color="#0f172a" />
           </TouchableOpacity>
         </View>
@@ -129,12 +85,9 @@ export function NotesIndexScreen() {
 
       {/* Note List */}
       <FlatList
-        data={filteredNotes}
+        data={notes}
         renderItem={({ item }) => (
-          <NoteListItem
-            item={item}
-            onPress={(id) => router.push(`/(main)/notes/${id}`)}
-          />
+          <NoteListItem item={item} onPress={handleSelectNote} />
         )}
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ paddingBottom: 20 }}
@@ -155,6 +108,6 @@ export function NotesIndexScreen() {
           ) : null
         }
       />
-    </SafeAreaView>
+    </View>
   );
 }
