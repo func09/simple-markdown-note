@@ -78,6 +78,20 @@ const markdownStyles = StyleSheet.create({
   ordered_list: {
     marginBottom: 8,
   },
+  bullet_list_icon: {
+    marginLeft: 4,
+    marginRight: 8,
+    marginTop: 0,
+    fontSize: 16,
+    lineHeight: 16 * 1.6,
+  },
+  ordered_list_icon: {
+    marginLeft: 4,
+    marginRight: 8,
+    marginTop: 0,
+    fontSize: 16,
+    lineHeight: 16 * 1.6,
+  },
   code_inline: {
     backgroundColor: "#f1f5f9", // slate-100
     color: "#475569", // slate-600
@@ -198,6 +212,52 @@ export function NoteDetailScreen() {
           </TouchableOpacity>
         );
       }
+
+      if (_parentNodes.some((p) => p.type === "bullet_list")) {
+        return (
+          <View key={node.key} style={styles.list_item as object}>
+            <Text
+              style={[
+                styles.bullet_list_icon as object,
+                { color: "#334155", fontWeight: "bold" },
+              ]}
+              accessible={false}
+            >
+              {Platform.select({
+                android: "\u2022",
+                ios: "\u00B7",
+                default: "\u2022",
+              })}
+            </Text>
+            <View style={{ flex: 1 }}>{children}</View>
+          </View>
+        );
+      }
+
+      const orderedListIndex = _parentNodes.findIndex(
+        (p) => p.type === "ordered_list"
+      );
+      if (orderedListIndex > -1) {
+        const orderedList = _parentNodes[orderedListIndex];
+        let listItemNumber: number;
+        if (orderedList.attributes?.start) {
+          listItemNumber = orderedList.attributes.start + node.index;
+        } else {
+          listItemNumber = node.index + 1;
+        }
+        return (
+          <View key={node.key} style={styles.list_item as object}>
+            <Text
+              style={[styles.ordered_list_icon as object, { color: "#334155" }]}
+            >
+              {listItemNumber}
+              {node.markup}
+            </Text>
+            <View style={{ flex: 1 }}>{children}</View>
+          </View>
+        );
+      }
+
       return (
         <View key={node.key} style={styles.list_item as object}>
           {children}
