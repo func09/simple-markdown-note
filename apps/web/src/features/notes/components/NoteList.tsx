@@ -1,4 +1,7 @@
-import { useCreateNote, useNotes } from "api-client/hooks";
+import {
+  useCreateNote,
+  useNotes,
+} from "@simple-markdown-note/api-client/hooks";
 import { Plus, Search } from "lucide-react";
 import { useCallback, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";

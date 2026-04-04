@@ -4,7 +4,7 @@ import type {
   NoteListRequest,
   NoteListResponse,
   NoteUpdateRequest,
-} from "common/schemas";
+} from "@simple-markdown-note/common/schemas";
 import type { ApiClient } from "../../client";
 import { ApiClientError } from "../../client";
 

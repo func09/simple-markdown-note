@@ -11,7 +11,7 @@ import {
   usePermanentDelete,
   useRestoreNote,
   useUpdateNote,
-} from "api-client/hooks";
+} from "@simple-markdown-note/api-client/hooks";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   ChevronLeft,

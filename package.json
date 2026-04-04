@@ -1,9 +1,9 @@
 {
-  "name": "simplenote-clone",
+  "name": "simple-markdown-note",
   "version": "1.0.0",
   "packageManager": "pnpm@10.33.0",
   "private": true,
-  "description": "SimpleNote Clone - A robust, local-first note-taking app",
+  "description": "Simple Markdown Note - A robust, local-first note-taking app",
   "workspaces": [
     "apps/*",
     "packages/*"
@@ -16,10 +16,12 @@
     "build": "turbo build",
     "typecheck": "turbo typecheck",
     "test": "turbo test",
+    "clean:cache": "find . -name \"*.tsbuildinfo\" -delete",
+    "check:all": "pnpm clean:cache && turbo check typecheck test --force",
     "prepare": "husky"
   },
   "keywords": [],
-  "author": "",
+  "author": "Mitsuru Haga",
   "license": "ISC",
   "devDependencies": {
     "@biomejs/biome": "^2.4.9",

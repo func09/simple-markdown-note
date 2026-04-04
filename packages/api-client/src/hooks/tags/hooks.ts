@@ -1,5 +1,5 @@
+import { useApi } from "@simple-markdown-note/api-client/context";
 import { useQuery } from "@tanstack/react-query";
-import { useApi } from "api-client/context";
 import { listTags } from "./requests";
 
 /**

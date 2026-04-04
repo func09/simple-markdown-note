@@ -1,5 +1,5 @@
-import { useNotes, useTags } from "api-client/hooks";
-import { NOTE_SCOPE, type NoteScope } from "common/types";
+import { useNotes, useTags } from "@simple-markdown-note/api-client/hooks";
+import { NOTE_SCOPE, type NoteScope } from "@simple-markdown-note/common/types";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Menu, NotebookPen, Search } from "lucide-react-native";
 import { useRef, useState } from "react";

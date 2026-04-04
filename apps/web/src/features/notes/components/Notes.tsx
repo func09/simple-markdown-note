@@ -1,4 +1,4 @@
-import type { NoteScope } from "common/types";
+import type { NoteScope } from "@simple-markdown-note/common/types";
 import { Menu } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -98,7 +98,7 @@ export function Notes({ selectedNoteId: propSelectedNoteId }: NotesProps) {
               >
                 <Menu className="w-5 h-5" />
               </button>
-              <h2 className="font-bold text-slate-900">Simplenote</h2>
+              <h2 className="font-bold text-slate-900">Simple Markdown Note</h2>
             </div>
           )}
           <NoteList selectedNoteId={propSelectedNoteId} />

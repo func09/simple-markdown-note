@@ -6,7 +6,7 @@ import {
   NoteResponseSchema,
   NoteSchema,
   NoteUpdateRequestSchema,
-} from "common/schemas";
+} from "@simple-markdown-note/common/schemas";
 
 /** GET / — ノート一覧取得ルート定義 */
 export const listNotesRoute = createRoute({

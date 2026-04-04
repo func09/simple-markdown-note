@@ -1,4 +1,7 @@
-import { createNoteRepository, type DrizzleDB } from "database";
+import {
+  createNoteRepository,
+  type DrizzleDB,
+} from "@simple-markdown-note/database";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   createNote,
@@ -9,7 +12,7 @@ import {
 } from "./note";
 import * as tagService from "./tag";
 
-vi.mock("database", () => ({
+vi.mock("@simple-markdown-note/database", () => ({
   createNoteRepository: vi.fn(),
 }));
 

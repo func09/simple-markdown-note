@@ -46,7 +46,6 @@ app
         try {
           const originUrl = new URL(origin);
           const allowedUrl = new URL(allowed);
-          // 例: *.simplenote-clone-web.pages.dev を許可
           if (originUrl.hostname.endsWith(`.${allowedUrl.hostname}`)) {
             return origin;
           }
@@ -78,7 +77,7 @@ app.doc("/doc", {
   openapi: "3.1.0",
   info: {
     version: "1.0.0",
-    title: "SimpleNote Clone API",
+    title: "SimpleMarkdownNote API",
   },
 });
 

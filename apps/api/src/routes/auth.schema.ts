@@ -4,7 +4,7 @@ import {
   MeResponseSchema,
   SigninRequestSchema,
   SignupRequestSchema,
-} from "common/schemas";
+} from "@simple-markdown-note/common/schemas";
 
 /** POST /signup — ユーザー登録ルート定義 */
 export const signupRoute = createRoute({

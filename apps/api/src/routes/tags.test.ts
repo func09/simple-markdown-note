@@ -1,5 +1,8 @@
-import type { AuthResponseSchema, TagListResponseSchema } from "common/schemas";
-import { db, users } from "database";
+import type {
+  AuthResponseSchema,
+  TagListResponseSchema,
+} from "@simple-markdown-note/common/schemas";
+import { db, users } from "@simple-markdown-note/database";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { z } from "zod";
 import { app } from "../index";

@@ -12,8 +12,14 @@ export default defineConfig(({ mode: _mode }) => {
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),
-        "api-client": path.resolve(__dirname, "../../packages/api-client/src"),
-        common: path.resolve(__dirname, "../../packages/common/src"),
+        "@simple-markdown-note/api-client": path.resolve(
+          __dirname,
+          "../../packages/api-client/src"
+        ),
+        "@simple-markdown-note/common": path.resolve(
+          __dirname,
+          "../../packages/common/src"
+        ),
       },
     },
     server: {

@@ -6,9 +6,9 @@
     "jsx": "react-jsx",
     "paths": {
       "@/*": ["./src/*"],
-      "api-client/*": ["./src/*"],
-      "api": ["../../apps/api/src/index.ts"],
-      "api/*": ["../../apps/api/src/*"]
+      "@simple-markdown-note/api-client/*": ["./src/*"],
+      "@simple-markdown-note/api": ["../../apps/api/src/index.ts"],
+      "@simple-markdown-note/api/*": ["../../apps/api/src/*"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx"],
