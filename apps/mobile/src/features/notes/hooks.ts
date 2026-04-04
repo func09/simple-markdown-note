@@ -284,10 +284,9 @@ export function useNoteOperations({
 }
 
 /**
- * NotesIndexScreen 用の Hook
+ * NotesIndexScreen: 1. データ取得・URLパラメータ管理
  */
-export function useNotesIndex() {
-  const router = useRouter();
+export function useNotesIndexData() {
   const { scope = NOTE_SCOPE.ALL, tag } = useLocalSearchParams<{
     scope?: string;
     tag?: string;
@@ -304,7 +303,45 @@ export function useNotesIndex() {
   const { data: apiTags = [] } = useTags();
   const tags = apiTags.map((t) => t.name);
 
+  const getHeaderTitle = () => {
+    if (tag) return tag;
+    if (scope === NOTE_SCOPE.TRASH) return "Trash";
+    if (scope === NOTE_SCOPE.UNTAGGED) return "Untagged";
+    return "All Notes";
+  };
+
+  return {
+    notes,
+    isNotesLoading,
+    refetchNotes,
+    tags,
+    scope,
+    tag,
+    getHeaderTitle,
+  };
+}
+
+/**
+ * NotesIndexScreen: 2. 検索・フィルタリング管理
+ */
+export function useNotesSearch(notes: Note[]) {
   const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredNotes = notes.filter((note) => {
+    return note.content.toLowerCase().includes(searchQuery.toLowerCase());
+  });
+
+  return {
+    searchQuery,
+    setSearchQuery,
+    filteredNotes,
+  };
+}
+
+/**
+ * NotesIndexScreen: 3. ドロワーUIの状態管理
+ */
+export function useNotesDrawerState() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const slideAnim = useRef(new Animated.Value(-DRAWER_WIDTH)).current;
 
@@ -321,16 +358,18 @@ export function useNotesIndex() {
     });
   };
 
-  const filteredNotes = notes.filter((note) => {
-    return note.content.toLowerCase().includes(searchQuery.toLowerCase());
-  });
-
-  const getHeaderTitle = () => {
-    if (tag) return tag;
-    if (scope === NOTE_SCOPE.TRASH) return "Trash";
-    if (scope === NOTE_SCOPE.UNTAGGED) return "Untagged";
-    return "All Notes";
+  return {
+    isDrawerOpen,
+    toggleDrawer,
+    slideAnim,
   };
+}
+
+/**
+ * NotesIndexScreen: 4. ナビゲーション操作
+ */
+export function useNotesIndexNavigation(toggleDrawer: (open: boolean) => void) {
+  const router = useRouter();
 
   const handleSelectScope = (newScope: string) => {
     toggleDrawer(false);
@@ -351,18 +390,6 @@ export function useNotesIndex() {
   };
 
   return {
-    notes: filteredNotes,
-    isNotesLoading,
-    refetchNotes,
-    tags,
-    searchQuery,
-    setSearchQuery,
-    isDrawerOpen,
-    toggleDrawer,
-    slideAnim,
-    scope,
-    tag,
-    getHeaderTitle,
     handleSelectScope,
     handleSelectTag,
     handleNewNote,
