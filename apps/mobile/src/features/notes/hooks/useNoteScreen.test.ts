@@ -1,10 +1,15 @@
+import {
+  useCreateNote,
+  useDeleteNote,
+  useNote,
+  useNotes,
+  usePermanentDelete,
+  useRestoreNote,
+  useTags,
+  useUpdateNote,
+} from "@simple-markdown-note/api-client/hooks";
 import { act, renderHook } from "@testing-library/react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import {
-  useNoteDetailQuery,
-  useNoteListQuery,
-  useNoteMutations,
-} from "./useNoteResource";
 import {
   useNoteDrawerScreen,
   useNoteEditorScreen,
@@ -20,18 +25,20 @@ jest.mock("expo-router", () => ({
   useLocalSearchParams: jest.fn(),
 }));
 
-jest.mock("./useNoteResource", () => ({
-  useNoteListQuery: jest.fn(),
-  useNoteDetailQuery: jest.fn(),
-  useNoteMutations: jest.fn(),
+jest.mock("@simple-markdown-note/api-client/hooks", () => ({
+  useNote: jest.fn(),
+  useNotes: jest.fn(),
+  useTags: jest.fn(),
+  useCreateNote: jest.fn(),
+  useUpdateNote: jest.fn(),
+  useDeleteNote: jest.fn(),
+  useRestoreNote: jest.fn(),
+  usePermanentDelete: jest.fn(),
+  useLogout: jest.fn(),
 }));
 
 jest.mock("../components/NoteDrawer", () => ({
   DRAWER_WIDTH: 280,
-}));
-
-jest.mock("@simple-markdown-note/api-client/hooks", () => ({
-  useLogout: jest.fn(),
 }));
 
 jest.mock("../../auth/store", () => ({
@@ -77,11 +84,13 @@ describe("useNoteListScreen", () => {
     jest.clearAllMocks();
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
     (useLocalSearchParams as jest.Mock).mockReturnValue({ scope: "all" });
-    (useNoteListQuery as jest.Mock).mockReturnValue({
-      notes: [mockNote],
-      isNotesLoading: false,
-      refetchNotes: jest.fn(),
-      tags: ["tag1"],
+    (useNotes as jest.Mock).mockReturnValue({
+      data: [mockNote],
+      isLoading: false,
+      refetch: jest.fn(),
+    });
+    (useTags as jest.Mock).mockReturnValue({
+      data: [{ name: "tag1" }],
     });
   });
 
@@ -91,15 +100,15 @@ describe("useNoteListScreen", () => {
   });
 
   it("filters notes by searchQuery", () => {
-    (useNoteListQuery as jest.Mock).mockReturnValue({
-      notes: [
+    (useNotes as jest.Mock).mockReturnValue({
+      data: [
         { ...mockNote, content: "hello world" },
         { ...mockNote, id: "2", content: "goodbye" },
       ],
-      isNotesLoading: false,
-      refetchNotes: jest.fn(),
-      tags: [],
+      isLoading: false,
+      refetch: jest.fn(),
     });
+    (useTags as jest.Mock).mockReturnValue({ data: [] });
     const { result } = renderHook(() => useNoteListScreen());
     act(() => {
       result.current.setSearchQuery("hello");
@@ -153,11 +162,25 @@ describe("useNoteEditorScreen", () => {
     jest.clearAllMocks();
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
     (useLocalSearchParams as jest.Mock).mockReturnValue({ id: "note-1" });
-    (useNoteDetailQuery as jest.Mock).mockReturnValue({
-      note: mockNote,
+    (useNote as jest.Mock).mockReturnValue({
+      data: mockNote,
       isLoading: false,
     });
-    (useNoteMutations as jest.Mock).mockReturnValue(mockMutations);
+    (useCreateNote as jest.Mock).mockReturnValue({
+      mutateAsync: mockMutations.createNote,
+    });
+    (useUpdateNote as jest.Mock).mockReturnValue({
+      mutate: mockMutations.updateNote,
+    });
+    (useDeleteNote as jest.Mock).mockReturnValue({
+      mutateAsync: mockMutations.deleteNote,
+    });
+    (useRestoreNote as jest.Mock).mockReturnValue({
+      mutateAsync: mockMutations.restoreNote,
+    });
+    (usePermanentDelete as jest.Mock).mockReturnValue({
+      mutateAsync: mockMutations.permanentDelete,
+    });
   });
 
   it("returns expected shape", () => {
@@ -176,8 +199,8 @@ describe("useNoteEditorScreen", () => {
 
   it("isNew is true when id is 'new'", () => {
     (useLocalSearchParams as jest.Mock).mockReturnValue({ id: "new" });
-    (useNoteDetailQuery as jest.Mock).mockReturnValue({
-      note: undefined,
+    (useNote as jest.Mock).mockReturnValue({
+      data: undefined,
       isLoading: false,
     });
     const { result } = renderHook(() => useNoteEditorScreen());
@@ -185,8 +208,8 @@ describe("useNoteEditorScreen", () => {
   });
 
   it("handleRemoveTag removes the specified tag", () => {
-    (useNoteDetailQuery as jest.Mock).mockReturnValue({
-      note: {
+    (useNote as jest.Mock).mockReturnValue({
+      data: {
         ...mockNote,
         tags: [
           {
@@ -216,8 +239,8 @@ describe("useNoteEditorScreen", () => {
   });
 
   it("handleCheckboxToggle updates content", () => {
-    (useNoteDetailQuery as jest.Mock).mockReturnValue({
-      note: { ...mockNote, content: "- [ ] task" },
+    (useNote as jest.Mock).mockReturnValue({
+      data: { ...mockNote, content: "- [ ] task" },
       isLoading: false,
     });
     const { result } = renderHook(() => useNoteEditorScreen());

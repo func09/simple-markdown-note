@@ -1,7 +1,17 @@
-import { useLogout } from "@simple-markdown-note/api-client/hooks";
+import {
+  useCreateNote,
+  useDeleteNote,
+  useLogout,
+  useNote,
+  useNotes,
+  usePermanentDelete,
+  useRestoreNote,
+  useTags,
+  useUpdateNote,
+} from "@simple-markdown-note/api-client/hooks";
 import { NOTE_SCOPE, type NoteScope } from "@simple-markdown-note/common/types";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuthStore } from "../../auth/store";
 import { useKeyboardObserver } from "./useNoteEffect";
 import {
@@ -10,11 +20,6 @@ import {
   useNoteFilter,
   useNoteMetrics,
 } from "./useNoteLogic";
-import {
-  useNoteDetailQuery,
-  useNoteListQuery,
-  useNoteMutations,
-} from "./useNoteResource";
 import { useDrawerState, useTagPrompt } from "./useNoteState";
 
 const AUTO_SAVE_DELAY = 1000;
@@ -39,10 +44,13 @@ function useNoteAutoSave({
   content: string;
   tags: string[];
   isNew: boolean;
-  note: ReturnType<typeof useNoteDetailQuery>["note"];
+  note: ReturnType<typeof useNote>["data"];
   isLoading: boolean;
   isDeleting: boolean;
-  mutations: ReturnType<typeof useNoteMutations>;
+  mutations: {
+    createNote: ReturnType<typeof useCreateNote>["mutateAsync"];
+    updateNote: ReturnType<typeof useUpdateNote>["mutate"];
+  };
   router: ReturnType<typeof useRouter>;
   currentNoteId: { current: string | null };
   markAsInitialized: (id: string) => void;
@@ -139,10 +147,14 @@ export function useNoteListScreen() {
   const [searchQuery, setSearchQuery] = useState("");
 
   // Resource
-  const { notes, isNotesLoading, refetchNotes, tags } = useNoteListQuery(
-    scope as NoteScope,
-    tag
-  );
+  const {
+    data: notes = [],
+    isLoading: isNotesLoading,
+    refetch: refetchNotes,
+  } = useNotes({ scope: scope as NoteScope, tag });
+
+  const { data: apiTags = [] } = useTags();
+  const tags = apiTags.map((t) => t.name);
 
   // Logic
   const { filteredNotes } = useNoteFilter(notes, searchQuery);
@@ -212,8 +224,29 @@ export function useNoteEditorScreen() {
   const router = useRouter();
 
   // Resource
-  const { note, isLoading } = useNoteDetailQuery(isNew ? null : id);
-  const mutations = useNoteMutations();
+  const { data: note, isLoading } = useNote(isNew ? null : id);
+  const createNoteMutation = useCreateNote();
+  const updateNoteMutation = useUpdateNote();
+  const deleteNoteMutation = useDeleteNote();
+  const restoreNoteMutation = useRestoreNote();
+  const permanentDeleteMutation = usePermanentDelete();
+
+  const mutations = useMemo(
+    () => ({
+      createNote: createNoteMutation.mutateAsync,
+      updateNote: updateNoteMutation.mutate,
+      deleteNote: deleteNoteMutation.mutateAsync,
+      restoreNote: restoreNoteMutation.mutateAsync,
+      permanentDelete: permanentDeleteMutation.mutateAsync,
+    }),
+    [
+      createNoteMutation.mutateAsync,
+      updateNoteMutation.mutate,
+      deleteNoteMutation.mutateAsync,
+      restoreNoteMutation.mutateAsync,
+      permanentDeleteMutation.mutateAsync,
+    ]
+  );
 
   // State（初期化・サーバーデータとの同期を含む）
   const {
