@@ -10,13 +10,13 @@ import {
   getNotes,
   updateNote,
 } from "./note";
-import * as tagService from "./tag";
+import * as tagService from "./tags";
 
 vi.mock("@simple-markdown-note/database", () => ({
   createNoteRepository: vi.fn(),
 }));
 
-vi.mock("./tag", () => ({
+vi.mock("./tags", () => ({
   syncTags: vi.fn(),
   cleanupOrphanedTags: vi.fn(),
 }));

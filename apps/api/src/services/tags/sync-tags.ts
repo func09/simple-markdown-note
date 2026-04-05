@@ -2,6 +2,7 @@ import {
   createTagRepository,
   type DrizzleDB,
 } from "@simple-markdown-note/database";
+import { cleanupOrphanedTags } from "./cleanup-orphaned-tags";
 
 /**
  * ノートのタグを同期する
@@ -45,40 +46,4 @@ export async function syncTags(
   // 3. 浮いたタグをクリーンアップ
   await cleanupOrphanedTags(userId, client);
   return [];
-}
-
-/**
- * どのノートにも紐付いていないタグを削除する
- */
-export async function cleanupOrphanedTags(userId: string, client: DrizzleDB) {
-  const repo = createTagRepository(client);
-  await repo.deleteOrphaned(userId);
-}
-
-/**
- * ユーザーのタグ一覧と、各タグに紐付くノート数を取得する
- */
-export async function getTagsWithNoteCount(userId: string, client: DrizzleDB) {
-  const repo = createTagRepository(client);
-  const tagsRaw = await repo.findAllWithNotesByUserId(userId);
-
-  // 生のデータを返す（変換はルート層で行う）
-  return tagsRaw.map((tag: (typeof tagsRaw)[number]) => ({
-    id: tag.id,
-    name: tag.name,
-    count: tag.notesToTags.length,
-    updatedAt: tag.updatedAt,
-  }));
-}
-
-/**
- * タグを単体で作成（または取得）する
- */
-export async function createTag(
-  userId: string,
-  name: string,
-  client: DrizzleDB
-) {
-  const repo = createTagRepository(client);
-  return await repo.upsert({ name, userId });
 }
