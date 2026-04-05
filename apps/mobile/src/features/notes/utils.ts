@@ -1,6 +1,5 @@
 import type { Note } from "@simple-markdown-note/common/schemas";
 import type { ASTNode } from "react-native-markdown-display";
-import { NAVIGATION_DELAY } from "./constants";
 
 /**
  * MarkdownのASTノードから再帰的にテキストを抽出して結合します。
@@ -70,31 +69,4 @@ export function filterNotes(notes: Note[], searchQuery: string) {
   if (!searchQuery.trim()) return notes;
   const query = searchQuery.toLowerCase();
   return notes.filter((note) => note.content.toLowerCase().includes(query));
-}
-
-/**
- * バックエンドでのノート削除・復元処理を実行し、その間のUI状態の制御と画面遷移を行います。
- *
- * @param action 削除または復元を行う非同期処理関数
- * @param label 処理のラベル（エラーメッセージ出力用）
- * @param context コンテキストオブジェクト（ローディング状態変更、ボトムシート操作、画面遷移のための関数を持つ）
- */
-export async function executeNoteDelete(
-  action: () => Promise<unknown>,
-  label: string,
-  context: {
-    setIsDeleting: (v: boolean) => void;
-    infoSheetRef: { current: { dismiss(): void } | null };
-    handleGoBack: () => void;
-  }
-) {
-  context.setIsDeleting(true);
-  try {
-    await action();
-    context.infoSheetRef.current?.dismiss();
-    setTimeout(context.handleGoBack, NAVIGATION_DELAY);
-  } catch (error) {
-    context.setIsDeleting(false);
-    console.error(`Failed to ${label}:`, error);
-  }
 }
