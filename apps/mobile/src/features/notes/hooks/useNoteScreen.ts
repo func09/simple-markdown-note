@@ -13,6 +13,7 @@ import { NOTE_SCOPE, type NoteScope } from "@simple-markdown-note/common/types";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuthStore } from "../../auth/store";
+import { AUTO_SAVE_DELAY, NAVIGATION_DELAY } from "../constants";
 import { useKeyboardObserver } from "./useNoteEffect";
 import {
   useNoteCheckbox,
@@ -21,9 +22,6 @@ import {
   useNoteMetrics,
 } from "./useNoteLogic";
 import { useDrawerState, useTagPrompt } from "./useNoteState";
-
-const AUTO_SAVE_DELAY = 1000;
-const NAVIGATION_DELAY = 250;
 
 // ---------------------------------------------------------------------------
 // Private: 自動保存の副作用を担うフック

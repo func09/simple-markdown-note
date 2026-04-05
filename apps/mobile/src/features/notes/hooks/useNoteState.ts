@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import { Alert, Animated, Platform } from "react-native";
-import { DRAWER_WIDTH } from "../components/NoteDrawer";
+import { DRAWER_ANIM_DURATION, DRAWER_WIDTH } from "../constants";
 
 /**
  * 状態フック (State Hooks)
@@ -16,8 +16,6 @@ import { DRAWER_WIDTH } from "../components/NoteDrawer";
  *   use[名詞]Filter     - 絞り込み条件の状態       例: useNotesFilter
  *   use[名詞]Selection  - 選択状態の管理           例: useNoteSelection
  */
-
-const DRAWER_ANIM_DURATION = 300;
 
 /**
  * Animated APIを利用したドロワーの開閉スライドアニメーションを制御します。

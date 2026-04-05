@@ -1,6 +1,7 @@
 import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Keyboard, type TextInput } from "react-native";
+import { FOCUS_DELAY } from "../constants";
 
 /**
  * 副作用フック (Effect Hooks)
@@ -15,8 +16,6 @@ import { Keyboard, type TextInput } from "react-native";
  *   use[名詞]Listener   - イベントの購読            例: useAppStateListener
  *   useAuto[名詞]       - 自動実行される処理        例: useAutoSave, useAutoPrefetch
  */
-
-const FOCUS_DELAY = 50;
 
 /**
  * ノート編集画面におけるキーボードの表示状態や入力フォーカスなど、OS/プラットフォーム固有の挙動を管理します。
