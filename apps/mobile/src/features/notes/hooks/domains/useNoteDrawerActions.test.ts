@@ -1,7 +1,7 @@
 import { useLogout } from "@simple-markdown-note/api-client/hooks";
 import { act, renderHook } from "@testing-library/react-native";
-import { useAuthStore } from "../../auth/store";
-import { useNoteDrawerActions } from "./useNoteDomain";
+import { useAuthStore } from "../../../auth/store";
+import { useNoteDrawerActions } from "./useNoteDrawerActions";
 
 jest.mock("@simple-markdown-note/api-client/hooks", () => ({
   useLogout: jest.fn(),
@@ -11,7 +11,7 @@ jest.mock("expo-router", () => ({
   useRouter: jest.fn(),
 }));
 
-jest.mock("../../auth/store", () => ({
+jest.mock("../../../auth/store", () => ({
   useAuthStore: jest.fn(),
 }));
 
