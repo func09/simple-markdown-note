@@ -1,3 +1,7 @@
+import {
+  useNote,
+  usePermanentDelete,
+} from "@simple-markdown-note/api-client/hooks";
 import { EditorContent } from "@tiptap/react";
 import { Edit3 } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
@@ -7,10 +11,13 @@ import { useNavigate } from "react-router-dom";
 import remarkGfm from "remark-gfm";
 import { cn } from "@/lib/utils";
 import {
+  useDeleteNoteAction,
   useEditorPopovers,
-  useNoteActions,
   useNoteAutoSave,
   useNoteEditor,
+  useNotesQueryString,
+  useRestoreNoteAction,
+  useUpdateTagsAction,
 } from "../hooks";
 import { EditorHeader } from "./EditorHeader";
 import { EditorTagManager } from "./EditorTagManager";
@@ -31,15 +38,15 @@ export function Editor({ noteId, isMobile }: EditorProps) {
   const navigate = useNavigate();
 
   // 1. 各種アクションとデータ取得の管理
-  const {
-    note,
-    isLoading,
-    handleDelete,
-    handleRestore,
-    handleUpdateTags,
-    permanentDeleteMutation,
-    queryString,
-  } = useNoteActions(noteId);
+  const queryString = useNotesQueryString();
+  const { data: note, isLoading } = useNote(noteId ?? null, {
+    enabled: !!noteId,
+  });
+
+  const { handleDelete } = useDeleteNoteAction(noteId);
+  const { handleRestore } = useRestoreNoteAction(noteId);
+  const { handleUpdateTags } = useUpdateTagsAction(noteId);
+  const permanentDeleteMutation = usePermanentDelete();
 
   // 2. ポップオーバーの管理
   const {
