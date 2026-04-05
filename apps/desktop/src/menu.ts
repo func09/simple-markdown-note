@@ -1,4 +1,9 @@
-import { BrowserWindow, Menu, type MenuItemConstructorOptions } from "electron";
+import {
+  app,
+  BrowserWindow,
+  Menu,
+  type MenuItemConstructorOptions,
+} from "electron";
 
 export function setupMenu() {
   const isMac = process.platform === "darwin";
@@ -34,7 +39,17 @@ export function setupMenu() {
     // 標準的な View, Window, Help メニュー
     { role: "viewMenu" as const },
     { role: "windowMenu" as const },
-    { role: "help" as const },
+    {
+      role: "help" as const,
+      submenu: [
+        {
+          label: `Version ${app.getVersion()}`,
+          enabled: false,
+        },
+        { type: "separator" },
+        { role: "about" as const },
+      ],
+    },
   ];
 
   const menu = Menu.buildFromTemplate(template);
