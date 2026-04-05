@@ -44,6 +44,8 @@ jobs:
         env:
           VITE_ELECTRON: true
           VITE_APP_VERSION: ${{ github.ref_name }} # タグ名をバージョンとして注入
+          # Secrets から API URL を取得
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
           # 署名をスキップ
           CSC_SKIP_SIGNING: true
         working-directory: apps/desktop
