@@ -15,7 +15,8 @@ import {
   useNoteListQuery,
   useNoteMutations,
 } from "./useNoteResource";
-import { useNoteDrawer, useNoteTagPrompt } from "./useNoteUI";
+import { useDrawerState } from "./useNoteState";
+import { useNoteTagPrompt } from "./useNoteUI";
 
 const AUTO_SAVE_DELAY = 1000;
 const NAVIGATION_DELAY = 250;
@@ -148,7 +149,7 @@ export function useNoteListScreen() {
   const { filteredNotes } = useNoteFilter(notes, searchQuery);
 
   // Platform
-  const { isDrawerOpen, slideAnim, toggleDrawer } = useNoteDrawer();
+  const { isDrawerOpen, slideAnim, toggleDrawer } = useDrawerState();
 
   const getHeaderTitle = () => {
     if (tag) return tag;
