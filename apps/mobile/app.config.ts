@@ -1,7 +1,11 @@
+import path from "node:path";
+import dotenv from "dotenv";
 import type { ConfigContext, ExpoConfig } from "expo/config";
 
-// .env を明示的に読み込む（monorepo対策）
-import "dotenv/config";
+// 実行環境に応じて .env ファイルを切り替える（monorepo対策）
+const envFile =
+  process.env.NODE_ENV === "production" ? ".env.production" : ".env";
+dotenv.config({ path: path.resolve(__dirname, envFile) });
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
