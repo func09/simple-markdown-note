@@ -1,52 +1,8 @@
-import type { BottomSheetModal } from "@gorhom/bottom-sheet";
-import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  Alert,
-  Animated,
-  Keyboard,
-  Platform,
-  type TextInput,
-} from "react-native";
+import { useCallback, useRef, useState } from "react";
+import { Alert, Animated, Platform } from "react-native";
 import { DRAWER_WIDTH } from "../components/NoteDrawer";
 
 const DRAWER_ANIM_DURATION = 300;
-const FOCUS_DELAY = 50;
-
-/**
- * ノート編集画面におけるキーボードの表示状態や入力フォーカスなど、OS/プラットフォーム固有の挙動を管理します。
- */
-export function useNoteEditorUI(
-  isPreview: boolean,
-  setIsPreview: (val: boolean) => void
-) {
-  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-  const inputRef = useRef<TextInput>(null);
-  const infoSheetRef = useRef<BottomSheetModal>(null);
-
-  useEffect(() => {
-    const showSubscription = Keyboard.addListener("keyboardDidShow", () =>
-      setIsKeyboardVisible(true)
-    );
-    const hideSubscription = Keyboard.addListener("keyboardDidHide", () =>
-      setIsKeyboardVisible(false)
-    );
-    return () => {
-      showSubscription.remove();
-      hideSubscription.remove();
-    };
-  }, []);
-
-  const handleKeyboardToggle = useCallback(() => {
-    if (isKeyboardVisible) {
-      Keyboard.dismiss();
-    } else {
-      if (isPreview) setIsPreview(false);
-      setTimeout(() => inputRef.current?.focus(), FOCUS_DELAY);
-    }
-  }, [isKeyboardVisible, isPreview, setIsPreview]);
-
-  return { isKeyboardVisible, inputRef, infoSheetRef, handleKeyboardToggle };
-}
 
 /**
  * Animated APIを利用したドロワーの開閉スライドアニメーションを制御します。
