@@ -11,6 +11,7 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { useNotesStore } from "../store";
 import { escapeHtml } from "../utils";
+import { useNotesQueryString } from "./useNoteNavigation";
 
 /**
  * 検索・フィルタリングされたノート一覧と、それらに関連する状態を管理するHook
@@ -37,13 +38,7 @@ export function useFilteredNotes() {
 
   const shouldShowSkeleton = isLoading && notes.length === 0;
 
-  const queryString = useMemo(() => {
-    const params = new URLSearchParams();
-    if (scope !== "all") params.set("scope", scope);
-    if (tag) params.set("tag", tag);
-    const qs = params.toString();
-    return qs ? `?${qs}` : "";
-  }, [scope, tag]);
+  const queryString = useNotesQueryString();
 
   return {
     notes,
