@@ -1,7 +1,12 @@
 import { act, renderHook } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { useNotesStore } from "../store";
-import { useNotesFilter, useSidebarState } from "./useNoteState";
+import {
+  useInfoPopoverState,
+  useNotesFilter,
+  useOptionsPopoverState,
+  useSidebarState,
+} from "./useNoteState";
 
 describe("useNotesFilter", () => {
   it("should return empty string when scope is all and tag is empty", () => {
@@ -49,5 +54,27 @@ describe("useSidebarState", () => {
       result.current.closeSidebar();
     });
     expect(result.current.isSidebarOpen).toBe(false);
+  });
+});
+
+describe("useInfoPopoverState", () => {
+  it("should manage info popover state", () => {
+    const { result } = renderHook(() => useInfoPopoverState());
+    expect(result.current.isInfoOpen).toBe(false);
+    act(() => {
+      result.current.setIsInfoOpen(true);
+    });
+    expect(result.current.isInfoOpen).toBe(true);
+  });
+});
+
+describe("useOptionsPopoverState", () => {
+  it("should manage options popover state", () => {
+    const { result } = renderHook(() => useOptionsPopoverState());
+    expect(result.current.isOptionsOpen).toBe(false);
+    act(() => {
+      result.current.setIsOptionsOpen(true);
+    });
+    expect(result.current.isOptionsOpen).toBe(true);
   });
 });
