@@ -1,13 +1,22 @@
 import * as apiClientHooks from "@simple-markdown-note/api-client/hooks";
 import { act, renderHook } from "@testing-library/react";
 import { useSearchParams } from "react-router-dom";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 import { useNotesStore } from "../store";
 import {
   useCreateNoteAction,
   useDeleteNoteAction,
   useNotesNavigationSync,
   useNotesQueryString,
+  usePermanentDeleteAction,
   useRestoreNoteAction,
   useUpdateTagsAction,
 } from "./index";
@@ -211,5 +220,70 @@ describe("useUpdateTagsAction", () => {
       id: "1",
       data: { tags: ["tag1", "tag2"] },
     });
+  });
+});
+
+describe("usePermanentDeleteAction", () => {
+  const originalConfirm = window.confirm;
+
+  beforeAll(() => {
+    window.confirm = vi.fn();
+  });
+
+  afterAll(() => {
+    window.confirm = originalConfirm;
+  });
+
+  beforeEach(() => {
+    vi.mocked(window.confirm).mockClear();
+  });
+
+  it("should not delete if user cancels confirm", async () => {
+    vi.mocked(window.confirm).mockReturnValue(false);
+    const mutateAsync = vi.fn();
+    mockedHooks.usePermanentDelete.mockReturnValue({
+      mutateAsync,
+    } as unknown as ReturnType<typeof apiClientHooks.usePermanentDelete>);
+
+    const onDeleteStart = vi.fn();
+    const { result } = renderHook(() =>
+      usePermanentDeleteAction("1", { onDeleteStart })
+    );
+
+    await act(async () => {
+      await result.current.handlePermanentDelete();
+    });
+
+    expect(onDeleteStart).not.toHaveBeenCalled();
+    expect(mutateAsync).not.toHaveBeenCalled();
+  });
+
+  it("should handle permanent delete and navigate if user confirms", async () => {
+    vi.mocked(window.confirm).mockReturnValue(true);
+    const mutateAsync = vi.fn().mockImplementation((_id, options) => {
+      if (options?.onSuccess) {
+        options.onSuccess();
+      }
+      return Promise.resolve();
+    });
+    mockedHooks.usePermanentDelete.mockReturnValue({
+      mutateAsync,
+    } as unknown as ReturnType<typeof apiClientHooks.usePermanentDelete>);
+
+    const onDeleteStart = vi.fn();
+    const { result } = renderHook(() =>
+      usePermanentDeleteAction("1", { onDeleteStart })
+    );
+
+    await act(async () => {
+      await result.current.handlePermanentDelete();
+    });
+
+    expect(window.confirm).toHaveBeenCalledWith(
+      "Are you sure you want to delete this note permanently?"
+    );
+    expect(onDeleteStart).toHaveBeenCalled();
+    expect(mutateAsync).toHaveBeenCalledWith("1", expect.any(Object));
+    expect(mockNavigate).toHaveBeenCalledWith("/notes?scope=trash");
   });
 });

@@ -1,13 +1,10 @@
-import {
-  useNote,
-  usePermanentDelete,
-} from "@simple-markdown-note/api-client/hooks";
+import { useNote } from "@simple-markdown-note/api-client/hooks";
 import { EditorContent } from "@tiptap/react";
 import { Edit3 } from "lucide-react";
-import { useCallback, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import type { Components } from "react-markdown";
 import ReactMarkdown from "react-markdown";
-import { useNavigate } from "react-router-dom";
+
 import remarkGfm from "remark-gfm";
 import { cn } from "@/lib/utils";
 import {
@@ -16,6 +13,7 @@ import {
   useNoteAutoSave,
   useNoteEditor,
   useNotesQueryString,
+  usePermanentDeleteAction,
   useRestoreNoteAction,
   useUpdateTagsAction,
 } from "../hooks";
@@ -35,7 +33,6 @@ interface EditorProps {
 export function Editor({ noteId, isMobile }: EditorProps) {
   const [isPreview, setIsPreview] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const navigate = useNavigate();
 
   // 1. 各種アクションとデータ取得の管理
   const queryString = useNotesQueryString();
@@ -46,7 +43,9 @@ export function Editor({ noteId, isMobile }: EditorProps) {
   const { handleDelete } = useDeleteNoteAction(noteId);
   const { handleRestore } = useRestoreNoteAction(noteId);
   const { handleUpdateTags } = useUpdateTagsAction(noteId);
-  const permanentDeleteMutation = usePermanentDelete();
+  const { handlePermanentDelete } = usePermanentDeleteAction(noteId, {
+    onDeleteStart: () => setIsDeleting(true),
+  });
 
   // 2. ポップオーバーの管理
   const {
@@ -78,18 +77,6 @@ export function Editor({ noteId, isMobile }: EditorProps) {
     contentRef,
     lastNoteIdRef,
   });
-
-  const handlePermanentDelete = useCallback(async () => {
-    if (!noteId) return;
-    if (confirm("Are you sure you want to delete this note permanently?")) {
-      setIsDeleting(true);
-      await permanentDeleteMutation.mutateAsync(noteId, {
-        onSuccess: () => {
-          navigate("/notes?scope=trash");
-        },
-      });
-    }
-  }, [noteId, permanentDeleteMutation, navigate]);
 
   if (!noteId) {
     return (

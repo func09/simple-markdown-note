@@ -1,6 +1,7 @@
 import {
   useCreateNote,
   useDeleteNote,
+  usePermanentDelete,
   useRestoreNote,
   useUpdateNote,
 } from "@simple-markdown-note/api-client/hooks";
@@ -138,4 +139,31 @@ export function useUpdateTagsAction(noteId?: string) {
   );
 
   return { handleUpdateTags };
+}
+
+/**
+ * ノート完全削除アクションを管理するHook
+ */
+export function usePermanentDeleteAction(
+  noteId?: string,
+  options?: {
+    onDeleteStart?: () => void;
+  }
+) {
+  const navigate = useNavigate();
+  const permanentDeleteMutation = usePermanentDelete();
+
+  const handlePermanentDelete = useCallback(async () => {
+    if (!noteId) return;
+    if (confirm("Are you sure you want to delete this note permanently?")) {
+      options?.onDeleteStart?.();
+      await permanentDeleteMutation.mutateAsync(noteId, {
+        onSuccess: () => {
+          navigate("/notes?scope=trash");
+        },
+      });
+    }
+  }, [noteId, permanentDeleteMutation, navigate, options?.onDeleteStart]);
+
+  return { handlePermanentDelete };
 }
