@@ -50,9 +50,9 @@ jobs:
         working-directory: apps/api
         run: |
           sed -i 's/database_id = ".*"/database_id = "${{ secrets.D1_DATABASE_ID }}"/' wrangler.toml
-          sed -i 's|ALLOWED_ORIGIN=".*"|ALLOWED_ORIGIN="${{ secrets.ALLOWED_ORIGIN }}"|' wrangler.toml
-          sed -i 's|CLIENT_URL=".*"|CLIENT_URL="${{ secrets.CLIENT_URL }}"|' wrangler.toml
-          sed -i 's|EMAIL_FROM=".*"|EMAIL_FROM="${{ secrets.EMAIL_FROM }}"|' wrangler.toml
+          sed -i 's|ALLOWED_ORIGIN=".*"|ALLOWED_ORIGIN="${{ vars.ALLOWED_ORIGIN }}"|' wrangler.toml
+          sed -i 's|CLIENT_URL=".*"|CLIENT_URL="${{ vars.CLIENT_URL }}"|' wrangler.toml
+          sed -i 's|EMAIL_FROM=".*"|EMAIL_FROM="${{ vars.EMAIL_FROM }}"|' wrangler.toml
 
       - name: Deploy API Worker
         working-directory: apps/api
