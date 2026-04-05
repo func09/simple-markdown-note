@@ -4,6 +4,7 @@ import {
   BottomSheetModal,
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   Check,
   ChevronLeft,
@@ -33,8 +34,13 @@ import Markdown, {
   type RenderRules,
 } from "react-native-markdown-display";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useNoteEditorScreen } from "../hooks";
-import { formatDate, getNodeText } from "../utils";
+import { useKeyboardObserver, useNoteEditor, useTagPrompt } from "../hooks";
+import {
+  executeNoteDelete,
+  formatDate,
+  getNodeText,
+  toggleCheckboxInContent,
+} from "../utils";
 
 const markdownStyles = StyleSheet.create({
   body: {
@@ -129,18 +135,90 @@ const markdownStyles = StyleSheet.create({
 });
 
 export function NoteDetailScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const isNew = id === "new";
+  const router = useRouter();
+
+  // ドメインロジック（ノートの取得・保存・状態管理）
   const {
-    isNew,
     note,
+    mutations,
+    metrics,
     content,
     setContent,
     tags,
+    setTags,
     isPreview,
     setIsPreview,
-    metrics,
-    ui,
-    ops,
-  } = useNoteEditorScreen();
+    setIsDeleting,
+    currentNoteId,
+  } = useNoteEditor(id, isNew);
+
+  // プラットフォーム固有のUI制御（キーボード、タグ入力モーダルなど）
+  const uiLayout = useKeyboardObserver(isPreview, setIsPreview);
+  const { promptForTag } = useTagPrompt();
+
+  const handleGoBack = useCallback(() => router.back(), [router]);
+
+  // イベントハンドラー
+  // マークダウン内のチェックボックス切り替え
+  const handleCheckboxToggle = useCallback(
+    (index: number) => {
+      setContent((prev) => toggleCheckboxInContent(prev, index));
+    },
+    [setContent]
+  );
+
+  // タグの追加プロンプトを表示
+  const handleAddTag = useCallback(() => {
+    promptForTag(tags, (newTag) => setTags((prev) => [...prev, newTag]));
+  }, [promptForTag, tags, setTags]);
+
+  // タグの削除
+  const handleRemoveTag = useCallback(
+    (tagToRemove: string) => {
+      setTags((prev) => prev.filter((t) => t !== tagToRemove));
+    },
+    [setTags]
+  );
+
+  // ゴミ箱への移動、または復元
+  const handleTrashAction = useCallback(() => {
+    const activeId = currentNoteId.current;
+    if (!activeId) return;
+    const action = note?.deletedAt
+      ? () => mutations.restoreNote(activeId)
+      : () => mutations.deleteNote(activeId);
+    return executeNoteDelete(
+      action,
+      note?.deletedAt ? "restore note" : "trash note",
+      { setIsDeleting, infoSheetRef: uiLayout.infoSheetRef, handleGoBack }
+    );
+  }, [
+    currentNoteId,
+    note,
+    mutations,
+    setIsDeleting,
+    uiLayout.infoSheetRef,
+    handleGoBack,
+  ]);
+
+  // 完全に削除
+  const handlePermanentDelete = useCallback(() => {
+    const activeId = currentNoteId.current;
+    if (!activeId) return;
+    return executeNoteDelete(
+      () => mutations.permanentDelete(activeId),
+      "permanently delete note",
+      { setIsDeleting, infoSheetRef: uiLayout.infoSheetRef, handleGoBack }
+    );
+  }, [
+    currentNoteId,
+    mutations,
+    setIsDeleting,
+    uiLayout.infoSheetRef,
+    handleGoBack,
+  ]);
 
   const insets = useSafeAreaInsets();
 
@@ -179,7 +257,7 @@ export function NoteDetailScreen() {
               marginBottom: 6,
               paddingVertical: 2,
             }}
-            onPress={() => ops.handleCheckboxToggle(currentIndex)}
+            onPress={() => handleCheckboxToggle(currentIndex)}
             activeOpacity={0.6}
           >
             <View
@@ -273,7 +351,7 @@ export function NoteDetailScreen() {
     >
       <View className="flex-row items-center justify-between px-4 py-2 border-b border-slate-100 bg-white z-10">
         <TouchableOpacity
-          onPress={ui.handleGoBack}
+          onPress={handleGoBack}
           className="flex-row items-center p-2 -ml-2"
         >
           <ChevronLeft size={24} color="#0f172a" />
@@ -295,17 +373,17 @@ export function NoteDetailScreen() {
           <TouchableOpacity
             onPress={() => {
               Keyboard.dismiss();
-              ui.infoSheetRef.current?.present();
+              uiLayout.infoSheetRef.current?.present();
             }}
             className="p-2 ml-1"
           >
             <Info size={22} color="#475569" />
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={ui.handleKeyboardToggle}
+            onPress={uiLayout.handleKeyboardToggle}
             className="p-2 -mr-1"
           >
-            {ui.isKeyboardVisible ? (
+            {uiLayout.isKeyboardVisible ? (
               <KeyboardIcon size={22} color="#3b82f6" />
             ) : (
               <SquarePen size={22} color="#475569" />
@@ -334,7 +412,7 @@ export function NoteDetailScreen() {
             </View>
           ) : (
             <TextInput
-              ref={ui.inputRef}
+              ref={uiLayout.inputRef}
               multiline
               placeholder="Enter content here..."
               placeholderTextColor="#cbd5e1"
@@ -365,7 +443,7 @@ export function NoteDetailScreen() {
                   </Text>
                   <TouchableOpacity
                     className="ml-1.5 p-0.5"
-                    onPress={() => ops.handleRemoveTag(tag)}
+                    onPress={() => handleRemoveTag(tag)}
                   >
                     <X size={10} color="#94a3b8" />
                   </TouchableOpacity>
@@ -373,7 +451,7 @@ export function NoteDetailScreen() {
               ))}
               <TouchableOpacity
                 className="px-3 py-1.5 border border-dashed border-slate-300 rounded-full"
-                onPress={() => ops.handleAddTag()}
+                onPress={() => handleAddTag()}
               >
                 <Text className="text-xs font-medium text-slate-400">
                   + Add Tag
@@ -385,7 +463,7 @@ export function NoteDetailScreen() {
       </KeyboardAvoidingView>
 
       <BottomSheetModal
-        ref={ui.infoSheetRef}
+        ref={uiLayout.infoSheetRef}
         enablePanDownToClose
         backdropComponent={renderBackdrop}
       >
@@ -427,7 +505,7 @@ export function NoteDetailScreen() {
           <View className="mb-6">
             <TouchableOpacity
               className="flex-row items-center px-5 py-4 border-b border-slate-50"
-              onPress={ops.handleTrashAction}
+              onPress={handleTrashAction}
             >
               <Trash2
                 size={20}
@@ -445,7 +523,7 @@ export function NoteDetailScreen() {
             {note?.deletedAt && (
               <TouchableOpacity
                 className="flex-row items-center px-5 py-4"
-                onPress={ops.handlePermanentDelete}
+                onPress={handlePermanentDelete}
               >
                 <X size={20} color="#ef4444" />
                 <Text className="text-base text-red-500 ml-3">
