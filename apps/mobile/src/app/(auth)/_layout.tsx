@@ -7,6 +7,10 @@ export default function AuthLayout() {
       <Stack>
         <Stack.Screen name="login" options={{ title: "Login" }} />
         <Stack.Screen name="signup" options={{ title: "Signup" }} />
+        <Stack.Screen
+          name="pending-verification"
+          options={{ headerShown: false }}
+        />
       </Stack>
     </GuestGuard>
   );

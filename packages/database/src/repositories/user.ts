@@ -41,6 +41,18 @@ export const createUserRepository = (db: DrizzleDB) => ({
       .set({ passwordHash: newPasswordHash, updatedAt: new Date() })
       .where(eq(users.id, userId));
   },
+  /**
+   * ユーザーのステータスを更新します。
+   */
+  updateStatus: async (
+    userId: string,
+    status: import("../schema").UserStatus
+  ): Promise<void> => {
+    await db
+      .update(users)
+      .set({ status, updatedAt: new Date() })
+      .where(eq(users.id, userId));
+  },
 });
 
 export type UserRepository = ReturnType<typeof createUserRepository>;

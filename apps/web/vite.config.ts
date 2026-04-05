@@ -7,6 +7,7 @@ export default defineConfig(({ mode: _mode }) => {
   const isElectron = process.env.VITE_ELECTRON === "true";
 
   return {
+    clearScreen: false,
     base: isElectron ? "./" : "/",
     plugins: [react()],
     resolve: {

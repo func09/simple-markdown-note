@@ -7,6 +7,9 @@ export const UserSchema = z
     email: z.string().email(),
     createdAt: dateSchema.openapi({ example: "2026-03-25T12:00:00Z" }),
     updatedAt: dateSchema.openapi({ example: "2026-03-25T12:00:00Z" }),
+    status: z
+      .enum(["pending", "active", "deleted"])
+      .openapi({ example: "active" }),
   })
   .openapi("User");
 
@@ -69,6 +72,24 @@ export const ResetPasswordRequestSchema = z
   })
   .openapi("ResetPasswordRequest");
 
+/**
+ * メール認証リクエスト (クエリパラメータ) のスキーマ
+ */
+export const VerifyEmailQuerySchema = z
+  .object({
+    token: z.string(),
+  })
+  .openapi("VerifyEmailQuery");
+
+/**
+ * メール検証再送リクエストのスキーマ
+ */
+export const ResendVerificationRequestSchema = z
+  .object({
+    email: z.string().email("Invalid email address"),
+  })
+  .openapi("ResendVerificationRequest");
+
 // --- Types ---
 export type User = z.infer<typeof UserSchema>;
 export type SignupRequest = z.infer<typeof SignupRequestSchema>;
@@ -77,3 +98,7 @@ export type AuthResponse = z.infer<typeof AuthResponseSchema>;
 export type MeResponse = z.infer<typeof MeResponseSchema>;
 export type ForgotPasswordRequest = z.infer<typeof ForgotPasswordRequestSchema>;
 export type ResetPasswordRequest = z.infer<typeof ResetPasswordRequestSchema>;
+export type VerifyEmailQuery = z.infer<typeof VerifyEmailQuerySchema>;
+export type ResendVerificationRequest = z.infer<
+  typeof ResendVerificationRequestSchema
+>;

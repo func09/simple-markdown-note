@@ -34,6 +34,7 @@ export type DrizzleDB =
 export * from "drizzle-orm";
 
 export const migrateLibsql = migrate;
+export * from "./repositories/email-verification";
 export * from "./repositories/note";
 export * from "./repositories/password-reset";
 export * from "./repositories/tag";

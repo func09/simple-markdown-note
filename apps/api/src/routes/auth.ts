@@ -10,18 +10,22 @@ import {
   getUserById,
   logout,
   requestPasswordReset,
+  resendVerificationEmail,
   resetPassword,
   signin,
   signup,
+  verifyEmail,
 } from "../services/auth";
 import type { AppEnv } from "../types";
 import {
   forgotPasswordRoute,
   logoutRoute,
   meRoute,
+  resendVerificationRoute,
   resetPasswordRoute,
   signinRoute,
   signupRoute,
+  verifyEmailRoute,
 } from "./auth.schema";
 
 /**
@@ -37,7 +41,7 @@ export const authRouter = new OpenAPIHono<AppEnv>()
     const db = c.var.db;
     const payload = c.req.valid("json");
 
-    const user = await signup(db, payload);
+    const user = await signup(db, payload, c.env);
 
     const secret = c.env?.JWT_SECRET || "dev-secret";
     const token = await sign({ userId: user.id }, secret, "HS256");
@@ -134,6 +138,28 @@ export const authRouter = new OpenAPIHono<AppEnv>()
     const { token, password } = c.req.valid("json");
 
     await resetPassword(db, token, password);
+
+    return c.body(null, 204);
+  })
+  /**
+   * メール検証エンドポイント
+   */
+  .openapi(verifyEmailRoute, async (c) => {
+    const db = c.var.db;
+    const { token } = c.req.valid("query");
+
+    await verifyEmail(db, token);
+
+    return c.body(null, 204);
+  })
+  /**
+   * 検証メール再送エンドポイント
+   */
+  .openapi(resendVerificationRoute, async (c) => {
+    const db = c.var.db;
+    const { email } = c.req.valid("json");
+
+    await resendVerificationEmail(db, email, c.env);
 
     return c.body(null, 204);
   });
