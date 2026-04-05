@@ -1,4 +1,3 @@
-export * from "./useNoteLogic";
-export * from "./useNoteResource";
-export * from "./useNoteScreen";
-export * from "./useNoteUI";
+export * from "./useNoteDomain";
+export * from "./useNoteEffect";
+export * from "./useNoteState";
