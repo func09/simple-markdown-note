@@ -1,23 +1,7 @@
 import type { NoteScope } from "@simple-markdown-note/common/types";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useNotesStore } from "../store";
-
-/**
- * 現在のフィルタ状態（scope, tag）に基づいてURLクエリストリングを生成するHook
- */
-export function useNotesQueryString() {
-  const scope = useNotesStore((s) => s.filterScope);
-  const tag = useNotesStore((s) => s.filterTag);
-
-  return useMemo(() => {
-    const params = new URLSearchParams();
-    if (scope !== "all") params.set("scope", scope);
-    if (tag) params.set("tag", tag);
-    const qs = params.toString();
-    return qs ? `?${qs}` : "";
-  }, [scope, tag]);
-}
 
 /**
  * URLパラメータとPropsの状態をNotesストアに同期するHook
