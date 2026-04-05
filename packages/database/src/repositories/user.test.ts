@@ -23,6 +23,7 @@ describe("createUserRepository", () => {
       expect(user.id).toBeDefined();
       expect(user.email).toBe("user@example.com");
       expect(user.passwordHash).toBe("hash");
+      expect(user.status).toBe("pending");
       expect(user.createdAt).toBeInstanceOf(Date);
       expect(user.updatedAt).toBeInstanceOf(Date);
     });
@@ -87,6 +88,21 @@ describe("createUserRepository", () => {
           created.updatedAt.getTime()
         );
       }
+    });
+  });
+
+  describe("updateStatus", () => {
+    it("ステータスを更新できる", async () => {
+      const created = await repo.create({
+        email: "status-test@example.com",
+        passwordHash: "hash",
+      });
+      expect(created.status).toBe("pending");
+
+      await repo.updateStatus(created.id, "active");
+
+      const updated = await repo.findById(created.id);
+      expect(updated?.status).toBe("active");
     });
   });
 });
