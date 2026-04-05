@@ -14,6 +14,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   calcNoteMetrics,
   filterNotes,
+  toggleCheckboxInContent,
   useNoteDrawerScreen,
   useNoteEditorScreen,
   useNoteListScreen,
@@ -344,5 +345,33 @@ describe("filterNotes", () => {
   it("matches partial strings", () => {
     const result = filterNotes(notes, "world");
     expect(result).toHaveLength(2);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// toggleCheckboxInContent
+// ---------------------------------------------------------------------------
+
+describe("toggleCheckboxInContent", () => {
+  it("toggles unchecked checkbox to checked", () => {
+    const toggled = toggleCheckboxInContent(
+      "- [ ] task one\n- [ ] task two",
+      0
+    );
+    expect(toggled).toContain("- [x] task one");
+    expect(toggled).toContain("- [ ] task two");
+  });
+
+  it("toggles checked checkbox to unchecked", () => {
+    const toggled = toggleCheckboxInContent("- [x] done", 0);
+    expect(toggled).toContain("- [ ] done");
+  });
+
+  it("only toggles the checkbox at the specified index", () => {
+    const content = "- [ ] first\n- [ ] second\n- [ ] third";
+    const toggled = toggleCheckboxInContent(content, 1);
+    expect(toggled).toContain("- [ ] first");
+    expect(toggled).toContain("- [x] second");
+    expect(toggled).toContain("- [ ] third");
   });
 });
