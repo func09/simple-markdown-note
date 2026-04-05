@@ -15,6 +15,8 @@ import {
   calcNoteMetrics,
   filterNotes,
   toggleCheckboxInContent,
+} from "../utils";
+import {
   useNoteDrawerScreen,
   useNoteEditorScreen,
   useNoteListScreen,

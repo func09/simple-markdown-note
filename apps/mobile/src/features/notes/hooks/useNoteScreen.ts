@@ -15,40 +15,18 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuthStore } from "../../auth/store";
 import { AUTO_SAVE_DELAY } from "../constants";
-import { executeNoteDelete } from "../utils";
+import {
+  calcNoteMetrics,
+  executeNoteDelete,
+  filterNotes,
+  toggleCheckboxInContent,
+} from "../utils";
 import { useKeyboardObserver } from "./useNoteEffect";
 import {
   useDrawerState,
   useNoteEditorState,
   useTagPrompt,
 } from "./useNoteState";
-
-// ---------------------------------------------------------------------------
-// Private: 算出関数
-// ---------------------------------------------------------------------------
-
-export function toggleCheckboxInContent(content: string, index: number) {
-  const regex = /^(\s*[-*+]\s+)\[([ x])\]/gim;
-  let count = 0;
-  return content.replace(regex, (match, prefix, state: string) => {
-    if (count++ === index) {
-      return `${prefix}[${state.toLowerCase() === "x" ? " " : "x"}]`;
-    }
-    return match;
-  });
-}
-
-export function calcNoteMetrics(content: string) {
-  const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0;
-  const charCount = content.length;
-  return { wordCount, charCount };
-}
-
-export function filterNotes(notes: Note[], searchQuery: string) {
-  if (!searchQuery.trim()) return notes;
-  const query = searchQuery.toLowerCase();
-  return notes.filter((note) => note.content.toLowerCase().includes(query));
-}
 
 // ---------------------------------------------------------------------------
 // Private: 自動保存の副作用を担うフック
