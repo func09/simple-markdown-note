@@ -1,5 +1,6 @@
 import {
   bcryptjs,
+  createEmailVerificationRepository,
   createPasswordResetRepository,
   createUserRepository,
   type DrizzleDB,
@@ -30,6 +31,7 @@ vi.mock("@simple-markdown-note/database", () => ({
   },
   createUserRepository: vi.fn(),
   createPasswordResetRepository: vi.fn(),
+  createEmailVerificationRepository: vi.fn(),
 }));
 
 vi.mock("resend", () => ({
@@ -64,6 +66,11 @@ describe("auth service", () => {
     deleteByUserId: vi.fn(),
     findByTokenHash: vi.fn(),
   };
+  const mockVerifyRepo = {
+    create: vi.fn(),
+    findByToken: vi.fn(),
+    deleteByUserId: vi.fn(),
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -73,6 +80,11 @@ describe("auth service", () => {
     vi.mocked(createPasswordResetRepository).mockReturnValue(
       mockPasswordResetRepo as unknown as ReturnType<
         typeof createPasswordResetRepository
+      >
+    );
+    vi.mocked(createEmailVerificationRepository).mockReturnValue(
+      mockVerifyRepo as unknown as ReturnType<
+        typeof createEmailVerificationRepository
       >
     );
   });
@@ -86,10 +98,14 @@ describe("auth service", () => {
         email: "test@example.com",
       });
 
-      const result = await signup(db, {
-        email: "test@example.com",
-        password: "password123",
-      });
+      const result = await signup(
+        db,
+        {
+          email: "test@example.com",
+          password: "password123",
+        },
+        {} as unknown as AppEnv["Bindings"]
+      );
 
       expect(mockUserRepo.findByEmail).toHaveBeenCalledWith("test@example.com");
       expect(mockedBcrypt.hash).toHaveBeenCalledWith("password123", 10);
@@ -104,7 +120,11 @@ describe("auth service", () => {
       mockUserRepo.findByEmail.mockResolvedValue({ id: "1" });
 
       await expect(
-        signup(db, { email: "test@example.com", password: "password" })
+        signup(
+          db,
+          { email: "test@example.com", password: "password" },
+          {} as unknown as AppEnv["Bindings"]
+        )
       ).rejects.toThrow(HTTPException);
     });
   });

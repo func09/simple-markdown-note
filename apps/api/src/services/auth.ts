@@ -1,10 +1,14 @@
 import {
   bcryptjs,
+  createEmailVerificationRepository,
   createPasswordResetRepository,
   createUserRepository,
   type DrizzleDB,
 } from "@simple-markdown-note/database";
-import { renderResetPasswordEmail } from "@simple-markdown-note/emails";
+import {
+  renderResetPasswordEmail,
+  renderVerifyEmail,
+} from "@simple-markdown-note/emails";
 import { HTTPException } from "hono/http-exception";
 import { Resend } from "resend";
 import type { AppEnv } from "../types";
@@ -19,7 +23,8 @@ import type { AppEnv } from "../types";
  */
 export async function signup(
   db: DrizzleDB,
-  data: { email: string; password: string }
+  data: { email: string; password: string },
+  env: AppEnv["Bindings"]
 ) {
   const userRepository = createUserRepository(db);
 
@@ -34,6 +39,50 @@ export async function signup(
     email: data.email,
     passwordHash,
   });
+
+  const array = new Uint8Array(32);
+  crypto.getRandomValues(array);
+  const rawToken = Array.from(array)
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+
+  const verifyRepo = createEmailVerificationRepository(db);
+  const expiresAt = new Date();
+  expiresAt.setHours(expiresAt.getHours() + 24);
+
+  await verifyRepo.create({
+    userId: user.id,
+    token: rawToken,
+    expiresAt,
+  });
+
+  if (!env?.RESEND_API_KEY) {
+    console.warn("RESEND_API_KEY is not set. Email will not be sent.");
+  } else {
+    const resend = new Resend(env.RESEND_API_KEY);
+    const baseUrl = env.CLIENT_URL || "http://localhost:3000";
+    const verifyLink = `${baseUrl}/verify-email?token=${rawToken}`;
+    const fromEmail = env.EMAIL_FROM || "noreply@simplemarkdown.app";
+
+    const { html, text } = await renderVerifyEmail({
+      verifyLink,
+      userEmail: user.email,
+    });
+
+    const response = await resend.emails.send({
+      from: `Simple Markdown Note <${fromEmail}>`,
+      to: user.email,
+      subject: "Verify your email address",
+      html,
+      text,
+    });
+
+    if (response?.error) {
+      console.error("[Resend Error]: Failed to send email.", response.error);
+    } else {
+      console.log("[Resend Success]: Email sent.", response?.data);
+    }
+  }
 
   return user;
 }
@@ -136,7 +185,7 @@ export async function requestPasswordReset(
     expiresAt,
   });
 
-  if (!env.RESEND_API_KEY) {
+  if (!env?.RESEND_API_KEY) {
     console.warn("RESEND_API_KEY is not set. Email will not be sent.");
     return;
   }
@@ -193,4 +242,95 @@ export async function resetPassword(
 
   // 利用終了したトークンをクリーンアップ
   await resetRepo.deleteByUserId(resetRecord.userId);
+}
+
+/**
+ * メールアドレスの検証処理を行います。
+ */
+export async function verifyEmail(db: DrizzleDB, token: string) {
+  const verifyRepo = createEmailVerificationRepository(db);
+  const userRepository = createUserRepository(db);
+
+  const verification = await verifyRepo.findByToken(token);
+  if (!verification) {
+    throw new HTTPException(400, { message: "Invalid or expired token" });
+  }
+
+  if (new Date() > verification.expiresAt) {
+    throw new HTTPException(400, { message: "Invalid or expired token" });
+  }
+
+  // ステータスを active に更新
+  await userRepository.updateStatus(verification.userId, "active");
+
+  // 使用済みトークンを削除
+  await verifyRepo.deleteByUserId(verification.userId);
+}
+
+/**
+ * 検証メールの再送信を行います。
+ */
+export async function resendVerificationEmail(
+  db: DrizzleDB,
+  email: string,
+  env: AppEnv["Bindings"]
+) {
+  const userRepository = createUserRepository(db);
+  const user = await userRepository.findByEmail(email);
+
+  if (!user) return; // セキュリティのため存在しない場合でもエラーは返さない
+
+  if (user.status === "active") {
+    return; // すでにアクティブなら何もしない
+  }
+
+  const verifyRepo = createEmailVerificationRepository(db);
+
+  // 既存のトークンを削除
+  await verifyRepo.deleteByUserId(user.id);
+
+  // 新しいトークンを生成
+  const array = new Uint8Array(32);
+  crypto.getRandomValues(array);
+  const rawToken = Array.from(array)
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+
+  const expiresAt = new Date();
+  expiresAt.setHours(expiresAt.getHours() + 24);
+
+  await verifyRepo.create({
+    userId: user.id,
+    token: rawToken,
+    expiresAt,
+  });
+
+  if (!env?.RESEND_API_KEY) {
+    console.warn("RESEND_API_KEY is not set. Email will not be sent.");
+    return;
+  }
+
+  const resend = new Resend(env.RESEND_API_KEY);
+  const baseUrl = env.CLIENT_URL || "http://localhost:3000";
+  const verifyLink = `${baseUrl}/verify-email?token=${rawToken}`;
+  const fromEmail = env.EMAIL_FROM || "noreply@simplemarkdown.app";
+
+  const { html, text } = await renderVerifyEmail({
+    verifyLink,
+    userEmail: user.email,
+  });
+
+  const response = await resend.emails.send({
+    from: `Simple Markdown Note <${fromEmail}>`,
+    to: user.email,
+    subject: "Verify your email address",
+    html,
+    text,
+  });
+
+  if (response?.error) {
+    console.error("[Resend Error]: Failed to send email.", response.error);
+  } else {
+    console.log("[Resend Success]: Email sent.", response?.data);
+  }
 }
