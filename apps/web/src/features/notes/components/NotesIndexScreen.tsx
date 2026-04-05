@@ -1,7 +1,7 @@
 import { Menu } from "lucide-react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { cn } from "@/lib/utils";
-import { useNotesNavigationSync, useNotesSidebar } from "../hooks";
+import { useNotesNavigationSync, useSidebarState } from "../hooks";
 import { Editor } from "./Editor";
 import { NoteList } from "./NoteList";
 import { Sidebar } from "./Sidebar";
@@ -18,7 +18,7 @@ export function NotesIndexScreen({
 
   // カスタムHookによる状態管理と同期
   const { isSidebarOpen, openSidebar, closeSidebar } =
-    useNotesSidebar(isDesktop);
+    useSidebarState(isDesktop);
   useNotesNavigationSync(propSelectedNoteId);
 
   return (

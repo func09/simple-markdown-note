@@ -1,11 +1,21 @@
+import { useCreateNote } from "@simple-markdown-note/api-client/hooks";
 import { Plus, Search } from "lucide-react";
-import { useCreateNoteAction, useFilteredNotes } from "../hooks";
+import { useNavigate } from "react-router-dom";
+import { useFilteredNotes } from "../hooks";
 import { NoteListItem } from "./NoteListItem";
 
+/**
+ * NoteListコンポーネントのプロパティ
+ */
 interface NoteListProps {
+  /** 現在選択されているノートのID */
   selectedNoteId?: string;
 }
 
+/**
+ * フィルター・検索条件に基づいたノート一覧を表示するコンポーネント。
+ * ノートの新規作成、検索、リスト表示を行います。
+ */
 export function NoteList({ selectedNoteId }: NoteListProps) {
   const {
     filteredNotes,
@@ -18,7 +28,27 @@ export function NoteList({ selectedNoteId }: NoteListProps) {
     queryString,
   } = useFilteredNotes();
 
-  const { handleAddNote } = useCreateNoteAction();
+  const navigate = useNavigate();
+  const createNoteMutation = useCreateNote();
+
+  /**
+   * 新規ノートを作成し、作成したノートのページへ遷移するハンドラー
+   */
+  const handleAddNote = async () => {
+    try {
+      const result = await createNoteMutation.mutateAsync({
+        content: "",
+        isPermanent: false,
+        // 現在のタグで絞り込まれている場合は、初期状態としてそのタグを設定する
+        tags: tag ? [tag] : [],
+      });
+
+      setSelectedNoteId(result.id);
+      navigate(`/notes/${result.id}${queryString}`);
+    } catch (error) {
+      console.error("Failed to create note:", error);
+    }
+  };
 
   return (
     <div className="flex flex-col h-full bg-white border-r border-slate-200">
