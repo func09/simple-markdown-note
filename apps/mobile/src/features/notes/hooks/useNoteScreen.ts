@@ -14,7 +14,8 @@ import { NOTE_SCOPE, type NoteScope } from "@simple-markdown-note/common/types";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuthStore } from "../../auth/store";
-import { AUTO_SAVE_DELAY, NAVIGATION_DELAY } from "../constants";
+import { AUTO_SAVE_DELAY } from "../constants";
+import { executeNoteDelete } from "../utils";
 import { useKeyboardObserver } from "./useNoteEffect";
 import {
   useDrawerState,
@@ -123,35 +124,6 @@ function useNoteAutoSave({
     currentNoteId,
     markAsInitialized,
   ]);
-}
-
-// ---------------------------------------------------------------------------
-// Private: 削除・復元操作の共通パターンをまとめたフック
-// ---------------------------------------------------------------------------
-
-function useNoteDelete({
-  setIsDeleting,
-  infoSheetRef,
-  handleGoBack,
-}: {
-  setIsDeleting: (v: boolean) => void;
-  infoSheetRef: { current: { dismiss(): void } | null };
-  handleGoBack: () => void;
-}) {
-  return useCallback(
-    async (action: () => Promise<unknown>, label: string) => {
-      setIsDeleting(true);
-      try {
-        await action();
-        infoSheetRef.current?.dismiss();
-        setTimeout(handleGoBack, NAVIGATION_DELAY);
-      } catch (error) {
-        setIsDeleting(false);
-        console.error(`Failed to ${label}:`, error);
-      }
-    },
-    [setIsDeleting, infoSheetRef, handleGoBack]
-  );
 }
 
 // ---------------------------------------------------------------------------
@@ -307,11 +279,6 @@ export function useNoteEditorScreen() {
   const metrics = useMemo(() => calcNoteMetrics(content), [content]);
 
   const handleGoBack = useCallback(() => router.back(), [router]);
-  const executeDelete = useNoteDelete({
-    setIsDeleting,
-    infoSheetRef: uiLayout.infoSheetRef,
-    handleGoBack,
-  });
 
   // Handlers
   const handleCheckboxToggle = useCallback(
@@ -338,20 +305,35 @@ export function useNoteEditorScreen() {
     const action = note?.deletedAt
       ? () => mutations.restoreNote(activeId)
       : () => mutations.deleteNote(activeId);
-    return executeDelete(
+    return executeNoteDelete(
       action,
-      note?.deletedAt ? "restore note" : "trash note"
+      note?.deletedAt ? "restore note" : "trash note",
+      { setIsDeleting, infoSheetRef: uiLayout.infoSheetRef, handleGoBack }
     );
-  }, [currentNoteId, note, mutations, executeDelete]);
+  }, [
+    currentNoteId,
+    note,
+    mutations,
+    setIsDeleting,
+    uiLayout.infoSheetRef,
+    handleGoBack,
+  ]);
 
   const handlePermanentDelete = useCallback(() => {
     const activeId = currentNoteId.current;
     if (!activeId) return;
-    return executeDelete(
+    return executeNoteDelete(
       () => mutations.permanentDelete(activeId),
-      "permanently delete note"
+      "permanently delete note",
+      { setIsDeleting, infoSheetRef: uiLayout.infoSheetRef, handleGoBack }
     );
-  }, [currentNoteId, mutations, executeDelete]);
+  }, [
+    currentNoteId,
+    mutations,
+    setIsDeleting,
+    uiLayout.infoSheetRef,
+    handleGoBack,
+  ]);
 
   return {
     isNew,
