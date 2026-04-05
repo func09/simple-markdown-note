@@ -3,9 +3,11 @@ import {
   AuthResponseSchema,
   ForgotPasswordRequestSchema,
   MeResponseSchema,
+  ResendVerificationRequestSchema,
   ResetPasswordRequestSchema,
   SigninRequestSchema,
   SignupRequestSchema,
+  VerifyEmailQuerySchema,
 } from "@simple-markdown-note/common/schemas";
 
 /** POST /signup — ユーザー登録ルート定義 */
@@ -150,6 +152,51 @@ export const resetPasswordRoute = createRoute({
     },
     400: {
       description: "無効なトークンまたはトークンの有効期限切れ",
+    },
+  },
+});
+
+/** GET /verify-email — メール認証ルート定義 */
+export const verifyEmailRoute = createRoute({
+  method: "get",
+  path: "/verify-email",
+  summary: "メールアドレスの検証",
+  description:
+    "送信されたトークンを基に未検証のメールアドレスを検証しユーザーを有効化します。",
+  request: {
+    query: VerifyEmailQuerySchema,
+  },
+  responses: {
+    204: {
+      description: "認証成功",
+    },
+    400: {
+      description: "無効なトークンまたは有効期限切れ",
+    },
+  },
+});
+
+/** POST /resend-verification — 検証メール再送ルート定義 */
+export const resendVerificationRoute = createRoute({
+  method: "post",
+  path: "/resend-verification",
+  summary: "検証メールの再送",
+  description: "未検証ユーザーに対して改めて検証メールを送信します。",
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: ResendVerificationRequestSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    204: {
+      description: "再送リクエストを受け付けました",
+    },
+    400: {
+      description: "既に認証済みなどの無効な状態",
     },
   },
 });
