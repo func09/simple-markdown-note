@@ -44,6 +44,8 @@ jobs:
         env:
           VITE_ELECTRON: true
           VITE_APP_VERSION: ${{ github.ref_name }} # タグ名をバージョンとして注入
+          # 本番用 API の URL を明示的に指定
+          VITE_API_URL: https://simplenote-clone-api.mitsuru-haga.workers.dev/api
           # 署名をスキップ
           CSC_SKIP_SIGNING: true
         working-directory: apps/desktop
