@@ -3,7 +3,6 @@ import { act, renderHook } from "@testing-library/react-native";
 import {
   useNoteCheckbox,
   useNoteEditorState,
-  useNoteFilter,
   useNoteListItem,
 } from "./useNoteLogic";
 
@@ -19,39 +18,6 @@ const makeNote = (overrides: Partial<Note> = {}): Note =>
     isPermanent: false,
     ...overrides,
   }) as Note;
-
-// ---------------------------------------------------------------------------
-// useNoteFilter
-// ---------------------------------------------------------------------------
-
-describe("useNoteFilter", () => {
-  const notes = [
-    makeNote({ id: "1", content: "hello world" }),
-    makeNote({ id: "2", content: "goodbye world" }),
-    makeNote({ id: "3", content: "foo bar" }),
-  ];
-
-  it("returns all notes when query is empty", () => {
-    const { result } = renderHook(() => useNoteFilter(notes, ""));
-    expect(result.current.filteredNotes).toHaveLength(3);
-  });
-
-  it("filters by content (case insensitive)", () => {
-    const { result } = renderHook(() => useNoteFilter(notes, "HELLO"));
-    expect(result.current.filteredNotes).toHaveLength(1);
-    expect(result.current.filteredNotes[0].id).toBe("1");
-  });
-
-  it("returns empty when no match", () => {
-    const { result } = renderHook(() => useNoteFilter(notes, "zzz"));
-    expect(result.current.filteredNotes).toHaveLength(0);
-  });
-
-  it("matches partial strings", () => {
-    const { result } = renderHook(() => useNoteFilter(notes, "world"));
-    expect(result.current.filteredNotes).toHaveLength(2);
-  });
-});
 
 // ---------------------------------------------------------------------------
 // useNoteListItem

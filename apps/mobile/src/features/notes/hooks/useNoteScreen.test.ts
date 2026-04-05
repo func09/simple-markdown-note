@@ -8,10 +8,12 @@ import {
   useTags,
   useUpdateNote,
 } from "@simple-markdown-note/api-client/hooks";
+import type { Note } from "@simple-markdown-note/common/schemas";
 import { act, renderHook } from "@testing-library/react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   calcNoteMetrics,
+  filterNotes,
   useNoteDrawerScreen,
   useNoteEditorScreen,
   useNoteListScreen,
@@ -309,5 +311,38 @@ describe("calcNoteMetrics", () => {
   it("counts characters", () => {
     const result = calcNoteMetrics("abc");
     expect(result.charCount).toBe(3);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// filterNotes
+// ---------------------------------------------------------------------------
+
+describe("filterNotes", () => {
+  const notes = [
+    { ...mockNote, id: "1", content: "hello world" } as unknown as Note,
+    { ...mockNote, id: "2", content: "goodbye world" } as unknown as Note,
+    { ...mockNote, id: "3", content: "foo bar" } as unknown as Note,
+  ];
+
+  it("returns all notes when query is empty", () => {
+    const result = filterNotes(notes, "");
+    expect(result).toHaveLength(3);
+  });
+
+  it("filters by content (case insensitive)", () => {
+    const result = filterNotes(notes, "HELLO");
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe("1");
+  });
+
+  it("returns empty when no match", () => {
+    const result = filterNotes(notes, "zzz");
+    expect(result).toHaveLength(0);
+  });
+
+  it("matches partial strings", () => {
+    const result = filterNotes(notes, "world");
+    expect(result).toHaveLength(2);
   });
 });

@@ -2,19 +2,6 @@ import type { Note } from "@simple-markdown-note/common/schemas";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 /**
- * ノート一覧の検索文字列に基づいたフィルタリングを実行するロジックフック。
- */
-export function useNoteFilter(notes: Note[], searchQuery: string) {
-  const filteredNotes = useMemo(() => {
-    return notes.filter((note) => {
-      return note.content.toLowerCase().includes(searchQuery.toLowerCase());
-    });
-  }, [notes, searchQuery]);
-
-  return { filteredNotes };
-}
-
-/**
  * ノート要素からタイトル抽出やサマリーの生成、日付のフォーマット処理を行うロジックフック。
  */
 export function useNoteListItem(item: Note) {
