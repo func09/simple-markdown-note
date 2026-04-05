@@ -1,6 +1,7 @@
 import {
   useCreateNote,
   useDeleteNote,
+  useNote,
   usePermanentDelete,
   useRestoreNote,
   useUpdateNote,
@@ -9,7 +10,6 @@ import type { NoteScope } from "@simple-markdown-note/common/types";
 import { useCallback, useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useNotesStore } from "../store";
-import { useNoteDetailQuery } from "./useNoteResource";
 
 /**
  * URLパラメータとPropsの状態をNotesストアに同期するHook
@@ -88,7 +88,9 @@ export function useNoteActions(noteId?: string) {
   const scope = useNotesStore((s) => s.filterScope);
   const tag = useNotesStore((s) => s.filterTag);
 
-  const { note, isLoading } = useNoteDetailQuery(noteId ?? null);
+  const { data: note, isLoading } = useNote(noteId ?? null, {
+    enabled: !!(noteId ?? null),
+  });
   const updateNoteMutation = useUpdateNote();
   const deleteNoteMutation = useDeleteNote();
   const restoreNoteMutation = useRestoreNote();
