@@ -8,16 +8,19 @@ import { useAuthStore } from "../store";
  */
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const user = useAuthStore((state) => state.user);
   const [isChecking, setIsChecking] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!isAuthenticated) {
       navigate("/login", { replace: true });
+    } else if (user?.status === "pending") {
+      navigate("/pending-verification", { replace: true });
     } else {
       setIsChecking(false);
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, user, navigate]);
 
   if (isChecking) {
     return null;

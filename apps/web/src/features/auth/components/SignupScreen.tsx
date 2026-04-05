@@ -63,8 +63,8 @@ export function SignupScreen() {
   const onSubmit = (data: SignupRequest) => {
     signupMutate(data, {
       onSuccess: () => {
-        toast.success("Successfully signed up!");
-        navigate("/notes?scope=all");
+        toast.success("Successfully signed up! Please verify your email.");
+        navigate("/pending-verification");
       },
       onError: (err: Error) => {
         toast.error(err.message || "Signup failed");
