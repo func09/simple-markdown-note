@@ -1,9 +1,9 @@
-import { useLogout, useTags } from "@simple-markdown-note/api-client/hooks";
-import { FileText, Hash, LogOut, Trash2 } from "lucide-react";
+import { useTags } from "@simple-markdown-note/api-client/hooks";
+import { FileText, Hash, Settings, Trash2 } from "lucide-react";
 import type { ElementType } from "react";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
-import { useAuthStore } from "@/features/auth";
+import { SettingsModal } from "@/features/settings/components/SettingsModal";
 import { cn } from "@/lib/utils";
 import { useNotesStore } from "../store";
 
@@ -60,28 +60,10 @@ interface SidebarProps {
 }
 
 export function Sidebar({ onClose }: SidebarProps) {
-  const { clearAuth } = useAuthStore();
-  const {
-    filterScope,
-    filterTag,
-    setFilterScope,
-    setFilterTag,
-    resetFilters,
-    setSelectedNoteId,
-  } = useNotesStore();
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const { filterScope, filterTag, setFilterScope, setFilterTag } =
+    useNotesStore();
   const { data: tags = [], isLoading } = useTags();
-  const user = useAuthStore((state) => state.user);
-  const logoutMutation = useLogout({
-    onSuccess() {
-      clearAuth();
-      resetFilters();
-      setSelectedNoteId(null);
-    },
-  });
-
-  const handleLogout = useCallback(() => {
-    logoutMutation.mutate();
-  }, [logoutMutation]);
 
   const handleAllNotes = useCallback(() => {
     setFilterScope("all");
@@ -166,28 +148,19 @@ export function Sidebar({ onClose }: SidebarProps) {
         </div>
       </nav>
 
-      {/* User Section & Logout */}
-      <div className="p-4 border-t border-slate-200 space-y-2">
-        <div className="flex items-center gap-3 px-3 py-2">
-          <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 font-bold shrink-0">
-            {user?.email?.[0].toUpperCase() || "U"}
-          </div>
-          <div className="flex-1 text-left min-w-0">
-            <p className="text-sm font-medium text-slate-900 truncate">
-              {user?.email || "User Account"}
-            </p>
-          </div>
-        </div>
+      {/* Settings Section */}
+      <div className="p-4 border-t border-slate-200">
         <button
           type="button"
-          onClick={handleLogout}
-          disabled={logoutMutation.isPending}
-          className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+          onClick={() => setIsSettingsOpen(true)}
+          className="w-full flex items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-200 rounded-lg transition-colors font-medium"
         >
-          <LogOut className="w-4 h-4" />
-          <span>{logoutMutation.isPending ? "Logging out..." : "Logout"}</span>
+          <Settings className="w-4 h-4" />
+          <span>Settings</span>
         </button>
       </div>
+
+      <SettingsModal open={isSettingsOpen} onOpenChange={setIsSettingsOpen} />
     </div>
   );
 }
