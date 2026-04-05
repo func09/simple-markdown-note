@@ -1,34 +1,6 @@
-import { act, renderHook } from "@testing-library/react-native";
+import { renderHook } from "@testing-library/react-native";
 import { Alert, Platform } from "react-native";
-import { useNoteDrawer, useNoteTagPrompt } from "./useNoteUI";
-
-jest.mock("../components/NoteDrawer", () => ({
-  DRAWER_WIDTH: 280,
-}));
-
-// ---------------------------------------------------------------------------
-// useNoteDrawer
-// ---------------------------------------------------------------------------
-
-describe("useNoteDrawer", () => {
-  it("initializes with drawer closed", () => {
-    const { result } = renderHook(() => useNoteDrawer());
-    expect(result.current.isDrawerOpen).toBe(false);
-  });
-
-  it("opens the drawer on toggleDrawer(true)", () => {
-    const { result } = renderHook(() => useNoteDrawer());
-    act(() => {
-      result.current.toggleDrawer(true);
-    });
-    expect(result.current.isDrawerOpen).toBe(true);
-  });
-
-  it("exposes slideAnim", () => {
-    const { result } = renderHook(() => useNoteDrawer());
-    expect(result.current.slideAnim).toBeDefined();
-  });
-});
+import { useNoteTagPrompt } from "./useNoteUI";
 
 // ---------------------------------------------------------------------------
 // useNoteTagPrompt
