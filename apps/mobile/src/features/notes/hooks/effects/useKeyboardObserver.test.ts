@@ -1,6 +1,6 @@
 import { act, renderHook } from "@testing-library/react-native";
 import { Keyboard } from "react-native";
-import { useKeyboardObserver } from "./useNoteEffect";
+import { useKeyboardObserver } from "./useKeyboardObserver";
 
 /** Captures Keyboard.addListener callbacks for testing */
 function captureKeyboardListeners() {
