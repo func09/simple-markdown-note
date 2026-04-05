@@ -1,24 +1,6 @@
 import { act, renderHook } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { useEditorPopovers, useNotesSidebar } from "./index";
-
-describe("useNotesSidebar", () => {
-  it("should toggle sidebar state", () => {
-    const { result } = renderHook(() => useNotesSidebar(false));
-
-    expect(result.current.isSidebarOpen).toBe(false);
-
-    act(() => {
-      result.current.openSidebar();
-    });
-    expect(result.current.isSidebarOpen).toBe(true);
-
-    act(() => {
-      result.current.closeSidebar();
-    });
-    expect(result.current.isSidebarOpen).toBe(false);
-  });
-});
+import { useEditorPopovers } from "./index";
 
 describe("useEditorPopovers", () => {
   it("should manage info and options popover states", () => {

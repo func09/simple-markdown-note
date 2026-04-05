@@ -1,25 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-
-/**
- * サイドバーの開閉状態とデスクトップ表示時の自動クローズを管理するHook
- */
-export function useNotesSidebar(isDesktop: boolean) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-  const closeSidebar = useCallback(() => setIsSidebarOpen(false), []);
-  const openSidebar = useCallback(() => setIsSidebarOpen(true), []);
-
-  // デスクトップ表示に切り替わったらサイドバーを閉じる
-  useEffect(() => {
-    if (isDesktop) setIsSidebarOpen(false);
-  }, [isDesktop]);
-
-  return {
-    isSidebarOpen,
-    openSidebar,
-    closeSidebar,
-  };
-}
+import { useEffect, useRef, useState } from "react";
 
 /**
  * エディタ内のポップオーバー（情報、オプション）の表示管理を行うHook
