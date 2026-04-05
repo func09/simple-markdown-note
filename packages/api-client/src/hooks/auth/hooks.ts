@@ -1,11 +1,12 @@
 import { useApi } from "@simple-markdown-note/api-client/context";
 import type {
   AuthResponse,
+  ResetPasswordRequest,
   SigninRequest,
   SignupRequest,
 } from "@simple-markdown-note/common/schemas";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { getMe, logout, signin, signup } from "./requests";
+import { getMe, logout, resetPassword, signin, signup } from "./requests";
 
 /**
  * ログインを実行するミューテーションフック
@@ -63,5 +64,19 @@ export const useMe = (options?: { enabled?: boolean }) => {
     queryKey: ["auth", "me"],
     queryFn: () => getMe(api),
     ...options,
+  });
+};
+
+/**
+ * パスワード再設定を実行するミューテーションフック
+ */
+export const useResetPassword = (options?: { onSuccess?: () => void }) => {
+  const api = useApi();
+  const { onSuccess } = options ?? {};
+  return useMutation({
+    mutationFn: (params: ResetPasswordRequest) => resetPassword(api, params),
+    onSuccess: () => {
+      onSuccess?.();
+    },
   });
 };
