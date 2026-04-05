@@ -1,18 +1,17 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useLogin } from "@simple-markdown-note/api-client/hooks";
-import type { SigninRequest } from "@simple-markdown-note/common/schemas";
-import { SigninRequestSchema } from "@simple-markdown-note/common/schemas";
+import { useResetPassword } from "@simple-markdown-note/api-client/hooks";
+import type { ResetPasswordRequest } from "@simple-markdown-note/common/schemas";
+import { ResetPasswordRequestSchema } from "@simple-markdown-note/common/schemas";
 import {
   AlertCircle,
   ArrowRight,
   Loader2,
   Lock,
-  Mail,
   ShieldCheck,
 } from "lucide-react";
-import { useId } from "react";
+import { useEffect, useId } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -26,51 +25,54 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAuthStore } from "../store";
 
-/**
- * ログイン画面コンポーネント
- * UIの表示とフォームの状態管理を担当します。
- */
-export function LoginScreen() {
-  const setAuth = useAuthStore((state) => state.setAuth);
+export function ResetPasswordScreen() {
   const navigate = useNavigate();
-  const emailId = useId();
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("token") || "";
+
   const passwordId = useId();
+  const confirmPasswordId = useId();
 
   const {
-    mutate: loginMutate,
+    mutate: resetPasswordMutate,
     isPending: isLoading,
     error: apiError,
-  } = useLogin({
-    onSuccess: (data) => {
-      setAuth(data.user);
-    },
-  });
+  } = useResetPassword();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<SigninRequest>({
-    resolver: zodResolver(SigninRequestSchema),
+  } = useForm<ResetPasswordRequest>({
+    resolver: zodResolver(ResetPasswordRequestSchema),
     defaultValues: {
-      email: "",
+      token,
       password: "",
+      confirmPassword: "",
     },
   });
 
-  const onSubmit = (data: SigninRequest) => {
-    loginMutate(data, {
+  useEffect(() => {
+    if (!token) {
+      toast.error("Invalid or missing reset token");
+      navigate("/login");
+    }
+  }, [token, navigate]);
+
+  const onSubmit = (data: ResetPasswordRequest) => {
+    resetPasswordMutate(data, {
       onSuccess: () => {
-        toast.success("Successfully logged in");
-        navigate("/notes?scope=all");
+        toast.success("Update your password");
+        navigate("/login");
       },
       onError: (err: Error) => {
-        toast.error(err.message || "Login failed");
+        toast.error(err.message || "Password reset failed");
       },
     });
   };
+
+  if (!token) return null;
 
   return (
     <div className="flex min-h-[80vh] items-center justify-center p-4">
@@ -85,10 +87,10 @@ export function LoginScreen() {
               </div>
             </div>
             <CardTitle className="text-3xl font-bold tracking-tight text-slate-900">
-              Welcome Back
+              Reset Password
             </CardTitle>
             <CardDescription className="mt-2 text-base text-slate-500">
-              Enter your details to sign in
+              Enter your new password below
             </CardDescription>
           </CardHeader>
 
@@ -108,55 +110,20 @@ export function LoginScreen() {
                   <AlertDescription>
                     {apiError instanceof Error
                       ? apiError.message
-                      : "Login failed"}
+                      : "Password reset failed"}
                   </AlertDescription>
                 </Alert>
               )}
 
-              <div className="space-y-2">
-                <Label
-                  htmlFor={emailId}
-                  className="ml-1 text-sm font-medium text-slate-700"
-                >
-                  Email
-                </Label>
-                <div className="relative group">
-                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 group-focus-within:text-slate-900" />
-                  <Input
-                    {...register("email")}
-                    id={emailId}
-                    type="email"
-                    placeholder="name@example.com"
-                    className={`h-11 rounded-xl border-slate-200 bg-white pl-10 text-slate-900 placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-slate-900/10 ${
-                      errors.email
-                        ? "border-red-500 focus-visible:ring-red-500/10"
-                        : ""
-                    }`}
-                    disabled={isLoading}
-                  />
-                </div>
-                {errors.email && (
-                  <p className="mt-1 ml-1 text-xs text-red-500 font-medium">
-                    {errors.email.message}
-                  </p>
-                )}
-              </div>
+              <input type="hidden" {...register("token")} />
 
               <div className="space-y-2">
-                <div className="flex items-center justify-between mb-2">
-                  <Label
-                    htmlFor={passwordId}
-                    className="ml-1 text-sm font-medium text-slate-700"
-                  >
-                    Password
-                  </Label>
-                  <Link
-                    to="/forgot-password"
-                    className="text-xs font-semibold text-slate-500 hover:text-slate-900"
-                  >
-                    Forgot your password?
-                  </Link>
-                </div>
+                <Label
+                  htmlFor={passwordId}
+                  className="ml-1 text-sm font-medium text-slate-700"
+                >
+                  New Password
+                </Label>
                 <div className="relative group">
                   <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 group-focus-within:text-slate-900" />
                   <Input
@@ -179,6 +146,35 @@ export function LoginScreen() {
                 )}
               </div>
 
+              <div className="space-y-2">
+                <Label
+                  htmlFor={confirmPasswordId}
+                  className="ml-1 text-sm font-medium text-slate-700"
+                >
+                  Confirm Password
+                </Label>
+                <div className="relative group">
+                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 group-focus-within:text-slate-900" />
+                  <Input
+                    {...register("confirmPassword")}
+                    id={confirmPasswordId}
+                    type="password"
+                    placeholder="••••••••"
+                    className={`h-11 rounded-xl border-slate-200 bg-white pl-10 text-slate-900 placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-slate-900/10 ${
+                      errors.confirmPassword
+                        ? "border-red-500 focus-visible:ring-red-500/10"
+                        : ""
+                    }`}
+                    disabled={isLoading}
+                  />
+                </div>
+                {errors.confirmPassword && (
+                  <p className="mt-1 ml-1 text-xs text-red-500 font-medium">
+                    {errors.confirmPassword.message}
+                  </p>
+                )}
+              </div>
+
               <Button
                 type="submit"
                 disabled={isLoading}
@@ -188,22 +184,12 @@ export function LoginScreen() {
                   <Loader2 className="h-5 w-5 animate-spin" />
                 ) : (
                   <>
-                    Sign In
+                    Reset Password
                     <ArrowRight className="h-5 w-5" />
                   </>
                 )}
               </Button>
             </form>
-
-            <div className="mt-8 text-center text-sm text-slate-500">
-              Don't have an account?{" "}
-              <Link
-                to="/signup"
-                className="font-semibold text-slate-900 hover:underline"
-              >
-                Create Account
-              </Link>
-            </div>
           </CardContent>
 
           <CardFooter className="justify-center border-t border-slate-100 py-6">

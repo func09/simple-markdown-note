@@ -1,7 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, HashRouter, Route, Routes } from "react-router-dom";
+import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
 import LoginPage from "./pages/auth/LoginPage";
+import ResetPasswordPage from "./pages/auth/ResetPasswordPage";
 import SignupPage from "./pages/auth/SignupPage";
 import IndexPage from "./pages/home/IndexPage";
 import RootLayout from "./pages/layout/RootLayout";
@@ -22,6 +24,8 @@ ReactDOM.createRoot(rootElement).render(
           <Route path="/" element={<IndexPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/notes" element={<NotesPage />} />
           <Route path="/notes/:noteId" element={<NoteDetailPage />} />
         </Route>

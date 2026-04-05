@@ -6,9 +6,23 @@ import {
 import { deleteCookie, setCookie } from "hono/cookie";
 import { HTTPException } from "hono/http-exception";
 import { sign } from "hono/jwt";
-import { getUserById, logout, signin, signup } from "../services/auth";
+import {
+  getUserById,
+  logout,
+  requestPasswordReset,
+  resetPassword,
+  signin,
+  signup,
+} from "../services/auth";
 import type { AppEnv } from "../types";
-import { logoutRoute, meRoute, signinRoute, signupRoute } from "./auth.schema";
+import {
+  forgotPasswordRoute,
+  logoutRoute,
+  meRoute,
+  resetPasswordRoute,
+  signinRoute,
+  signupRoute,
+} from "./auth.schema";
 
 /**
  * 認証関連のルーター
@@ -97,5 +111,29 @@ export const authRouter = new OpenAPIHono<AppEnv>()
       secure: isProd,
       sameSite: (isProd ? "None" : "Lax") as "None" | "Lax",
     });
+    return c.body(null, 204);
+  })
+  /**
+   * パスワードリセット要求エンドポイント
+   */
+  .openapi(forgotPasswordRoute, async (c) => {
+    const db = c.var.db;
+    const { email } = c.req.valid("json");
+
+    // セキュリティ上、ユーザーが存在しなくても同じレスポンス時間を保ち成功を返したいが、
+    // ひとまず内部で early return する実装のサービスを呼び出す。
+    await requestPasswordReset(db, email, c.env);
+
+    return c.body(null, 204);
+  })
+  /**
+   * パスワード再設定エンドポイント
+   */
+  .openapi(resetPasswordRoute, async (c) => {
+    const db = c.var.db;
+    const { token, password } = c.req.valid("json");
+
+    await resetPassword(db, token, password);
+
     return c.body(null, 204);
   });

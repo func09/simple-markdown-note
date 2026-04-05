@@ -1,0 +1,29 @@
+{
+  "name": "@simple-markdown-note/emails",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "dev": "email dev -p 3001 --dir src/templates",
+    "build": "email export --dir src/templates",
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "check": "biome check .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@react-email/components": "^0.0.33",
+    "@react-email/tailwind": "1.0.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "react-email": "3.0.7",
+    "typescript": "^5.7.3"
+  }
+}
