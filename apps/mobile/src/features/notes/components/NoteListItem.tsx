@@ -1,6 +1,6 @@
 import type { Note } from "@simple-markdown-note/common/schemas";
 import { Pressable, Text, View } from "react-native";
-import { useNoteListItem } from "../hooks";
+import { useNoteItemState } from "../hooks";
 
 type NoteListItemProps = {
   item: Note;
@@ -8,7 +8,7 @@ type NoteListItemProps = {
 };
 
 export function NoteListItem({ item, onPress }: NoteListItemProps) {
-  const { title, summary, formattedDate } = useNoteListItem(item);
+  const { title, summary, formattedDate } = useNoteItemState(item);
 
   return (
     <Pressable

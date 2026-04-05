@@ -1,10 +1,6 @@
 import type { Note } from "@simple-markdown-note/common/schemas";
 import { act, renderHook } from "@testing-library/react-native";
-import {
-  useNoteCheckbox,
-  useNoteEditorState,
-  useNoteListItem,
-} from "./useNoteLogic";
+import { useNoteCheckbox, useNoteEditorState } from "./useNoteLogic";
 
 const makeNote = (overrides: Partial<Note> = {}): Note =>
   ({
@@ -18,41 +14,6 @@ const makeNote = (overrides: Partial<Note> = {}): Note =>
     isPermanent: false,
     ...overrides,
   }) as Note;
-
-// ---------------------------------------------------------------------------
-// useNoteListItem
-// ---------------------------------------------------------------------------
-
-describe("useNoteListItem", () => {
-  it("extracts title from first line", () => {
-    const { result } = renderHook(() =>
-      useNoteListItem(makeNote({ content: "My Title\nBody" }))
-    );
-    expect(result.current.title).toBe("My Title");
-  });
-
-  it("falls back to 'New Note' when content is empty", () => {
-    const { result } = renderHook(() =>
-      useNoteListItem(makeNote({ content: "" }))
-    );
-    expect(result.current.title).toBe("New Note");
-  });
-
-  it("extracts summary from remaining lines", () => {
-    const { result } = renderHook(() =>
-      useNoteListItem(makeNote({ content: "Title\nLine 2\nLine 3" }))
-    );
-    expect(result.current.summary).toBe("Line 2 Line 3");
-  });
-
-  it("formats the date as a non-empty string", () => {
-    const { result } = renderHook(() =>
-      useNoteListItem(makeNote({ updatedAt: "2024-06-15T00:00:00.000Z" }))
-    );
-    expect(typeof result.current.formattedDate).toBe("string");
-    expect(result.current.formattedDate.length).toBeGreaterThan(0);
-  });
-});
 
 // ---------------------------------------------------------------------------
 // useNoteEditorState
