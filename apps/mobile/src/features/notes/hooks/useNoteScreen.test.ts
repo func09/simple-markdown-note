@@ -11,6 +11,7 @@ import {
 import { act, renderHook } from "@testing-library/react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
+  calcNoteMetrics,
   useNoteDrawerScreen,
   useNoteEditorScreen,
   useNoteListScreen,
@@ -285,6 +286,28 @@ describe("useNoteDrawerScreen", () => {
     act(() => {
       result.current.handleLogout();
     });
+
     expect(mockMutate).toHaveBeenCalled();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// calcNoteMetrics
+// ---------------------------------------------------------------------------
+
+describe("calcNoteMetrics", () => {
+  it("counts words correctly", () => {
+    const result = calcNoteMetrics("hello world foo");
+    expect(result.wordCount).toBe(3);
+  });
+
+  it("returns 0 word count for empty string", () => {
+    const result = calcNoteMetrics("");
+    expect(result.wordCount).toBe(0);
+  });
+
+  it("counts characters", () => {
+    const result = calcNoteMetrics("abc");
+    expect(result.charCount).toBe(3);
   });
 });
