@@ -14,8 +14,12 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
+    "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-label": "^2.1.8",
+    "@radix-ui/react-separator": "^1.1.8",
     "@radix-ui/react-slot": "^1.2.4",
+    "@simple-markdown-note/api-client": "workspace:*",
+    "@simple-markdown-note/common": "workspace:*",
     "@tailwindcss/typography": "^0.5.19",
     "@tanstack/react-query": "^5.95.2",
     "@tanstack/react-query-devtools": "^5.95.2",
@@ -27,10 +31,8 @@
     "@tiptap/pm": "^3.21.0",
     "@tiptap/react": "^3.21.0",
     "@tiptap/starter-kit": "^3.21.0",
-    "@simple-markdown-note/api-client": "workspace:*",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "@simple-markdown-note/common": "workspace:*",
     "lucide-react": "^0.479.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
@@ -45,6 +47,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@testing-library/react": "^16.3.2",
     "@types/node": "^20",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
@@ -55,7 +58,6 @@
     "typescript": "^5.7.3",
     "vite": "^8.0.3",
     "vitest": "3.2.4",
-    "@testing-library/react": "^16.3.2",
     "wrangler": "^4.79.0"
   }
 }
