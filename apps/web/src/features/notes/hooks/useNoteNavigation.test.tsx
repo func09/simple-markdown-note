@@ -5,9 +5,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useNotesStore } from "../store";
 import {
   useCreateNoteAction,
-  useNoteActions,
+  useDeleteNoteAction,
   useNotesNavigationSync,
   useNotesQueryString,
+  useRestoreNoteAction,
+  useUpdateTagsAction,
 } from "./index";
 
 // Mock dependencies
@@ -156,14 +158,14 @@ describe("useCreateNoteAction", () => {
   });
 });
 
-describe("useNoteActions", () => {
+describe("useDeleteNoteAction", () => {
   it("should handle delete and navigate", async () => {
     const mutateAsync = vi.fn().mockResolvedValue({});
     mockedHooks.useDeleteNote.mockReturnValue({
       mutateAsync,
     } as unknown as ReturnType<typeof apiClientHooks.useDeleteNote>);
 
-    const { result } = renderHook(() => useNoteActions("1"));
+    const { result } = renderHook(() => useDeleteNoteAction("1"));
 
     await act(async () => {
       await result.current.handleDelete();
@@ -171,5 +173,43 @@ describe("useNoteActions", () => {
 
     expect(mutateAsync).toHaveBeenCalledWith("1");
     expect(mockNavigate).toHaveBeenCalled();
+  });
+});
+
+describe("useRestoreNoteAction", () => {
+  it("should handle restore and navigate", async () => {
+    const mutateAsync = vi.fn().mockResolvedValue({});
+    mockedHooks.useRestoreNote.mockReturnValue({
+      mutateAsync,
+    } as unknown as ReturnType<typeof apiClientHooks.useRestoreNote>);
+
+    const { result } = renderHook(() => useRestoreNoteAction("1"));
+
+    await act(async () => {
+      await result.current.handleRestore();
+    });
+
+    expect(mutateAsync).toHaveBeenCalledWith("1");
+    expect(mockNavigate).toHaveBeenCalled();
+  });
+});
+
+describe("useUpdateTagsAction", () => {
+  it("should handle tag updates", () => {
+    const mutate = vi.fn();
+    mockedHooks.useUpdateNote.mockReturnValue({
+      mutate,
+    } as unknown as ReturnType<typeof apiClientHooks.useUpdateNote>);
+
+    const { result } = renderHook(() => useUpdateTagsAction("1"));
+
+    act(() => {
+      result.current.handleUpdateTags(["tag1", "tag2"]);
+    });
+
+    expect(mutate).toHaveBeenCalledWith({
+      id: "1",
+      data: { tags: ["tag1", "tag2"] },
+    });
   });
 });

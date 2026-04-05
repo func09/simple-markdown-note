@@ -1,8 +1,6 @@
 import {
   useCreateNote,
   useDeleteNote,
-  useNote,
-  usePermanentDelete,
   useRestoreNote,
   useUpdateNote,
 } from "@simple-markdown-note/api-client/hooks";
@@ -89,19 +87,11 @@ export function useCreateNoteAction() {
 }
 
 /**
- * ノートの詳細、更新、削除、復元などの各種アクションを管理するHook
+ * ノート削除アクションを管理するHook
  */
-export function useNoteActions(noteId?: string) {
+export function useDeleteNoteAction(noteId?: string) {
   const navigate = useNavigate();
-
-  const { data: note, isLoading } = useNote(noteId ?? null, {
-    enabled: !!(noteId ?? null),
-  });
-  const updateNoteMutation = useUpdateNote();
   const deleteNoteMutation = useDeleteNote();
-  const restoreNoteMutation = useRestoreNote();
-  const permanentDeleteMutation = usePermanentDelete();
-
   const queryString = useNotesQueryString();
 
   const handleDelete = useCallback(async () => {
@@ -110,11 +100,31 @@ export function useNoteActions(noteId?: string) {
     navigate(`/notes${queryString}`);
   }, [noteId, deleteNoteMutation, navigate, queryString]);
 
+  return { handleDelete };
+}
+
+/**
+ * ノート復元アクションを管理するHook
+ */
+export function useRestoreNoteAction(noteId?: string) {
+  const navigate = useNavigate();
+  const restoreNoteMutation = useRestoreNote();
+  const queryString = useNotesQueryString();
+
   const handleRestore = useCallback(async () => {
     if (!noteId) return;
     await restoreNoteMutation.mutateAsync(noteId);
     navigate(`/notes/${noteId}${queryString}`);
   }, [noteId, restoreNoteMutation, navigate, queryString]);
+
+  return { handleRestore };
+}
+
+/**
+ * ノートタグ更新アクションを管理するHook
+ */
+export function useUpdateTagsAction(noteId?: string) {
+  const updateNoteMutation = useUpdateNote();
 
   const handleUpdateTags = useCallback(
     (newTags: string[]) => {
@@ -127,14 +137,5 @@ export function useNoteActions(noteId?: string) {
     [noteId, updateNoteMutation]
   );
 
-  return {
-    note,
-    isLoading,
-    handleDelete,
-    handleRestore,
-    handleUpdateTags,
-    permanentDeleteMutation,
-    queryString,
-    updateNoteMutation,
-  };
+  return { handleUpdateTags };
 }
