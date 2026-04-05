@@ -1,10 +1,12 @@
 import { useVerifyEmail } from "@simple-markdown-note/api-client/hooks";
-import { AlertCircle, CheckCircle2, Loader2, LogIn } from "lucide-react";
-import { useEffect, useState } from "react";
+import { AlertCircle, CheckCircle2, Loader2, NotebookPen } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { queryClient } from "@/lib/queryClient";
+import { useAuthStore } from "../store";
 
 export function VerifyEmailScreen() {
   const [searchParams] = useSearchParams();
@@ -15,28 +17,37 @@ export function VerifyEmailScreen() {
     "loading"
   );
   const [errorMsg, setErrorMsg] = useState("");
+  const hasCalledRef = useRef(false);
 
-  const { mutate: verify } = useVerifyEmail();
+  const { mutate: verify } = useVerifyEmail({
+    onSuccess: () => {
+      // キャッシュを削除してから user をリセット。
+      // これにより AuthInitializer の useMe がサーバーから最新の
+      // status: "active" を再取得し、AuthGuard が pending 判定しなくなる。
+      queryClient.removeQueries({ queryKey: ["auth", "me"] });
+      useAuthStore.setState({ user: null });
+      setStatus("success");
+    },
+    onError: (err) => {
+      setStatus("error");
+      setErrorMsg(
+        err.message ||
+          "Failed to verify email. The link might be invalid or expired."
+      );
+    },
+  });
 
   useEffect(() => {
+    if (hasCalledRef.current) return;
+    hasCalledRef.current = true;
+
     if (!token) {
       setStatus("error");
       setErrorMsg("No verification token provided in the URL.");
       return;
     }
 
-    verify(token, {
-      onSuccess: () => {
-        setStatus("success");
-      },
-      onError: (err) => {
-        setStatus("error");
-        setErrorMsg(
-          err.message ||
-            "Failed to verify email. The link might be invalid or expired."
-        );
-      },
-    });
+    verify(token);
   }, [token, verify]);
 
   return (
@@ -81,15 +92,15 @@ export function VerifyEmailScreen() {
             {status === "success" && (
               <>
                 <p className="text-slate-600 text-sm">
-                  Your email has been successfully verified! You can now log in
-                  and access your account.
+                  Your email has been successfully verified! You can now access
+                  your notes.
                 </p>
                 <Button
-                  onClick={() => navigate("/login")}
+                  onClick={() => navigate("/notes?scope=all")}
                   className="mt-4 h-11 w-full gap-2 rounded-xl bg-slate-900 font-bold text-white shadow-lg shadow-slate-900/10 hover:bg-slate-800"
                 >
-                  <LogIn className="h-5 w-5" />
-                  Go to Login
+                  <NotebookPen className="h-5 w-5" />
+                  Go to Notes
                 </Button>
               </>
             )}
