@@ -1,3 +1,3 @@
-export * from "./useNoteDomain";
-export * from "./useNoteEffect";
-export * from "./useNoteState";
+export * from "./domains";
+export * from "./effects";
+export * from "./states";
