@@ -1,12 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useLogin } from "@simple-markdown-note/api-client/hooks";
-import type { SigninRequest } from "@simple-markdown-note/common/schemas";
-import { SigninRequestSchema } from "@simple-markdown-note/common/schemas";
+import { useForgotPassword } from "@simple-markdown-note/api-client/hooks";
+import type { ForgotPasswordRequest } from "@simple-markdown-note/common/schemas";
+import { ForgotPasswordRequestSchema } from "@simple-markdown-note/common/schemas";
 import {
   AlertCircle,
+  ArrowLeft,
   ArrowRight,
   Loader2,
-  Lock,
   Mail,
   ShieldCheck,
 } from "lucide-react";
@@ -26,48 +26,36 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAuthStore } from "../store";
 
-/**
- * ログイン画面コンポーネント
- * UIの表示とフォームの状態管理を担当します。
- */
-export function LoginScreen() {
-  const setAuth = useAuthStore((state) => state.setAuth);
+export function ForgotPasswordScreen() {
   const navigate = useNavigate();
   const emailId = useId();
-  const passwordId = useId();
 
   const {
-    mutate: loginMutate,
+    mutate: forgotPasswordMutate,
     isPending: isLoading,
     error: apiError,
-  } = useLogin({
-    onSuccess: (data) => {
-      setAuth(data.user);
-    },
-  });
+  } = useForgotPassword();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<SigninRequest>({
-    resolver: zodResolver(SigninRequestSchema),
+  } = useForm<ForgotPasswordRequest>({
+    resolver: zodResolver(ForgotPasswordRequestSchema),
     defaultValues: {
       email: "",
-      password: "",
     },
   });
 
-  const onSubmit = (data: SigninRequest) => {
-    loginMutate(data, {
+  const onSubmit = (data: ForgotPasswordRequest) => {
+    forgotPasswordMutate(data, {
       onSuccess: () => {
-        toast.success("Successfully logged in");
-        navigate("/notes?scope=all");
+        toast.success("Check your email for a password reset link");
+        navigate("/login");
       },
       onError: (err: Error) => {
-        toast.error(err.message || "Login failed");
+        toast.error(err.message || "Failed to send reset link");
       },
     });
   };
@@ -85,10 +73,10 @@ export function LoginScreen() {
               </div>
             </div>
             <CardTitle className="text-3xl font-bold tracking-tight text-slate-900">
-              Welcome Back
+              Forgot Password
             </CardTitle>
             <CardDescription className="mt-2 text-base text-slate-500">
-              Enter your details to sign in
+              Enter your email to receive a reset link
             </CardDescription>
           </CardHeader>
 
@@ -108,7 +96,7 @@ export function LoginScreen() {
                   <AlertDescription>
                     {apiError instanceof Error
                       ? apiError.message
-                      : "Login failed"}
+                      : "Failed to send reset link"}
                   </AlertDescription>
                 </Alert>
               )}
@@ -142,43 +130,6 @@ export function LoginScreen() {
                 )}
               </div>
 
-              <div className="space-y-2">
-                <div className="flex items-center justify-between mb-2">
-                  <Label
-                    htmlFor={passwordId}
-                    className="ml-1 text-sm font-medium text-slate-700"
-                  >
-                    Password
-                  </Label>
-                  <Link
-                    to="/forgot-password"
-                    className="text-xs font-semibold text-slate-500 hover:text-slate-900"
-                  >
-                    Forgot your password?
-                  </Link>
-                </div>
-                <div className="relative group">
-                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 group-focus-within:text-slate-900" />
-                  <Input
-                    {...register("password")}
-                    id={passwordId}
-                    type="password"
-                    placeholder="••••••••"
-                    className={`h-11 rounded-xl border-slate-200 bg-white pl-10 text-slate-900 placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-slate-900/10 ${
-                      errors.password
-                        ? "border-red-500 focus-visible:ring-red-500/10"
-                        : ""
-                    }`}
-                    disabled={isLoading}
-                  />
-                </div>
-                {errors.password && (
-                  <p className="mt-1 ml-1 text-xs text-red-500 font-medium">
-                    {errors.password.message}
-                  </p>
-                )}
-              </div>
-
               <Button
                 type="submit"
                 disabled={isLoading}
@@ -188,7 +139,7 @@ export function LoginScreen() {
                   <Loader2 className="h-5 w-5 animate-spin" />
                 ) : (
                   <>
-                    Sign In
+                    Send Reset Link
                     <ArrowRight className="h-5 w-5" />
                   </>
                 )}
@@ -196,12 +147,13 @@ export function LoginScreen() {
             </form>
 
             <div className="mt-8 text-center text-sm text-slate-500">
-              Don't have an account?{" "}
+              Remember your password?{" "}
               <Link
-                to="/signup"
-                className="font-semibold text-slate-900 hover:underline"
+                to="/login"
+                className="font-semibold text-slate-900 flex items-center justify-center gap-1 mt-2 hover:underline"
               >
-                Create Account
+                <ArrowLeft className="h-4 w-4" />
+                Back to Login
               </Link>
             </div>
           </CardContent>
