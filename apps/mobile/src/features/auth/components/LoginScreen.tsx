@@ -17,11 +17,16 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuthStore } from "../store";
 
+/**
+ * ログイン画面コンポーネント
+ * ユーザーのメールアドレスとパスワードを受け取り、サインイン処理を行います。
+ */
 export function LoginScreen() {
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
   const insets = useSafeAreaInsets();
 
+  // ログイン処理のAPIミューテーション
   const {
     mutate: loginMutate,
     isPending: isLoading,
@@ -33,6 +38,7 @@ export function LoginScreen() {
     },
   });
 
+  // フォームの状態管理（react-hook-form）とバリデーション設定
   const {
     control,
     handleSubmit,
@@ -45,6 +51,7 @@ export function LoginScreen() {
     },
   });
 
+  // フォーム送信ハンドラ
   const onSubmit = (data: SigninRequest) => {
     loginMutate(data);
   };

@@ -17,11 +17,16 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuthStore } from "../store";
 
+/**
+ * サインアップ画面コンポーネント
+ * 新しいユーザーのアカウント作成（メールアドレス・パスワード）を行います。
+ */
 export function SignupScreen() {
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
   const insets = useSafeAreaInsets();
 
+  // サインアップ処理のAPIミューテーション
   const {
     mutate: signupMutate,
     isPending: isLoading,
@@ -33,6 +38,7 @@ export function SignupScreen() {
     },
   });
 
+  // フォームの状態管理（react-hook-form）とバリデーション設定
   const {
     control,
     handleSubmit,
@@ -45,6 +51,7 @@ export function SignupScreen() {
     },
   });
 
+  // フォーム送信ハンドラ
   const onSubmit = (data: SignupRequest) => {
     signupMutate(data);
   };
