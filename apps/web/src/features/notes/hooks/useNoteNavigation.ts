@@ -12,6 +12,22 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useNotesStore } from "../store";
 
 /**
+ * 現在のフィルタ状態（scope, tag）に基づいてURLクエリストリングを生成するHook
+ */
+export function useNotesQueryString() {
+  const scope = useNotesStore((s) => s.filterScope);
+  const tag = useNotesStore((s) => s.filterTag);
+
+  return useMemo(() => {
+    const params = new URLSearchParams();
+    if (scope !== "all") params.set("scope", scope);
+    if (tag) params.set("tag", tag);
+    const qs = params.toString();
+    return qs ? `?${qs}` : "";
+  }, [scope, tag]);
+}
+
+/**
  * URLパラメータとPropsの状態をNotesストアに同期するHook
  */
 export function useNotesNavigationSync(propSelectedNoteId?: string) {
@@ -49,16 +65,8 @@ export function useCreateNoteAction() {
   const navigate = useNavigate();
   const createNoteMutation = useCreateNote();
   const setSelectedNoteId = useNotesStore((s) => s.setSelectedNoteId);
-  const scope = useNotesStore((s) => s.filterScope);
   const tag = useNotesStore((s) => s.filterTag);
-
-  const queryString = useMemo(() => {
-    const params = new URLSearchParams();
-    if (scope !== "all") params.set("scope", scope);
-    if (tag) params.set("tag", tag);
-    const qs = params.toString();
-    return qs ? `?${qs}` : "";
-  }, [scope, tag]);
+  const queryString = useNotesQueryString();
 
   const handleAddNote = useCallback(async () => {
     try {
@@ -85,8 +93,6 @@ export function useCreateNoteAction() {
  */
 export function useNoteActions(noteId?: string) {
   const navigate = useNavigate();
-  const scope = useNotesStore((s) => s.filterScope);
-  const tag = useNotesStore((s) => s.filterTag);
 
   const { data: note, isLoading } = useNote(noteId ?? null, {
     enabled: !!(noteId ?? null),
@@ -96,13 +102,7 @@ export function useNoteActions(noteId?: string) {
   const restoreNoteMutation = useRestoreNote();
   const permanentDeleteMutation = usePermanentDelete();
 
-  const queryString = useMemo(() => {
-    const params = new URLSearchParams();
-    if (scope !== "all") params.set("scope", scope);
-    if (tag) params.set("tag", tag);
-    const qs = params.toString();
-    return qs ? `?${qs}` : "";
-  }, [scope, tag]);
+  const queryString = useNotesQueryString();
 
   const handleDelete = useCallback(async () => {
     if (!noteId) return;
