@@ -16,7 +16,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuthStore } from "../../auth/store";
 import { AUTO_SAVE_DELAY, NAVIGATION_DELAY } from "../constants";
 import { useKeyboardObserver } from "./useNoteEffect";
-import { useNoteCheckbox } from "./useNoteLogic";
 import {
   useDrawerState,
   useNoteEditorState,
@@ -26,6 +25,17 @@ import {
 // ---------------------------------------------------------------------------
 // Private: 算出関数
 // ---------------------------------------------------------------------------
+
+export function toggleCheckboxInContent(content: string, index: number) {
+  const regex = /^(\s*[-*+]\s+)\[([ x])\]/gim;
+  let count = 0;
+  return content.replace(regex, (match, prefix, state: string) => {
+    if (count++ === index) {
+      return `${prefix}[${state.toLowerCase() === "x" ? " " : "x"}]`;
+    }
+    return match;
+  });
+}
 
 export function calcNoteMetrics(content: string) {
   const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0;
@@ -294,7 +304,6 @@ export function useNoteEditorScreen() {
   const { promptForTag } = useTagPrompt();
 
   // Logic
-  const { toggleCheckboxInContent } = useNoteCheckbox();
   const metrics = useMemo(() => calcNoteMetrics(content), [content]);
 
   const handleGoBack = useCallback(() => router.back(), [router]);
@@ -309,7 +318,7 @@ export function useNoteEditorScreen() {
     (index: number) => {
       setContent((prev) => toggleCheckboxInContent(prev, index));
     },
-    [toggleCheckboxInContent, setContent]
+    [setContent]
   );
 
   const handleAddTag = useCallback(() => {
