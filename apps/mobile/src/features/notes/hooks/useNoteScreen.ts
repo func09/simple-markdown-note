@@ -9,17 +9,14 @@ import {
   useTags,
   useUpdateNote,
 } from "@simple-markdown-note/api-client/hooks";
+import type { Note } from "@simple-markdown-note/common/schemas";
 import { NOTE_SCOPE, type NoteScope } from "@simple-markdown-note/common/types";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuthStore } from "../../auth/store";
 import { AUTO_SAVE_DELAY, NAVIGATION_DELAY } from "../constants";
 import { useKeyboardObserver } from "./useNoteEffect";
-import {
-  useNoteCheckbox,
-  useNoteEditorState,
-  useNoteFilter,
-} from "./useNoteLogic";
+import { useNoteCheckbox, useNoteEditorState } from "./useNoteLogic";
 import { useDrawerState, useTagPrompt } from "./useNoteState";
 
 // ---------------------------------------------------------------------------
@@ -30,6 +27,12 @@ export function calcNoteMetrics(content: string) {
   const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0;
   const charCount = content.length;
   return { wordCount, charCount };
+}
+
+export function filterNotes(notes: Note[], searchQuery: string) {
+  if (!searchQuery.trim()) return notes;
+  const query = searchQuery.toLowerCase();
+  return notes.filter((note) => note.content.toLowerCase().includes(query));
 }
 
 // ---------------------------------------------------------------------------
@@ -143,7 +146,6 @@ function useNoteDelete({
 
 /**
  * ノート一覧画面の全体を統合するフック。
- * Resourceからデータを受け取り、Logicでフィルタリングし、UIへのアクションを伝達します。
  */
 export function useNoteListScreen() {
   const router = useRouter();
@@ -153,7 +155,6 @@ export function useNoteListScreen() {
   }>();
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Resource
   const {
     data: notes = [],
     isLoading: isNotesLoading,
@@ -163,10 +164,11 @@ export function useNoteListScreen() {
   const { data: apiTags = [] } = useTags();
   const tags = apiTags.map((t) => t.name);
 
-  // Logic
-  const { filteredNotes } = useNoteFilter(notes, searchQuery);
+  const filteredNotes = useMemo(
+    () => filterNotes(notes as unknown as Note[], searchQuery),
+    [notes, searchQuery]
+  );
 
-  // Platform
   const { isDrawerOpen, slideAnim, toggleDrawer } = useDrawerState();
 
   const getHeaderTitle = () => {
