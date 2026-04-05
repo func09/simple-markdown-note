@@ -56,7 +56,6 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          ALLOWED_ORIGIN: ${{ secrets.ALLOWED_ORIGIN }}
         run: pnpm wrangler deploy
 
       - name: Apply D1 migrations
