@@ -5,7 +5,7 @@ import {
   type Tag,
 } from "@simple-markdown-note/database";
 
-import { syncTags } from "./tag";
+import { syncTags } from "./tags";
 
 /**
  * Repository から取得した Notes (with tags) をレスポンス形式にマッピングする
