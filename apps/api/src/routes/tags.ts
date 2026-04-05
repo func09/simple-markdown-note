@@ -3,7 +3,7 @@ import {
   TagListResponseSchema,
   TagResponseSchema,
 } from "@simple-markdown-note/common/schemas";
-import { createTag, getTagsWithNoteCount } from "../services/tag";
+import { createTag, getTagsWithNoteCount } from "../services/tags";
 import type { AppEnv } from "../types";
 import { createTagRoute, tagsListRoute } from "./tags.schema";
 

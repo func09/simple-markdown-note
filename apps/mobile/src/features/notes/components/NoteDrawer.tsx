@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { DRAWER_WIDTH } from "../constants";
-import { useNoteDrawerActions } from "../hooks/useNoteDomain";
+import { useNoteDrawerActions } from "../hooks";
 
 type NoteDrawerProps = {
   isOpen: boolean;
