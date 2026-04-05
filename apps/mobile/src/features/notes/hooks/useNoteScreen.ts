@@ -1,24 +1,9 @@
-import {
-  useCreateNote,
-  useDeleteNote,
-  useNote,
-  usePermanentDelete,
-  useRestoreNote,
-  useUpdateNote,
-} from "@simple-markdown-note/api-client/hooks";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useCallback, useMemo } from "react";
-import {
-  calcNoteMetrics,
-  executeNoteDelete,
-  toggleCheckboxInContent,
-} from "../utils";
-import { useKeyboardObserver, useNoteAutoSave } from "./useNoteEffect";
-import { useNoteEditorState, useTagPrompt } from "./useNoteState";
-
-// ---------------------------------------------------------------------------
-// Public hooks
-// ---------------------------------------------------------------------------
+import { useCallback } from "react";
+import { executeNoteDelete, toggleCheckboxInContent } from "../utils";
+import { useNoteEditor } from "./useNoteDomain";
+import { useKeyboardObserver } from "./useNoteEffect";
+import { useTagPrompt } from "./useNoteState";
 
 /**
  * ノート編集画面を統合するフック。
@@ -29,65 +14,24 @@ export function useNoteEditorScreen() {
   const isNew = id === "new";
   const router = useRouter();
 
-  // Resource
-  const { data: note, isLoading } = useNote(isNew ? null : id);
-  const createNoteMutation = useCreateNote();
-  const updateNoteMutation = useUpdateNote();
-  const deleteNoteMutation = useDeleteNote();
-  const restoreNoteMutation = useRestoreNote();
-  const permanentDeleteMutation = usePermanentDelete();
-
-  const mutations = useMemo(
-    () => ({
-      createNote: createNoteMutation.mutateAsync,
-      updateNote: updateNoteMutation.mutate,
-      deleteNote: deleteNoteMutation.mutateAsync,
-      restoreNote: restoreNoteMutation.mutateAsync,
-      permanentDelete: permanentDeleteMutation.mutateAsync,
-    }),
-    [
-      createNoteMutation.mutateAsync,
-      updateNoteMutation.mutate,
-      deleteNoteMutation.mutateAsync,
-      restoreNoteMutation.mutateAsync,
-      permanentDeleteMutation.mutateAsync,
-    ]
-  );
-
-  // State（初期化・サーバーデータとの同期を含む）
+  // Domain logic
   const {
+    note,
+    mutations,
+    metrics,
     content,
     setContent,
     tags,
     setTags,
     isPreview,
     setIsPreview,
-    isDeleting,
     setIsDeleting,
     currentNoteId,
-    markAsInitialized,
-  } = useNoteEditorState(note, isNew);
-
-  // Auto-save
-  useNoteAutoSave({
-    content,
-    tags,
-    isNew,
-    note,
-    isLoading,
-    isDeleting,
-    mutations,
-    router,
-    currentNoteId,
-    markAsInitialized,
-  });
+  } = useNoteEditor(id, isNew);
 
   // Platform
   const uiLayout = useKeyboardObserver(isPreview, setIsPreview);
   const { promptForTag } = useTagPrompt();
-
-  // Logic
-  const metrics = useMemo(() => calcNoteMetrics(content), [content]);
 
   const handleGoBack = useCallback(() => router.back(), [router]);
 
