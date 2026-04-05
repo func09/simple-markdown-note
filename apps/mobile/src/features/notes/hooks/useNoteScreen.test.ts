@@ -14,7 +14,7 @@ import {
   filterNotes,
   toggleCheckboxInContent,
 } from "../utils";
-import { useNoteDrawerScreen, useNoteEditorScreen } from "./useNoteScreen";
+import { useNoteEditorScreen } from "./useNoteScreen";
 
 // ---------------------------------------------------------------------------
 // Mocks
@@ -174,41 +174,6 @@ describe("useNoteEditorScreen", () => {
       result.current.ops.handleCheckboxToggle(0);
     });
     expect(result.current.content).toContain("[x]");
-  });
-});
-
-// ---------------------------------------------------------------------------
-// useNoteDrawerScreen
-// ---------------------------------------------------------------------------
-
-describe("useNoteDrawerScreen", () => {
-  const { useLogout } = jest.requireMock(
-    "@simple-markdown-note/api-client/hooks"
-  );
-  const { useAuthStore } = jest.requireMock("../../auth/store");
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-    const mockMutate = jest.fn();
-    (useLogout as jest.Mock).mockReturnValue({ mutate: mockMutate });
-    (useAuthStore as jest.Mock).mockImplementation((selector: unknown) =>
-      (selector as (s: { clearAuth: () => void }) => unknown)({
-        clearAuth: jest.fn(),
-      })
-    );
-  });
-
-  it("handleLogout calls logoutMutation.mutate", () => {
-    const mockMutate = jest.fn();
-    (useLogout as jest.Mock).mockReturnValue({ mutate: mockMutate });
-
-    const onClose = jest.fn();
-    const { result } = renderHook(() => useNoteDrawerScreen(onClose));
-    act(() => {
-      result.current.handleLogout();
-    });
-
-    expect(mockMutate).toHaveBeenCalled();
   });
 });
 
