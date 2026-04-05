@@ -1,6 +1,10 @@
-import { Link } from "expo-router";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useSignup } from "@simple-markdown-note/api-client/hooks";
+import type { SignupRequest } from "@simple-markdown-note/common/schemas";
+import { SignupRequestSchema } from "@simple-markdown-note/common/schemas";
+import { Link, useRouter } from "expo-router";
 import { AlertCircle, Lock, Mail, UserPlus } from "lucide-react-native";
-import { Controller } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -11,12 +15,39 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useSignupScreen } from "../hooks";
+import { useAuthStore } from "../store";
 
 export function SignupScreen() {
-  const { control, handleSubmit, errors, isLoading, apiError } =
-    useSignupScreen();
+  const router = useRouter();
+  const setAuth = useAuthStore((state) => state.setAuth);
   const insets = useSafeAreaInsets();
+
+  const {
+    mutate: signupMutate,
+    isPending: isLoading,
+    error: apiError,
+  } = useSignup({
+    onSuccess: (data) => {
+      setAuth(data.user, data.token);
+      router.replace("/(main)/notes");
+    },
+  });
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignupRequest>({
+    resolver: zodResolver(SignupRequestSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = (data: SignupRequest) => {
+    signupMutate(data);
+  };
 
   return (
     <View
@@ -120,7 +151,7 @@ export function SignupScreen() {
             />
 
             <TouchableOpacity
-              onPress={handleSubmit}
+              onPress={handleSubmit(onSubmit)}
               disabled={isLoading}
               className={`h-12 rounded-xl items-center justify-center mt-4 shadow-lg ${
                 isLoading ? "bg-slate-700" : "bg-slate-900 shadow-slate-300"
