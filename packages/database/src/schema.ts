@@ -6,7 +6,11 @@ import {
   sqliteTable,
   text,
   unique,
+  uniqueIndex,
 } from "drizzle-orm/sqlite-core";
+
+export const USER_STATUSES = ["pending", "active", "deleted"] as const;
+export type UserStatus = (typeof USER_STATUSES)[number];
 
 // ユーザー情報を管理するテーブル
 export const users = sqliteTable("users", {
@@ -15,6 +19,7 @@ export const users = sqliteTable("users", {
     .$defaultFn(() => createId()),
   email: text("email").notNull().unique(),
   passwordHash: text("password_hash").notNull(),
+  status: text("status", { enum: USER_STATUSES }).notNull().default("pending"),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
     .default(sql`(unixepoch())`),
@@ -97,6 +102,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   notes: many(notes),
   tags: many(tags),
   passwordResets: many(passwordResets),
+  emailVerifications: many(emailVerifications),
 }));
 
 export const notesRelations = relations(notes, ({ one, many }) => ({
@@ -150,3 +156,37 @@ export const passwordResetsRelations = relations(passwordResets, ({ one }) => ({
     references: [users.id],
   }),
 }));
+
+// メール認証情報を管理するテーブル
+export const emailVerifications = sqliteTable(
+  "email_verifications",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => createId()),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    token: text("token").notNull(),
+    expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => ({
+    tokenIdx: uniqueIndex("email_verifications_token_idx").on(table.token),
+  })
+);
+
+export type EmailVerification = typeof emailVerifications.$inferSelect;
+export type NewEmailVerification = typeof emailVerifications.$inferInsert;
+
+export const emailVerificationsRelations = relations(
+  emailVerifications,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [emailVerifications.userId],
+      references: [users.id],
+    }),
+  })
+);
