@@ -1,4 +1,3 @@
-import type { AppEnv } from "@simple-markdown-note/api/types";
 import {
   bcryptjs,
   createEmailVerificationRepository,
@@ -8,6 +7,7 @@ import {
 } from "@simple-markdown-note/database";
 import { HTTPException } from "hono/http-exception";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { AppEnv } from "@/types";
 import { signup } from "./signup";
 
 vi.mock("@simple-markdown-note/database", () => ({

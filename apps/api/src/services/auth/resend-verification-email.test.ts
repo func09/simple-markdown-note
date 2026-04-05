@@ -1,4 +1,3 @@
-import type { AppEnv } from "@simple-markdown-note/api/types";
 import {
   createEmailVerificationRepository,
   createUserRepository,
@@ -13,6 +12,7 @@ import {
   it,
   vi,
 } from "vitest";
+import type { AppEnv } from "@/types";
 import { resendVerificationEmail } from "./resend-verification-email";
 
 vi.mock("@simple-markdown-note/database", () => ({

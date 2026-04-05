@@ -10,7 +10,7 @@ import {
   getNoteById,
   getNotes,
   updateNote,
-} from "../services/note";
+} from "../services/notes";
 import type { AppEnv } from "../types";
 import {
   createNoteRoute,
