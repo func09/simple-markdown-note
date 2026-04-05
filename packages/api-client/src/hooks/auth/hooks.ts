@@ -109,13 +109,19 @@ export const useForgotPassword = (options?: { onSuccess?: () => void }) => {
 /**
  * メール認証を実行するミューテーションフック
  */
-export const useVerifyEmail = (options?: { onSuccess?: () => void }) => {
+export const useVerifyEmail = (options?: {
+  onSuccess?: () => void;
+  onError?: (err: Error) => void;
+}) => {
   const api = useApi();
-  const { onSuccess } = options ?? {};
+  const { onSuccess, onError } = options ?? {};
   return useMutation({
     mutationFn: (token: string) => verifyEmail(api, token),
     onSuccess: () => {
       onSuccess?.();
+    },
+    onError: (err) => {
+      onError?.(err);
     },
   });
 };
