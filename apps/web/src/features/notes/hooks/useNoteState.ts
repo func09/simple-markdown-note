@@ -1,12 +1,13 @@
-import { useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNotesStore } from "../store";
 
 /**
  * 状態フック (State Hooks)
  *
  * ローカルUIの状態を管理するフック群。
- * `useEffect` を持たず、`useState` / `useReducer` / `useMemo` で完結する純粋な状態管理を担う。
- * サーバーデータの取得・同期・副作用は含まない。
+ * `useState` / `useReducer` / `useMemo` を主体とし、
+ * `useEffect` が含まれる場合も状態管理の補助に留まる。
+ * サーバーデータの取得・同期は含まない。
  *
  * 命名規則:
  *   use[名詞]State      - 汎用的な状態の塊        例: useEditorState, useDrawerState
@@ -29,4 +30,25 @@ export function useNotesFilter() {
     const qs = params.toString();
     return qs ? `?${qs}` : "";
   }, [scope, tag]);
+}
+
+/**
+ * サイドバーの開閉状態とデスクトップ表示時の自動クローズを管理するHook
+ */
+export function useSidebarState(isDesktop: boolean) {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const closeSidebar = useCallback(() => setIsSidebarOpen(false), []);
+  const openSidebar = useCallback(() => setIsSidebarOpen(true), []);
+
+  // デスクトップ表示に切り替わったらサイドバーを閉じる
+  useEffect(() => {
+    if (isDesktop) setIsSidebarOpen(false);
+  }, [isDesktop]);
+
+  return {
+    isSidebarOpen,
+    openSidebar,
+    closeSidebar,
+  };
 }
