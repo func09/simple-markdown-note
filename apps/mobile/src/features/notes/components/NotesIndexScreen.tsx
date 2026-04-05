@@ -13,7 +13,7 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useDrawerState } from "../hooks/useNoteState";
+import { useDrawerState } from "../hooks";
 import { filterNotes } from "../utils";
 import { NoteDrawer } from "./NoteDrawer";
 import { NoteListItem } from "./NoteListItem";
