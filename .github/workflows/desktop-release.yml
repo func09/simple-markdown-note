@@ -58,6 +58,12 @@ jobs:
           # -c.extraMetadata.version でバージョンをタグ名に上書き
           pnpm exec electron-builder build --mac --arm64 -c.extraMetadata.version=${{ github.ref_name }}
 
+      - name: Debug Information
+        run: |
+          echo "GITHUB_REF: ${{ github.ref }}"
+          echo "GITHUB_REF_NAME: ${{ github.ref_name }}"
+          echo "GITHUB_SHA: ${{ github.sha }}"
+
       - name: Create Release and Upload Artifact
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
@@ -65,7 +71,7 @@ jobs:
           files: |
             apps/desktop/dist_electron/*.dmg
           tag_name: ${{ github.ref_name }}
-          name: Release ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
           draft: false
           prerelease: false
           generate_release_notes: true
