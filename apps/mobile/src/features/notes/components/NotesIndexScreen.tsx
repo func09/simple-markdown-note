@@ -1,4 +1,9 @@
+import { useNotes, useTags } from "@simple-markdown-note/api-client/hooks";
+import type { Note } from "@simple-markdown-note/common/schemas";
+import { NOTE_SCOPE, type NoteScope } from "@simple-markdown-note/common/types";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { Menu, NotebookPen, Search } from "lucide-react-native";
+import { useCallback, useMemo, useState } from "react";
 import {
   FlatList,
   RefreshControl,
@@ -8,31 +13,98 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useNoteListScreen } from "../hooks";
+import { useDrawerState } from "../hooks/useNoteState";
+import { filterNotes } from "../utils";
 import { NoteDrawer } from "./NoteDrawer";
 import { NoteListItem } from "./NoteListItem";
 
+/**
+ * ノート一覧画面のメインコンポーネント。
+ *
+ * 左からのドロワーメニュー、ノート一覧表示、検索ボックス、および新規作成・閲覧へのナビゲーションを提供します。
+ */
 export function NotesIndexScreen() {
+  // 1. URLパラメータから現在のスコープ（一覧、ゴミ箱等）と選択中のタグを取得
+  const { scope = NOTE_SCOPE.ALL, tag } = useLocalSearchParams<{
+    scope?: string;
+    tag?: string;
+  }>();
+
+  // 2. テキスト検索ボックスの入力を保持するローカルステート
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // 3. APIからノート一覧を取得（現在のスコープとタグでバックエンドフィルタリング）
   const {
-    notes: filteredNotes,
-    isNotesLoading,
-    refetchNotes,
-    tags,
-    searchQuery,
-    setSearchQuery,
-    isDrawerOpen,
-    toggleDrawer,
-    slideAnim,
-    scope,
-    tag,
-    getHeaderTitle,
-    handleSelectScope,
-    handleSelectTag,
-    handleNewNote,
-    handleSelectNote,
-  } = useNoteListScreen();
+    data: notes = [],
+    isLoading: isNotesLoading,
+    refetch: refetchNotes,
+  } = useNotes({ scope: scope as NoteScope, tag });
+
+  // 4. APIからすべての付与済みタグ一覧を取得（ドロワーのタグ一覧表示用）
+  const { data: apiTags = [] } = useTags();
+  const tags = apiTags.map((t) => t.name);
+
+  // 5. 検索クエリに基づき、クライアントサイドでノートを全文検索してフィルタリング
+  const filteredNotes = useMemo(
+    () => filterNotes(notes as unknown as Note[], searchQuery),
+    [notes, searchQuery]
+  );
+
+  // 6. ドロワーメニューのアニメーションと開閉状態を管理するカスタムフック
+  const { isDrawerOpen, slideAnim, toggleDrawer } = useDrawerState();
+
+  // UIスタイリングのためのセーフエリア幅とナビゲーション用ルーター
 
   const insets = useSafeAreaInsets();
+  const router = useRouter();
+
+  /**
+   * 現在の表示リストに応じたヘッダーのタイトルを返します。
+   */
+  const getHeaderTitle = () => {
+    if (tag) return tag;
+    if (scope === NOTE_SCOPE.TRASH) return "Trash";
+    if (scope === NOTE_SCOPE.UNTAGGED) return "Untagged";
+    return "All Notes";
+  };
+
+  /**
+   * スコープ（すべてのノート/ゴミ箱など）を選択したときのハンドラ。
+   */
+  const handleSelectScope = useCallback(
+    (newScope: string) => {
+      toggleDrawer(false);
+      router.setParams({ scope: newScope, tag: undefined });
+    },
+    [toggleDrawer, router]
+  );
+
+  /**
+   * タグを選択したときのハンドラ。
+   */
+  const handleSelectTag = useCallback(
+    (newTag: string) => {
+      toggleDrawer(false);
+      router.setParams({ tag: newTag, scope: undefined });
+    },
+    [toggleDrawer, router]
+  );
+
+  /**
+   * 新規ノート作成画面への遷移。
+   */
+  const handleNewNote = useCallback(
+    () => router.push("/(main)/notes/new"),
+    [router]
+  );
+
+  /**
+   * 指定したノートの編集/プレビュー画面への遷移。
+   */
+  const handleSelectNote = useCallback(
+    (id: string) => router.push(`/(main)/notes/${id}`),
+    [router]
+  );
 
   return (
     <View
