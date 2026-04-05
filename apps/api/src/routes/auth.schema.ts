@@ -1,7 +1,9 @@
 import { createRoute } from "@hono/zod-openapi";
 import {
   AuthResponseSchema,
+  ForgotPasswordRequestSchema,
   MeResponseSchema,
+  ResetPasswordRequestSchema,
   SigninRequestSchema,
   SignupRequestSchema,
 } from "@simple-markdown-note/common/schemas";
@@ -100,6 +102,54 @@ export const logoutRoute = createRoute({
   responses: {
     204: {
       description: "ログアウト成功",
+    },
+  },
+});
+
+/** POST /forgot-password — パスワードリセットリクエストルート定義 */
+export const forgotPasswordRoute = createRoute({
+  method: "post",
+  path: "/forgot-password",
+  summary: "パスワードリセットの要求",
+  description: "登録されている場合、パスワードリセット用のメールを送信します。",
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: ForgotPasswordRequestSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    204: {
+      description:
+        "成功判定（セキュリティ上、ユーザーが存在しなくても成功を返します）",
+    },
+  },
+});
+
+/** POST /reset-password — パスワードリセットルート定義 */
+export const resetPasswordRoute = createRoute({
+  method: "post",
+  path: "/reset-password",
+  summary: "パスワードの再設定",
+  description: "トークンを使用して新しいパスワードを設定します。",
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: ResetPasswordRequestSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    204: {
+      description: "パスワードリセット成功",
+    },
+    400: {
+      description: "無効なトークンまたはトークンの有効期限切れ",
     },
   },
 });

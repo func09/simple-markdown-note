@@ -8,6 +8,9 @@ export type AppEnv = {
     JWT_SECRET: string;
     NODE_ENV?: string;
     ALLOWED_ORIGIN?: string;
+    RESEND_API_KEY?: string;
+    CLIENT_URL?: string;
+    EMAIL_FROM?: string;
   };
   Variables: {
     userId: string;
