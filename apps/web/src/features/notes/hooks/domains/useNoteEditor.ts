@@ -1,69 +1,11 @@
-import { useNotes } from "@simple-markdown-note/api-client/hooks";
 import CharacterCount from "@tiptap/extension-character-count";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import { useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
+import { escapeHtml } from "@/features/notes/utils";
 import { cn } from "@/lib/utils";
-import { useNotesStore } from "../store";
-import { escapeHtml } from "../utils";
-import { useNotesFilter } from "./useNoteState";
-
-/**
- * ドメインフック (Domain Hooks)
- *
- * APIフック・状態フック・副作用フックを組み合わせ、
- * 機能単位のロジックをまとめるフック群。
- * コンポーネントから複数のフックをまとめて呼び出す手間を省き、
- * ドメインロジックの凝集度を高める。
- *
- * 命名規則:
- *   use[機能名]          - 機能単位のまとまり  例: useNoteEditor, useFilteredNotes
- *   use[画面名]Data      - 画面に必要なデータ  例: useNoteListData, useNoteDetailData
- *   use[機能名]Actions   - 操作のまとまり      例: useNoteActions, useEditorActions
- */
-
-/**
- * 検索・フィルタリングされたノート一覧と、それらに関連する状態を管理するHook
- */
-export function useFilteredNotes() {
-  const searchQuery = useNotesStore((s) => s.searchQuery);
-  const setSearchQuery = useNotesStore((s) => s.setSearchQuery);
-  const scope = useNotesStore((s) => s.filterScope);
-  const tag = useNotesStore((s) => s.filterTag);
-  const setSelectedNoteId = useNotesStore((s) => s.setSelectedNoteId);
-
-  const { data: notes = [], isLoading } = useNotes({
-    scope,
-    tag: tag || undefined,
-  });
-
-  const filteredNotes = useMemo(
-    () =>
-      notes.filter((note) =>
-        note.content.toLowerCase().includes(searchQuery.toLowerCase())
-      ),
-    [notes, searchQuery]
-  );
-
-  const shouldShowSkeleton = isLoading && notes.length === 0;
-
-  const queryString = useNotesFilter();
-
-  return {
-    notes,
-    filteredNotes,
-    isLoading,
-    shouldShowSkeleton,
-    searchQuery,
-    setSearchQuery,
-    setSelectedNoteId,
-    scope,
-    tag,
-    queryString,
-  };
-}
 
 /**
  * Tiptapエディタの設定とコンテンツ同期を管理するHook
