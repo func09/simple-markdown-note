@@ -13,10 +13,8 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { DRAWER_WIDTH } from "../constants";
 import { useNoteDrawerScreen } from "../hooks";
-
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
-export const DRAWER_WIDTH = SCREEN_WIDTH * 0.8;
 
 type NoteDrawerProps = {
   isOpen: boolean;

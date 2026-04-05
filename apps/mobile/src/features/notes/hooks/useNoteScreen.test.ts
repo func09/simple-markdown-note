@@ -37,9 +37,13 @@ jest.mock("@simple-markdown-note/api-client/hooks", () => ({
   useLogout: jest.fn(),
 }));
 
-jest.mock("../components/NoteDrawer", () => ({
-  DRAWER_WIDTH: 280,
-}));
+jest.mock("../constants", () => {
+  const actual = jest.requireActual("../constants");
+  return {
+    ...actual,
+    DRAWER_WIDTH: 280,
+  };
+});
 
 jest.mock("../../auth/store", () => ({
   useAuthStore: jest.fn(),

@@ -2,9 +2,13 @@ import { act, renderHook } from "@testing-library/react-native";
 import { Alert, Platform } from "react-native";
 import { useDrawerState, useTagPrompt } from "./useNoteState";
 
-jest.mock("../components/NoteDrawer", () => ({
-  DRAWER_WIDTH: 280,
-}));
+jest.mock("../constants", () => {
+  const actual = jest.requireActual("../constants");
+  return {
+    ...actual,
+    DRAWER_WIDTH: 280,
+  };
+});
 
 describe("useDrawerState", () => {
   it("initializes with drawer closed", () => {
