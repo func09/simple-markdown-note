@@ -1,4 +1,7 @@
-import { useUpdateNote } from "@simple-markdown-note/api-client/hooks";
+import {
+  useNotes,
+  useUpdateNote,
+} from "@simple-markdown-note/api-client/hooks";
 import CharacterCount from "@tiptap/extension-character-count";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -8,7 +11,6 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { useNotesStore } from "../store";
 import { escapeHtml } from "../utils";
-import { useNoteListQuery } from "./useNoteResource";
 
 /**
  * 検索・フィルタリングされたノート一覧と、それらに関連する状態を管理するHook
@@ -20,7 +22,10 @@ export function useFilteredNotes() {
   const tag = useNotesStore((s) => s.filterTag);
   const setSelectedNoteId = useNotesStore((s) => s.setSelectedNoteId);
 
-  const { notes, isLoading } = useNoteListQuery(scope, tag || undefined);
+  const { data: notes = [], isLoading } = useNotes({
+    scope,
+    tag: tag || undefined,
+  });
 
   const filteredNotes = useMemo(
     () =>
