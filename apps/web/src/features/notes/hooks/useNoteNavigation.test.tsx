@@ -1,9 +1,9 @@
 import * as apiClientHooks from "@simple-markdown-note/api-client/hooks";
-import { act, renderHook } from "@testing-library/react";
+import { renderHook } from "@testing-library/react";
 import { useSearchParams } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useNotesStore } from "../store";
-import { useNotesNavigationSync, useNotesQueryString } from "./index";
+import { useNotesNavigationSync } from "./index";
 
 // Mock dependencies
 const mockNavigate = vi.fn();
@@ -35,37 +35,6 @@ beforeEach(() => {
     new URLSearchParams(),
     vi.fn(),
   ] as unknown as ReturnType<typeof useSearchParams>);
-});
-
-describe("useNotesQueryString", () => {
-  it("should return empty string when scope is all and tag is empty", () => {
-    const { result } = renderHook(() => useNotesQueryString());
-    expect(result.current).toBe("");
-  });
-
-  it("should return scope query when scope is not all", () => {
-    act(() => {
-      useNotesStore.getState().setFilterScope("trash");
-    });
-    const { result } = renderHook(() => useNotesQueryString());
-    expect(result.current).toBe("?scope=trash");
-  });
-
-  it("should return tag query when tag is present", () => {
-    act(() => {
-      useNotesStore.getState().setFilterTag("important");
-    });
-    const { result } = renderHook(() => useNotesQueryString());
-    expect(result.current).toBe("?tag=important");
-  });
-
-  it("should return combined query when both scope and tag are present", () => {
-    act(() => {
-      useNotesStore.setState({ filterScope: "trash", filterTag: "important" });
-    });
-    const { result } = renderHook(() => useNotesQueryString());
-    expect(result.current).toBe("?scope=trash&tag=important");
-  });
 });
 
 describe("useNotesNavigationSync", () => {

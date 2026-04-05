@@ -17,7 +17,7 @@ import {
   useEditorPopovers,
   useNoteAutoSave,
   useNoteEditor,
-  useNotesQueryString,
+  useNotesFilter,
 } from "../hooks";
 import { EditorHeader } from "./EditorHeader";
 import { EditorTagManager } from "./EditorTagManager";
@@ -47,7 +47,7 @@ export function Editor({ noteId, isMobile }: EditorProps) {
   const [isDeleting, setIsDeleting] = useState(false);
 
   // 1. 各種アクションとデータ取得の管理
-  const queryString = useNotesQueryString();
+  const queryString = useNotesFilter();
   const { data: note, isLoading } = useNote(noteId ?? null, {
     enabled: !!noteId,
   });

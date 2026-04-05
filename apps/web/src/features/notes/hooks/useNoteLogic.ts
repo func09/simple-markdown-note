@@ -11,7 +11,7 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { useNotesStore } from "../store";
 import { escapeHtml } from "../utils";
-import { useNotesQueryString } from "./useNoteNavigation";
+import { useNotesFilter } from "./useNoteState";
 
 /**
  * 検索・フィルタリングされたノート一覧と、それらに関連する状態を管理するHook
@@ -38,7 +38,7 @@ export function useFilteredNotes() {
 
   const shouldShowSkeleton = isLoading && notes.length === 0;
 
-  const queryString = useNotesQueryString();
+  const queryString = useNotesFilter();
 
   return {
     notes,
