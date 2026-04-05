@@ -11,6 +11,20 @@ import { escapeHtml } from "../utils";
 import { useNotesFilter } from "./useNoteState";
 
 /**
+ * ドメインフック (Domain Hooks)
+ *
+ * APIフック・状態フック・副作用フックを組み合わせ、
+ * 機能単位のロジックをまとめるフック群。
+ * コンポーネントから複数のフックをまとめて呼び出す手間を省き、
+ * ドメインロジックの凝集度を高める。
+ *
+ * 命名規則:
+ *   use[機能名]          - 機能単位のまとまり  例: useNoteEditor, useFilteredNotes
+ *   use[画面名]Data      - 画面に必要なデータ  例: useNoteListData, useNoteDetailData
+ *   use[機能名]Actions   - 操作のまとまり      例: useNoteActions, useEditorActions
+ */
+
+/**
  * 検索・フィルタリングされたノート一覧と、それらに関連する状態を管理するHook
  */
 export function useFilteredNotes() {
