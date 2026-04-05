@@ -15,8 +15,7 @@ import {
   useNoteListQuery,
   useNoteMutations,
 } from "./useNoteResource";
-import { useDrawerState } from "./useNoteState";
-import { useNoteTagPrompt } from "./useNoteUI";
+import { useDrawerState, useTagPrompt } from "./useNoteState";
 
 const AUTO_SAVE_DELAY = 1000;
 const NAVIGATION_DELAY = 250;
@@ -246,7 +245,7 @@ export function useNoteEditorScreen() {
 
   // Platform
   const uiLayout = useKeyboardObserver(isPreview, setIsPreview);
-  const { promptForTag } = useNoteTagPrompt();
+  const { promptForTag } = useTagPrompt();
 
   // Logic
   const { toggleCheckboxInContent } = useNoteCheckbox();
