@@ -3,6 +3,7 @@ import { NOTE_SCOPE, type NoteScope } from "@simple-markdown-note/common/types";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { useAuthStore } from "../../auth/store";
+import { useKeyboardObserver } from "./useNoteEffect";
 import {
   useNoteCheckbox,
   useNoteEditorState,
@@ -14,7 +15,7 @@ import {
   useNoteListQuery,
   useNoteMutations,
 } from "./useNoteResource";
-import { useNoteDrawer, useNoteEditorUI, useNoteTagPrompt } from "./useNoteUI";
+import { useNoteDrawer, useNoteTagPrompt } from "./useNoteUI";
 
 const AUTO_SAVE_DELAY = 1000;
 const NAVIGATION_DELAY = 250;
@@ -243,7 +244,7 @@ export function useNoteEditorScreen() {
   });
 
   // Platform
-  const uiLayout = useNoteEditorUI(isPreview, setIsPreview);
+  const uiLayout = useKeyboardObserver(isPreview, setIsPreview);
   const { promptForTag } = useNoteTagPrompt();
 
   // Logic
