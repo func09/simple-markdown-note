@@ -1,3 +1,7 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useSignup } from "@simple-markdown-note/api-client/hooks";
+import type { SignupRequest } from "@simple-markdown-note/common/schemas";
+import { SignupRequestSchema } from "@simple-markdown-note/common/schemas";
 import {
   AlertCircle,
   ArrowRight,
@@ -6,7 +10,10 @@ import {
   Mail,
   ShieldCheck,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useId } from "react";
+import { useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,23 +26,51 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useSignupForm } from "../hooks";
+import { useAuthStore } from "../store";
 
 /**
  * 新規登録画面
- * `useSignupForm` フックを使用してロジックとUIを分離しています。
+ * 内部でフォームの状態と登録ロジックを管理します。
  */
 export function SignupScreen() {
+  const setAuth = useAuthStore((state) => state.setAuth);
+  const navigate = useNavigate();
+  const emailId = useId();
+  const passwordId = useId();
+
+  const {
+    mutate: signupMutate,
+    isPending: isLoading,
+    error: apiError,
+  } = useSignup({
+    onSuccess: (data) => {
+      setAuth(data.user);
+    },
+  });
+
   const {
     register,
     handleSubmit,
-    onSubmit,
-    errors,
-    isLoading,
-    apiError,
-    emailId,
-    passwordId,
-  } = useSignupForm();
+    formState: { errors },
+  } = useForm<SignupRequest>({
+    resolver: zodResolver(SignupRequestSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = (data: SignupRequest) => {
+    signupMutate(data, {
+      onSuccess: () => {
+        toast.success("Successfully signed up!");
+        navigate("/notes?scope=all");
+      },
+      onError: (err: Error) => {
+        toast.error(err.message || "Signup failed");
+      },
+    });
+  };
 
   return (
     <div className="flex min-h-[80vh] items-center justify-center p-4">

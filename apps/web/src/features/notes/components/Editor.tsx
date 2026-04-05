@@ -1,16 +1,24 @@
+import {
+  useDeleteNote,
+  useNote,
+  usePermanentDelete,
+  useRestoreNote,
+  useUpdateNote,
+} from "@simple-markdown-note/api-client/hooks";
 import { EditorContent } from "@tiptap/react";
 import { Edit3 } from "lucide-react";
-import { useCallback, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import type { Components } from "react-markdown";
 import ReactMarkdown from "react-markdown";
 import { useNavigate } from "react-router-dom";
 import remarkGfm from "remark-gfm";
 import { cn } from "@/lib/utils";
 import {
-  useEditorPopovers,
-  useNoteActions,
+  useInfoPopoverState,
   useNoteAutoSave,
   useNoteEditor,
+  useNotesFilter,
+  useOptionsPopoverState,
 } from "../hooks";
 import { EditorHeader } from "./EditorHeader";
 import { EditorTagManager } from "./EditorTagManager";
@@ -19,37 +27,88 @@ const markdownComponents: Components = {
   p: ({ children }) => <p className="whitespace-pre-wrap">{children}</p>,
 };
 
+/**
+ * Editorコンポーネントのプロパティ
+ */
 interface EditorProps {
+  /** 編集対象のノートID（未選択時はundefined） */
   noteId?: string;
+  /** 初期表示するマークダウンテキスト */
   initialContent?: string;
+  /** モバイル表示時のレイアウト調整を行うかどうか */
   isMobile?: boolean;
 }
 
+/**
+ * マークダウンエディタのインターフェースを提供するコンポーネント。
+ * データ取得、自動保存、各種アクション（削除・復元・タグ更新）を統合・管理します。
+ */
 export function Editor({ noteId, isMobile }: EditorProps) {
   const [isPreview, setIsPreview] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const navigate = useNavigate();
 
   // 1. 各種アクションとデータ取得の管理
-  const {
-    note,
-    isLoading,
-    handleDelete,
-    handleRestore,
-    handleUpdateTags,
-    permanentDeleteMutation,
-    queryString,
-  } = useNoteActions(noteId);
+  const queryString = useNotesFilter();
+  const { data: note, isLoading } = useNote(noteId ?? null, {
+    enabled: !!noteId,
+  });
+
+  const navigate = useNavigate();
+  const { mutateAsync: deleteNote } = useDeleteNote();
+  const { mutateAsync: restoreNote } = useRestoreNote();
+  const { mutate: updateNote } = useUpdateNote();
+  const { mutateAsync: permanentDelete } = usePermanentDelete();
+
+  /**
+   * ノートをゴミ箱に移動（論理削除）し、ノート一覧に戻るハンドラー
+   */
+  const handleDelete = async () => {
+    if (!noteId) return;
+    await deleteNote(noteId);
+    navigate(`/notes${queryString}`);
+  };
+
+  /**
+   * ゴミ箱のノートを復元し、現在のページをリロード（再表示）するハンドラー
+   */
+  const handleRestore = async () => {
+    if (!noteId) return;
+    await restoreNote(noteId);
+    navigate(`/notes/${noteId}${queryString}`);
+  };
+
+  /**
+   * ノートのタグを更新するハンドラー
+   */
+  const handleUpdateTags = (newTags: string[]) => {
+    if (!noteId) return;
+    updateNote({
+      id: noteId,
+      data: { tags: newTags },
+    });
+  };
+
+  /**
+   * ノートをデータベースから完全に削除するハンドラー（確認ダイアログ付き）
+   */
+  const handlePermanentDelete = async () => {
+    if (!noteId) return;
+    if (
+      window.confirm("Are you sure you want to delete this note permanently?")
+    ) {
+      setIsDeleting(true);
+      await permanentDelete(noteId, {
+        onSuccess: () => {
+          navigate("/notes?scope=trash");
+        },
+      });
+    }
+  };
 
   // 2. ポップオーバーの管理
-  const {
-    isInfoOpen,
-    setIsInfoOpen,
-    isOptionsOpen,
-    setIsOptionsOpen,
-    infoRef,
-    optionsRef,
-  } = useEditorPopovers();
+  const { isInfoOpen, setIsInfoOpen, infoRef } = useInfoPopoverState();
+  const { isOptionsOpen, setIsOptionsOpen, optionsRef } =
+    useOptionsPopoverState();
 
   // 3. オートセーブとエディタの管理 (Refを共有)
   const contentRef = useRef("");
@@ -71,18 +130,6 @@ export function Editor({ noteId, isMobile }: EditorProps) {
     contentRef,
     lastNoteIdRef,
   });
-
-  const handlePermanentDelete = useCallback(async () => {
-    if (!noteId) return;
-    if (confirm("Are you sure you want to delete this note permanently?")) {
-      setIsDeleting(true);
-      await permanentDeleteMutation.mutateAsync(noteId, {
-        onSuccess: () => {
-          navigate("/notes?scope=trash");
-        },
-      });
-    }
-  }, [noteId, permanentDeleteMutation, navigate]);
 
   if (!noteId) {
     return (
