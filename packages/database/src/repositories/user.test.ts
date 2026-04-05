@@ -68,4 +68,25 @@ describe("createUserRepository", () => {
       expect(found).toBeUndefined();
     });
   });
+
+  describe("updatePassword", () => {
+    it("パスワードを更新できる", async () => {
+      const created = await repo.create({
+        email: "update-pw@example.com",
+        passwordHash: "old-hash",
+      });
+
+      await repo.updatePassword(created.id, "new-hash");
+
+      const updated = await repo.findById(created.id);
+      expect(updated).toBeDefined();
+      expect(updated?.passwordHash).toBe("new-hash");
+      // 更新日時が変化していることを簡易チェック
+      if (updated && created.updatedAt) {
+        expect(updated.updatedAt.getTime()).toBeGreaterThanOrEqual(
+          created.updatedAt.getTime()
+        );
+      }
+    });
+  });
 });

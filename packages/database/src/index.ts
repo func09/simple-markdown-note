@@ -35,8 +35,8 @@ export * from "drizzle-orm";
 
 export const migrateLibsql = migrate;
 export * from "./repositories/note";
+export * from "./repositories/password-reset";
 export * from "./repositories/tag";
-
 // Repositories
 export * from "./repositories/user";
 export * from "./schema";
