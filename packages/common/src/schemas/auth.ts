@@ -59,6 +59,7 @@ export const ForgotPasswordRequestSchema = z
  */
 export const ResetPasswordRequestSchema = z
   .object({
+    token: z.string(),
     password: passwordSchema,
     confirmPassword: z.string(),
   })
