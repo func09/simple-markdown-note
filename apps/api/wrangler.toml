@@ -10,7 +10,16 @@ database_id = "YOUR_DATABASE_ID_HERE"
 migrations_dir = "../../packages/database/migrations"
 
 [vars]
-NODE_ENV = "production"
+# Override Github actions CD
+NODE_ENV = "development"
 ALLOWED_ORIGIN="http://localhost:3000"
 CLIENT_URL="http://localhost:3000"
 EMAIL_FROM="onboarding@resend.dev"
+
+[observability]
+[observability.logs]
+enabled = true
+invocation_logs = true
+
+[observability.traces]
+enabled = true
