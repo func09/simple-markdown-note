@@ -1,12 +1,4 @@
-import {
-  useCreateNote,
-  useDeleteNote,
-  useNote,
-  useNotes,
-  usePermanentDelete,
-  useRestoreNote,
-  useUpdateNote,
-} from "@simple-markdown-note/api-client/hooks";
+import { useNote, useNotes } from "@simple-markdown-note/api-client/hooks";
 import type { NoteScope } from "@simple-markdown-note/common/types";
 
 /**
@@ -28,23 +20,4 @@ export function useNoteDetailQuery(id: string | null) {
     enabled: !!id,
   });
   return { note, isLoading };
-}
-
-/**
- * ノートに対する作成・更新・削除のミューテーションをまとめたリソースフック
- */
-export function useNoteMutations() {
-  const createNoteMutation = useCreateNote();
-  const updateNoteMutation = useUpdateNote();
-  const deleteNoteMutation = useDeleteNote();
-  const restoreNoteMutation = useRestoreNote();
-  const permanentDeleteMutation = usePermanentDelete();
-
-  return {
-    createNoteMutation,
-    updateNoteMutation,
-    deleteNoteMutation,
-    restoreNoteMutation,
-    permanentDeleteMutation,
-  };
 }

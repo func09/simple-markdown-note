@@ -1,3 +1,4 @@
+import { useUpdateNote } from "@simple-markdown-note/api-client/hooks";
 import CharacterCount from "@tiptap/extension-character-count";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -7,7 +8,7 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { useNotesStore } from "../store";
 import { escapeHtml } from "../utils";
-import { useNoteListQuery, useNoteMutations } from "./useNoteResource";
+import { useNoteListQuery } from "./useNoteResource";
 
 /**
  * 検索・フィルタリングされたノート一覧と、それらに関連する状態を管理するHook
@@ -69,7 +70,7 @@ export function useNoteAutoSave({
   contentRef: React.MutableRefObject<string>;
   lastNoteIdRef: React.MutableRefObject<string | null>;
 }) {
-  const { updateNoteMutation } = useNoteMutations();
+  const updateNoteMutation = useUpdateNote();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: updateNoteMutation is excluded to prevent render loops
