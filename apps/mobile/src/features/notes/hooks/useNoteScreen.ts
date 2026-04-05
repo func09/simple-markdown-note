@@ -19,9 +19,18 @@ import {
   useNoteCheckbox,
   useNoteEditorState,
   useNoteFilter,
-  useNoteMetrics,
 } from "./useNoteLogic";
 import { useDrawerState, useTagPrompt } from "./useNoteState";
+
+// ---------------------------------------------------------------------------
+// Private: 算出関数
+// ---------------------------------------------------------------------------
+
+export function calcNoteMetrics(content: string) {
+  const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0;
+  const charCount = content.length;
+  return { wordCount, charCount };
+}
 
 // ---------------------------------------------------------------------------
 // Private: 自動保存の副作用を担うフック
@@ -280,7 +289,7 @@ export function useNoteEditorScreen() {
 
   // Logic
   const { toggleCheckboxInContent } = useNoteCheckbox();
-  const metrics = useNoteMetrics(content);
+  const metrics = useMemo(() => calcNoteMetrics(content), [content]);
 
   const handleGoBack = useCallback(() => router.back(), [router]);
   const executeDelete = useNoteDelete({

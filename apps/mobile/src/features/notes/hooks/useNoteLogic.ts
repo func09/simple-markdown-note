@@ -2,20 +2,6 @@ import type { Note } from "@simple-markdown-note/common/schemas";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 /**
- * ノートのコンテンツから単語数や文字数などの指標を計算する純粋なロジックフック。
- * UIやAPIに依存せず、高速にテスト可能です。
- */
-export function useNoteMetrics(content: string) {
-  const wordCount = useMemo(() => {
-    return content.trim() ? content.trim().split(/\s+/).length : 0;
-  }, [content]);
-
-  const charCount = useMemo(() => content.length, [content]);
-
-  return { wordCount, charCount };
-}
-
-/**
  * ノート一覧の検索文字列に基づいたフィルタリングを実行するロジックフック。
  */
 export function useNoteFilter(notes: Note[], searchQuery: string) {

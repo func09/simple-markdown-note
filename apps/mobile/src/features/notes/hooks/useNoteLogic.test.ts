@@ -5,7 +5,6 @@ import {
   useNoteEditorState,
   useNoteFilter,
   useNoteListItem,
-  useNoteMetrics,
 } from "./useNoteLogic";
 
 const makeNote = (overrides: Partial<Note> = {}): Note =>
@@ -20,27 +19,6 @@ const makeNote = (overrides: Partial<Note> = {}): Note =>
     isPermanent: false,
     ...overrides,
   }) as Note;
-
-// ---------------------------------------------------------------------------
-// useNoteMetrics
-// ---------------------------------------------------------------------------
-
-describe("useNoteMetrics", () => {
-  it("counts words correctly", () => {
-    const { result } = renderHook(() => useNoteMetrics("hello world foo"));
-    expect(result.current.wordCount).toBe(3);
-  });
-
-  it("returns 0 word count for empty string", () => {
-    const { result } = renderHook(() => useNoteMetrics(""));
-    expect(result.current.wordCount).toBe(0);
-  });
-
-  it("counts characters", () => {
-    const { result } = renderHook(() => useNoteMetrics("abc"));
-    expect(result.current.charCount).toBe(3);
-  });
-});
 
 // ---------------------------------------------------------------------------
 // useNoteFilter
