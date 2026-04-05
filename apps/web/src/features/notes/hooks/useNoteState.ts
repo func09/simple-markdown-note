@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNotesStore } from "../store";
 
 /**
@@ -50,5 +50,56 @@ export function useSidebarState(isDesktop: boolean) {
     isSidebarOpen,
     openSidebar,
     closeSidebar,
+  };
+}
+
+/**
+ * 情報ポップオーバーの表示状態を管理するHook
+ */
+export function useInfoPopoverState() {
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const infoRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (infoRef.current && !infoRef.current.contains(event.target as Node)) {
+        setIsInfoOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return {
+    isInfoOpen,
+    setIsInfoOpen,
+    infoRef,
+  };
+}
+
+/**
+ * オプションポップオーバーの表示状態を管理するHook
+ */
+export function useOptionsPopoverState() {
+  const [isOptionsOpen, setIsOptionsOpen] = useState(false);
+  const optionsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        optionsRef.current &&
+        !optionsRef.current.contains(event.target as Node)
+      ) {
+        setIsOptionsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return {
+    isOptionsOpen,
+    setIsOptionsOpen,
+    optionsRef,
   };
 }

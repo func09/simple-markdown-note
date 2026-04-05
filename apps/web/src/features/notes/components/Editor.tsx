@@ -14,10 +14,11 @@ import { useNavigate } from "react-router-dom";
 import remarkGfm from "remark-gfm";
 import { cn } from "@/lib/utils";
 import {
-  useEditorPopovers,
+  useInfoPopoverState,
   useNoteAutoSave,
   useNoteEditor,
   useNotesFilter,
+  useOptionsPopoverState,
 } from "../hooks";
 import { EditorHeader } from "./EditorHeader";
 import { EditorTagManager } from "./EditorTagManager";
@@ -105,14 +106,9 @@ export function Editor({ noteId, isMobile }: EditorProps) {
   };
 
   // 2. ポップオーバーの管理
-  const {
-    isInfoOpen,
-    setIsInfoOpen,
-    isOptionsOpen,
-    setIsOptionsOpen,
-    infoRef,
-    optionsRef,
-  } = useEditorPopovers();
+  const { isInfoOpen, setIsInfoOpen, infoRef } = useInfoPopoverState();
+  const { isOptionsOpen, setIsOptionsOpen, optionsRef } =
+    useOptionsPopoverState();
 
   // 3. オートセーブとエディタの管理 (Refを共有)
   const contentRef = useRef("");
