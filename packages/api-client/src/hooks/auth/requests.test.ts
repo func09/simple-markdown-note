@@ -17,6 +17,14 @@ const createApiMock = () => ({
       $delete: vi.fn(),
       $url: () => new URL("http://localhost/api/auth/logout"),
     },
+    "reset-password": {
+      $post: vi.fn(),
+      $url: () => new URL("http://localhost/api/auth/reset-password"),
+    },
+    "forgot-password": {
+      $post: vi.fn(),
+      $url: () => new URL("http://localhost/api/auth/forgot-password"),
+    },
   },
 });
 
@@ -139,6 +147,80 @@ describe("authRequests", () => {
       await expect(logout(apiMock as unknown as ApiClient)).rejects.toThrow(
         "Logout failed"
       );
+    });
+  });
+
+  describe("resetPassword", () => {
+    it("should succeed on ok response", async () => {
+      const mockResponse = {
+        ok: true,
+        url: "http://localhost/api/auth/reset-password",
+      };
+      apiMock.auth["reset-password"].$post.mockResolvedValue(mockResponse);
+
+      await expect(
+        import("./requests").then((m) =>
+          m.resetPassword(apiMock as unknown as ApiClient, {
+            token: "token",
+            password: "newpassword",
+            confirmPassword: "newpassword",
+          })
+        )
+      ).resolves.not.toThrow();
+    });
+
+    it("should throw error on failure", async () => {
+      const mockResponse = {
+        ok: false,
+        url: "http://localhost/api/auth/reset-password",
+        json: async () => ({ error: "Token invalid" }),
+      };
+      apiMock.auth["reset-password"].$post.mockResolvedValue(mockResponse);
+
+      await expect(
+        import("./requests").then((m) =>
+          m.resetPassword(apiMock as unknown as ApiClient, {
+            token: "token",
+            password: "newpassword",
+            confirmPassword: "newpassword",
+          })
+        )
+      ).rejects.toThrow("Token invalid");
+    });
+  });
+
+  describe("requestPasswordReset", () => {
+    it("should succeed on ok response", async () => {
+      const mockResponse = {
+        ok: true,
+        url: "http://localhost/api/auth/forgot-password",
+      };
+      apiMock.auth["forgot-password"].$post.mockResolvedValue(mockResponse);
+
+      await expect(
+        import("./requests").then((m) =>
+          m.requestPasswordReset(apiMock as unknown as ApiClient, {
+            email: "test@example.com",
+          })
+        )
+      ).resolves.not.toThrow();
+    });
+
+    it("should throw error on failure", async () => {
+      const mockResponse = {
+        ok: false,
+        url: "http://localhost/api/auth/forgot-password",
+        json: async () => ({ error: "Email not found" }),
+      };
+      apiMock.auth["forgot-password"].$post.mockResolvedValue(mockResponse);
+
+      await expect(
+        import("./requests").then((m) =>
+          m.requestPasswordReset(apiMock as unknown as ApiClient, {
+            email: "test@example.com",
+          })
+        )
+      ).rejects.toThrow("Email not found");
     });
   });
 });

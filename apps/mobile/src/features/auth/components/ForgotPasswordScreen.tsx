@@ -1,12 +1,13 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useLogin } from "@simple-markdown-note/api-client/hooks";
-import type { SigninRequest } from "@simple-markdown-note/common/schemas";
-import { SigninRequestSchema } from "@simple-markdown-note/common/schemas";
+import { useForgotPassword } from "@simple-markdown-note/api-client/hooks";
+import type { ForgotPasswordRequest } from "@simple-markdown-note/common/schemas";
+import { ForgotPasswordRequestSchema } from "@simple-markdown-note/common/schemas";
 import { Link, useRouter } from "expo-router";
-import { AlertCircle, Lock, LogIn, Mail } from "lucide-react-native";
+import { AlertCircle, ArrowLeft, Mail, ShieldCheck } from "lucide-react-native";
 import { Controller, useForm } from "react-hook-form";
 import {
   ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   Text,
@@ -15,45 +16,38 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useAuthStore } from "../store";
 
-/**
- * ログイン画面コンポーネント
- * ユーザーのメールアドレスとパスワードを受け取り、サインイン処理を行います。
- */
-export function LoginScreen() {
+export function ForgotPasswordScreen() {
   const router = useRouter();
-  const setAuth = useAuthStore((state) => state.setAuth);
   const insets = useSafeAreaInsets();
 
-  // ログイン処理のAPIミューテーション
   const {
-    mutate: loginMutate,
+    mutate: forgotPasswordMutate,
     isPending: isLoading,
     error: apiError,
-  } = useLogin({
-    onSuccess: (data) => {
-      setAuth(data.user, data.token);
-      router.replace("/(main)/notes");
+  } = useForgotPassword({
+    onSuccess: () => {
+      Alert.alert(
+        "Reset Link Sent",
+        "Check your email for a password reset link.",
+        [{ text: "OK", onPress: () => router.replace("/(auth)/login") }]
+      );
     },
   });
 
-  // フォームの状態管理（react-hook-form）とバリデーション設定
   const {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<SigninRequest>({
-    resolver: zodResolver(SigninRequestSchema),
+  } = useForm<ForgotPasswordRequest>({
+    resolver: zodResolver(ForgotPasswordRequestSchema),
     defaultValues: {
       email: "",
-      password: "",
     },
   });
 
-  // フォーム送信ハンドラ
-  const onSubmit = (data: SigninRequest) => {
-    loginMutate(data);
+  const onSubmit = (data: ForgotPasswordRequest) => {
+    forgotPasswordMutate(data);
   };
 
   return (
@@ -68,13 +62,13 @@ export function LoginScreen() {
         <View className="flex-1 px-8 justify-center">
           <View className="items-center mb-10">
             <View className="w-16 h-16 bg-slate-100 items-center justify-center rounded-2xl mb-4">
-              <LogIn size={32} color="#0f172a" />
+              <ShieldCheck size={32} color="#0f172a" />
             </View>
             <Text className="text-3xl font-bold text-slate-900">
-              Welcome Back
+              Forgot Password
             </Text>
-            <Text className="text-slate-500 mt-2">
-              Please log in to your account
+            <Text className="text-slate-500 mt-2 text-center">
+              Enter your email to receive a reset link
             </Text>
           </View>
 
@@ -85,7 +79,7 @@ export function LoginScreen() {
                 <Text className="text-red-600 ml-2 flex-1 text-sm">
                   {apiError instanceof Error
                     ? apiError.message
-                    : "Login failed"}
+                    : "Failed to send reset link"}
                 </Text>
               </View>
             )}
@@ -125,49 +119,6 @@ export function LoginScreen() {
               )}
             />
 
-            <Controller
-              control={control}
-              name="password"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <View>
-                  <View className="flex-row justify-between items-center mb-1 pr-1">
-                    <Text className="text-sm font-medium text-slate-700 ml-1">
-                      Password
-                    </Text>
-                    <Link href="/(auth)/forgot-password" asChild>
-                      <TouchableOpacity>
-                        <Text className="text-xs font-semibold text-slate-500">
-                          Forgot Password?
-                        </Text>
-                      </TouchableOpacity>
-                    </Link>
-                  </View>
-                  <View
-                    className={`flex-row items-center bg-slate-100 rounded-xl px-4 h-12 border ${
-                      errors.password ? "border-red-500" : "border-transparent"
-                    }`}
-                  >
-                    <Lock size={18} color="#94a3b8" />
-                    <TextInput
-                      placeholder="••••••••"
-                      placeholderTextColor="#94a3b8"
-                      className="flex-1 ml-3 text-slate-900"
-                      onBlur={onBlur}
-                      onChangeText={onChange}
-                      value={value}
-                      secureTextEntry
-                      editable={!isLoading}
-                    />
-                  </View>
-                  {errors.password && (
-                    <Text className="text-red-500 text-xs mt-1 ml-1">
-                      {errors.password.message}
-                    </Text>
-                  )}
-                </View>
-              )}
-            />
-
             <TouchableOpacity
               onPress={handleSubmit(onSubmit)}
               disabled={isLoading}
@@ -178,17 +129,22 @@ export function LoginScreen() {
               {isLoading ? (
                 <ActivityIndicator color="white" />
               ) : (
-                <Text className="text-white font-bold text-lg">Log In</Text>
+                <Text className="text-white font-bold text-lg">
+                  Send Reset Link
+                </Text>
               )}
             </TouchableOpacity>
           </View>
 
-          <View className="mt-8 flex-row justify-center">
-            <Text className="text-slate-500">Don't have an account? </Text>
-            <Link href="/(auth)/signup" asChild>
-              <TouchableOpacity disabled={isLoading}>
-                <Text className="text-slate-900 font-semibold underline">
-                  Sign Up
+          <View className="mt-8 flex-row justify-center items-center">
+            <Link href="/(auth)/login" asChild>
+              <TouchableOpacity
+                disabled={isLoading}
+                className="flex-row items-center"
+              >
+                <ArrowLeft size={16} color="#0f172a" />
+                <Text className="text-slate-900 font-semibold ml-1">
+                  Back to Login
                 </Text>
               </TouchableOpacity>
             </Link>

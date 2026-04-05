@@ -5,7 +5,13 @@ import type React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ApiClient } from "@/client";
 import { ApiProvider } from "@/context";
-import { useLogin, useLogout, useSignup } from "./hooks";
+import {
+  useForgotPassword,
+  useLogin,
+  useLogout,
+  useResetPassword,
+  useSignup,
+} from "./hooks";
 import * as authRequests from "./requests";
 
 vi.mock("./requests");
@@ -83,6 +89,44 @@ describe("authQueries", () => {
 
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
       expect(authRequests.logout).toHaveBeenCalled();
+      expect(onSuccess).toHaveBeenCalled();
+    });
+  });
+
+  describe("useResetPassword", () => {
+    it("should call resetPassword and onSuccess", async () => {
+      const onSuccess = vi.fn();
+      vi.mocked(authRequests.resetPassword).mockResolvedValue(undefined);
+
+      const { result } = renderHook(() => useResetPassword({ onSuccess }), {
+        wrapper: createWrapper(),
+      });
+
+      result.current.mutate({
+        token: "t",
+        password: "p",
+        confirmPassword: "p",
+      });
+
+      await waitFor(() => expect(result.current.isSuccess).toBe(true));
+      expect(authRequests.resetPassword).toHaveBeenCalled();
+      expect(onSuccess).toHaveBeenCalled();
+    });
+  });
+
+  describe("useForgotPassword", () => {
+    it("should call requestPasswordReset and onSuccess", async () => {
+      const onSuccess = vi.fn();
+      vi.mocked(authRequests.requestPasswordReset).mockResolvedValue(undefined);
+
+      const { result } = renderHook(() => useForgotPassword({ onSuccess }), {
+        wrapper: createWrapper(),
+      });
+
+      result.current.mutate({ email: "t@e.com" });
+
+      await waitFor(() => expect(result.current.isSuccess).toBe(true));
+      expect(authRequests.requestPasswordReset).toHaveBeenCalled();
       expect(onSuccess).toHaveBeenCalled();
     });
   });
