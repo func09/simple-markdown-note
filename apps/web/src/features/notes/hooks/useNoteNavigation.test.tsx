@@ -12,7 +12,6 @@ import {
 } from "vitest";
 import { useNotesStore } from "../store";
 import {
-  useCreateNoteAction,
   useDeleteNoteAction,
   useNotesNavigationSync,
   useNotesQueryString,
@@ -31,7 +30,6 @@ vi.mock("react-router-dom", () => ({
 vi.mock("@simple-markdown-note/api-client/hooks", () => ({
   useNotes: vi.fn(),
   useNote: vi.fn(),
-  useCreateNote: vi.fn(),
   useUpdateNote: vi.fn(),
   useDeleteNote: vi.fn(),
   useRestoreNote: vi.fn(),
@@ -51,10 +49,6 @@ beforeEach(() => {
     data: null,
     isLoading: false,
   } as unknown as ReturnType<typeof apiClientHooks.useNote>);
-  mockedHooks.useCreateNote.mockReturnValue({
-    mutateAsync: vi.fn(),
-    isPending: false,
-  } as unknown as ReturnType<typeof apiClientHooks.useCreateNote>);
   mockedHooks.useUpdateNote.mockReturnValue({
     mutate: vi.fn(),
   } as unknown as ReturnType<typeof apiClientHooks.useUpdateNote>);
@@ -144,26 +138,6 @@ describe("useNotesNavigationSync", () => {
     renderHook(() => useNotesNavigationSync("note-123"));
 
     expect(useNotesStore.getState().selectedNoteId).toBe("note-123");
-  });
-});
-
-describe("useCreateNoteAction", () => {
-  it("should create a note and navigate to it", async () => {
-    const mockCreatedNote = { id: "new-1" };
-    const mutateAsync = vi.fn().mockResolvedValue(mockCreatedNote);
-    mockedHooks.useCreateNote.mockReturnValue({
-      mutateAsync,
-      isPending: false,
-    } as unknown as ReturnType<typeof apiClientHooks.useCreateNote>);
-
-    const { result } = renderHook(() => useCreateNoteAction());
-
-    await act(async () => {
-      await result.current.handleAddNote();
-    });
-
-    expect(mutateAsync).toHaveBeenCalled();
-    expect(mockNavigate).toHaveBeenCalledWith(expect.stringContaining("new-1"));
   });
 });
 

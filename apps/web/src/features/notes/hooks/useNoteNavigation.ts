@@ -1,5 +1,4 @@
 import {
-  useCreateNote,
   useDeleteNote,
   usePermanentDelete,
   useRestoreNote,
@@ -55,36 +54,6 @@ export function useNotesNavigationSync(propSelectedNoteId?: string) {
       setSelectedNoteId(targetId);
     }
   }, [propSelectedNoteId, setSelectedNoteId]);
-}
-
-/**
- * ノート新規作成アクションを管理するHook
- */
-export function useCreateNoteAction() {
-  const navigate = useNavigate();
-  const createNoteMutation = useCreateNote();
-  const setSelectedNoteId = useNotesStore((s) => s.setSelectedNoteId);
-  const tag = useNotesStore((s) => s.filterTag);
-  const queryString = useNotesQueryString();
-
-  const handleAddNote = useCallback(async () => {
-    try {
-      const result = await createNoteMutation.mutateAsync({
-        content: "",
-        isPermanent: false,
-        tags: tag ? [tag] : [],
-      });
-      setSelectedNoteId(result.id);
-      navigate(`/notes/${result.id}${queryString}`);
-    } catch (error) {
-      console.error("Failed to create note:", error);
-    }
-  }, [createNoteMutation, setSelectedNoteId, navigate, queryString, tag]);
-
-  return {
-    handleAddNote,
-    isCreating: createNoteMutation.isPending,
-  };
 }
 
 /**
