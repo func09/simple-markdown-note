@@ -50,16 +50,18 @@ export function useNoteDrawerActions(onClose: () => void) {
 }
 
 /**
- * ノート機能のミューテーション（作成・更新・削除など）をまとめるヘルパーフック
+ * データ取得、状態管理、自動保存などノート編集におけるドメインロジックを統合するフック。
  */
-export function useNoteMutations() {
+export function useNoteEditor(id: string, isNew: boolean) {
+  const router = useRouter();
+  const { data: note, isLoading } = useNote(isNew ? null : id);
   const createNoteMutation = useCreateNote();
   const updateNoteMutation = useUpdateNote();
   const deleteNoteMutation = useDeleteNote();
   const restoreNoteMutation = useRestoreNote();
   const permanentDeleteMutation = usePermanentDelete();
 
-  return useMemo(
+  const mutations = useMemo(
     () => ({
       createNote: createNoteMutation.mutateAsync,
       updateNote: updateNoteMutation.mutate,
@@ -75,15 +77,6 @@ export function useNoteMutations() {
       permanentDeleteMutation.mutateAsync,
     ]
   );
-}
-
-/**
- * データ取得、状態管理、自動保存などノート編集におけるドメインロジックを統合するフック。
- */
-export function useNoteEditor(id: string, isNew: boolean) {
-  const router = useRouter();
-  const { data: note, isLoading } = useNote(isNew ? null : id);
-  const mutations = useNoteMutations();
   const state = useNoteEditorState(note, isNew);
   const metrics = useMemo(
     () => calcNoteMetrics(state.content),
