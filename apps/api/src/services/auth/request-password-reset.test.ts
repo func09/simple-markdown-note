@@ -1,4 +1,3 @@
-import type { AppEnv } from "@simple-markdown-note/api/types";
 import {
   createPasswordResetRepository,
   createUserRepository,
@@ -13,6 +12,7 @@ import {
   it,
   vi,
 } from "vitest";
+import type { AppEnv } from "@/types";
 import { requestPasswordReset } from "./request-password-reset";
 
 vi.mock("@simple-markdown-note/database", () => ({
