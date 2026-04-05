@@ -96,6 +96,7 @@ export const notesToTags = sqliteTable(
 export const usersRelations = relations(users, ({ many }) => ({
   notes: many(notes),
   tags: many(tags),
+  passwordResets: many(passwordResets),
 }));
 
 export const notesRelations = relations(notes, ({ one, many }) => ({
@@ -122,5 +123,30 @@ export const notesToTagsRelations = relations(notesToTags, ({ one }) => ({
   tag: one(tags, {
     fields: [notesToTags.tagId],
     references: [tags.id],
+  }),
+}));
+
+// パスワードリセット情報を管理するテーブル
+export const passwordResets = sqliteTable("password_resets", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => createId()),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  tokenHash: text("token_hash").notNull().unique(), // token (ハッシュ化推奨)
+  expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+});
+
+export type PasswordReset = typeof passwordResets.$inferSelect;
+export type NewPasswordReset = typeof passwordResets.$inferInsert;
+
+export const passwordResetsRelations = relations(passwordResets, ({ one }) => ({
+  user: one(users, {
+    fields: [passwordResets.userId],
+    references: [users.id],
   }),
 }));
