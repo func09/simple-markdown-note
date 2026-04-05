@@ -101,7 +101,14 @@ export function Sidebar({ onClose }: SidebarProps) {
           <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center text-white">
             S
           </div>
-          Simple Markdown Note
+          <div className="flex flex-col">
+            <span>Simple Markdown Note</span>
+            {import.meta.env.VITE_APP_VERSION && (
+              <span className="text-[10px] font-normal text-slate-400 mt-0.5">
+                v{import.meta.env.VITE_APP_VERSION}
+              </span>
+            )}
+          </div>
         </h1>
       </div>
 

@@ -1,0 +1,71 @@
+name: Desktop Release
+
+on:
+  push:
+    tags:
+      - '20*' # 日付ベースのタグ (例: 2026.04.05)
+
+permissions:
+  contents: write # リリースの作成と成果物のアップロードに必要
+
+jobs:
+  build-and-release:
+    runs-on: macos-latest # macOS/arm64 ビルドのために Mac ランナーを使用
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install pnpm
+        run: npm install -g pnpm@10
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Web App and Desktop App
+        env:
+          VITE_ELECTRON: true
+          VITE_APP_VERSION: ${{ github.ref_name }} # タグ名をバージョンとして注入
+          # 署名をスキップ
+          CSC_SKIP_SIGNING: true
+        working-directory: apps/desktop
+        run: |
+          # Webアプリのビルド (VITE_APP_VERSIONを環境変数から引き継ぐ)
+          pnpm -F web build
+          
+          # Desktop Mainプロセスのビルド
+          pnpm run build
+          
+          # Electron Builderによるパッケージング
+          # -c.extraMetadata.version でバージョンをタグ名に上書き
+          pnpm exec electron-builder build --mac --arm64 -c.extraMetadata.version=${{ github.ref_name }}
+
+      - name: Create Release and Upload Artifact
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            apps/desktop/dist_electron/*.dmg
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
