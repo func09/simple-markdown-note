@@ -1,0 +1,35 @@
+import { vi } from "vitest";
+
+export const createApiMock = () => ({
+  auth: {
+    signin: {
+      $post: vi.fn(),
+      $url: () => new URL("http://localhost/api/auth/signin"),
+    },
+    signup: {
+      $post: vi.fn(),
+      $url: () => new URL("http://localhost/api/auth/signup"),
+    },
+    me: { $get: vi.fn(), $url: () => new URL("http://localhost/api/auth/me") },
+    logout: {
+      $delete: vi.fn(),
+      $url: () => new URL("http://localhost/api/auth/logout"),
+    },
+    "reset-password": {
+      $post: vi.fn(),
+      $url: () => new URL("http://localhost/api/auth/reset-password"),
+    },
+    "forgot-password": {
+      $post: vi.fn(),
+      $url: () => new URL("http://localhost/api/auth/forgot-password"),
+    },
+    "verify-email": {
+      $get: vi.fn(),
+      $url: () => new URL("http://localhost/api/auth/verify-email"),
+    },
+    "resend-verification": {
+      $post: vi.fn(),
+      $url: () => new URL("http://localhost/api/auth/resend-verification"),
+    },
+  },
+});
