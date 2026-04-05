@@ -2,8 +2,9 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback } from "react";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { NAVIGATION_DELAY } from "../constants";
 import { useKeyboardObserver, useNoteEditor, useTagPrompt } from "../hooks";
-import { executeNoteDelete, toggleCheckboxInContent } from "../utils";
+import { toggleCheckboxInContent } from "../utils";
 import { NoteEditor } from "./NoteEditor";
 import { NoteInfoSheet } from "./NoteInfoSheet";
 import { NoteToolbar } from "./NoteToolbar";
@@ -57,17 +58,25 @@ export function NoteDetailScreen() {
   );
 
   // ゴミ箱への移動、または復元
-  const handleTrashAction = useCallback(() => {
+  const handleTrashAction = useCallback(async () => {
     const activeId = currentNoteId.current;
     if (!activeId) return;
     const action = note?.deletedAt
       ? () => mutations.restoreNote(activeId)
       : () => mutations.deleteNote(activeId);
-    return executeNoteDelete(
-      action,
-      note?.deletedAt ? "restore note" : "trash note",
-      { setIsDeleting, infoSheetRef: uiLayout.infoSheetRef, handleGoBack }
-    );
+
+    setIsDeleting(true);
+    try {
+      await action();
+      uiLayout.infoSheetRef.current?.dismiss();
+      setTimeout(handleGoBack, NAVIGATION_DELAY);
+    } catch (error) {
+      setIsDeleting(false);
+      console.error(
+        `Failed to ${note?.deletedAt ? "restore note" : "trash note"}:`,
+        error
+      );
+    }
   }, [
     currentNoteId,
     note,
@@ -78,14 +87,19 @@ export function NoteDetailScreen() {
   ]);
 
   // 完全に削除
-  const handlePermanentDelete = useCallback(() => {
+  const handlePermanentDelete = useCallback(async () => {
     const activeId = currentNoteId.current;
     if (!activeId) return;
-    return executeNoteDelete(
-      () => mutations.permanentDelete(activeId),
-      "permanently delete note",
-      { setIsDeleting, infoSheetRef: uiLayout.infoSheetRef, handleGoBack }
-    );
+
+    setIsDeleting(true);
+    try {
+      await mutations.permanentDelete(activeId);
+      uiLayout.infoSheetRef.current?.dismiss();
+      setTimeout(handleGoBack, NAVIGATION_DELAY);
+    } catch (error) {
+      setIsDeleting(false);
+      console.error("Failed to permanently delete note:", error);
+    }
   }, [
     currentNoteId,
     mutations,
