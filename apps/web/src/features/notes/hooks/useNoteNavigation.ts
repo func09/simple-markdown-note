@@ -1,8 +1,15 @@
+import {
+  useCreateNote,
+  useDeleteNote,
+  usePermanentDelete,
+  useRestoreNote,
+  useUpdateNote,
+} from "@simple-markdown-note/api-client/hooks";
 import type { NoteScope } from "@simple-markdown-note/common/types";
 import { useCallback, useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useNotesStore } from "../store";
-import { useNoteDetailQuery, useNoteMutations } from "./useNoteResource";
+import { useNoteDetailQuery } from "./useNoteResource";
 
 /**
  * URLパラメータとPropsの状態をNotesストアに同期するHook
@@ -40,7 +47,7 @@ export function useNotesNavigationSync(propSelectedNoteId?: string) {
  */
 export function useCreateNoteAction() {
   const navigate = useNavigate();
-  const { createNoteMutation } = useNoteMutations();
+  const createNoteMutation = useCreateNote();
   const setSelectedNoteId = useNotesStore((s) => s.setSelectedNoteId);
   const scope = useNotesStore((s) => s.filterScope);
   const tag = useNotesStore((s) => s.filterTag);
@@ -82,12 +89,10 @@ export function useNoteActions(noteId?: string) {
   const tag = useNotesStore((s) => s.filterTag);
 
   const { note, isLoading } = useNoteDetailQuery(noteId ?? null);
-  const {
-    updateNoteMutation,
-    deleteNoteMutation,
-    restoreNoteMutation,
-    permanentDeleteMutation,
-  } = useNoteMutations();
+  const updateNoteMutation = useUpdateNote();
+  const deleteNoteMutation = useDeleteNote();
+  const restoreNoteMutation = useRestoreNote();
+  const permanentDeleteMutation = usePermanentDelete();
 
   const queryString = useMemo(() => {
     const params = new URLSearchParams();
