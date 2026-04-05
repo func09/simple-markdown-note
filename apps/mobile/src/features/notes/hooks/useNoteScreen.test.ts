@@ -2,10 +2,8 @@ import {
   useCreateNote,
   useDeleteNote,
   useNote,
-  useNotes,
   usePermanentDelete,
   useRestoreNote,
-  useTags,
   useUpdateNote,
 } from "@simple-markdown-note/api-client/hooks";
 import type { Note } from "@simple-markdown-note/common/schemas";
@@ -16,11 +14,7 @@ import {
   filterNotes,
   toggleCheckboxInContent,
 } from "../utils";
-import {
-  useNoteDrawerScreen,
-  useNoteEditorScreen,
-  useNoteListScreen,
-} from "./useNoteScreen";
+import { useNoteDrawerScreen, useNoteEditorScreen } from "./useNoteScreen";
 
 // ---------------------------------------------------------------------------
 // Mocks
@@ -84,84 +78,6 @@ const mockMutations = {
   restoreNote: jest.fn(),
   permanentDelete: jest.fn(),
 };
-
-// ---------------------------------------------------------------------------
-// useNoteListScreen
-// ---------------------------------------------------------------------------
-
-describe("useNoteListScreen", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    (useRouter as jest.Mock).mockReturnValue(mockRouter);
-    (useLocalSearchParams as jest.Mock).mockReturnValue({ scope: "all" });
-    (useNotes as jest.Mock).mockReturnValue({
-      data: [mockNote],
-      isLoading: false,
-      refetch: jest.fn(),
-    });
-    (useTags as jest.Mock).mockReturnValue({
-      data: [{ name: "tag1" }],
-    });
-  });
-
-  it("returns notes from resource layer", () => {
-    const { result } = renderHook(() => useNoteListScreen());
-    expect(result.current.notes).toHaveLength(1);
-  });
-
-  it("filters notes by searchQuery", () => {
-    (useNotes as jest.Mock).mockReturnValue({
-      data: [
-        { ...mockNote, content: "hello world" },
-        { ...mockNote, id: "2", content: "goodbye" },
-      ],
-      isLoading: false,
-      refetch: jest.fn(),
-    });
-    (useTags as jest.Mock).mockReturnValue({ data: [] });
-    const { result } = renderHook(() => useNoteListScreen());
-    act(() => {
-      result.current.setSearchQuery("hello");
-    });
-    expect(result.current.notes).toHaveLength(1);
-  });
-
-  it("handleNewNote navigates to new note screen", () => {
-    const { result } = renderHook(() => useNoteListScreen());
-    act(() => {
-      result.current.handleNewNote();
-    });
-    expect(mockRouter.push).toHaveBeenCalledWith("/(main)/notes/new");
-  });
-
-  it("handleSelectNote navigates to the note's screen", () => {
-    const { result } = renderHook(() => useNoteListScreen());
-    act(() => {
-      result.current.handleSelectNote("note-1");
-    });
-    expect(mockRouter.push).toHaveBeenCalledWith("/(main)/notes/note-1");
-  });
-
-  it("getHeaderTitle returns 'All Notes' for default scope", () => {
-    const { result } = renderHook(() => useNoteListScreen());
-    expect(result.current.getHeaderTitle()).toBe("All Notes");
-  });
-
-  it("getHeaderTitle returns 'Trash' for trash scope", () => {
-    (useLocalSearchParams as jest.Mock).mockReturnValue({ scope: "trash" });
-    const { result } = renderHook(() => useNoteListScreen());
-    expect(result.current.getHeaderTitle()).toBe("Trash");
-  });
-
-  it("getHeaderTitle returns tag name when tag is active", () => {
-    (useLocalSearchParams as jest.Mock).mockReturnValue({
-      scope: "all",
-      tag: "work",
-    });
-    const { result } = renderHook(() => useNoteListScreen());
-    expect(result.current.getHeaderTitle()).toBe("work");
-  });
-});
 
 // ---------------------------------------------------------------------------
 // useNoteEditorScreen

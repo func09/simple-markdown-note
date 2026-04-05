@@ -3,30 +3,21 @@ import {
   useDeleteNote,
   useLogout,
   useNote,
-  useNotes,
   usePermanentDelete,
   useRestoreNote,
-  useTags,
   useUpdateNote,
 } from "@simple-markdown-note/api-client/hooks";
-import type { Note } from "@simple-markdown-note/common/schemas";
-import { NOTE_SCOPE, type NoteScope } from "@simple-markdown-note/common/types";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useAuthStore } from "../../auth/store";
 import { AUTO_SAVE_DELAY } from "../constants";
 import {
   calcNoteMetrics,
   executeNoteDelete,
-  filterNotes,
   toggleCheckboxInContent,
 } from "../utils";
 import { useKeyboardObserver } from "./useNoteEffect";
-import {
-  useDrawerState,
-  useNoteEditorState,
-  useTagPrompt,
-} from "./useNoteState";
+import { useNoteEditorState, useTagPrompt } from "./useNoteState";
 
 // ---------------------------------------------------------------------------
 // Private: 自動保存の副作用を担うフック
@@ -107,85 +98,6 @@ function useNoteAutoSave({
 // ---------------------------------------------------------------------------
 // Public hooks
 // ---------------------------------------------------------------------------
-
-/**
- * ノート一覧画面の全体を統合するフック。
- */
-export function useNoteListScreen() {
-  const router = useRouter();
-  const { scope = NOTE_SCOPE.ALL, tag } = useLocalSearchParams<{
-    scope?: string;
-    tag?: string;
-  }>();
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const {
-    data: notes = [],
-    isLoading: isNotesLoading,
-    refetch: refetchNotes,
-  } = useNotes({ scope: scope as NoteScope, tag });
-
-  const { data: apiTags = [] } = useTags();
-  const tags = apiTags.map((t) => t.name);
-
-  const filteredNotes = useMemo(
-    () => filterNotes(notes as unknown as Note[], searchQuery),
-    [notes, searchQuery]
-  );
-
-  const { isDrawerOpen, slideAnim, toggleDrawer } = useDrawerState();
-
-  const getHeaderTitle = () => {
-    if (tag) return tag;
-    if (scope === NOTE_SCOPE.TRASH) return "Trash";
-    if (scope === NOTE_SCOPE.UNTAGGED) return "Untagged";
-    return "All Notes";
-  };
-
-  const handleSelectScope = useCallback(
-    (newScope: string) => {
-      toggleDrawer(false);
-      router.setParams({ scope: newScope, tag: undefined });
-    },
-    [toggleDrawer, router]
-  );
-
-  const handleSelectTag = useCallback(
-    (newTag: string) => {
-      toggleDrawer(false);
-      router.setParams({ tag: newTag, scope: undefined });
-    },
-    [toggleDrawer, router]
-  );
-
-  const handleNewNote = useCallback(
-    () => router.push("/(main)/notes/new"),
-    [router]
-  );
-  const handleSelectNote = useCallback(
-    (id: string) => router.push(`/(main)/notes/${id}`),
-    [router]
-  );
-
-  return {
-    notes: filteredNotes,
-    isNotesLoading,
-    refetchNotes,
-    tags,
-    searchQuery,
-    setSearchQuery,
-    isDrawerOpen,
-    toggleDrawer,
-    slideAnim,
-    scope,
-    tag,
-    getHeaderTitle,
-    handleSelectScope,
-    handleSelectTag,
-    handleNewNote,
-    handleSelectNote,
-  };
-}
 
 /**
  * ノート編集画面を統合するフック。
