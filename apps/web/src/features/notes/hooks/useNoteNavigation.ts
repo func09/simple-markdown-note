@@ -1,12 +1,6 @@
-import {
-  useDeleteNote,
-  usePermanentDelete,
-  useRestoreNote,
-  useUpdateNote,
-} from "@simple-markdown-note/api-client/hooks";
 import type { NoteScope } from "@simple-markdown-note/common/types";
-import { useCallback, useEffect, useMemo } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useEffect, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useNotesStore } from "../store";
 
 /**
@@ -54,85 +48,4 @@ export function useNotesNavigationSync(propSelectedNoteId?: string) {
       setSelectedNoteId(targetId);
     }
   }, [propSelectedNoteId, setSelectedNoteId]);
-}
-
-/**
- * ノート削除アクションを管理するHook
- */
-export function useDeleteNoteAction(noteId?: string) {
-  const navigate = useNavigate();
-  const deleteNoteMutation = useDeleteNote();
-  const queryString = useNotesQueryString();
-
-  const handleDelete = useCallback(async () => {
-    if (!noteId) return;
-    await deleteNoteMutation.mutateAsync(noteId);
-    navigate(`/notes${queryString}`);
-  }, [noteId, deleteNoteMutation, navigate, queryString]);
-
-  return { handleDelete };
-}
-
-/**
- * ノート復元アクションを管理するHook
- */
-export function useRestoreNoteAction(noteId?: string) {
-  const navigate = useNavigate();
-  const restoreNoteMutation = useRestoreNote();
-  const queryString = useNotesQueryString();
-
-  const handleRestore = useCallback(async () => {
-    if (!noteId) return;
-    await restoreNoteMutation.mutateAsync(noteId);
-    navigate(`/notes/${noteId}${queryString}`);
-  }, [noteId, restoreNoteMutation, navigate, queryString]);
-
-  return { handleRestore };
-}
-
-/**
- * ノートタグ更新アクションを管理するHook
- */
-export function useUpdateTagsAction(noteId?: string) {
-  const updateNoteMutation = useUpdateNote();
-
-  const handleUpdateTags = useCallback(
-    (newTags: string[]) => {
-      if (!noteId) return;
-      updateNoteMutation.mutate({
-        id: noteId,
-        data: { tags: newTags },
-      });
-    },
-    [noteId, updateNoteMutation]
-  );
-
-  return { handleUpdateTags };
-}
-
-/**
- * ノート完全削除アクションを管理するHook
- */
-export function usePermanentDeleteAction(
-  noteId?: string,
-  options?: {
-    onDeleteStart?: () => void;
-  }
-) {
-  const navigate = useNavigate();
-  const permanentDeleteMutation = usePermanentDelete();
-
-  const handlePermanentDelete = useCallback(async () => {
-    if (!noteId) return;
-    if (confirm("Are you sure you want to delete this note permanently?")) {
-      options?.onDeleteStart?.();
-      await permanentDeleteMutation.mutateAsync(noteId, {
-        onSuccess: () => {
-          navigate("/notes?scope=trash");
-        },
-      });
-    }
-  }, [noteId, permanentDeleteMutation, navigate, options?.onDeleteStart]);
-
-  return { handlePermanentDelete };
 }

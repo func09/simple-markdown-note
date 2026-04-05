@@ -1,24 +1,9 @@
 import * as apiClientHooks from "@simple-markdown-note/api-client/hooks";
 import { act, renderHook } from "@testing-library/react";
 import { useSearchParams } from "react-router-dom";
-import {
-  afterAll,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useNotesStore } from "../store";
-import {
-  useDeleteNoteAction,
-  useNotesNavigationSync,
-  useNotesQueryString,
-  usePermanentDeleteAction,
-  useRestoreNoteAction,
-  useUpdateTagsAction,
-} from "./index";
+import { useNotesNavigationSync, useNotesQueryString } from "./index";
 
 // Mock dependencies
 const mockNavigate = vi.fn();
@@ -30,10 +15,6 @@ vi.mock("react-router-dom", () => ({
 vi.mock("@simple-markdown-note/api-client/hooks", () => ({
   useNotes: vi.fn(),
   useNote: vi.fn(),
-  useUpdateNote: vi.fn(),
-  useDeleteNote: vi.fn(),
-  useRestoreNote: vi.fn(),
-  usePermanentDelete: vi.fn(),
 }));
 
 const mockedHooks = vi.mocked(apiClientHooks);
@@ -49,18 +30,6 @@ beforeEach(() => {
     data: null,
     isLoading: false,
   } as unknown as ReturnType<typeof apiClientHooks.useNote>);
-  mockedHooks.useUpdateNote.mockReturnValue({
-    mutate: vi.fn(),
-  } as unknown as ReturnType<typeof apiClientHooks.useUpdateNote>);
-  mockedHooks.useDeleteNote.mockReturnValue({
-    mutateAsync: vi.fn(),
-  } as unknown as ReturnType<typeof apiClientHooks.useDeleteNote>);
-  mockedHooks.useRestoreNote.mockReturnValue({
-    mutateAsync: vi.fn(),
-  } as unknown as ReturnType<typeof apiClientHooks.useRestoreNote>);
-  mockedHooks.usePermanentDelete.mockReturnValue({
-    mutateAsync: vi.fn(),
-  } as unknown as ReturnType<typeof apiClientHooks.usePermanentDelete>);
 
   mockedUseSearchParams.mockReturnValue([
     new URLSearchParams(),
@@ -138,126 +107,5 @@ describe("useNotesNavigationSync", () => {
     renderHook(() => useNotesNavigationSync("note-123"));
 
     expect(useNotesStore.getState().selectedNoteId).toBe("note-123");
-  });
-});
-
-describe("useDeleteNoteAction", () => {
-  it("should handle delete and navigate", async () => {
-    const mutateAsync = vi.fn().mockResolvedValue({});
-    mockedHooks.useDeleteNote.mockReturnValue({
-      mutateAsync,
-    } as unknown as ReturnType<typeof apiClientHooks.useDeleteNote>);
-
-    const { result } = renderHook(() => useDeleteNoteAction("1"));
-
-    await act(async () => {
-      await result.current.handleDelete();
-    });
-
-    expect(mutateAsync).toHaveBeenCalledWith("1");
-    expect(mockNavigate).toHaveBeenCalled();
-  });
-});
-
-describe("useRestoreNoteAction", () => {
-  it("should handle restore and navigate", async () => {
-    const mutateAsync = vi.fn().mockResolvedValue({});
-    mockedHooks.useRestoreNote.mockReturnValue({
-      mutateAsync,
-    } as unknown as ReturnType<typeof apiClientHooks.useRestoreNote>);
-
-    const { result } = renderHook(() => useRestoreNoteAction("1"));
-
-    await act(async () => {
-      await result.current.handleRestore();
-    });
-
-    expect(mutateAsync).toHaveBeenCalledWith("1");
-    expect(mockNavigate).toHaveBeenCalled();
-  });
-});
-
-describe("useUpdateTagsAction", () => {
-  it("should handle tag updates", () => {
-    const mutate = vi.fn();
-    mockedHooks.useUpdateNote.mockReturnValue({
-      mutate,
-    } as unknown as ReturnType<typeof apiClientHooks.useUpdateNote>);
-
-    const { result } = renderHook(() => useUpdateTagsAction("1"));
-
-    act(() => {
-      result.current.handleUpdateTags(["tag1", "tag2"]);
-    });
-
-    expect(mutate).toHaveBeenCalledWith({
-      id: "1",
-      data: { tags: ["tag1", "tag2"] },
-    });
-  });
-});
-
-describe("usePermanentDeleteAction", () => {
-  const originalConfirm = window.confirm;
-
-  beforeAll(() => {
-    window.confirm = vi.fn();
-  });
-
-  afterAll(() => {
-    window.confirm = originalConfirm;
-  });
-
-  beforeEach(() => {
-    vi.mocked(window.confirm).mockClear();
-  });
-
-  it("should not delete if user cancels confirm", async () => {
-    vi.mocked(window.confirm).mockReturnValue(false);
-    const mutateAsync = vi.fn();
-    mockedHooks.usePermanentDelete.mockReturnValue({
-      mutateAsync,
-    } as unknown as ReturnType<typeof apiClientHooks.usePermanentDelete>);
-
-    const onDeleteStart = vi.fn();
-    const { result } = renderHook(() =>
-      usePermanentDeleteAction("1", { onDeleteStart })
-    );
-
-    await act(async () => {
-      await result.current.handlePermanentDelete();
-    });
-
-    expect(onDeleteStart).not.toHaveBeenCalled();
-    expect(mutateAsync).not.toHaveBeenCalled();
-  });
-
-  it("should handle permanent delete and navigate if user confirms", async () => {
-    vi.mocked(window.confirm).mockReturnValue(true);
-    const mutateAsync = vi.fn().mockImplementation((_id, options) => {
-      if (options?.onSuccess) {
-        options.onSuccess();
-      }
-      return Promise.resolve();
-    });
-    mockedHooks.usePermanentDelete.mockReturnValue({
-      mutateAsync,
-    } as unknown as ReturnType<typeof apiClientHooks.usePermanentDelete>);
-
-    const onDeleteStart = vi.fn();
-    const { result } = renderHook(() =>
-      usePermanentDeleteAction("1", { onDeleteStart })
-    );
-
-    await act(async () => {
-      await result.current.handlePermanentDelete();
-    });
-
-    expect(window.confirm).toHaveBeenCalledWith(
-      "Are you sure you want to delete this note permanently?"
-    );
-    expect(onDeleteStart).toHaveBeenCalled();
-    expect(mutateAsync).toHaveBeenCalledWith("1", expect.any(Object));
-    expect(mockNavigate).toHaveBeenCalledWith("/notes?scope=trash");
   });
 });
