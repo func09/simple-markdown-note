@@ -16,8 +16,12 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuthStore } from "../../auth/store";
 import { AUTO_SAVE_DELAY, NAVIGATION_DELAY } from "../constants";
 import { useKeyboardObserver } from "./useNoteEffect";
-import { useNoteCheckbox, useNoteEditorState } from "./useNoteLogic";
-import { useDrawerState, useTagPrompt } from "./useNoteState";
+import { useNoteCheckbox } from "./useNoteLogic";
+import {
+  useDrawerState,
+  useNoteEditorState,
+  useTagPrompt,
+} from "./useNoteState";
 
 // ---------------------------------------------------------------------------
 // Private: 算出関数

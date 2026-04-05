@@ -1,5 +1,5 @@
 import type { Note } from "@simple-markdown-note/common/schemas";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Alert, Animated, Platform } from "react-native";
 import { DRAWER_ANIM_DURATION, DRAWER_WIDTH } from "../constants";
 
@@ -90,4 +90,55 @@ export function useNoteItemState(item: Note) {
   }, [item.content, item.updatedAt]);
 
   return { title, summary, formattedDate };
+}
+
+/**
+ * ノート編集画面のローカルstate管理と、サーバーデータとの初期化同期を担うフック。
+ * UIやAPIに依存せず、state/refの定義と初期化の関心をControllerから分離します。
+ */
+export function useNoteEditorState(note: Note | undefined, isNew: boolean) {
+  const [content, setContent] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
+  const [isPreview, setIsPreview] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const currentNoteId = useRef<string | null>(
+    isNew ? null : (note?.id ?? null)
+  );
+  const initializedId = useRef<string | null>(null);
+
+  // 初期読み込みと外部データ更新の同期
+  useEffect(() => {
+    if (isNew) {
+      if (initializedId.current !== "new") {
+        setContent("");
+        setTags([]);
+        initializedId.current = "new";
+      }
+    } else if (note && initializedId.current !== note.id) {
+      setContent(note.content);
+      setTags(note.tags.map((t) => t.name));
+      initializedId.current = note.id;
+      currentNoteId.current = note.id;
+    }
+  }, [isNew, note]);
+
+  // 新規作成時にサーバーからIDが確定した後、auto-saveから呼ぶことでrefを安全に同期する
+  const markAsInitialized = useCallback((id: string) => {
+    initializedId.current = id;
+    currentNoteId.current = id;
+  }, []);
+
+  return {
+    content,
+    setContent,
+    tags,
+    setTags,
+    isPreview,
+    setIsPreview,
+    isDeleting,
+    setIsDeleting,
+    currentNoteId,
+    markAsInitialized,
+  };
 }
