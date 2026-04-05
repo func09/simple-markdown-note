@@ -151,13 +151,19 @@ export async function requestPasswordReset(
     userEmail: user.email,
   });
 
-  await resend.emails.send({
+  const response = await resend.emails.send({
     from: `Simple Markdown Note <${fromEmail}>`,
     to: user.email,
     subject: "Reset your password",
     html,
     text,
   });
+
+  if (response?.error) {
+    console.error("[Resend Error]: Failed to send email.", response.error);
+  } else {
+    console.log("[Resend Success]: Email sent.", response?.data);
+  }
 }
 
 /**
