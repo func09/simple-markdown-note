@@ -11,9 +11,11 @@ import {
   getMe,
   logout,
   requestPasswordReset,
+  resendVerification,
   resetPassword,
   signin,
   signup,
+  verifyEmail,
 } from "./requests";
 
 /**
@@ -98,6 +100,36 @@ export const useForgotPassword = (options?: { onSuccess?: () => void }) => {
   return useMutation({
     mutationFn: (params: ForgotPasswordRequest) =>
       requestPasswordReset(api, params),
+    onSuccess: () => {
+      onSuccess?.();
+    },
+  });
+};
+
+/**
+ * メール認証を実行するミューテーションフック
+ */
+export const useVerifyEmail = (options?: { onSuccess?: () => void }) => {
+  const api = useApi();
+  const { onSuccess } = options ?? {};
+  return useMutation({
+    mutationFn: (token: string) => verifyEmail(api, token),
+    onSuccess: () => {
+      onSuccess?.();
+    },
+  });
+};
+
+/**
+ * 認証メール再送を実行するミューテーションフック
+ */
+export const useResendVerification = (options?: { onSuccess?: () => void }) => {
+  const api = useApi();
+  const { onSuccess } = options ?? {};
+  return useMutation({
+    mutationFn: (
+      params: import("@simple-markdown-note/common/schemas").ResendVerificationRequest
+    ) => resendVerification(api, params),
     onSuccess: () => {
       onSuccess?.();
     },

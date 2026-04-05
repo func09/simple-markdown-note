@@ -25,6 +25,14 @@ const createApiMock = () => ({
       $post: vi.fn(),
       $url: () => new URL("http://localhost/api/auth/forgot-password"),
     },
+    "verify-email": {
+      $get: vi.fn(),
+      $url: () => new URL("http://localhost/api/auth/verify-email"),
+    },
+    "resend-verification": {
+      $post: vi.fn(),
+      $url: () => new URL("http://localhost/api/auth/resend-verification"),
+    },
   },
 });
 
@@ -39,6 +47,7 @@ describe("authRequests", () => {
     it("should return AuthResponse on success", async () => {
       const mockResponse = {
         ok: true,
+        status: 200,
         url: "http://localhost/api/auth/signin",
         json: async () => ({
           user: { id: "1", email: "test@example.com" },
@@ -61,6 +70,7 @@ describe("authRequests", () => {
     it("should throw error on failure", async () => {
       const mockResponse = {
         ok: false,
+        status: 401,
         url: "http://localhost/api/auth/signin",
         json: async () => ({ error: "Invalid credentials" }),
       };
@@ -79,6 +89,7 @@ describe("authRequests", () => {
     it("should return AuthResponse on success", async () => {
       const mockResponse = {
         ok: true,
+        status: 200,
         url: "http://localhost/api/auth/signup",
         json: async () => ({
           user: { id: "1", email: "test@example.com" },
@@ -100,6 +111,7 @@ describe("authRequests", () => {
     it("should return MeResponse on success", async () => {
       const mockResponse = {
         ok: true,
+        status: 200,
         url: "http://localhost/api/auth/me",
         json: async () => ({ id: "1", email: "test@example.com" }),
       };
@@ -128,6 +140,7 @@ describe("authRequests", () => {
     it("should succeed on 200/204", async () => {
       const mockResponse = {
         ok: true,
+        status: 204,
         url: "http://localhost/api/auth/logout",
       };
       apiMock.auth.logout.$delete.mockResolvedValue(mockResponse);
@@ -140,6 +153,7 @@ describe("authRequests", () => {
     it("should throw on failure", async () => {
       const mockResponse = {
         ok: false,
+        status: 500,
         url: "http://localhost/api/auth/logout",
       };
       apiMock.auth.logout.$delete.mockResolvedValue(mockResponse);
@@ -154,6 +168,7 @@ describe("authRequests", () => {
     it("should succeed on ok response", async () => {
       const mockResponse = {
         ok: true,
+        status: 204,
         url: "http://localhost/api/auth/reset-password",
       };
       apiMock.auth["reset-password"].$post.mockResolvedValue(mockResponse);
@@ -172,6 +187,7 @@ describe("authRequests", () => {
     it("should throw error on failure", async () => {
       const mockResponse = {
         ok: false,
+        status: 400,
         url: "http://localhost/api/auth/reset-password",
         json: async () => ({ error: "Token invalid" }),
       };
@@ -193,6 +209,7 @@ describe("authRequests", () => {
     it("should succeed on ok response", async () => {
       const mockResponse = {
         ok: true,
+        status: 204,
         url: "http://localhost/api/auth/forgot-password",
       };
       apiMock.auth["forgot-password"].$post.mockResolvedValue(mockResponse);
@@ -209,6 +226,7 @@ describe("authRequests", () => {
     it("should throw error on failure", async () => {
       const mockResponse = {
         ok: false,
+        status: 500,
         url: "http://localhost/api/auth/forgot-password",
         json: async () => ({ error: "Email not found" }),
       };
@@ -221,6 +239,76 @@ describe("authRequests", () => {
           })
         )
       ).rejects.toThrow("Email not found");
+    });
+  });
+
+  describe("verifyEmail", () => {
+    it("should succeed on ok response", async () => {
+      const mockResponse = {
+        ok: true,
+        status: 204,
+        url: "http://localhost/api/auth/verify-email",
+      };
+      apiMock.auth["verify-email"].$get.mockResolvedValue(mockResponse);
+
+      await expect(
+        import("./requests").then((m) =>
+          m.verifyEmail(apiMock as unknown as ApiClient, "token")
+        )
+      ).resolves.not.toThrow();
+    });
+
+    it("should throw error on failure", async () => {
+      const mockResponse = {
+        ok: false,
+        status: 400,
+        url: "http://localhost/api/auth/verify-email",
+        json: async () => ({ error: "Token invalid" }),
+      };
+      apiMock.auth["verify-email"].$get.mockResolvedValue(mockResponse);
+
+      await expect(
+        import("./requests").then((m) =>
+          m.verifyEmail(apiMock as unknown as ApiClient, "token")
+        )
+      ).rejects.toThrow("Token invalid");
+    });
+  });
+
+  describe("resendVerification", () => {
+    it("should succeed on ok response", async () => {
+      const mockResponse = {
+        ok: true,
+        status: 204,
+        url: "http://localhost/api/auth/resend-verification",
+      };
+      apiMock.auth["resend-verification"].$post.mockResolvedValue(mockResponse);
+
+      await expect(
+        import("./requests").then((m) =>
+          m.resendVerification(apiMock as unknown as ApiClient, {
+            email: "test@example.com",
+          })
+        )
+      ).resolves.not.toThrow();
+    });
+
+    it("should throw error on failure", async () => {
+      const mockResponse = {
+        ok: false,
+        status: 400,
+        url: "http://localhost/api/auth/resend-verification",
+        json: async () => ({ error: "Too many requests" }),
+      };
+      apiMock.auth["resend-verification"].$post.mockResolvedValue(mockResponse);
+
+      await expect(
+        import("./requests").then((m) =>
+          m.resendVerification(apiMock as unknown as ApiClient, {
+            email: "test@example.com",
+          })
+        )
+      ).rejects.toThrow("Too many requests");
     });
   });
 });
