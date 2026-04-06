@@ -45,6 +45,7 @@ describe("signup", () => {
     create: vi.fn(),
     findById: vi.fn(),
     updatePassword: vi.fn(),
+    resurrectUser: vi.fn(),
   };
   const mockPasswordResetRepo = {
     create: vi.fn(),
@@ -110,5 +111,41 @@ describe("signup", () => {
         {} as unknown as AppEnv["Bindings"]
       )
     ).rejects.toThrow(HTTPException);
+  });
+
+  it("should resurrect user if status is deleted", async () => {
+    mockUserRepo.findByEmail.mockResolvedValue({
+      id: "1",
+      email: "test@example.com",
+      status: "deleted",
+    });
+    mockedBcrypt.hash.mockResolvedValue("new_hashed_password");
+    mockUserRepo.resurrectUser.mockResolvedValue({
+      id: "1",
+      email: "test@example.com",
+      status: "pending",
+    });
+
+    const result = await signup(
+      db,
+      {
+        email: "test@example.com",
+        password: "newpassword",
+      },
+      {} as unknown as AppEnv["Bindings"]
+    );
+
+    expect(mockUserRepo.findByEmail).toHaveBeenCalledWith("test@example.com");
+    expect(mockedBcrypt.hash).toHaveBeenCalledWith("newpassword", 10);
+    expect(mockUserRepo.resurrectUser).toHaveBeenCalledWith(
+      "1",
+      "new_hashed_password"
+    );
+    expect(mockUserRepo.create).not.toHaveBeenCalled();
+    expect(result).toEqual({
+      id: "1",
+      email: "test@example.com",
+      status: "pending",
+    });
   });
 });

@@ -25,16 +25,29 @@ export async function signup(
   const userRepository = createUserRepository(db);
 
   const existingUser = await userRepository.findByEmail(data.email);
+  let user = existingUser;
+
   if (existingUser) {
-    throw new HTTPException(400, { message: "User already exists" });
+    if (existingUser.status === "deleted") {
+      // 復活処理
+      const passwordHash = await bcryptjs.hash(data.password, 10);
+      user = await userRepository.resurrectUser(existingUser.id, passwordHash);
+    } else {
+      throw new HTTPException(400, { message: "User already exists" });
+    }
+  } else {
+    // 新規登録
+    const passwordHash = await bcryptjs.hash(data.password, 10);
+    user = await userRepository.create({
+      email: data.email,
+      passwordHash,
+    });
   }
 
-  const passwordHash = await bcryptjs.hash(data.password, 10);
-
-  const user = await userRepository.create({
-    email: data.email,
-    passwordHash,
-  });
+  // user変数がnullにならないよう（TSエラー回避）安全のためチェック
+  if (!user) {
+    throw new HTTPException(500, { message: "Failed to create user" });
+  }
 
   const array = new Uint8Array(32);
   crypto.getRandomValues(array);
