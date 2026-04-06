@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useLogin } from "@simple-markdown-note/api-client/hooks";
 import type { SigninRequest } from "@simple-markdown-note/common/schemas";
 import { SigninRequestSchema } from "@simple-markdown-note/common/schemas";
-import { Link, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { AlertCircle, Lock, LogIn, Mail } from "lucide-react-native";
 import { Controller, useForm } from "react-hook-form";
 import {
@@ -134,13 +134,13 @@ export function LoginScreen() {
                     <Text className="text-sm font-medium text-slate-700 ml-1">
                       Password
                     </Text>
-                    <Link href="/(auth)/forgot-password" asChild>
-                      <TouchableOpacity>
-                        <Text className="text-xs font-semibold text-slate-500">
-                          Forgot Password?
-                        </Text>
-                      </TouchableOpacity>
-                    </Link>
+                    <TouchableOpacity
+                      onPress={() => router.push("/(auth)/forgot-password")}
+                    >
+                      <Text className="text-xs font-semibold text-slate-500">
+                        Forgot Password?
+                      </Text>
+                    </TouchableOpacity>
                   </View>
                   <View
                     className={`flex-row items-center bg-slate-100 rounded-xl px-4 h-12 border ${
@@ -185,13 +185,14 @@ export function LoginScreen() {
 
           <View className="mt-8 flex-row justify-center">
             <Text className="text-slate-500">Don't have an account? </Text>
-            <Link href="/(auth)/signup" asChild>
-              <TouchableOpacity disabled={isLoading}>
-                <Text className="text-slate-900 font-semibold underline">
-                  Sign Up
-                </Text>
-              </TouchableOpacity>
-            </Link>
+            <TouchableOpacity
+              disabled={isLoading}
+              onPress={() => router.push("/(auth)/signup")}
+            >
+              <Text className="text-slate-900 font-semibold underline">
+                Sign Up
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
       </KeyboardAvoidingView>
