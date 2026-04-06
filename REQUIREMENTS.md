@@ -1,51 +1,57 @@
 # REQUIREMENTS.md
 
-## 🎯 プロジェクト目標
-特定のクラウドベンダーに依存しない（脱ロックイン）、SQLite ファイルベースの堅牢な個人用ノートアプリ。
-pnpm ワークスペースによる再現性の高い環境と、OpenAPI によるスキーマ駆動開発を徹底する。
+## 🎯 Project Goals
 
-## 📅 開発ロードマップ（細分化フェーズ）
+A robust, personal note-taking app built on the Cloudflare ecosystem (Workers, D1, Pages) while leveraging standard technologies like Hono and SQLite-compatible storage.
+Enforce a highly reproducible environment using pnpm workspaces and schema-driven development with OpenAPI.
 
-### フェーズ 1: 開発環境構築 & スキーマ設計 (pnpm / Drizzle / OpenAPI)
+## 📅 Development Roadmap (Milestones)
+
+### Phase 1: Environment Setup & Schema Design (pnpm / Drizzle / Hono OpenAPI) 
+
 * **DB/API Schema**: 
-    - `packages/database` で Drizzle による SQLite テーブル定義。
-    - `packages/openapi` で Zod による API 仕様定義。
-* **Persistence**: Cloudflare D1（ローカル開発では `.wrangler/`）を用いたデータの永続化設定。
+    - SQLite table definitions using Drizzle in `packages/database`.
+    - API specifications and schemas using `@hono/zod-openapi` and Zod in `apps/api`.
+* **Persistence**: Data persistence setup using Cloudflare D1 (`.wrangler/` for local development).
 
-### フェーズ 2: API 実装 & 認証 (Hono / JWT)
-* **Auth**: JWT を用いたサインイン・認証ミドルウェアの実装。
-* **CRUD**: ノートの作成・取得・更新・削除エンドポイントの実装。
-* **Client Generation**: OpenAPI 定義からフロントエンド用 TypeScript クライアントの自動生成。
+### Phase 2: API Implementation & Authentication (Hono / JWT) 
 
-### フェーズ 3: Web フロントエンド MVP (React)
-* **UI**: 3カラム・レスポンシブレイアウトの実装。
-* **Sync**: 自動生成クライアントを用いた API 連携とオートセーブ。
-* **Offline**: `IndexedDB` を用いた一時保存機能。
+* **Auth**: Sign-in and authentication implementation using JWT and email verification (Resend).
+* **CRUD**: Endpoints for creating, reading, updating, and deleting notes.
+* **Client Generation**: Generation and usage of a frontend TypeScript client (`packages/api-client`) from OpenAPI definitions.
 
-### フェーズ 4: 資産管理 & 検索 (Tags / Storage / FTS)
-* **Tags**: Drizzle による多対多のタグ管理。
-* **Storage**: S3 互換 API (Cloudflare R2 等) への画像アップロード。
-* **Search**: SQLite FTS5 を用いた全文検索。
+### Phase 3: Web Frontend MVP (React / React Router / Tailwind CSS) 
 
-### フェーズ 5: デスクトップ展開 (macOS / Electron)
-* **Desktop**: Electron によるパッケージ化。メニューバーやショートカットの統合。
+* **UI**: 3-column responsive layout implementation leveraging UI component libraries.
+* **Sync**: API integration and auto-save functionality utilizing `api-client`.
 
-### フェーズ 6: モバイル展開 (iOS / Expo)
-* **Mobile**: Expo によるネイティブアプリの実装。
+### Phase 4: Asset Management & Search (Tags)
+
+* **Tags**: Many-to-many tag management using Drizzle.
+
+### Phase 5: Desktop Deployment (macOS / Electron)
+
+* **Desktop**: Packaging via Electron (`apps/desktop`). Menu bar and shortcut integration.
+
+### Phase 6: Mobile Deployment (iOS / Expo / NativeWind) 
+
+* **Mobile**: Native app implementation using Expo and React Native (`apps/mobile`). Building the authentication flow and basic UI.
 
 ---
 
-## 📂 ディレクトリ構成図 (モノレポ)
+## 📂 Directory Structure (Monorepo)
 
 ```text
 .
 ├── apps/
-│   ├── api/                # Hono API (Node.js / Standard Server)
-│   ├── web/                # React (Web/Electron共有)
+│   ├── api/                # Hono API (Cloudflare Workers / Node.js) & OpenAPI (zod-openapi)
+│   ├── web/                # React (Web / React Router / Cloudflare Pages)
 │   ├── desktop/            # Electron (Native shell)
-│   └── mobile/             # Expo
+│   └── mobile/             # Expo (React Native)
 ├── packages/
+│   ├── api-client/         # Generated & shared API client
+│   ├── common/             # Shared logic and type definitions
 │   ├── database/           # Drizzle Schema & Migrations
-│   ├── openapi/            # OpenAPI (Zod) Definitions
-│   └── common/             # Shared Types & Logic
+│   └── emails/             # Email templates (Resend, etc.)
 └── package.json
+```
