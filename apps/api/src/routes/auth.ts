@@ -7,6 +7,7 @@ import { deleteCookie, setCookie } from "hono/cookie";
 import { HTTPException } from "hono/http-exception";
 import { sign } from "hono/jwt";
 import {
+  dropUser,
   getUserById,
   logout,
   requestPasswordReset,
@@ -18,6 +19,7 @@ import {
 } from "../services/auth";
 import type { AppEnv } from "../types";
 import {
+  dropRoute,
   forgotPasswordRoute,
   logoutRoute,
   meRoute,
@@ -160,6 +162,25 @@ export const authRouter = new OpenAPIHono<AppEnv>()
     const { email } = c.req.valid("json");
 
     await resendVerificationEmail(db, email, c.env);
+
+    return c.body(null, 204);
+  })
+  /**
+   * 退会エンドポイント
+   */
+  .openapi(dropRoute, async (c) => {
+    const db = c.var.db;
+    const userId = c.get("userId");
+
+    await dropUser(db, userId);
+
+    const isProd =
+      c.env?.NODE_ENV === "production" || c.req.url.startsWith("https://");
+    deleteCookie(c, "token", {
+      path: "/",
+      secure: isProd,
+      sameSite: (isProd ? "None" : "Lax") as "None" | "Lax",
+    });
 
     return c.body(null, 204);
   });

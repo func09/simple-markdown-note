@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useSignup } from "@simple-markdown-note/api-client/hooks";
 import type { SignupRequest } from "@simple-markdown-note/common/schemas";
 import { SignupRequestSchema } from "@simple-markdown-note/common/schemas";
-import { Link, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { AlertCircle, Lock, Mail, UserPlus } from "lucide-react-native";
 import { Controller, useForm } from "react-hook-form";
 import {
@@ -174,13 +174,20 @@ export function SignupScreen() {
 
           <View className="mt-8 flex-row justify-center">
             <Text className="text-slate-500">Already have an account? </Text>
-            <Link href="/(auth)/login" asChild>
-              <TouchableOpacity disabled={isLoading}>
-                <Text className="text-slate-900 font-semibold underline">
-                  Log In
-                </Text>
-              </TouchableOpacity>
-            </Link>
+            <TouchableOpacity
+              disabled={isLoading}
+              onPress={() => {
+                if (router.canGoBack()) {
+                  router.back();
+                } else {
+                  router.replace("/(auth)/login");
+                }
+              }}
+            >
+              <Text className="text-slate-900 font-semibold underline">
+                Log In
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
       </KeyboardAvoidingView>

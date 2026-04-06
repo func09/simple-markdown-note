@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForgotPassword } from "@simple-markdown-note/api-client/hooks";
 import type { ForgotPasswordRequest } from "@simple-markdown-note/common/schemas";
 import { ForgotPasswordRequestSchema } from "@simple-markdown-note/common/schemas";
-import { Link, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { AlertCircle, ArrowLeft, Mail, ShieldCheck } from "lucide-react-native";
 import { Controller, useForm } from "react-hook-form";
 import {
@@ -140,17 +140,22 @@ export function ForgotPasswordScreen() {
           </View>
 
           <View className="mt-8 flex-row justify-center items-center">
-            <Link href="/(auth)/login" asChild>
-              <TouchableOpacity
-                disabled={isLoading}
-                className="flex-row items-center"
-              >
-                <ArrowLeft size={16} color="#0f172a" />
-                <Text className="text-slate-900 font-semibold ml-1">
-                  Back to Login
-                </Text>
-              </TouchableOpacity>
-            </Link>
+            <TouchableOpacity
+              disabled={isLoading}
+              className="flex-row items-center"
+              onPress={() => {
+                if (router.canGoBack()) {
+                  router.back();
+                } else {
+                  router.replace("/(auth)/login");
+                }
+              }}
+            >
+              <ArrowLeft size={16} color="#0f172a" />
+              <Text className="text-slate-900 font-semibold ml-1">
+                Back to Login
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
       </KeyboardAvoidingView>

@@ -200,3 +200,19 @@ export const resendVerificationRoute = createRoute({
     },
   },
 });
+
+/** POST /drop — 退会ルート定義 */
+export const dropRoute = createRoute({
+  method: "post",
+  path: "/drop",
+  summary: "退会処理",
+  description: "現在のログインユーザーを論理削除（無効化）します。",
+  responses: {
+    204: {
+      description: "退会成功",
+    },
+    401: {
+      description: "認証エラー",
+    },
+  },
+});

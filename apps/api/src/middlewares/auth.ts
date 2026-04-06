@@ -2,6 +2,7 @@ import type { MiddlewareHandler } from "hono";
 import { getCookie } from "hono/cookie";
 import { HTTPException } from "hono/http-exception";
 import { verify } from "hono/jwt";
+import { getUserById } from "../services/auth/get-user-by-id";
 import type { AppEnv } from "../types";
 
 // 認証不要ルート（サインイン、サインアップ、ヘルスチェック）
@@ -70,6 +71,15 @@ export const authContextExtractor = (): MiddlewareHandler<AppEnv> => {
 
     if (!userId) {
       return c.json({ error: "Unauthorized" }, 401);
+    }
+
+    const { db } = c.var;
+    if (db) {
+      const user = await getUserById(db, String(userId));
+
+      if (!user || user.status === "deleted") {
+        return c.json({ error: "Unauthorized" }, 401);
+      }
     }
 
     c.set("userId", String(userId));

@@ -1,5 +1,8 @@
-import { useLogout } from "@simple-markdown-note/api-client/hooks";
-import { LogOut } from "lucide-react";
+import {
+  useDeleteUser,
+  useLogout,
+} from "@simple-markdown-note/api-client/hooks";
+import { LogOut, Trash2 } from "lucide-react";
 import { useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,9 +38,28 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     },
   });
 
+  const deleteUserMutation = useDeleteUser({
+    onSuccess() {
+      clearAuth();
+      resetFilters();
+      setSelectedNoteId(null);
+      onOpenChange(false);
+    },
+  });
+
   const handleLogout = useCallback(() => {
     logoutMutation.mutate();
   }, [logoutMutation]);
+
+  const handleDeleteUser = useCallback(() => {
+    if (
+      window.confirm(
+        "Are you sure you want to delete your account? This action cannot be undone."
+      )
+    ) {
+      deleteUserMutation.mutate();
+    }
+  }, [deleteUserMutation]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -64,16 +86,32 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 <Separator />
                 <dl className="flex items-center justify-between">
                   <dt className="font-medium text-slate-900">Action</dt>
-                  <dd>
+                  <dd className="flex flex-wrap gap-2 justify-end">
                     <Button
-                      variant="destructive"
+                      variant="outline"
                       size="sm"
                       onClick={handleLogout}
-                      disabled={logoutMutation.isPending}
+                      disabled={
+                        logoutMutation.isPending || deleteUserMutation.isPending
+                      }
                       className="gap-2 shrink-0"
                     >
                       <LogOut className="w-4 h-4" />
                       {logoutMutation.isPending ? "Logging out..." : "Logout"}
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={handleDeleteUser}
+                      disabled={
+                        logoutMutation.isPending || deleteUserMutation.isPending
+                      }
+                      className="gap-2 shrink-0"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      {deleteUserMutation.isPending
+                        ? "Deleting..."
+                        : "Delete Account"}
                     </Button>
                   </dd>
                 </dl>

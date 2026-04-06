@@ -1,3 +1,4 @@
+export * from "./drop";
 export * from "./getMe";
 export * from "./logout";
 export * from "./requestPasswordReset";
