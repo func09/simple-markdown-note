@@ -52,7 +52,11 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
   }, [logoutMutation]);
 
   const handleDeleteUser = useCallback(() => {
-    if (window.confirm("本当に退会しますか？この操作は取り消せません。")) {
+    if (
+      window.confirm(
+        "Are you sure you want to delete your account? This action cannot be undone."
+      )
+    ) {
       deleteUserMutation.mutate();
     }
   }, [deleteUserMutation]);

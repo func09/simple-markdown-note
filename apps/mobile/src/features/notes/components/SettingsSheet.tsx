@@ -40,14 +40,18 @@ export function SettingsSheet({ sheetRef }: SettingsSheetProps) {
   }, [logoutMutation]);
 
   const handleDeleteUser = useCallback(() => {
-    Alert.alert("退会", "本当に退会しますか？この操作は取り消せません。", [
-      { text: "キャンセル", style: "cancel" },
-      {
-        text: "退会する",
-        style: "destructive",
-        onPress: () => deleteUserMutation.mutate(),
-      },
-    ]);
+    Alert.alert(
+      "Delete Account",
+      "Are you sure you want to delete your account? This action cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => deleteUserMutation.mutate(),
+        },
+      ]
+    );
   }, [deleteUserMutation]);
 
   const renderBackdrop = useCallback(
