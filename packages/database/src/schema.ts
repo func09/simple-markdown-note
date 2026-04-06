@@ -8,11 +8,15 @@ import {
   unique,
   uniqueIndex,
 } from "drizzle-orm/sqlite-core";
-
+/**
+ * アカウントの有効・無効などの状態を表す文字列の配列（定数）。
+ */
 export const USER_STATUSES = ["pending", "active", "deleted"] as const;
 export type UserStatus = (typeof USER_STATUSES)[number];
 
-// ユーザー情報を管理するテーブル
+/**
+ * ユーザーの詳細情報を保存するテーブルの定義。
+ */
 export const users = sqliteTable("users", {
   id: text("id")
     .primaryKey()
@@ -31,7 +35,9 @@ export const users = sqliteTable("users", {
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 
-// ノート情報を管理するテーブル
+/**
+ * アプリ内で作成される各ノートの本文や状態を保存するテーブル定義。
+ */
 export const notes = sqliteTable("notes", {
   id: text("id")
     .primaryKey()
@@ -55,7 +61,9 @@ export const notes = sqliteTable("notes", {
 export type Note = typeof notes.$inferSelect;
 export type NewNote = typeof notes.$inferInsert;
 
-// タグ情報を管理するテーブル
+/**
+ * ノートに紐付けるラベル（タグ）の名前とユーザー情報を保存するテーブル定義。
+ */
 export const tags = sqliteTable(
   "tags",
   {
@@ -81,7 +89,9 @@ export const tags = sqliteTable(
 export type Tag = typeof tags.$inferSelect;
 export type NewTag = typeof tags.$inferInsert;
 
-// ノートとタグの多対多リレーション用中間テーブル
+/**
+ * ノートとタグの多対多リレーションを表現するための結合テーブル定義。
+ */
 export const notesToTags = sqliteTable(
   "notes_to_tags",
   {
@@ -97,14 +107,18 @@ export const notesToTags = sqliteTable(
   })
 );
 
-// リレーション定義 (Drizzle Relational Queries 用)
+/**
+ * usersテーブルを中心とした各種リレーションシップ（ノート、タグ等）の定義。
+ */
 export const usersRelations = relations(users, ({ many }) => ({
   notes: many(notes),
   tags: many(tags),
   passwordResets: many(passwordResets),
   emailVerifications: many(emailVerifications),
 }));
-
+/**
+ * notesテーブルに関連する所有ユーザーや付与されたタグの多対多リレーション定義。
+ */
 export const notesRelations = relations(notes, ({ one, many }) => ({
   user: one(users, {
     fields: [notes.userId],
@@ -112,7 +126,9 @@ export const notesRelations = relations(notes, ({ one, many }) => ({
   }),
   notesToTags: many(notesToTags),
 }));
-
+/**
+ * tagsテーブルに関連する所有ユーザーや結びついたノートのリレーション定義。
+ */
 export const tagsRelations = relations(tags, ({ one, many }) => ({
   user: one(users, {
     fields: [tags.userId],
@@ -120,7 +136,9 @@ export const tagsRelations = relations(tags, ({ one, many }) => ({
   }),
   notesToTags: many(notesToTags),
 }));
-
+/**
+ * notesToTags（中間テーブル）が持つ、対象ノートおよびタグとの各1対1リレーション定義。
+ */
 export const notesToTagsRelations = relations(notesToTags, ({ one }) => ({
   note: one(notes, {
     fields: [notesToTags.noteId],
@@ -132,7 +150,9 @@ export const notesToTagsRelations = relations(notesToTags, ({ one }) => ({
   }),
 }));
 
-// パスワードリセット情報を管理するテーブル
+/**
+ * パスワード再設定時に発行する一次的なトークンの情報と有効期限を保存するテーブル定義。
+ */
 export const passwordResets = sqliteTable("password_resets", {
   id: text("id")
     .primaryKey()
@@ -149,7 +169,9 @@ export const passwordResets = sqliteTable("password_resets", {
 
 export type PasswordReset = typeof passwordResets.$inferSelect;
 export type NewPasswordReset = typeof passwordResets.$inferInsert;
-
+/**
+ * passwordResetsテーブルが参照する所有ユーザとのリレーション定義。
+ */
 export const passwordResetsRelations = relations(passwordResets, ({ one }) => ({
   user: one(users, {
     fields: [passwordResets.userId],
@@ -157,7 +179,9 @@ export const passwordResetsRelations = relations(passwordResets, ({ one }) => ({
   }),
 }));
 
-// メール認証情報を管理するテーブル
+/**
+ * 本登録前のメールアドレス保有確認（バリデーション）に必要なトークンを管理するテーブル定義。
+ */
 export const emailVerifications = sqliteTable(
   "email_verifications",
   {
@@ -180,7 +204,9 @@ export const emailVerifications = sqliteTable(
 
 export type EmailVerification = typeof emailVerifications.$inferSelect;
 export type NewEmailVerification = typeof emailVerifications.$inferInsert;
-
+/**
+ * emailVerificationsテーブルと所有ユーザーテーブルとのリレーション定義。
+ */
 export const emailVerificationsRelations = relations(
   emailVerifications,
   ({ one }) => ({

@@ -5,7 +5,9 @@ import {
   emailVerifications,
   type NewEmailVerification,
 } from "../schema";
-
+/**
+ * メール認証情報のデータベース操作（作成・取得・削除）を抽象化したリポジトリ関数を生成します。
+ */
 export const createEmailVerificationRepository = (db: DrizzleDB) => ({
   /**
    * メール認証情報を新しく作成します

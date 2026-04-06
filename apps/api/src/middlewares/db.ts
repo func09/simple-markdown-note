@@ -6,7 +6,10 @@ import {
 import type { MiddlewareHandler } from "hono";
 import type { AppEnv } from "../types";
 
-// 1. データベース注入ミドルウェア
+/**
+ * データベースインスタンスをコンテキストに注入するミドルウェア
+ * @returns {MiddlewareHandler<AppEnv>} Honoミドルウェアハンドラ
+ */
 export const dbInjector = (): MiddlewareHandler<AppEnv> => {
   return async (c, next) => {
     // Wrangler環境では常に c.env.DB が存在しますが、テストでは存在しません。

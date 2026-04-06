@@ -26,7 +26,10 @@ type NoteDrawerProps = {
   tags: string[];
   onOpenSettings?: () => void;
 };
-
+/**
+ * 画面左側から引き出されるナビゲーションドロワーコンポーネント。
+ * ノートの表示単位（すべて・ゴミ箱・未タグ等）の切り替えや、設定画面への遷移アクションを提供します。
+ */
 export function NoteDrawer({
   isOpen,
   onClose,

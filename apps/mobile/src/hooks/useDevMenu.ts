@@ -1,7 +1,10 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { type Href, useRouter } from "expo-router";
 import { useEffect } from "react";
-
+/**
+ * 開発環境専用のデバッグ用メニューをExpo Dev Menuに登録するためのカスタムフック。
+ * 任意の画面への直接遷移やAsyncStorageのデバッグ確認機能を提供します。
+ */
 export function useDevMenu() {
   const router = useRouter();
 

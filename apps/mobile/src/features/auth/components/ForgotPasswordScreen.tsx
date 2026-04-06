@@ -16,7 +16,10 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
+/**
+ * パスワード再設定用のリセットリンクをリクエストするための画面コンポーネント。
+ * ユーザーのメールアドレスを入力し、APIと通信してリクエストを送信します。
+ */
 export function ForgotPasswordScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();

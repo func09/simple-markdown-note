@@ -24,6 +24,10 @@ export const NAVIGATION_DELAY = 250;
  * ドロワーコンポーネントの幅
  */
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
+
+/**
+ * ナビゲーションドロワーの表示幅。画面幅の80%に設定されています。
+ */
 export const DRAWER_WIDTH = SCREEN_WIDTH * 0.8;
 
 /**

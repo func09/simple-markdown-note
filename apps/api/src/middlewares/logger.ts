@@ -1,5 +1,9 @@
 import type { MiddlewareHandler } from "hono";
 
+/**
+ * リクエストのログを出力するミドルウェア
+ * @returns {MiddlewareHandler} Honoミドルウェアハンドラ
+ */
 export const requestLogger = (): MiddlewareHandler => {
   return async (c, next) => {
     const start = Date.now();

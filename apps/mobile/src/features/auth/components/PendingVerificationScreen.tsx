@@ -13,7 +13,10 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuthStore } from "../store";
-
+/**
+ * 新規登録後のメール承認待機中の状態を表示する画面コンポーネント。
+ * 確認メールの再送や、承認が完了したかの確認アクションを提供します。
+ */
 export function PendingVerificationScreen() {
   const router = useRouter();
   const user = useAuthStore((state) => state.user);

@@ -5,7 +5,9 @@ import {
   type PasswordReset,
   passwordResets,
 } from "../schema";
-
+/**
+ * パスワード再設定用のトークンや期限などのデータベース操作（作成・取得・削除）を抽象化したリポジトリ関数を生成します。
+ */
 export const createPasswordResetRepository = (db: DrizzleDB) => ({
   /**
    * パスワードリセットトークンを保存します。
