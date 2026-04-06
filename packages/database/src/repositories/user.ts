@@ -55,6 +55,24 @@ export const createUserRepository = (db: DrizzleDB) => ({
       .set({ status, updatedAt: new Date() })
       .where(eq(users.id, userId));
   },
+  /**
+   * 退会済みのユーザーを再び有効（pending）にし、パスワードを更新する（復活処理）。
+   */
+  resurrectUser: async (
+    userId: string,
+    newPasswordHash: string
+  ): Promise<User> => {
+    const [user] = await db
+      .update(users)
+      .set({
+        passwordHash: newPasswordHash,
+        status: "pending",
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, userId))
+      .returning();
+    return user;
+  },
 });
 
 export type UserRepository = ReturnType<typeof createUserRepository>;
