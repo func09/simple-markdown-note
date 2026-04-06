@@ -1,4 +1,4 @@
-import { NOTE_SCOPE } from "@simple-markdown-note/common/types";
+import { NOTE_SCOPE } from "@simple-markdown-note/schemas";
 import { beforeEach, describe, expect, it } from "vitest";
 import { db } from "../index";
 import { notes, notesToTags, tags, users } from "../schema";

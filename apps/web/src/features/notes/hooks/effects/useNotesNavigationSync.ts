@@ -1,4 +1,4 @@
-import type { NoteScope } from "@simple-markdown-note/common/types";
+import type { NoteScope } from "@simple-markdown-note/schemas";
 import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useNotesStore } from "@/features/notes/store";

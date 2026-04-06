@@ -2,7 +2,7 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 import {
   AuthResponseSchema,
   MeResponseSchema,
-} from "@simple-markdown-note/common/schemas";
+} from "@simple-markdown-note/schemas";
 import { deleteCookie, setCookie } from "hono/cookie";
 import { HTTPException } from "hono/http-exception";
 import { sign } from "hono/jwt";

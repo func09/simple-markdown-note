@@ -2,7 +2,7 @@ import { useApi } from "@simple-markdown-note/api-client/context";
 import type {
   AuthResponse,
   SignupRequest,
-} from "@simple-markdown-note/common/schemas";
+} from "@simple-markdown-note/schemas";
 import { useMutation } from "@tanstack/react-query";
 import { signup } from "../../requests/auth/signup";
 

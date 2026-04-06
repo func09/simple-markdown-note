@@ -1,9 +1,9 @@
-import type { Note } from "@simple-markdown-note/common/schemas";
+import type { Note } from "@simple-markdown-note/schemas";
 import { renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import * as notesRequests from "../../requests/notes/createNote";
-import { createWrapper } from "./test-utils";
+import { createWrapper } from "./testUtils";
 import { useCreateNote } from "./useCreateNote";
 
 vi.mock("../../requests/notes/createNote");

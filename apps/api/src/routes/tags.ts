@@ -2,7 +2,7 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 import {
   TagListResponseSchema,
   TagResponseSchema,
-} from "@simple-markdown-note/common/schemas";
+} from "@simple-markdown-note/schemas";
 import { createTag, getTagsWithNoteCount } from "../services/tags";
 import type { AppEnv } from "../types";
 import { createTagRoute, tagsListRoute } from "./tags.schema";

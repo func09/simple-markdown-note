@@ -12,11 +12,12 @@
     "test": "vitest run",
     "deploy": "wrangler deploy",
     "check": "biome check .",
-    "check:types": "tsc --noEmit"
+    "check:types": "tsc --noEmit",
+    "test:cov:open": "test -f coverage/index.html && open coverage/index.html || true"
   },
   "dependencies": {
     "@hono/zod-openapi": "^0.18.4",
-    "@simple-markdown-note/common": "workspace:*",
+    "@simple-markdown-note/schemas": "workspace:*",
     "@simple-markdown-note/database": "workspace:*",
     "@simple-markdown-note/emails": "workspace:*",
     "hono": "^4.12.9",

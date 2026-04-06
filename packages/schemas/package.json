@@ -1,0 +1,29 @@
+{
+  "name": "@simple-markdown-note/schemas",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*"
+  },
+  "scripts": {
+    "check": "biome check .",
+    "test": "vitest run",
+    "check:types": "tsc --noEmit",
+    "test:cov:open": "test -f coverage/index.html && open coverage/index.html || true"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@hono/zod-openapi": "^0.18.4",
+    "hono": "^4.12.9",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "vitest": "3.2.4"
+  }
+}

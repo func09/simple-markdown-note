@@ -1,5 +1,5 @@
 import { useApi } from "@simple-markdown-note/api-client/context";
-import type { ResetPasswordRequest } from "@simple-markdown-note/common/schemas";
+import type { ResetPasswordRequest } from "@simple-markdown-note/schemas";
 import { useMutation } from "@tanstack/react-query";
 import { resetPassword } from "../../requests/auth/resetPassword";
 

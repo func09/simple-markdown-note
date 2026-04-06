@@ -15,7 +15,8 @@
     "db:check": "drizzle-kit check",
     "db:seed": "tsx src/seed.ts",
     "test": "vitest run",
-    "check:types": "tsc --noEmit"
+    "check:types": "tsc --noEmit",
+    "test:cov:open": "test -f coverage/index.html && open coverage/index.html || true"
   },
   "keywords": [],
   "author": "",
@@ -32,7 +33,7 @@
     "@libsql/client": "^0.17.2",
     "@paralleldrive/cuid2": "^2.2.2",
     "bcryptjs": "^3.0.3",
-    "@simple-markdown-note/common": "workspace:*",
+    "@simple-markdown-note/schemas": "workspace:*",
     "drizzle-orm": "^0.40.0"
   }
 }

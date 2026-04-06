@@ -1,5 +1,5 @@
 import { useApi } from "@simple-markdown-note/api-client/context";
-import type { NoteCreateRequest } from "@simple-markdown-note/common/schemas";
+import type { NoteCreateRequest } from "@simple-markdown-note/schemas";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createNote } from "../../requests/notes/createNote";
 

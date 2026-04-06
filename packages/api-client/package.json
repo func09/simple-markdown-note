@@ -22,7 +22,8 @@
   "scripts": {
     "check": "biome check .",
     "test": "vitest run",
-    "check:types": "tsc --noEmit"
+    "check:types": "tsc --noEmit",
+    "test:cov:open": "test -f coverage/index.html && open coverage/index.html || true"
   },
   "keywords": [],
   "author": "",
@@ -35,7 +36,7 @@
   },
   "dependencies": {
     "@simple-markdown-note/api": "workspace:*",
-    "@simple-markdown-note/common": "workspace:*",
+    "@simple-markdown-note/schemas": "workspace:*",
     "hono": "^4.12.9"
   },
   "devDependencies": {
