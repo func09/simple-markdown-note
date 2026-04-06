@@ -18,7 +18,7 @@ export const createApiMock = () => ({
       $delete: vi.fn(),
       $url: () => new URL("http://localhost/api/auth/logout"),
     },
-    resetPassword: {
+    "reset-password": {
       $post: vi.fn(),
       $url: () => new URL("http://localhost/api/auth/reset-password"),
     },
@@ -26,7 +26,7 @@ export const createApiMock = () => ({
       $post: vi.fn(),
       $url: () => new URL("http://localhost/api/auth/forgot-password"),
     },
-    verifyEmail: {
+    "verify-email": {
       $get: vi.fn(),
       $url: () => new URL("http://localhost/api/auth/verify-email"),
     },
