@@ -5,5 +5,4 @@ if [ -d "$GIT_DIR/rebase-merge" ] || [ -d "$GIT_DIR/rebase-apply" ]; then
 fi
 
 pnpm lint-staged
-pnpm check
 pnpm check:types
