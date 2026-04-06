@@ -14,7 +14,7 @@ import {
   it,
   vi,
 } from "vitest";
-import { resetPassword } from "./reset-password";
+import { resetPassword } from "./resetPassword";
 
 vi.mock("@simple-markdown-note/database", () => ({
   bcryptjs: {

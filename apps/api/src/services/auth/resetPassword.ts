@@ -5,7 +5,7 @@ import {
   type DrizzleDB,
 } from "@simple-markdown-note/database";
 import { HTTPException } from "hono/http-exception";
-import { hashToken } from "./hash-token";
+import { hashToken } from "./hashToken";
 
 /**
  * 送信されたトークンを検証し、パスワードを更新します。

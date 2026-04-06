@@ -4,7 +4,7 @@ import {
 } from "@simple-markdown-note/database";
 import { HTTPException } from "hono/http-exception";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { dropUser } from "./drop-user";
+import { dropUser } from "./dropUser";
 
 vi.mock("@simple-markdown-note/database", () => ({
   bcryptjs: {

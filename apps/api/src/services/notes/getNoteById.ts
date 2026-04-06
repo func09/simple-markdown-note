@@ -2,7 +2,7 @@ import {
   createNoteRepository,
   type DrizzleDB,
 } from "@simple-markdown-note/database";
-import { mapToNoteWithTags } from "./map-to-note-with-tags";
+import { mapToNoteWithTags } from "./mapToNoteWithTags";
 
 /**
  * IDを指定してノートを取得する

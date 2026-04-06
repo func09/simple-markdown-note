@@ -3,7 +3,7 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import * as notesRequests from "../../requests/notes/getNote";
-import { createWrapper } from "./test-utils";
+import { createWrapper } from "./testUtils";
 import { useNote } from "./useNote";
 
 vi.mock("../../requests/notes/getNote");

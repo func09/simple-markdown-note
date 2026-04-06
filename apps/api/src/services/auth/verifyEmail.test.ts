@@ -5,7 +5,7 @@ import {
 } from "@simple-markdown-note/database";
 import { HTTPException } from "hono/http-exception";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { verifyEmail } from "./verify-email";
+import { verifyEmail } from "./verifyEmail";
 
 vi.mock("@simple-markdown-note/database", () => ({
   createUserRepository: vi.fn(),

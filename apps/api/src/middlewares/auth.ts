@@ -2,7 +2,7 @@ import type { MiddlewareHandler } from "hono";
 import { getCookie } from "hono/cookie";
 import { HTTPException } from "hono/http-exception";
 import { verify } from "hono/jwt";
-import { getUserById } from "../services/auth/get-user-by-id";
+import { getUserById } from "../services/auth/getUserById";
 import type { AppEnv } from "../types";
 
 // 認証不要ルート（サインイン、サインアップ、ヘルスチェック）

@@ -3,7 +3,7 @@ import {
   type DrizzleDB,
 } from "@simple-markdown-note/database";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { getTagsWithNoteCount } from "./get-tags-with-note-count";
+import { getTagsWithNoteCount } from "./getTagsWithNoteCount";
 
 vi.mock("@simple-markdown-note/database", () => ({
   createTagRepository: vi.fn(),

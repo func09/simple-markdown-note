@@ -3,7 +3,7 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import * as tagsRequests from "../../requests/tags/listTags";
-import { createWrapper } from "./test-utils";
+import { createWrapper } from "./testUtils";
 import { useTags } from "./useTags";
 
 vi.mock("../../requests/tags/listTags");

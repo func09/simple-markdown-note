@@ -3,7 +3,7 @@ import {
   type DrizzleDB,
 } from "@simple-markdown-note/database";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { getUserById } from "./get-user-by-id";
+import { getUserById } from "./getUserById";
 
 vi.mock("@simple-markdown-note/database", () => ({
   bcryptjs: {

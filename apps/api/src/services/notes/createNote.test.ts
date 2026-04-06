@@ -4,7 +4,7 @@ import {
 } from "@simple-markdown-note/database";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { syncTags } from "../tags";
-import { createNote } from "./create-note";
+import { createNote } from "./createNote";
 
 vi.mock("@simple-markdown-note/database", () => ({
   createNoteRepository: vi.fn(),

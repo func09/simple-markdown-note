@@ -9,7 +9,7 @@ import {
 } from "@simple-markdown-note/database";
 import { renderResetPasswordEmail } from "@simple-markdown-note/emails";
 import { Resend } from "resend";
-import { hashToken } from "./hash-token";
+import { hashToken } from "./hashToken";
 
 /**
  * パスワードリセットリクエストを受け付け、トークンを発行しメールで送信します。

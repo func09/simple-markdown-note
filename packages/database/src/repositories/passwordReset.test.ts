@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { db } from "../index";
 import { notes, notesToTags, passwordResets, tags, users } from "../schema";
-import { createPasswordResetRepository } from "./password-reset";
+import { createPasswordResetRepository } from "./passwordReset";
 import { createUserRepository } from "./user";
 
 const repo = createPasswordResetRepository(db);

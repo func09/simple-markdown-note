@@ -1,19 +1,18 @@
 import {
   createTagRepository,
   type DrizzleDB,
-  type Tag,
 } from "@simple-markdown-note/database";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createTag } from "./create-tag";
+import { cleanupOrphanedTags } from "./cleanupOrphanedTags";
 
 vi.mock("@simple-markdown-note/database", () => ({
   createTagRepository: vi.fn(),
 }));
 
-describe("createTag", () => {
+describe("cleanupOrphanedTags", () => {
   const db = {} as DrizzleDB;
   const mockTagRepo = {
-    upsert: vi.fn(),
+    deleteOrphaned: vi.fn(),
   };
 
   beforeEach(() => {
@@ -23,15 +22,9 @@ describe("createTag", () => {
     );
   });
 
-  it("should call upsert on repository", async () => {
-    mockTagRepo.upsert.mockResolvedValue({ id: "t1", name: "tag1" } as Tag);
+  it("should call deleteOrphaned on repository", async () => {
+    await cleanupOrphanedTags("user1", db);
 
-    const result = await createTag("user1", "tag1", db);
-
-    expect(mockTagRepo.upsert).toHaveBeenCalledWith({
-      userId: "user1",
-      name: "tag1",
-    });
-    expect(result).toEqual({ id: "t1", name: "tag1" });
+    expect(mockTagRepo.deleteOrphaned).toHaveBeenCalledWith("user1");
   });
 });
