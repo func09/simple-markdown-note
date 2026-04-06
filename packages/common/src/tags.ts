@@ -1,4 +1,4 @@
-import { dateSchema, z } from "../z";
+import { dateSchema, z } from "./z";
 
 /**
  * タグモデルのスキーマ

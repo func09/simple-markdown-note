@@ -1,4 +1,4 @@
-import { dateSchema, passwordSchema, z } from "../z";
+import { dateSchema, passwordSchema, z } from "./z";
 
 /**
  * システム内における標準的なユーザー情報モデルのスキーマ定義。
