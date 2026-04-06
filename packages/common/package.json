@@ -9,10 +9,6 @@
     "./schemas": {
       "import": "./src/schemas/index.ts",
       "types": "./src/schemas/index.ts"
-    },
-    "./types": {
-      "import": "./src/types/index.ts",
-      "types": "./src/types/index.ts"
     }
   },
   "scripts": {

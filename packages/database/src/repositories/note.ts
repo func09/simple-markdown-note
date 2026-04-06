@@ -1,4 +1,7 @@
-import { NOTE_SCOPE, type NoteScope } from "@simple-markdown-note/common/types";
+import {
+  NOTE_SCOPE,
+  type NoteScope,
+} from "@simple-markdown-note/common/schemas";
 import {
   and,
   desc,
