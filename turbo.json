@@ -15,8 +15,8 @@
     "check": {
       "dependsOn": ["^check"]
     },
-    "typecheck": {
-      "dependsOn": ["^typecheck"]
+    "check:types": {
+      "dependsOn": ["^check:types"]
     },
     "test": {
       "dependsOn": ["^test"]

@@ -12,10 +12,10 @@
     "dev": "tsx scripts/dev.ts",
     "check": "turbo check",
     "build": "turbo build",
-    "typecheck": "turbo typecheck",
+    "check:types": "turbo check:types",
     "test": "turbo test",
     "clean:cache": "find . -name \"*.tsbuildinfo\" -delete",
-    "check:all": "pnpm clean:cache && turbo check typecheck test --force",
+    "check:all": "pnpm clean:cache && turbo check check:types test --force",
     "prepare": "husky"
   },
   "keywords": [],
