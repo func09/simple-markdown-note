@@ -74,6 +74,35 @@ describe("Auth API", () => {
     expect(res.body).toBe(null);
   });
 
+  it("should drop a user", async () => {
+    // まずユーザーを登録してサインイン状態にする
+    const signupRes = await app.request("/api/auth/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: "drop-test@example.com",
+        password: "Password123",
+      }),
+    });
+
+    // Cookieのヘッダを取得
+    const setCookieHeader = signupRes.headers.get("Set-Cookie");
+    const cookie = setCookieHeader?.split(";")[0]; // token=xxx
+
+    // 退会リクエストを送信
+    const dropRes = await app.request("/api/auth/drop", {
+      method: "POST",
+      headers: cookie ? { Cookie: cookie } : {},
+    });
+
+    expect(dropRes.status).toBe(204);
+    // 退会成功時のCookie削除の確認
+    const dropCookieHeader = dropRes.headers.get("Set-Cookie");
+    expect(dropCookieHeader).toMatch(/token=;/);
+  });
+
   describe("Validation", () => {
     it("should return 400 for invalid email format", async () => {
       const res = await app.request("/api/auth/signup", {
