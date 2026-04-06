@@ -17,6 +17,8 @@
     "check:all": "pnpm clean:cache && turbo check check:types test --force",
     "check:types": "turbo check:types",
     "test": "turbo test",
+    "test:cov": "turbo test -- --coverage --coverage.reporter=text-summary --coverage.reporter=html; tsx scripts/patch-cov.ts",
+    "test:cov:open": "pnpm run test:cov ; pnpm -r --if-present run test:cov:open",
     "prepare": "husky"
   },
   "keywords": [],
@@ -26,6 +28,7 @@
     "@biomejs/biome": "^2.4.9",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^25.5.0",
+    "@vitest/coverage-v8": "^3.2.4",
     "dotenv": "^17.3.1",
     "eslint": "^10.2.0",
     "eslint-plugin-jsdoc": "^62.9.0",

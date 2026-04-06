@@ -10,7 +10,8 @@
   "scripts": {
     "check": "biome check .",
     "test": "vitest run",
-    "check:types": "tsc --noEmit"
+    "check:types": "tsc --noEmit",
+    "test:cov:open": "test -f coverage/index.html && open coverage/index.html || true"
   },
   "keywords": [],
   "author": "",
