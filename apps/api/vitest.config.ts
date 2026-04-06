@@ -1,5 +1,5 @@
 import path from "node:path";
-import { defineConfig } from "vitest/config";
+import { coverageConfigDefaults, defineConfig } from "vitest/config";
 
 // https://vitest.dev/config/
 export default defineConfig({
@@ -15,6 +15,10 @@ export default defineConfig({
     setupFiles: ["./vitest.setup.ts"],
     env: {
       DATABASE_URL: ":memory:",
+    },
+    coverage: {
+      include: ["src/services/**", "src/routes/**", "src/middlewares/**"],
+      exclude: [...coverageConfigDefaults.exclude, "**/index.ts"],
     },
   },
 });

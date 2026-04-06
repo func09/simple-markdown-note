@@ -1,5 +1,5 @@
 import path from "node:path";
-import { defineConfig } from "vitest/config";
+import { coverageConfigDefaults, defineConfig } from "vitest/config";
 
 // https://vitest.dev/config/
 export default defineConfig({
@@ -12,5 +12,9 @@ export default defineConfig({
     globals: true,
     environment: "node",
     passWithNoTests: true,
+    coverage: {
+      include: ["src/**"],
+      exclude: [...coverageConfigDefaults.exclude, "**/index.ts"],
+    },
   },
 });
