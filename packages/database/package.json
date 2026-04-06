@@ -8,8 +8,6 @@
     "./*": "./src/*"
   },
   "scripts": {
-    "lint": "biome lint .",
-    "format": "biome format --write .",
     "check": "biome check .",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
