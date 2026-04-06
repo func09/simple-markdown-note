@@ -1,4 +1,4 @@
-import type { TagListResponse } from "@simple-markdown-note/common/schemas";
+import type { TagListResponse } from "@simple-markdown-note/schemas";
 import { renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 

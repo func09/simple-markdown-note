@@ -17,9 +17,9 @@ export default defineConfig(({ mode: _mode }) => {
           __dirname,
           "../../packages/api-client/src"
         ),
-        "@simple-markdown-note/common": path.resolve(
+        "@simple-markdown-note/schemas": path.resolve(
           __dirname,
-          "../../packages/common/src"
+          "../../packages/schemas/src"
         ),
       },
     },

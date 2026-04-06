@@ -1,5 +1,5 @@
-import type { AuthResponseSchema } from "@simple-markdown-note/common/schemas";
 import { db, users } from "@simple-markdown-note/database";
+import type { AuthResponseSchema } from "@simple-markdown-note/schemas";
 import { beforeAll, describe, expect, it } from "vitest";
 import type { z } from "zod";
 import { app } from "../index";

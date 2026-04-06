@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLogin } from "@simple-markdown-note/api-client/hooks";
-import type { SigninRequest } from "@simple-markdown-note/common/schemas";
-import { SigninRequestSchema } from "@simple-markdown-note/common/schemas";
+import type { SigninRequest } from "@simple-markdown-note/schemas";
+import { SigninRequestSchema } from "@simple-markdown-note/schemas";
 import {
   AlertCircle,
   ArrowRight,
