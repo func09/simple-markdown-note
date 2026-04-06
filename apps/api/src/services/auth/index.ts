@@ -1,3 +1,4 @@
+export * from "./drop-user";
 export * from "./get-user-by-id";
 export * from "./logout";
 export * from "./request-password-reset";
