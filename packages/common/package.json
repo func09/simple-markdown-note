@@ -7,8 +7,8 @@
     ".": "./src/index.ts",
     "./*": "./src/*",
     "./schemas": {
-      "import": "./src/schemas/index.ts",
-      "types": "./src/schemas/index.ts"
+      "import": "./src/index.ts",
+      "types": "./src/index.ts"
     }
   },
   "scripts": {

@@ -1,1 +1,3 @@
-export * from "./schemas";
+export * from "./auth";
+export * from "./notes";
+export * from "./tags";
