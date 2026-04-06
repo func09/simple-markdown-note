@@ -4,10 +4,13 @@ import {
   BottomSheetModal,
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
-import { useLogout } from "@simple-markdown-note/api-client/hooks";
+import {
+  useDeleteUser,
+  useLogout,
+} from "@simple-markdown-note/api-client/hooks";
 import { LogOut, User } from "lucide-react-native";
 import { type RefObject, useCallback } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Alert, Text, TouchableOpacity, View } from "react-native";
 import { useAuthStore } from "../../auth/store";
 
 interface SettingsSheetProps {
@@ -25,10 +28,31 @@ export function SettingsSheet({ sheetRef }: SettingsSheetProps) {
       clearAuth();
     },
   });
+  const deleteUserMutation = useDeleteUser({
+    onSuccess: () => {
+      sheetRef.current?.dismiss();
+      clearAuth();
+    },
+  });
 
   const handleLogout = useCallback(() => {
     logoutMutation.mutate();
   }, [logoutMutation]);
+
+  const handleDeleteUser = useCallback(() => {
+    Alert.alert(
+      "Delete Account",
+      "Are you sure you want to delete your account? This action cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => deleteUserMutation.mutate(),
+        },
+      ]
+    );
+  }, [deleteUserMutation]);
 
   const renderBackdrop = useCallback(
     (props: BottomSheetBackdropProps) => (
@@ -77,18 +101,38 @@ export function SettingsSheet({ sheetRef }: SettingsSheetProps) {
           <TouchableOpacity
             className="flex-row items-center px-5 py-4 mt-2"
             onPress={handleLogout}
-            disabled={logoutMutation.isPending}
+            disabled={logoutMutation.isPending || deleteUserMutation.isPending}
+          >
+            <View className="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center">
+              <LogOut
+                size={20}
+                color={logoutMutation.isPending ? "#9ca3af" : "#64748b"}
+              />
+            </View>
+            <Text
+              className={`text-base font-semibold ml-4 ${logoutMutation.isPending ? "text-slate-400" : "text-slate-700"}`}
+            >
+              {logoutMutation.isPending ? "Logging out..." : "Log Out"}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            className="flex-row items-center px-5 py-4 mt-2"
+            onPress={handleDeleteUser}
+            disabled={logoutMutation.isPending || deleteUserMutation.isPending}
           >
             <View className="w-10 h-10 bg-red-50 rounded-full flex items-center justify-center">
               <LogOut
                 size={20}
-                color={logoutMutation.isPending ? "#fca5a5" : "#ef4444"}
+                color={deleteUserMutation.isPending ? "#fca5a5" : "#ef4444"}
               />
             </View>
             <Text
-              className={`text-base font-semibold ml-4 ${logoutMutation.isPending ? "text-red-300" : "text-red-500"}`}
+              className={`text-base font-semibold ml-4 ${deleteUserMutation.isPending ? "text-red-300" : "text-red-500"}`}
             >
-              {logoutMutation.isPending ? "Logging out..." : "Log Out"}
+              {deleteUserMutation.isPending
+                ? "Deleting account..."
+                : "Delete Account"}
             </Text>
           </TouchableOpacity>
         </View>

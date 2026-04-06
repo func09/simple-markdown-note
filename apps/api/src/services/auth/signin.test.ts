@@ -64,6 +64,18 @@ describe("signin", () => {
     ).rejects.toThrow(HTTPException);
   });
 
+  it("should throw HTTPException if user status is deleted", async () => {
+    mockUserRepo.findByEmail.mockResolvedValue({
+      id: "1",
+      email: "test@example.com",
+      status: "deleted",
+    });
+
+    await expect(
+      signin(db, { email: "test@example.com", password: "password" })
+    ).rejects.toThrow(HTTPException);
+  });
+
   it("should throw HTTPException if password does not match", async () => {
     mockUserRepo.findByEmail.mockResolvedValue({
       passwordHash: "hash",

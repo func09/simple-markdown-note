@@ -74,6 +74,54 @@ describe("Auth API", () => {
     expect(res.body).toBe(null);
   });
 
+  it("should drop a user", async () => {
+    // まずユーザーを登録してサインイン状態にする
+    const signupRes = await app.request("/api/auth/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: "drop-test@example.com",
+        password: "Password123",
+      }),
+    });
+
+    // Cookieのヘッダを取得
+    const setCookieHeader = signupRes.headers.get("Set-Cookie");
+    const cookie = setCookieHeader?.split(";")[0]; // token=xxx
+
+    // 退会リクエストを送信
+    const dropRes = await app.request("/api/auth/drop", {
+      method: "POST",
+      headers: cookie ? { Cookie: cookie } : {},
+    });
+
+    expect(dropRes.status).toBe(204);
+    // 退会成功時のCookie削除の確認
+    const dropCookieHeader = dropRes.headers.get("Set-Cookie");
+    expect(dropCookieHeader).toMatch(/token=;/);
+
+    // 退会後に再度ログインを試みる（無効として弾かれる）
+    const signinRes = await app.request("/api/auth/signin", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: "drop-test@example.com",
+        password: "Password123",
+      }),
+    });
+    expect(signinRes.status).toBe(401);
+
+    // 古いトークン（cookie）を使ってアクセスを試みる（Middlewareで弾かれる）
+    const meRes = await app.request("/api/auth/me", {
+      headers: cookie ? { Cookie: cookie } : {},
+    });
+    expect(meRes.status).toBe(401);
+  });
+
   describe("Validation", () => {
     it("should return 400 for invalid email format", async () => {
       const res = await app.request("/api/auth/signup", {

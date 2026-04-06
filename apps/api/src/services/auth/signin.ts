@@ -20,7 +20,7 @@ export async function signin(
   const userRepository = createUserRepository(db);
 
   const user = await userRepository.findByEmail(data.email);
-  if (!user) {
+  if (!user || user.status === "deleted") {
     throw new HTTPException(401, { message: "Invalid credentials" });
   }
 
