@@ -119,7 +119,10 @@ interface NoteEditorProps {
   onAddTag: () => void;
   onRemoveTag: (tag: string) => void;
 }
-
+/**
+ * ノート本文の編集およびプレビュー状態を管理・表示するコンポーネント。
+ * MarkdownのレンダリングやチェックボックスのON/OFF操作の他、タグ管理のUIも内包しています。
+ */
 export function NoteEditor({
   isPreview,
   content,

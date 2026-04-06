@@ -14,7 +14,10 @@ const PUBLIC_PATHS = [
   "/health",
 ];
 
-// JWT 認証ミドルウェア (クッキーと Authorization ヘッダーの両方に対応)
+/**
+ * JWT認証を行うミドルウェア
+ * @returns {MiddlewareHandler<AppEnv>} Honoミドルウェアハンドラ
+ */
 export const jwtAuth = (): MiddlewareHandler<AppEnv> => {
   return async (c, next) => {
     if (PUBLIC_PATHS.includes(c.req.path)) {
@@ -52,7 +55,10 @@ export const jwtAuth = (): MiddlewareHandler<AppEnv> => {
   };
 };
 
-// userId 抽出ミドルウェア (認証後に payload から ID をコンテキストにセット)
+/**
+ * 認証後のペイロードからユーザーIDを抽出し、コンテキストに設定するミドルウェア
+ * @returns {MiddlewareHandler<AppEnv>} Honoミドルウェアハンドラ
+ */
 export const authContextExtractor = (): MiddlewareHandler<AppEnv> => {
   return async (c, next) => {
     if (PUBLIC_PATHS.includes(c.req.path)) {

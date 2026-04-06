@@ -1,6 +1,9 @@
 import { dateSchema, passwordSchema, z } from "../z";
 
-// ユーザーモデルのスキーマ定義
+/**
+ * システム内における標準的なユーザー情報モデルのスキーマ定義。
+ * id, email, パスワードに加えてステータスや作成・更新日時を保持します。
+ */
 export const UserSchema = z
   .object({
     id: z.string(),

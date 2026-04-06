@@ -31,7 +31,10 @@ interface EditorHeaderProps {
   handleRestore: () => void;
   handlePermanentDelete: () => void;
 }
-
+/**
+ * ノート編集画面の上部に配置されるヘッダーコンポーネント。
+ * プレビュー切り替え、詳細情報の確認ダイアログ表示、およびゴミ箱移動・削除といったノートに対する各種オプション操作を提供します。
+ */
 export function EditorHeader({
   note,
   editor,

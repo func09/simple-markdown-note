@@ -2,7 +2,10 @@ import { StatusBar } from "expo-status-bar";
 import { NotebookPen } from "lucide-react-native";
 import { Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
+/**
+ * 未ログイン時のランディングページとして機能するホーム画面コンポーネント。
+ * アプリのロゴと簡潔な説明を表示します。
+ */
 export function HomeScreen() {
   const insets = useSafeAreaInsets();
   return (

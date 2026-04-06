@@ -13,7 +13,10 @@ import { useAuthStore } from "../../auth/store";
 interface SettingsSheetProps {
   sheetRef: RefObject<BottomSheetModal | null>;
 }
-
+/**
+ * アプリ設定画面を提供するボトムシートコンポーネント。
+ * アカウント情報の表示や、ログアウトのアクションを提供します。
+ */
 export function SettingsSheet({ sheetRef }: SettingsSheetProps) {
   const { user, clearAuth } = useAuthStore();
   const logoutMutation = useLogout({

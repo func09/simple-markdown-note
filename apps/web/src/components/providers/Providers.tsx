@@ -11,7 +11,10 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AuthInitializer, useAuthStore } from "@/features/auth";
 import { queryClient, setGlobalErrorHandler } from "@/lib/queryClient";
-
+/**
+ * Webアプリケーション全体のProviderを束ねる設定コンポーネント。
+ * React Query、APIクライアント、認証状態の初期化やエラーハンドラーを一元管理します。
+ */
 export function Providers({ children }: { children: React.ReactNode }) {
   const [apiClient] = useState(() =>
     createApiClient(import.meta.env.VITE_API_URL || "http://localhost:8787/api")

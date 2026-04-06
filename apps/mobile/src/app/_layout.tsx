@@ -6,6 +6,11 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Providers } from "@/components/Providers";
 import { useDevMenu } from "@/hooks/useDevMenu";
 
+/**
+ * アプリのルートレイアウトコンポーネント
+ * プロバイダーやグローバルな設定を初期化する
+ * @returns {JSX.Element} ルートレイアウトコンポーネント
+ */
 export default function RootLayout() {
   useDevMenu();
   return (

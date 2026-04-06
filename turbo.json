@@ -12,20 +12,14 @@
       "dependsOn": ["build"],
       "outputs": [".vercel/output/**"]
     },
-    "lint": {
-      "dependsOn": ["^lint"]
-    },
     "check": {
       "dependsOn": ["^check"]
     },
-    "typecheck": {
-      "dependsOn": ["^typecheck"]
+    "check:types": {
+      "dependsOn": ["^check:types"]
     },
     "test": {
       "dependsOn": ["^test"]
-    },
-    "format": {
-      "cache": false
     },
     "dev": {
       "cache": false,

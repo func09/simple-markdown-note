@@ -12,7 +12,7 @@
     "test": "vitest run",
     "deploy": "wrangler deploy",
     "check": "biome check .",
-    "typecheck": "tsc --noEmit"
+    "check:types": "tsc --noEmit"
   },
   "dependencies": {
     "@hono/zod-openapi": "^0.18.4",

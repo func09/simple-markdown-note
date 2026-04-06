@@ -11,7 +11,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useAuthStore } from "../store";
-
+/**
+ * 新規登録後のメールアドレス有効化（認証）待ち画面コンポーネント。
+ * ユーザーにメールの確認を促し、リンク未着時の再送アクション等を提供します。
+ */
 export function PendingVerificationScreen() {
   const user = useAuthStore((state) => state.user);
   const clearAuth = useAuthStore((state) => state.clearAuth);

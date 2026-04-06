@@ -1,5 +1,8 @@
 import { vi } from "vitest";
-
+/**
+ * テスト環境用にAPIクライアントのモックオブジェクトを生成します。
+ * hcのインターフェースに合わせて各種エンドポイントのモックメソッドを提供します。
+ */
 export const createApiMock = () => ({
   auth: {
     signin: {

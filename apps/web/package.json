@@ -6,10 +6,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "biome check",
-    "format": "biome format --write",
     "check": "biome check .",
-    "typecheck": "tsc --noEmit",
+    "check:types": "tsc --noEmit",
     "test": "vitest run"
   },
   "dependencies": {

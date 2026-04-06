@@ -20,11 +20,9 @@
     }
   },
   "scripts": {
-    "lint": "biome lint .",
-    "format": "biome format --write .",
     "check": "biome check .",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "check:types": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",
