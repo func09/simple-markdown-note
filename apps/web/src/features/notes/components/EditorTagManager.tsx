@@ -6,7 +6,10 @@ interface EditorTagManagerProps {
   isTrashed: boolean;
   handleUpdateTags: (tags: string[]) => void;
 }
-
+/**
+ * ノートにおけるタグの追加・削除を管理・表示するUIコンポーネント。
+ * 既存タグをチップ状に並べ、新しいタグを入力して追加するフォームを提供します。
+ */
 export function EditorTagManager({
   note,
   isTrashed,

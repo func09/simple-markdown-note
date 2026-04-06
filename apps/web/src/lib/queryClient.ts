@@ -1,11 +1,12 @@
 import { ApiClientError } from "@simple-markdown-note/api-client/client";
 import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
 
-/**
- * グローバルなエラーハンドラを注入するための関数
- * Providers.tsx から設定します。
- */
 let globalErrorHandler: (error: Error) => void = () => {};
+
+/**
+ * API通信エラー時などに呼ばれるグローバルなエラーハンドラ関数を登録します。
+ * 主に `Providers.tsx` などでトークン切れの検知や強制ログアウト処理を差し込むために用います。
+ */
 export const setGlobalErrorHandler = (handler: (error: Error) => void) => {
   globalErrorHandler = handler;
 };

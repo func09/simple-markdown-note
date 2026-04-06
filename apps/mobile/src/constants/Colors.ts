@@ -1,6 +1,9 @@
 const tintColorLight = "#2f95dc";
 const tintColorDark = "#fff";
 
+/**
+ * アプリ内で使用するカラーパレットの定義
+ */
 export const Colors = {
   light: {
     text: "#000",

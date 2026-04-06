@@ -25,7 +25,10 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
+/**
+ * パスワード再設定画面のコンポーネント。
+ * メール経由で渡されたトークンを用いて、新しいパスワードを設定するUIと通信機能を提供します。
+ */
 export function ResetPasswordScreen() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();

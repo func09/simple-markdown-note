@@ -3,7 +3,9 @@ import { hc } from "hono/client";
 
 export { ApiClientError } from "./error";
 
-// 接続設定を引数で受け取れるようにする
+/**
+ * HonoのRPCクライアント（hc）を初期化し、型安全なAPIクライアントのインスタンスを生成するファクトリ関数です。
+ */
 export const createApiClient = (
   baseUrl: string,
   options?: {

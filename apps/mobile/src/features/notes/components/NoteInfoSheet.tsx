@@ -19,7 +19,10 @@ interface NoteInfoSheetProps {
   onTrashAction: () => void;
   onPermanentDelete: () => void;
 }
-
+/**
+ * ノートの詳細情報や操作アクションを提供するボトムシートコンポーネント。
+ * 文字数・更新日時の確認、ノートの削除およびゴミ箱からの復元などのメニューを表示します。
+ */
 export function NoteInfoSheet({
   sheetRef,
   note,

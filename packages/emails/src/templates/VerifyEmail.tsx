@@ -16,7 +16,9 @@ interface VerifyEmailProps {
   verifyLink?: string;
   userEmail?: string;
 }
-
+/**
+ * メールアドレスの本人確認を行うための検証リンクを含んだメール本文のReactコンポーネントテンプレート。
+ */
 export const VerifyEmail = ({
   verifyLink = "http://localhost:3000/verify-email?token=example-token",
   userEmail = "user@example.com",

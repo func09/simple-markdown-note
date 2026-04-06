@@ -7,7 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { queryClient } from "@/lib/queryClient";
 import { useAuthStore } from "../store";
-
+/**
+ * 受け取ったメール認証トークンの検証処理を実行・表示する画面コンポーネント。
+ * 通信の状態（読み込み中、成功、エラー）に応じたフィードバックUIを提示します。
+ */
 export function VerifyEmailScreen() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");

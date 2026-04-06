@@ -16,7 +16,9 @@ interface ResetPasswordEmailProps {
   resetLink?: string;
   userEmail?: string;
 }
-
+/**
+ * パスワード再設定リンクを含んだメール本文のReactコンポーネントテンプレート。
+ */
 export const ResetPasswordEmail = ({
   resetLink = "http://localhost:3000/reset-password?token=example-token",
   userEmail = "user@example.com",

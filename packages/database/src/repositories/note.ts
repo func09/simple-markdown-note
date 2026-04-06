@@ -10,7 +10,9 @@ import {
 } from "drizzle-orm";
 import type { DrizzleDB } from "../index";
 import { type NewNote, type Note, notes, notesToTags, tags } from "../schema";
-
+/**
+ * ノートデータのデータベース操作（作成・取得・更新・削除・タグ管理等）を抽象化したリポジトリ関数を生成します。
+ */
 export const createNoteRepository = (db: DrizzleDB) => ({
   /**
    * 指定したユーザーの全てのノートを取得します（更新日時の降順）。

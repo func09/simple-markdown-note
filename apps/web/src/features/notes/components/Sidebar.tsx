@@ -58,7 +58,10 @@ function NavItem({
 interface SidebarProps {
   onClose?: () => void;
 }
-
+/**
+ * アプリの全体メニューを提供するナビゲーションサイドバー。
+ * 「すべてのノート」「ゴミ箱」のリンクや、登録されているタグによるフィルタリング機能を提供します。
+ */
 export function Sidebar({ onClose }: SidebarProps) {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const { filterScope, filterTag, setFilterScope, setFilterTag } =

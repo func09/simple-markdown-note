@@ -23,7 +23,10 @@ interface NotesState {
   setFilterTag: (tag: string | null) => void;
   resetFilters: () => void;
 }
-
+/**
+ * ノート管理機能やUI状態を保持・更新するためのZustandストア。
+ * 選択中ノートIDや検索クエリ、タグによるフィルタリング状態を一元管理します。
+ */
 export const useNotesStore = create<NotesState>()(
   devtools(
     (set) => ({

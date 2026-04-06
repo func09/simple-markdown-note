@@ -19,7 +19,10 @@ function formatNotePreview(content: string) {
   const preview = lines.slice(1).join(" ").trim() || "No additional text";
   return { title, preview };
 }
-
+/**
+ * ノート一覧画面の各リストアイテムを表示するコンポーネント。
+ * ノートの最初の行をタイトルとして、以降をプレビュー文として抽出し、更新日時と共に表示します。
+ */
 export function NoteListItem({
   note,
   isSelected,

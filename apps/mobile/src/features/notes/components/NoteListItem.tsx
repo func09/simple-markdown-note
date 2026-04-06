@@ -6,7 +6,10 @@ type NoteListItemProps = {
   item: Note;
   onPress: (id: string) => void;
 };
-
+/**
+ * ノート一覧画面の各アイテムを表示するコンポーネント。
+ * タイトル、要約文、および整形されたフォーマットの更新日時を描画します。
+ */
 export function NoteListItem({ item, onPress }: NoteListItemProps) {
   const { title, summary, formattedDate } = useNoteItemState(item);
 

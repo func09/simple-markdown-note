@@ -50,7 +50,10 @@ const DialogContent = React.forwardRef<
   </DialogPortal>
 ));
 DialogContent.displayName = DialogPrimitive.Content.displayName;
-
+/**
+ * ダイアログの上部に表示されるヘッダーコンポーネント。
+ * タイトルや説明文の配置レイアウトを管理します。
+ */
 const DialogHeader = ({
   className,
   ...props
@@ -64,7 +67,10 @@ const DialogHeader = ({
   />
 );
 DialogHeader.displayName = "DialogHeader";
-
+/**
+ * ダイアログの下部に表示されるフッターコンポーネント。
+ * アクションボタンなどを配置するためのレイアウトブロックです。
+ */
 const DialogFooter = ({
   className,
   ...props

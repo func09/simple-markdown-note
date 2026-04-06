@@ -17,7 +17,10 @@ interface SettingsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
-
+/**
+ * ユーザー設定一覧と操作メニューを提供するモーダルダイアログ。
+ * 現在ログイン中のアカウント情報の確認と、ログアウトを実行するUIを備えます。
+ */
 export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
   const { clearAuth } = useAuthStore();
   const { resetFilters, setSelectedNoteId } = useNotesStore();

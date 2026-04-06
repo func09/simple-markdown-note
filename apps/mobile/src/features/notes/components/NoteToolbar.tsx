@@ -16,7 +16,10 @@ interface NoteToolbarProps {
   onOpenInfo: () => void;
   onToggleKeyboard: () => void;
 }
-
+/**
+ * ノート編集・詳細画面上部に表示されるツールバーコンポーネント。
+ * 戻るボタンやプレビューの切り替え、ソフトウェアキーボードのトグル、設定および詳細情報シートの表示アクションを提供します。
+ */
 export function NoteToolbar({
   isPreview,
   setIsPreview,
