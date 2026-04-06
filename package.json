@@ -12,6 +12,7 @@
     "dev": "tsx scripts/dev.ts",
     "build": "turbo build",
     "check": "turbo check",
+    "check:docs": "eslint \"**/*.{ts,tsx}\"",
     "clean:cache": "find . -name \"*.tsbuildinfo\" -delete",
     "check:all": "pnpm clean:cache && turbo check check:types test --force",
     "check:types": "turbo check:types",
@@ -26,11 +27,14 @@
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^25.5.0",
     "dotenv": "^17.3.1",
+    "eslint": "^10.2.0",
+    "eslint-plugin-jsdoc": "^62.9.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
     "tsx": "^4.21.0",
     "turbo": "^2.9.3",
     "typescript": "^5.7.3",
+    "typescript-eslint": "^8.58.0",
     "vitest": "3.2.4"
   },
   "pnpm": {
