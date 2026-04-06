@@ -53,10 +53,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run CI tasks (db:check, check, typecheck, test)
+      - name: Run CI tasks (db:check, check, check:types, test)
         run: |
           if [ "${{ github.event_name }}" == "pull_request" ]; then
-            pnpm turbo run db:check check typecheck test --filter=[${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}]
+            pnpm turbo run db:check check check:types test --filter=[${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}]
           else
-            pnpm turbo run db:check check typecheck test
+            pnpm turbo run db:check check check:types test
           fi
+
+      - name: Run JSDoc validations (check:docs)
+        run: pnpm check:docs
+

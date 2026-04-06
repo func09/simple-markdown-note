@@ -5,7 +5,10 @@ import {
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useNotesStore } from "@/features/notes/store";
-
+/**
+ * デスクトップアプリ環境にて、Electronのネイティブメニューからのアクションを処理するフック。
+ * メニュー経由での新規ノート作成やゴミ箱移動などのイベントリスナーを登録・破棄します。
+ */
 export function useElectronMenu() {
   const navigate = useNavigate();
   const createNoteMutation = useCreateNote();

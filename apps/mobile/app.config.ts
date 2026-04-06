@@ -7,6 +7,11 @@ const envFile =
   process.env.NODE_ENV === "production" ? ".env.production" : ".env";
 dotenv.config({ path: path.resolve(__dirname, envFile) });
 
+/**
+ * Expoのアプリケーション設定を定義するファクトリ関数
+ * @param {ConfigContext} context Expoの設定コンテキスト
+ * @returns {ExpoConfig} Expoのアプリケーション設定
+ */
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: config.name || "Simple Markdown Note",

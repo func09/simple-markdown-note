@@ -1,7 +1,9 @@
 import { and, eq, sql } from "drizzle-orm";
 import type { DrizzleDB } from "../index";
 import { type NewTag, notesToTags, type Tag, tags } from "../schema";
-
+/**
+ * タグ情報のデータベース操作（取得・作成・使用回数のカウント等）を抽象化したリポジトリ関数を生成します。
+ */
 export const createTagRepository = (db: DrizzleDB) => ({
   /**
    * 指定したユーザーの全てのタグを取得します。

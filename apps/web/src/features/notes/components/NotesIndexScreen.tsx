@@ -9,7 +9,10 @@ import { Sidebar } from "./Sidebar";
 interface NotesIndexScreenProps {
   selectedNoteId?: string;
 }
-
+/**
+ * サイドバー、ノート一覧リスト、そしてエディタ本体を統合したアプリの中核となる画面コンポーネント。
+ * 画面幅（モバイル、タブレット、デスクトップ）に応じたレスポンシブなレイアウト制御を行います。
+ */
 export function NotesIndexScreen({
   selectedNoteId: propSelectedNoteId,
 }: NotesIndexScreenProps) {

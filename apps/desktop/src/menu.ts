@@ -5,6 +5,9 @@ import {
   type MenuItemConstructorOptions,
 } from "electron";
 
+/**
+ * Electronのアプリケーションメニューをセットアップする
+ */
 export function setupMenu() {
   const isMac = process.platform === "darwin";
 

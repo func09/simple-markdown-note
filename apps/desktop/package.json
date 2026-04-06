@@ -8,7 +8,7 @@
     "dev": "pnpm run build && electron .",
     "build": "tsc",
     "check": "biome check .",
-    "typecheck": "tsc --noEmit",
+    "check:types": "tsc --noEmit",
     "test": "vitest run",
     "package": "VITE_ELECTRON=true dotenv -e .env.production -- pnpm -F web build && pnpm run build && electron-builder build --mac --arm64"
   },

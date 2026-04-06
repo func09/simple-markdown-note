@@ -52,6 +52,12 @@ interface ProvidersProps {
   children: ReactNode;
 }
 
+/**
+ * アプリ全体のプロバイダーをラップするコンポーネント
+ * React QueryやAPIクライアントの設定を提供する
+ * @param {ProvidersProps} props コンポーネントのプロパティ
+ * @returns {JSX.Element} プロバイダーコンポーネント
+ */
 export function Providers({ children }: ProvidersProps) {
   return (
     <QueryClientProvider client={queryClient}>

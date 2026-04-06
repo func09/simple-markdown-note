@@ -9,10 +9,8 @@
   "scripts": {
     "dev": "email dev -p 3001 --dir src/templates",
     "build": "email export --dir src/templates",
-    "lint": "biome lint .",
-    "format": "biome format --write .",
     "check": "biome check .",
-    "typecheck": "tsc --noEmit"
+    "check:types": "tsc --noEmit"
   },
   "dependencies": {
     "@react-email/components": "^0.0.33",

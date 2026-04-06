@@ -5,12 +5,18 @@ import { drizzle as drizzleLibsql } from "drizzle-orm/libsql";
 import { migrate } from "drizzle-orm/libsql/migrator";
 import * as schema from "./schema";
 
-// D1 用のDBインスタンス作成関数
+/**
+ * Cloudflare D1（エッジデータベース）用のDrizzle ORMインスタンスを生成します。
+ * 本番・ステージング等のCloudflare Workers環境で使用されます。
+ */
 export const createDb = (d1: unknown) => {
   return drizzleD1(d1 as never, { schema });
 };
 
-// LibSQL 用の型（ローカル開発/テスト用）
+/**
+ * ローカル開発およびテスト環境用のLibSQLインスタンスを生成します。
+ * 環境変数 `DATABASE_URL` またはデフォルトのファイルパスを指定して接続します。
+ */
 export const getLibsqlDb = () => {
   const url =
     (typeof process !== "undefined" && process.env?.DATABASE_URL) ||
@@ -19,8 +25,10 @@ export const getLibsqlDb = () => {
   return drizzleLibsql(client, { schema });
 };
 
-// Drizzle ORM のインスタンス（静的エクスポート: 主にテスト/シード用）
-// Workers環境ではトップレベルでの初期化を避けるため、セーフガードを追加
+/**
+ * 静的にエクスポートされるDrizzle ORMのグローバルインスタンス。
+ * 主にローカルテストやシーディングスクリプト用途で利用されます（Workers実行環境ではnullになります）。
+ */
 export const db =
   typeof process !== "undefined" &&
   (process.env?.DATABASE_URL || typeof caches === "undefined")
@@ -32,7 +40,9 @@ export type DrizzleDB =
   | ReturnType<typeof getLibsqlDb>;
 
 export * from "drizzle-orm";
-
+/**
+ * LibSQL用のマイグレーション関数エイリアス。
+ */
 export const migrateLibsql = migrate;
 export * from "./repositories/email-verification";
 export * from "./repositories/note";

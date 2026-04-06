@@ -8,8 +8,6 @@
     "./*": "./src/*"
   },
   "scripts": {
-    "lint": "biome lint .",
-    "format": "biome format --write .",
     "check": "biome check .",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
@@ -17,7 +15,7 @@
     "db:check": "drizzle-kit check",
     "db:seed": "tsx src/seed.ts",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "check:types": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",

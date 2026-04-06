@@ -8,7 +8,10 @@ import { toggleCheckboxInContent } from "../utils";
 import { NoteEditor } from "./NoteEditor";
 import { NoteInfoSheet } from "./NoteInfoSheet";
 import { NoteToolbar } from "./NoteToolbar";
-
+/**
+ * 個別のノート詳細情報や編集機能を提供する画面コンポーネント。
+ * ルーティングのパラメータからノートIDを取得し、ノートのプレビューや編集、削除などの操作を統括します。
+ */
 export function NoteDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const isNew = id === "new";

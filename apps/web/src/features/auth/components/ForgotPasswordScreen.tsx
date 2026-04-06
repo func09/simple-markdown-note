@@ -26,7 +26,10 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
+/**
+ * パスワードを忘れたユーザーに向けてリセット用リンクを送信する画面コンポーネント。
+ * 入力されたメールアドレス宛にAPI経由で検証メールの発行をリクエストします。
+ */
 export function ForgotPasswordScreen() {
   const navigate = useNavigate();
   const emailId = useId();

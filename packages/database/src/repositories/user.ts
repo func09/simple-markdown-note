@@ -1,7 +1,9 @@
 import { eq } from "drizzle-orm";
 import type { DrizzleDB } from "../index";
 import { type NewUser, type User, users } from "../schema";
-
+/**
+ * ユーザー情報のデータベース操作（作成・メールアドレスによる検索・更新等）を抽象化したリポジトリ関数を生成します。
+ */
 export const createUserRepository = (db: DrizzleDB) => ({
   /**
    * メールアドレスを指定してユーザーを検索します。
