@@ -50,7 +50,7 @@ Enforce a highly reproducible environment using pnpm workspaces and schema-drive
 │   └── mobile/             # Expo (React Native)
 ├── packages/
 │   ├── api-client/         # Generated & shared API client
-│   ├── common/             # Shared logic and type definitions
+│   ├── schemas/            # Zod schemas and type definitions
 │   ├── database/           # Drizzle Schema & Migrations
 │   └── emails/             # Email templates (Resend, etc.)
 └── package.json
