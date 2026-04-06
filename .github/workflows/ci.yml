@@ -60,3 +60,7 @@ jobs:
           else
             pnpm turbo run db:check check check:types test
           fi
+
+      - name: Run JSDoc validations (check:docs)
+        run: pnpm check:docs
+
