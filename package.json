@@ -10,8 +10,6 @@
   ],
   "scripts": {
     "dev": "tsx scripts/dev.ts",
-    "format": "turbo format",
-    "lint": "turbo lint",
     "check": "turbo check",
     "build": "turbo build",
     "typecheck": "turbo typecheck",
