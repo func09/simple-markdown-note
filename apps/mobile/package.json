@@ -10,7 +10,7 @@
     "ios:release": "NODE_ENV=production expo run:ios --device --configuration Release",
     "web": "expo start --web",
     "check": "biome check .",
-    "typecheck": "tsc --noEmit",
+    "check:types": "tsc --noEmit",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --passWithNoTests"
   },
   "dependencies": {

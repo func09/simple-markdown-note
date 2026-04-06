@@ -6,4 +6,4 @@ fi
 
 pnpm lint-staged
 pnpm check
-pnpm typecheck
+pnpm check:types

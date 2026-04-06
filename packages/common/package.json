@@ -18,7 +18,7 @@
   "scripts": {
     "check": "biome check .",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "check:types": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",
