@@ -1,6 +1,6 @@
 import {
-  LogOut,
   NotebookPen,
+  Settings,
   Tag as TagIcon,
   Trash2,
 } from "lucide-react-native";
@@ -14,7 +14,6 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { DRAWER_WIDTH } from "../constants";
-import { useNoteDrawerActions } from "../hooks";
 
 type NoteDrawerProps = {
   isOpen: boolean;
@@ -25,6 +24,7 @@ type NoteDrawerProps = {
   onSelectScope: (scope: string) => void;
   onSelectTag: (tag: string) => void;
   tags: string[];
+  onOpenSettings?: () => void;
 };
 
 export function NoteDrawer({
@@ -36,8 +36,8 @@ export function NoteDrawer({
   onSelectScope,
   onSelectTag,
   tags,
+  onOpenSettings,
 }: NoteDrawerProps) {
-  const { handleLogout } = useNoteDrawerActions(onClose);
   const insets = useSafeAreaInsets();
 
   if (!isOpen) return null;
@@ -158,12 +158,15 @@ export function NoteDrawer({
               </TouchableOpacity>
 
               <TouchableOpacity
-                onPress={handleLogout}
+                onPress={() => {
+                  onClose();
+                  onOpenSettings?.();
+                }}
                 className="flex-row items-center px-4 py-3 rounded-xl mt-1"
               >
-                <LogOut size={18} color="#ef4444" />
-                <Text className="ml-4 text-sm font-medium text-red-500">
-                  Log Out
+                <Settings size={18} color="#475569" />
+                <Text className="ml-4 text-sm font-medium text-slate-600">
+                  Settings
                 </Text>
               </TouchableOpacity>
             </View>
