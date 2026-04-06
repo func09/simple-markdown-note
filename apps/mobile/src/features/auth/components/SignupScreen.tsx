@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSignup } from "@simple-markdown-note/api-client/hooks";
-import type { SignupRequest } from "@simple-markdown-note/common/schemas";
-import { SignupRequestSchema } from "@simple-markdown-note/common/schemas";
+import type { SignupRequest } from "@simple-markdown-note/schemas";
+import { SignupRequestSchema } from "@simple-markdown-note/schemas";
 import { useRouter } from "expo-router";
 import { AlertCircle, Lock, Mail, UserPlus } from "lucide-react-native";
 import { Controller, useForm } from "react-hook-form";

@@ -1,4 +1,4 @@
-import type { Note } from "@simple-markdown-note/common/schemas";
+import type { Note } from "@simple-markdown-note/schemas";
 import type { Editor } from "@tiptap/react";
 import {
   ChevronLeft,

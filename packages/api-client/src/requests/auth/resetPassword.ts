@@ -6,7 +6,7 @@ import { ApiClientError } from "../../client";
  */
 export const resetPassword = async (
   api: ApiClient,
-  data: import("@simple-markdown-note/common/schemas").ResetPasswordRequest
+  data: import("@simple-markdown-note/schemas").ResetPasswordRequest
 ): Promise<void> => {
   const url = api.auth["reset-password"].$url();
   console.log(`[API] [resetPassword] POST ${url}`, {

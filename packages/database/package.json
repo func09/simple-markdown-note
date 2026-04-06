@@ -32,7 +32,7 @@
     "@libsql/client": "^0.17.2",
     "@paralleldrive/cuid2": "^2.2.2",
     "bcryptjs": "^3.0.3",
-    "@simple-markdown-note/common": "workspace:*",
+    "@simple-markdown-note/schemas": "workspace:*",
     "drizzle-orm": "^0.40.0"
   }
 }

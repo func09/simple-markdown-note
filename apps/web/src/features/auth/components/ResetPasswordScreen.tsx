@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useResetPassword } from "@simple-markdown-note/api-client/hooks";
-import type { ResetPasswordRequest } from "@simple-markdown-note/common/schemas";
-import { ResetPasswordRequestSchema } from "@simple-markdown-note/common/schemas";
+import type { ResetPasswordRequest } from "@simple-markdown-note/schemas";
+import { ResetPasswordRequestSchema } from "@simple-markdown-note/schemas";
 import {
   AlertCircle,
   ArrowRight,

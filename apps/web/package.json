@@ -17,7 +17,7 @@
     "@radix-ui/react-separator": "^1.1.8",
     "@radix-ui/react-slot": "^1.2.4",
     "@simple-markdown-note/api-client": "workspace:*",
-    "@simple-markdown-note/common": "workspace:*",
+    "@simple-markdown-note/schemas": "workspace:*",
     "@tailwindcss/typography": "^0.5.19",
     "@tanstack/react-query": "^5.95.2",
     "@tanstack/react-query-devtools": "^5.95.2",

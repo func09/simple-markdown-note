@@ -1,5 +1,5 @@
 import { useApi } from "@simple-markdown-note/api-client/context";
-import type { ResendVerificationRequest } from "@simple-markdown-note/common/schemas";
+import type { ResendVerificationRequest } from "@simple-markdown-note/schemas";
 import { useMutation } from "@tanstack/react-query";
 import { resendVerification } from "../../requests/auth/resendVerification";
 

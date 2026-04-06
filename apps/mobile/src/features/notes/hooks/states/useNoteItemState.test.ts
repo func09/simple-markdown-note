@@ -1,4 +1,4 @@
-import type { Note } from "@simple-markdown-note/common/schemas";
+import type { Note } from "@simple-markdown-note/schemas";
 import { renderHook } from "@testing-library/react-native";
 import { useNoteItemState } from "./useNoteItemState";
 
