@@ -8,7 +8,7 @@ import {
   SigninRequestSchema,
   SignupRequestSchema,
   VerifyEmailQuerySchema,
-} from "@simple-markdown-note/common/schemas";
+} from "@simple-markdown-note/schemas";
 
 /** POST /signup — ユーザー登録ルート定義 */
 export const signupRoute = createRoute({

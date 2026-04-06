@@ -1,7 +1,7 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as authRequests from "../../requests/auth/resendVerification";
-import { createWrapper } from "./test-utils";
+import { createWrapper } from "./testUtils";
 import { useResendVerification } from "./useResendVerification";
 
 vi.mock("../../requests/auth/resendVerification");

@@ -1,4 +1,4 @@
-import type { Note } from "@simple-markdown-note/common/schemas";
+import type { Note } from "@simple-markdown-note/schemas";
 import { Plus, Tag as TagIcon } from "lucide-react";
 
 interface EditorTagManagerProps {

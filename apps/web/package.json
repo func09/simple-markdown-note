@@ -8,7 +8,8 @@
     "preview": "vite preview",
     "check": "biome check .",
     "check:types": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:cov:open": "test -f coverage/index.html && open coverage/index.html || true"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -17,7 +18,7 @@
     "@radix-ui/react-separator": "^1.1.8",
     "@radix-ui/react-slot": "^1.2.4",
     "@simple-markdown-note/api-client": "workspace:*",
-    "@simple-markdown-note/common": "workspace:*",
+    "@simple-markdown-note/schemas": "workspace:*",
     "@tailwindcss/typography": "^0.5.19",
     "@tanstack/react-query": "^5.95.2",
     "@tanstack/react-query-devtools": "^5.95.2",

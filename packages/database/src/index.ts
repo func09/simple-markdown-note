@@ -44,9 +44,9 @@ export * from "drizzle-orm";
  * LibSQL用のマイグレーション関数エイリアス。
  */
 export const migrateLibsql = migrate;
-export * from "./repositories/email-verification";
+export * from "./repositories/emailVerification";
 export * from "./repositories/note";
-export * from "./repositories/password-reset";
+export * from "./repositories/passwordReset";
 export * from "./repositories/tag";
 // Repositories
 export * from "./repositories/user";

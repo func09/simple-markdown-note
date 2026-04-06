@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForgotPassword } from "@simple-markdown-note/api-client/hooks";
-import type { ForgotPasswordRequest } from "@simple-markdown-note/common/schemas";
-import { ForgotPasswordRequestSchema } from "@simple-markdown-note/common/schemas";
+import type { ForgotPasswordRequest } from "@simple-markdown-note/schemas";
+import { ForgotPasswordRequestSchema } from "@simple-markdown-note/schemas";
 import {
   AlertCircle,
   ArrowLeft,

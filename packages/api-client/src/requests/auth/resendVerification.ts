@@ -6,7 +6,7 @@ import { ApiClientError } from "../../client";
  */
 export const resendVerification = async (
   api: ApiClient,
-  data: import("@simple-markdown-note/common/schemas").ResendVerificationRequest
+  data: import("@simple-markdown-note/schemas").ResendVerificationRequest
 ): Promise<void> => {
   const url = api.auth["resend-verification"].$url();
   console.log(`[API] [resendVerification] POST ${url}`);

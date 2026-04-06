@@ -2,8 +2,8 @@ import type {
   NoteListResponse,
   NoteListResponseSchema,
   NoteSchema,
-} from "@simple-markdown-note/common/schemas";
-import { NOTE_SCOPE } from "@simple-markdown-note/common/types";
+} from "@simple-markdown-note/schemas";
+import { NOTE_SCOPE } from "@simple-markdown-note/schemas";
 import { beforeAll, describe, expect, it } from "vitest";
 import type { z } from "zod";
 import { app } from "../index";

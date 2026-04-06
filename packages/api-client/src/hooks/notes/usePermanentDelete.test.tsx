@@ -2,7 +2,7 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import * as notesRequests from "../../requests/notes/deleteNote";
-import { createWrapper } from "./test-utils";
+import { createWrapper } from "./testUtils";
 import { usePermanentDelete } from "./usePermanentDelete";
 
 vi.mock("../../requests/notes/deleteNote");
