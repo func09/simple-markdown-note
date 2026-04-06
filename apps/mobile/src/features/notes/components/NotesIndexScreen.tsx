@@ -1,9 +1,10 @@
+import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useNotes, useTags } from "@simple-markdown-note/api-client/hooks";
 import type { Note } from "@simple-markdown-note/common/schemas";
 import { NOTE_SCOPE, type NoteScope } from "@simple-markdown-note/common/types";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Menu, NotebookPen, Search } from "lucide-react-native";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import {
   FlatList,
   RefreshControl,
@@ -17,6 +18,7 @@ import { useDrawerState } from "../hooks";
 import { filterNotes } from "../utils";
 import { NoteDrawer } from "./NoteDrawer";
 import { NoteListItem } from "./NoteListItem";
+import { SettingsSheet } from "./SettingsSheet";
 
 /**
  * ノート一覧画面のメインコンポーネント。
@@ -32,6 +34,9 @@ export function NotesIndexScreen() {
 
   // 2. テキスト検索ボックスの入力を保持するローカルステート
   const [searchQuery, setSearchQuery] = useState("");
+
+  // 設定用ボトムシートの参照
+  const settingsSheetRef = useRef<BottomSheetModal>(null);
 
   // 3. APIからノート一覧を取得（現在のスコープとタグでバックエンドフィルタリング）
   const {
@@ -120,6 +125,7 @@ export function NotesIndexScreen() {
         onSelectScope={handleSelectScope}
         onSelectTag={handleSelectTag}
         tags={tags}
+        onOpenSettings={() => settingsSheetRef.current?.present()}
       />
 
       <View className="px-5 py-4 border-b border-slate-100 bg-white">
@@ -176,6 +182,8 @@ export function NotesIndexScreen() {
           ) : null
         }
       />
+
+      <SettingsSheet sheetRef={settingsSheetRef} />
     </View>
   );
 }
