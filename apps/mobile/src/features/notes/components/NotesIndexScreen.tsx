@@ -1,7 +1,10 @@
 import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useNotes, useTags } from "@simple-markdown-note/api-client/hooks";
 import type { Note } from "@simple-markdown-note/common/schemas";
-import { NOTE_SCOPE, type NoteScope } from "@simple-markdown-note/common/types";
+import {
+  NOTE_SCOPE,
+  type NoteScope,
+} from "@simple-markdown-note/common/schemas";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Menu, NotebookPen, Search } from "lucide-react-native";
 import { useCallback, useMemo, useRef, useState } from "react";

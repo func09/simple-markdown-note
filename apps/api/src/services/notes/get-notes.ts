@@ -1,4 +1,4 @@
-import type { NoteScope } from "@simple-markdown-note/common/types";
+import type { NoteScope } from "@simple-markdown-note/common/schemas";
 import {
   createNoteRepository,
   type DrizzleDB,
