@@ -1,5 +1,5 @@
 import {
-  createPasswordResetRepository,
+  createEmailVerificationRepository,
   createUserRepository,
   type DrizzleDB,
 } from "@simple-markdown-note/database";
@@ -13,15 +13,10 @@ import {
   vi,
 } from "vitest";
 import type { AppEnv } from "@/types";
-import { requestPasswordReset } from "./request-password-reset";
+import { resendVerificationEmail } from "./resendVerificationEmail";
 
 vi.mock("@simple-markdown-note/database", () => ({
-  bcryptjs: {
-    hash: vi.fn(),
-    compare: vi.fn(),
-  },
   createUserRepository: vi.fn(),
-  createPasswordResetRepository: vi.fn(),
   createEmailVerificationRepository: vi.fn(),
 }));
 
@@ -32,24 +27,20 @@ vi.mock("resend", () => ({
 }));
 
 vi.mock("@simple-markdown-note/emails", () => ({
-  renderResetPasswordEmail: vi.fn().mockResolvedValue({
-    html: "<p>test</p>",
-    text: "test",
+  renderVerifyEmail: vi.fn().mockResolvedValue({
+    html: "<p>verify</p>",
+    text: "verify",
   }),
 }));
 
-describe("requestPasswordReset", () => {
+describe("resendVerificationEmail", () => {
   const db = {} as DrizzleDB;
   const mockUserRepo = {
     findByEmail: vi.fn(),
-    create: vi.fn(),
-    findById: vi.fn(),
-    updatePassword: vi.fn(),
   };
-  const mockPasswordResetRepo = {
+  const mockVerifyRepo = {
     create: vi.fn(),
     deleteByUserId: vi.fn(),
-    findByTokenHash: vi.fn(),
   };
 
   beforeEach(() => {
@@ -57,9 +48,9 @@ describe("requestPasswordReset", () => {
     vi.mocked(createUserRepository).mockReturnValue(
       mockUserRepo as unknown as ReturnType<typeof createUserRepository>
     );
-    vi.mocked(createPasswordResetRepository).mockReturnValue(
-      mockPasswordResetRepo as unknown as ReturnType<
-        typeof createPasswordResetRepository
+    vi.mocked(createEmailVerificationRepository).mockReturnValue(
+      mockVerifyRepo as unknown as ReturnType<
+        typeof createEmailVerificationRepository
       >
     );
   });
@@ -71,16 +62,13 @@ describe("requestPasswordReset", () => {
         return arr as Uint8Array;
       }
     );
-    vi.spyOn(globalThis.crypto.subtle, "digest").mockResolvedValue(
-      new Uint8Array([2, 2, 2]).buffer as unknown as ArrayBuffer
-    );
   });
 
   afterAll(() => {
     vi.restoreAllMocks();
   });
 
-  it("should process password reset for existing user", async () => {
+  it("should process resend for pending user", async () => {
     const mockEnv = {
       RESEND_API_KEY: "re_test",
       DB: {},
@@ -89,15 +77,18 @@ describe("requestPasswordReset", () => {
     mockUserRepo.findByEmail.mockResolvedValue({
       id: "user_1",
       email: "test@example.com",
+      status: "pending",
     });
 
-    await requestPasswordReset(db, "test@example.com", mockEnv);
+    await resendVerificationEmail(db, "test@example.com", mockEnv);
 
-    expect(mockPasswordResetRepo.deleteByUserId).toHaveBeenCalledWith("user_1");
-    expect(mockPasswordResetRepo.create).toHaveBeenCalledWith(
+    expect(mockVerifyRepo.deleteByUserId).toHaveBeenCalledWith("user_1");
+    // getRandomValues fill with 1 -> 32 bytes gives 64 exactly matching `01`s
+    const hexRep = "01".repeat(32);
+    expect(mockVerifyRepo.create).toHaveBeenCalledWith(
       expect.objectContaining({
         userId: "user_1",
-        tokenHash: "020202",
+        token: hexRep,
       })
     );
 
@@ -112,6 +103,24 @@ describe("requestPasswordReset", () => {
     );
   });
 
+  it("should do nothing if user is already active", async () => {
+    const mockEnv = {
+      RESEND_API_KEY: "re_test",
+      DB: {},
+      JWT_SECRET: "secret",
+    } as unknown as AppEnv["Bindings"];
+    mockUserRepo.findByEmail.mockResolvedValue({
+      id: "user_1",
+      email: "test@example.com",
+      status: "active",
+    });
+
+    await resendVerificationEmail(db, "test@example.com", mockEnv);
+
+    expect(mockVerifyRepo.deleteByUserId).not.toHaveBeenCalled();
+    expect(mockVerifyRepo.create).not.toHaveBeenCalled();
+  });
+
   it("should fail gracefully if user doesn't exist", async () => {
     const mockEnv = {
       RESEND_API_KEY: "re_test",
@@ -120,8 +129,9 @@ describe("requestPasswordReset", () => {
     } as unknown as AppEnv["Bindings"];
     mockUserRepo.findByEmail.mockResolvedValue(null);
 
-    await requestPasswordReset(db, "unknown@example.com", mockEnv);
+    await resendVerificationEmail(db, "unknown@example.com", mockEnv);
 
-    expect(mockPasswordResetRepo.create).not.toHaveBeenCalled();
+    expect(mockVerifyRepo.deleteByUserId).not.toHaveBeenCalled();
+    expect(mockVerifyRepo.create).not.toHaveBeenCalled();
   });
 });

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { db } from "../index";
 import { emailVerifications, users } from "../schema";
-import { createEmailVerificationRepository } from "./email-verification";
+import { createEmailVerificationRepository } from "./emailVerification";
 import { createUserRepository } from "./user";
 
 const repo = createEmailVerificationRepository(db);

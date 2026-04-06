@@ -16,7 +16,7 @@ describe("verifyEmail", () => {
       status: 204,
       url: "http://localhost/api/auth/verify-email",
     };
-    apiMock.auth["verify-email"].$get.mockResolvedValue(mockResponse);
+    apiMock.auth["verifyEmail"].$get.mockResolvedValue(mockResponse);
 
     await expect(
       verifyEmail(apiMock as unknown as ApiClient, "token")
@@ -30,7 +30,7 @@ describe("verifyEmail", () => {
       url: "http://localhost/api/auth/verify-email",
       json: async () => ({ error: "Token invalid" }),
     };
-    apiMock.auth["verify-email"].$get.mockResolvedValue(mockResponse);
+    apiMock.auth["verifyEmail"].$get.mockResolvedValue(mockResponse);
 
     await expect(
       verifyEmail(apiMock as unknown as ApiClient, "token")

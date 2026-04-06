@@ -16,7 +16,7 @@ describe("resetPassword", () => {
       status: 204,
       url: "http://localhost/api/auth/reset-password",
     };
-    apiMock.auth["reset-password"].$post.mockResolvedValue(mockResponse);
+    apiMock.auth["resetPassword"].$post.mockResolvedValue(mockResponse);
 
     await expect(
       resetPassword(apiMock as unknown as ApiClient, {
@@ -34,7 +34,7 @@ describe("resetPassword", () => {
       url: "http://localhost/api/auth/reset-password",
       json: async () => ({ error: "Token invalid" }),
     };
-    apiMock.auth["reset-password"].$post.mockResolvedValue(mockResponse);
+    apiMock.auth["resetPassword"].$post.mockResolvedValue(mockResponse);
 
     await expect(
       resetPassword(apiMock as unknown as ApiClient, {

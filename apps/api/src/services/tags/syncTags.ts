@@ -2,7 +2,7 @@ import {
   createTagRepository,
   type DrizzleDB,
 } from "@simple-markdown-note/database";
-import { cleanupOrphanedTags } from "./cleanup-orphaned-tags";
+import { cleanupOrphanedTags } from "./cleanupOrphanedTags";
 
 /**
  * ノートのタグを同期する

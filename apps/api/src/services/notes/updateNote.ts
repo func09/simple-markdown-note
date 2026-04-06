@@ -3,7 +3,7 @@ import {
   type DrizzleDB,
 } from "@simple-markdown-note/database";
 import { syncTags } from "../tags";
-import { getNoteById } from "./get-note-by-id";
+import { getNoteById } from "./getNoteById";
 
 /**
  * 既存ノートを更新する

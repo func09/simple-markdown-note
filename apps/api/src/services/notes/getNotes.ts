@@ -3,7 +3,7 @@ import {
   type DrizzleDB,
 } from "@simple-markdown-note/database";
 import type { NoteScope } from "@simple-markdown-note/schemas";
-import { mapToNoteWithTags } from "./map-to-note-with-tags";
+import { mapToNoteWithTags } from "./mapToNoteWithTags";
 
 /**
  * ユーザーのノート一覧を取得する
