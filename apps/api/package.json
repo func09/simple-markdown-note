@@ -32,5 +32,6 @@
     "vitest": "3.2.4",
     "vitest-fetch-mock": "^0.4.5",
     "wrangler": "^4.79.0"
-  }
+  },
+  "license": "MIT"
 }

@@ -28,7 +28,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "description": "",
   "peerDependencies": {
     "@tanstack/react-query": "^5.0.0",
