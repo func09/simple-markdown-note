@@ -17,7 +17,7 @@
     "check:all": "pnpm clean:cache && turbo check check:types test --force",
     "check:types": "turbo check:types",
     "test": "CI=true turbo test",
-    "test:cov": "CI=true turbo test -- --coverage --reporter=dot",
+    "test:cov": "CI=true turbo test -- --coverage --reporter=dot --silent",
     "prepare": "husky"
   },
   "keywords": [],
