@@ -1,9 +1,9 @@
-import { existsSync, readdirSync } from "node:fs";
+import { randomUUID } from "node:crypto";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { createClient } from "@libsql/client";
 import bcryptjs from "bcryptjs";
 import { drizzle } from "drizzle-orm/libsql";
-import { seed } from "drizzle-seed";
 import * as schema from "./schema";
 
 async function main() {
@@ -47,128 +47,139 @@ async function main() {
   const client = createClient({ url: dbPath });
   const db = drizzle(client, { schema });
 
-  // 0. 既存のテストデータをクリーンアップ (冪等性の確保)
-  const { eq } = await import("drizzle-orm");
-  const existingUser = await db.query.users.findFirst({
-    where: eq(schema.users.email, "test@example.com"),
-  });
+  // Fixturesの読み込み
+  const usersPath = join(process.cwd(), "src", "fixtures", "users.json");
+  const notesPath = join(process.cwd(), "src", "fixtures", "notes.json");
+  const usersData = JSON.parse(readFileSync(usersPath, "utf-8"));
+  const notesData = JSON.parse(readFileSync(notesPath, "utf-8"));
 
-  if (existingUser) {
-    console.log("🧹 Cleaning up existing test data...");
-    await db
-      .delete(schema.notes)
-      .where(eq(schema.notes.userId, existingUser.id));
-    await db.delete(schema.tags).where(eq(schema.tags.userId, existingUser.id));
-    await db.delete(schema.users).where(eq(schema.users.id, existingUser.id));
+  // 0. 既存のテストデータをクリーンアップ (冪等性の確保)
+  const { inArray } = await import("drizzle-orm");
+  const emailsToClean = usersData.map((u: { email: string }) => u.email);
+
+  if (emailsToClean.length > 0) {
+    const existingUsers = await db.query.users.findMany({
+      where: inArray(schema.users.email, emailsToClean),
+    });
+
+    if (existingUsers.length > 0) {
+      const userIds = existingUsers.map((u) => u.id);
+      console.log("🧹 Cleaning up existing test data...");
+      await db
+        .delete(schema.notes)
+        .where(inArray(schema.notes.userId, userIds));
+      await db.delete(schema.tags).where(inArray(schema.tags.userId, userIds));
+      await db.delete(schema.users).where(inArray(schema.users.id, userIds));
+    }
   }
 
-  // 1. デフォルトユーザーの作成
-  const passwordHash = await bcryptjs.hash("password", 10);
-  const FIXED_TEST_USER_ID = "test-user-id-fixed-01";
-  const [testUser] = await db
-    .insert(schema.users)
-    .values({
-      id: FIXED_TEST_USER_ID,
-      email: "test@example.com",
-      passwordHash,
-    })
-    .returning();
+  // 1. Fixtureからユーザーの作成
+  console.log("✅ Creating users from fixtures...");
+  const insertedUsers = [];
+  for (const userData of usersData) {
+    const passwordHash = await bcryptjs.hash(userData.password, 10);
+    const [inserted] = await db
+      .insert(schema.users)
+      .values({
+        id: userData.id,
+        email: userData.email,
+        passwordHash,
+        status: userData.status,
+      })
+      .returning();
+    if (inserted) {
+      insertedUsers.push(inserted);
+      console.log(`  - Created user: ${inserted.email}`);
+    }
+  }
 
-  if (testUser) {
-    console.log(`✅ Created test user: ${testUser.email}`);
+  // 2. Fixtureからノートの作成
+  console.log("✅ Creating notes from fixtures...");
 
-    // 2. drizzle-seed を用いた追加データの生成
-    console.log("⚡ Generating random data with drizzle-seed...");
-    const nowTimestamp = new Date();
+  if (notesData.length > 0) {
+    const allTagsToInsert = new Map<
+      string,
+      {
+        id: string;
+        name: string;
+        userId: string;
+        createdAt: Date;
+        updatedAt: Date;
+      }
+    >();
+    const relationsToInsert: { noteId: string; tagId: string }[] = [];
 
-    // 複数行のダミーテキストを用意
-    const dummyContents = [
-      "これは一行目です。\nそしてこれが二行目です。\n三行目も追加しておきます。",
-      "# 買い物リスト\n- りんご\n- ばなな\n- 牛乳\n\n忘れずに買うこと！",
-      "## ミーティングメモ\n\n### 議題\n今後の開発スケジュールについて\n\n### 決定事項\n来週までにモックを完成させる。",
-      "アイデアメモ：\n新しいアプリのUI設計について。\n全体的にダークテーマを基調にしつつ、\nアクセントカラーにオレンジを使いたい。",
-      "日記\n今日は作業が順調に進んだ。\n特にデータベースの移行が一番大変だったが、\n無事に終わってよかった。",
-    ];
+    const notesToInsert = notesData.map(
+      (note: {
+        id: string;
+        userId: string;
+        content: string;
+        isPermanent?: boolean;
+        tags?: string[];
+      }) => {
+        // ランダムなcreatedAtを生成 (直近30日の範囲内)
+        const daysAgo = Math.floor(Math.random() * 30);
+        const hoursAgo = Math.floor(Math.random() * 24);
+        const minutesAgo = Math.floor(Math.random() * 60);
+        const randomDate = new Date();
+        randomDate.setDate(randomDate.getDate() - daysAgo);
+        randomDate.setHours(randomDate.getHours() - hoursAgo);
+        randomDate.setMinutes(randomDate.getMinutes() - minutesAgo);
 
-    await seed(db as unknown as Parameters<typeof seed>[0], schema, {
-      count: 3,
-    }).refine((f) => ({
-      users: { count: 0 },
-      passwordResets: {
-        count: 0,
-        columns: {
-          userId: f.valuesFromArray({ values: [testUser.id] }),
-        },
-      },
-      emailVerifications: {
-        count: 0,
-        columns: {
-          userId: f.valuesFromArray({ values: [testUser.id] }),
-        },
-      },
-      notesToTags: { count: 0 },
-      notes: {
-        count: 10,
-        columns: {
-          userId: f.valuesFromArray({ values: [testUser.id] }),
-          content: f.valuesFromArray({ values: dummyContents }),
-          deletedAt: f.default({ defaultValue: null }),
-          isPermanent: f.default({ defaultValue: false }),
-          createdAt: f.default({ defaultValue: nowTimestamp }),
-          updatedAt: f.default({ defaultValue: nowTimestamp }),
-        },
-      },
-      tags: {
-        count: 5,
-        columns: {
-          userId: f.valuesFromArray({ values: [testUser.id] }),
-          createdAt: f.default({ defaultValue: nowTimestamp }),
-          updatedAt: f.default({ defaultValue: nowTimestamp }),
-        },
-      },
-    }));
-
-    // 3. ノートとタグの紐付け (notesToTags)
-    console.log("🔗 Associating tags to notes...");
-    const { eq } = await import("drizzle-orm");
-    const allNotes = await db.query.notes.findMany({
-      where: eq(schema.notes.userId, testUser.id),
-    });
-    const allTags = await db.query.tags.findMany({
-      where: eq(schema.tags.userId, testUser.id),
-    });
-
-    if (allNotes.length > 0 && allTags.length > 0) {
-      const relationsToInsert: { noteId: string; tagId: string }[] = [];
-      const usedPairs = new Set<string>();
-
-      for (const note of allNotes) {
-        // 各ノートに 1つ から 3つ のタグを割り当てる
-        const tagsCount = Math.floor(Math.random() * 3) + 1;
-        for (let i = 0; i < tagsCount; i++) {
-          const randomTag = allTags[Math.floor(Math.random() * allTags.length)];
-          const key = `${note.id}-${randomTag.id}`;
-
-          if (!usedPairs.has(key)) {
-            usedPairs.add(key);
-            relationsToInsert.push({
-              noteId: note.id,
-              tagId: randomTag.id,
-            });
+        if (note.tags && Array.isArray(note.tags)) {
+          for (const tagName of note.tags) {
+            const tagKey = `${note.userId}-${tagName}`;
+            let tagId: string;
+            if (!allTagsToInsert.has(tagKey)) {
+              tagId = randomUUID();
+              allTagsToInsert.set(tagKey, {
+                id: tagId,
+                name: tagName,
+                userId: note.userId,
+                createdAt: randomDate,
+                updatedAt: randomDate,
+              });
+            } else {
+              const existingTag = allTagsToInsert.get(tagKey);
+              tagId = existingTag ? existingTag.id : randomUUID();
+            }
+            relationsToInsert.push({ noteId: note.id, tagId });
           }
         }
+
+        return {
+          id: note.id,
+          userId: note.userId,
+          content: note.content,
+          isPermanent: note.isPermanent ?? false,
+          createdAt: randomDate,
+          updatedAt: randomDate,
+        };
       }
+    );
+
+    await db.insert(schema.notes).values(notesToInsert);
+    console.log(`  - Created ${notesData.length} notes.`);
+
+    if (allTagsToInsert.size > 0) {
+      console.log("✅ Creating tags from fixtures...");
+      await db
+        .insert(schema.tags)
+        .values(Array.from(allTagsToInsert.values()))
+        .onConflictDoNothing();
+      console.log(`  - Created ${allTagsToInsert.size} tags.`);
 
       if (relationsToInsert.length > 0) {
         await db
           .insert(schema.notesToTags)
           .values(relationsToInsert)
           .onConflictDoNothing();
+        console.log(`  - Created ${relationsToInsert.length} tag relations.`);
       }
     }
-
-    console.log("🚀 Seed process completed successfully!");
   }
+
+  console.log("🚀 Seed process completed successfully!");
 }
 
 main().catch((err) => {
