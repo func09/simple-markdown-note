@@ -23,7 +23,7 @@
   "devDependencies": {
     "@vitejs/plugin-react": "6.0.1",
     "dotenv-cli": "^11.0.0",
-    "electron": "33.4.11",
+    "electron": "39.8.5",
     "electron-builder": "^26.8.1",
     "jsdom": "^25.0.1",
     "typescript": "^5.7.3",
