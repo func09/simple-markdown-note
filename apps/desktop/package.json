@@ -12,7 +12,7 @@
     "test": "vitest run",
     "package": "VITE_ELECTRON=true dotenv -e .env.production -- pnpm -F web build && pnpm run build && electron-builder build --mac --arm64",
     "test:cov:open": "test -f coverage/index.html && open coverage/index.html || true",
-    "test:cov": "vitest run --coverage --reporter=dot"
+    "test:cov": "vitest run --coverage --reporter=dot --silent"
   },
   "keywords": [],
   "author": "",
