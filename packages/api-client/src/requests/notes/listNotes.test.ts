@@ -3,6 +3,9 @@ import type { ApiClient } from "../../client";
 import { listNotes } from "./listNotes";
 import { createApiMock } from "./mockApi";
 
+/**
+ * ノート一覧取得 APIリクエストのテスト
+ */
 describe("listNotes", () => {
   let apiMock: ReturnType<typeof createApiMock>;
 
@@ -10,6 +13,9 @@ describe("listNotes", () => {
     apiMock = createApiMock();
   });
 
+  /**
+   * 正常に一覧取得できた場合、ノートの配列とメタデータを含むページネーション結果が返されることを確認する
+   */
   it("should return NoteListResponse on success", async () => {
     const mockResponse = {
       ok: true,
@@ -26,6 +32,9 @@ describe("listNotes", () => {
     expect(result[0].content).toBe("Note 1");
   });
 
+  /**
+   * サーバーエラーなどで一覧取得に失敗した場合に、APIが返すエラーメッセージが例外としてスローされることを確認する
+   */
   it("should throw error on failure", async () => {
     const mockResponse = {
       ok: false,
@@ -40,6 +49,9 @@ describe("listNotes", () => {
     ).rejects.toThrow("Server error");
   });
 
+  /**
+   * エラーのレスポンスボディにメッセージが存在しない場合、デフォルトのエラーメッセージがスローされることを確認する
+   */
   it("should throw default error on failure when error message is missing", async () => {
     const mockResponse = {
       ok: false,

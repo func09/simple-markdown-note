@@ -8,11 +8,17 @@ import { useUpdateNote } from "./useUpdateNote";
 
 vi.mock("../../requests/notes/updateNote");
 
+/**
+ * ノート更新フック (useUpdateNote) のテスト
+ */
 describe("useUpdateNote", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
+  /**
+   * mutateメソッドの実行時にupdateNote APIが呼ばれ、正しい引数が渡されていることを確認する
+   */
   it("should call updateNote", async () => {
     const mockData = { id: "1", content: "updated" };
     vi.mocked(notesRequests.updateNote).mockResolvedValue(

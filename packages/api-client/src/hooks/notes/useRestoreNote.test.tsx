@@ -8,11 +8,17 @@ import { useRestoreNote } from "./useRestoreNote";
 
 vi.mock("../../requests/notes/updateNote");
 
+/**
+ * ノート復元フック (useRestoreNote) のテスト
+ */
 describe("useRestoreNote", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
+  /**
+   * mutateメソッド実行時に deletedAt を null に設定して updateNote API が呼ばれ、復元されることを確認する
+   */
   it("should call updateNote with deletedAt null", async () => {
     const mockData = { id: "1", deletedAt: null };
     vi.mocked(notesRequests.updateNote).mockResolvedValue(

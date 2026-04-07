@@ -8,11 +8,17 @@ import { useNotes } from "./useNotes";
 
 vi.mock("../../requests/notes/listNotes");
 
+/**
+ * ノート一覧取得フック (useNotes) のテスト
+ */
 describe("useNotes", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
+  /**
+   * オプションに沿ったAPIアクセスが成功し、ノートの一覧情報が返されることを確認する
+   */
   it("should return notes list", async () => {
     const mockData = [{ id: "1", content: "note" }];
     vi.mocked(notesRequests.listNotes).mockResolvedValue(

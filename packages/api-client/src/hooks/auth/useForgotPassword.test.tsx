@@ -6,11 +6,17 @@ import { useForgotPassword } from "./useForgotPassword";
 
 vi.mock("../../requests/auth/requestPasswordReset");
 
+/**
+ * パスワードリセットリクエストフック (useForgotPassword) のテスト
+ */
 describe("useForgotPassword", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
+  /**
+   * 送信先メールアドレスとともにAPIが叩かれ、成功時にonSuccessコールバックが呼ばれることを確認する
+   */
   it("should call requestPasswordReset and onSuccess", async () => {
     const onSuccess = vi.fn();
     vi.mocked(authRequests.requestPasswordReset).mockResolvedValue(undefined);
@@ -26,6 +32,9 @@ describe("useForgotPassword", () => {
     expect(onSuccess).toHaveBeenCalled();
   });
 
+  /**
+   * コールバック関数の指定がなくても、APIの送信処理が適切に行われることを確認する
+   */
   it("should handle without options", async () => {
     vi.mocked(authRequests.requestPasswordReset).mockResolvedValue(undefined);
 

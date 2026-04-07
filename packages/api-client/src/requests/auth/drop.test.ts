@@ -3,6 +3,9 @@ import type { ApiClient } from "../../client";
 import { drop } from "./drop";
 import { createApiMock } from "./mockApi";
 
+/**
+ * 退会（ユーザー論理削除）APIリクエストのテスト
+ */
 describe("drop", () => {
   let apiMock: ReturnType<typeof createApiMock>;
 
@@ -10,6 +13,9 @@ describe("drop", () => {
     apiMock = createApiMock();
   });
 
+  /**
+   * トークンが正しく退会処理が完了した場合、エラーなく終了することを確認する
+   */
   it("should succeed on 200/204", async () => {
     const mockResponse = {
       ok: true,
@@ -24,6 +30,9 @@ describe("drop", () => {
     ).resolves.toBeUndefined();
   });
 
+  /**
+   * セッションエラーなどで退会に失敗した場合、例外がスローされることを確認する
+   */
   it("should throw on failure", async () => {
     const mockResponse = {
       ok: false,

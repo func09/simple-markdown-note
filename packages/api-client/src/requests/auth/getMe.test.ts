@@ -3,6 +3,9 @@ import type { ApiClient } from "../../client";
 import { getMe } from "./getMe";
 import { createApiMock } from "./mockApi";
 
+/**
+ * ログイン中ユーザー情報取得 APIリクエストのテスト
+ */
 describe("getMe", () => {
   let apiMock: ReturnType<typeof createApiMock>;
 
@@ -10,6 +13,9 @@ describe("getMe", () => {
     apiMock = createApiMock();
   });
 
+  /**
+   * 正常に取得できた場合、自身のユーザー情報 (MeResponse) が返されることを確認する
+   */
   it("should return MeResponse on success", async () => {
     const mockResponse = {
       ok: true,
@@ -24,6 +30,9 @@ describe("getMe", () => {
     expect(result?.email).toBe("test@example.com");
   });
 
+  /**
+   * 認証されていない (401 Unauthorized) 場合はエラーをスローせずに null が返されることを確認する
+   */
   it("should return null on 401", async () => {
     const mockResponse = {
       ok: false,
@@ -37,6 +46,9 @@ describe("getMe", () => {
     expect(result).toBeNull();
   });
 
+  /**
+   * 401以外のAPIエラー (500系など) の場合は、APIが返すエラーメッセージとともに例外がスローされることを確認する
+   */
   it("should throw error on API failure", async () => {
     const mockResponse = {
       ok: false,

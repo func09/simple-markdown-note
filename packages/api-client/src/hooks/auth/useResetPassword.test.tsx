@@ -6,11 +6,17 @@ import { useResetPassword } from "./useResetPassword";
 
 vi.mock("../../requests/auth/resetPassword");
 
+/**
+ * パスワードリセット実行フック (useResetPassword) のテスト
+ */
 describe("useResetPassword", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
+  /**
+   * mutateメソッド実行時にトークンと新旧パスワードをAPIへ送信し、成功時にonSuccessが呼ばれることを確認する
+   */
   it("should call resetPassword and onSuccess", async () => {
     const onSuccess = vi.fn();
     vi.mocked(authRequests.resetPassword).mockResolvedValue(undefined);
@@ -30,6 +36,9 @@ describe("useResetPassword", () => {
     expect(onSuccess).toHaveBeenCalled();
   });
 
+  /**
+   * オプション引数が未指定の場合でも、正常にパスワードリセットAPIが呼ばれ処理が完了することを確認する
+   */
   it("should handle without options", async () => {
     vi.mocked(authRequests.resetPassword).mockResolvedValue(undefined);
 
