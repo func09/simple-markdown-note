@@ -16,7 +16,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@simple-markdown-note/api": "workspace:*",
     "@simple-markdown-note/database": "workspace:*"
