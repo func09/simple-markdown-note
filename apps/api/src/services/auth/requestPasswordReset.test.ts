@@ -81,6 +81,7 @@ describe("requestPasswordReset", () => {
       RESEND_API_KEY: "re_test",
       DB: {},
       JWT_SECRET: "secret",
+      NODE_ENV: "test",
     } as unknown as AppEnv["Bindings"];
     mockUserRepo.findByEmail.mockResolvedValue({
       id: "user_1",
@@ -111,7 +112,7 @@ describe("requestPasswordReset", () => {
       text: "test",
       tags: [
         { name: "category", value: "reset_password" },
-        { name: "env", value: "development" },
+        { name: "env", value: "test" },
       ],
     });
     const headers = new Headers(requestInit?.headers);
