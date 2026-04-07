@@ -11,7 +11,8 @@
     "check:types": "tsc --noEmit",
     "test": "vitest run",
     "package": "VITE_ELECTRON=true dotenv -e .env.production -- pnpm -F web build && pnpm run build && electron-builder build --mac --arm64",
-    "test:cov:open": "test -f coverage/index.html && open coverage/index.html || true"
+    "test:cov:open": "test -f coverage/index.html && open coverage/index.html || true",
+    "test:cov": "vitest run --coverage --reporter=dot"
   },
   "keywords": [],
   "author": "",
@@ -21,12 +22,12 @@
     "@simple-markdown-note/database": "workspace:*"
   },
   "devDependencies": {
+    "@vitejs/plugin-react": "6.0.1",
     "dotenv-cli": "^11.0.0",
     "electron": "33.4.11",
     "electron-builder": "^26.8.1",
+    "jsdom": "^25.0.1",
     "typescript": "^5.7.3",
-    "vitest": "3.2.4",
-    "@vitejs/plugin-react": "6.0.1",
-    "jsdom": "^25.0.1"
+    "vitest": "3.2.4"
   }
 }
