@@ -8,12 +8,12 @@
     "./types": "./src/types/index.ts"
   },
   "scripts": {
-    "dev": "wrangler dev --ip 0.0.0.0 --show-interactive-dev-session=false",
-    "test": "vitest run",
-    "deploy": "wrangler deploy",
     "check": "biome check .",
     "check:types": "tsc --noEmit",
-    "test:cov:open": "test -f coverage/index.html && open coverage/index.html || true",
+    "db:migrate": "wrangler d1 migrations apply simple-markdown-note-db",
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev --ip 0.0.0.0 --show-interactive-dev-session=false",
+    "test": "vitest run",
     "test:cov": "vitest run --coverage --reporter=dot --silent"
   },
   "dependencies": {

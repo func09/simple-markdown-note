@@ -16,12 +16,26 @@ by @func09
 
 This project uses pnpm workspaces. You can run the applications directly in your local environment.
 
-### 1. Install Dependencies
+### 1. Initial Setup (Dependencies, Env, Database)
 
 Run the following command at the project root:
 
+> [!NOTE]
+> Please review and update the generated `.env` files as necessary to match your specific local environment.
+
 ```bash
 pnpm install
+
+# Setup environment variables
+cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env
+cp apps/desktop/.env.example apps/desktop/.env
+cp apps/mobile/.env.example apps/mobile/.env
+
+# Initialize and seed the local D1 database
+pnpm -F database db:generate:migration
+pnpm -F api db:migrate
+pnpm -F database db:seed
 ```
 
 ### 2. Start the Applications (Turborepo)
@@ -38,9 +52,8 @@ If you also want to start the desktop app (Electron) simultaneously, add the `--
 pnpm dev --native
 ```
 
-- **Web UI**: [http://localhost:3000](http://localhost:3000)
+- **Web**: [http://localhost:3000](http://localhost:3000)
 - **API**: [http://localhost:8787](http://localhost:8787)
-- **Drizzle Studio**: `pnpm -F database db:studio` (View the database contents in your browser)
 
 ### 3. Run Tests
 
@@ -66,26 +79,7 @@ pnpm -F web test
 pnpm -F api test
 ```
 
-### 4. Database Initialization & Synchronization
-
-For the first startup or when the schema changes, synchronize the database using the following command:
-
-```bash
-pnpm -F database db:push
-```
-
-### 5. Insert Seed Data
-
-Insert initial development data (test users and notes).
-
-```bash
-# Navigate to the database workspace and run
-cd packages/database
-pnpm generate
-pnpm db:seed
-```
-
-### 6. Code Formatting & Linting
+### 4. Code Formatting & Linting
 
 Run code formatting, linting, and type checking across the entire project.
 
@@ -103,7 +97,7 @@ pnpm check:docs
 pnpm check:all
 ```
 
-### 7. Build and Cache
+### 5. Build and Cache
 
 Turborepo speeds up builds and tests across the entire project through caching.
 Once a task is executed, the result is returned instantly from the cache as long as the files have not changed.

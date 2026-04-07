@@ -1,0 +1,8 @@
+[
+  {
+    "id": "user-2030-biz-01",
+    "email": "test@example.com",
+    "password": "password",
+    "status": "active"
+  }
+]
