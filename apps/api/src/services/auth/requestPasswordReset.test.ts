@@ -27,7 +27,7 @@ vi.mock("@simple-markdown-note/database", () => ({
 
 vi.mock("resend", () => ({
   Resend: vi.fn().mockImplementation(() => ({
-    emails: { send: vi.fn() },
+    emails: { send: vi.fn().mockResolvedValue({ data: { id: "test-id" } }) },
   })),
 }));
 
@@ -123,5 +123,60 @@ describe("requestPasswordReset", () => {
     await requestPasswordReset(db, "unknown@example.com", mockEnv);
 
     expect(mockPasswordResetRepo.create).not.toHaveBeenCalled();
+  });
+
+  it("should warn if RESEND_API_KEY is not set", async () => {
+    const mockEnv = {
+      DB: {},
+      JWT_SECRET: "secret",
+    } as unknown as AppEnv["Bindings"];
+    mockUserRepo.findByEmail.mockResolvedValue({
+      id: "user_1",
+      email: "test@example.com",
+    });
+
+    const consoleWarnSpy = vi
+      .spyOn(console, "warn")
+      .mockImplementation(() => {});
+
+    await requestPasswordReset(db, "test@example.com", mockEnv);
+
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      "RESEND_API_KEY is not set. Email will not be sent."
+    );
+    consoleWarnSpy.mockRestore();
+  });
+
+  it("should handle Resend API error", async () => {
+    const mockEnv = {
+      RESEND_API_KEY: "re_test",
+      DB: {},
+      JWT_SECRET: "secret",
+    } as unknown as AppEnv["Bindings"];
+    mockUserRepo.findByEmail.mockResolvedValue({
+      id: "user_1",
+      email: "test@example.com",
+    });
+
+    const { Resend } = await import("resend");
+    vi.mocked(Resend).mockImplementationOnce(
+      () =>
+        ({
+          emails: {
+            send: vi
+              .fn()
+              .mockResolvedValue({ error: new Error("Resend failed") }),
+          },
+        }) as unknown as InstanceType<typeof Resend>
+    );
+
+    const consoleErrorSpy = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+
+    await requestPasswordReset(db, "test@example.com", mockEnv);
+
+    expect(consoleErrorSpy).toHaveBeenCalled();
+    consoleErrorSpy.mockRestore();
   });
 });

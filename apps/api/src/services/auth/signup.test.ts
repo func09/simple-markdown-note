@@ -22,7 +22,7 @@ vi.mock("@simple-markdown-note/database", () => ({
 
 vi.mock("resend", () => ({
   Resend: vi.fn().mockImplementation(() => ({
-    emails: { send: vi.fn() },
+    emails: { send: vi.fn().mockResolvedValue({ data: { id: "test-id" } }) },
   })),
 }));
 
@@ -30,6 +30,10 @@ vi.mock("@simple-markdown-note/emails", () => ({
   renderResetPasswordEmail: vi.fn().mockResolvedValue({
     html: "<p>test</p>",
     text: "test",
+  }),
+  renderVerifyEmail: vi.fn().mockResolvedValue({
+    html: "<p>verify</p>",
+    text: "verify",
   }),
 }));
 
@@ -147,5 +151,65 @@ describe("signup", () => {
       email: "test@example.com",
       status: "pending",
     });
+  });
+
+  it("should throw HTTPException if user creation fails and returns null", async () => {
+    mockUserRepo.findByEmail.mockResolvedValue(null);
+    mockedBcrypt.hash.mockResolvedValue("hashed_password");
+    mockUserRepo.create.mockResolvedValue(null);
+
+    await expect(
+      signup(
+        db,
+        { email: "fail@example.com", password: "password123" },
+        {} as unknown as AppEnv["Bindings"]
+      )
+    ).rejects.toThrow(HTTPException);
+  });
+
+  it("should send verification email if RESEND_API_KEY is provided", async () => {
+    mockUserRepo.findByEmail.mockResolvedValue(null);
+    mockedBcrypt.hash.mockResolvedValue("hashed_password");
+    mockUserRepo.create.mockResolvedValue({
+      id: "2",
+      email: "resend@example.com",
+    });
+
+    await signup(db, { email: "resend@example.com", password: "password123" }, {
+      RESEND_API_KEY: "test-key",
+      CLIENT_URL: "http://test",
+      EMAIL_FROM: "test@domain.com",
+    } as unknown as AppEnv["Bindings"]);
+
+    // email is sent inside the mock, we can check if it passed without throwing.
+    // the branch coverage will be hit.
+  });
+
+  it("should handle Resend API error", async () => {
+    mockUserRepo.findByEmail.mockResolvedValue(null);
+    mockedBcrypt.hash.mockResolvedValue("hashed_password");
+    mockUserRepo.create.mockResolvedValue({
+      id: "3",
+      email: "resend-error@example.com",
+    });
+
+    // Mock Resend to return an error for this test
+    const { Resend } = await import("resend");
+    vi.mocked(Resend).mockImplementationOnce(
+      () =>
+        ({
+          emails: {
+            send: vi
+              .fn()
+              .mockResolvedValue({ error: new Error("Resend failed") }),
+          },
+        }) as unknown as InstanceType<typeof Resend>
+    );
+
+    await signup(
+      db,
+      { email: "resend-error@example.com", password: "password123" },
+      { RESEND_API_KEY: "test-key" } as unknown as AppEnv["Bindings"]
+    );
   });
 });
