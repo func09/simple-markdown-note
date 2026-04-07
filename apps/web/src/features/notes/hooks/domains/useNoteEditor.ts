@@ -22,8 +22,8 @@ export function useNoteEditor({
   isPreview: boolean;
   setIsPreview: (show: boolean) => void;
   onUpdate: (content: string) => void;
-  contentRef: React.MutableRefObject<string>;
-  lastNoteIdRef: React.MutableRefObject<string | null>;
+  contentRef: React.RefObject<string>;
+  lastNoteIdRef: React.RefObject<string | null>;
 }) {
   const isTrashed = !!note?.deletedAt;
 

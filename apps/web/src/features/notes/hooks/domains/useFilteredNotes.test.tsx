@@ -21,7 +21,9 @@ beforeEach(() => {
   } as unknown as ReturnType<typeof apiClientHooks.useNotes>);
 });
 
+// 検索・フィルタリングされたノート一覧を提供するフックのテスト
 describe("useFilteredNotes", () => {
+  // 検索クエリによってノートがフィルタされることを検証する
   it("should filter notes by search query", () => {
     const mockNotes = [
       { id: "1", content: "Hello world" },
@@ -42,5 +44,16 @@ describe("useFilteredNotes", () => {
 
     expect(result.current.filteredNotes).toHaveLength(1);
     expect(result.current.filteredNotes[0].id).toBe("1");
+  });
+
+  // ローディング中かつノートが存在しない場合はスケルトンの表示フラグが true になることを検証する
+  it("sets shouldShowSkeleton to true if isLoading and no notes", () => {
+    mockedHooks.useNotes.mockReturnValue({
+      data: [],
+      isLoading: true,
+    } as unknown as ReturnType<typeof apiClientHooks.useNotes>);
+
+    const { result } = renderHook(() => useFilteredNotes());
+    expect(result.current.shouldShowSkeleton).toBe(true);
   });
 });
