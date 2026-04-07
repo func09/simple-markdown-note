@@ -38,6 +38,7 @@ vi.mock("@simple-markdown-note/emails", () => ({
   }),
 }));
 
+// パスワードリセットリクエスト処理のテストスイート
 describe("requestPasswordReset", () => {
   const db = {} as DrizzleDB;
   const mockUserRepo = {
@@ -80,6 +81,7 @@ describe("requestPasswordReset", () => {
     vi.restoreAllMocks();
   });
 
+  // 既存ユーザーに対するパスワードリセット要求が正常に処理されることを確認する
   it("should process password reset for existing user", async () => {
     const mockEnv = {
       RESEND_API_KEY: "re_test",
@@ -112,6 +114,7 @@ describe("requestPasswordReset", () => {
     );
   });
 
+  // ユーザーが存在しない場合でもエラーを投げず、安全に終了することを確認する
   it("should fail gracefully if user doesn't exist", async () => {
     const mockEnv = {
       RESEND_API_KEY: "re_test",
@@ -125,6 +128,7 @@ describe("requestPasswordReset", () => {
     expect(mockPasswordResetRepo.create).not.toHaveBeenCalled();
   });
 
+  // RESEND_API_KEYが未設定の場合は警告ログが出力されることを確認する
   it("should warn if RESEND_API_KEY is not set", async () => {
     const mockEnv = {
       DB: {},
@@ -147,6 +151,7 @@ describe("requestPasswordReset", () => {
     consoleWarnSpy.mockRestore();
   });
 
+  // メール送信サービス側のエラーを適切にハンドルすることを確認する
   it("should handle Resend API error", async () => {
     const mockEnv = {
       RESEND_API_KEY: "re_test",

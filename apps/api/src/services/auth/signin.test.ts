@@ -22,6 +22,7 @@ const mockedBcrypt = bcryptjs as unknown as {
   compare: ReturnType<typeof vi.fn>;
 };
 
+// サインイン処理のテストスイート
 describe("signin", () => {
   const db = {} as DrizzleDB;
   const mockUserRepo = {
@@ -38,6 +39,7 @@ describe("signin", () => {
     );
   });
 
+  // 認証情報が正当な場合はユーザー情報を返すことを確認する
   it("should return user if credentials are valid", async () => {
     const mockUser = {
       id: "1",
@@ -56,6 +58,7 @@ describe("signin", () => {
     expect(mockedBcrypt.compare).toHaveBeenCalledWith("password123", "hash");
   });
 
+  // ユーザーが存在しない場合はHTTPExceptionが投げられることを確認する
   it("should throw HTTPException if user not found", async () => {
     mockUserRepo.findByEmail.mockResolvedValue(null);
 
@@ -64,6 +67,7 @@ describe("signin", () => {
     ).rejects.toThrow(HTTPException);
   });
 
+  // ユーザーのステータスが削除済みである場合はHTTPExceptionが投げられることを確認する
   it("should throw HTTPException if user status is deleted", async () => {
     mockUserRepo.findByEmail.mockResolvedValue({
       id: "1",
@@ -76,6 +80,7 @@ describe("signin", () => {
     ).rejects.toThrow(HTTPException);
   });
 
+  // パスワードが一致しない場合はHTTPExceptionが投げられることを確認する
   it("should throw HTTPException if password does not match", async () => {
     mockUserRepo.findByEmail.mockResolvedValue({
       passwordHash: "hash",

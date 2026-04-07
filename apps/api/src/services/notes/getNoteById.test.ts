@@ -9,6 +9,7 @@ vi.mock("@simple-markdown-note/database", () => ({
   createNoteRepository: vi.fn(),
 }));
 
+// IDによる特定のノート取得処理のテストスイート
 describe("getNoteById", () => {
   const db = {} as DrizzleDB;
   const mockNoteRepo = {
@@ -22,6 +23,7 @@ describe("getNoteById", () => {
     );
   });
 
+  // 指定したIDのノート情報1件が返されることを確認する
   it("should return a single note", async () => {
     mockNoteRepo.findByIdWithTags.mockResolvedValue({
       id: "n1",

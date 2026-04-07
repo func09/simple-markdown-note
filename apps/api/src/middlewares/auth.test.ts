@@ -18,8 +18,11 @@ vi.mock("../services/auth/getUserById", () => ({
   }),
 }));
 
+// 認証ミドルウェアのテストスイート
 describe("Auth Middleware", () => {
+  // JWT認証処理のテストスイート
   describe("jwtAuth", () => {
+    // パブリックなパスへのアクセスは許可されることを確認する
     it("should allow public paths", async () => {
       const app = new Hono<AppEnv>();
       app.use("*", jwtAuth());
@@ -29,6 +32,7 @@ describe("Auth Middleware", () => {
       expect(res.status).toBe(200);
     });
 
+    // トークンが提供されていない場合は401エラーを返すことを確認する
     it("should return 401 if no token provided", async () => {
       const app = new Hono<AppEnv>();
       app.use("*", jwtAuth());
@@ -38,6 +42,7 @@ describe("Auth Middleware", () => {
       expect(res.status).toBe(401);
     });
 
+    // トークンが無効な場合は401エラーを返すことを確認する
     it("should return 401 if token is invalid", async () => {
       const app = new Hono<AppEnv>();
       app.use("*", jwtAuth());
@@ -49,6 +54,7 @@ describe("Auth Middleware", () => {
       expect(res.status).toBe(401);
     });
 
+    // 環境変数からJWT_SECRETが取得できる場合はそれを利用することを確認する
     it("should use JWT_SECRET from env if available", async () => {
       const app = new Hono<AppEnv>();
       app.use("*", async (c, next) => {
@@ -65,7 +71,9 @@ describe("Auth Middleware", () => {
     });
   });
 
+  // 認証コンテキスト抽出処理のテストスイート
   describe("authContextExtractor", () => {
+    // ペイロードにuserIdが存在しない場合は401エラーを返すことを確認する
     it("should return 401 if payload has no userId", async () => {
       const app = new Hono<AppEnv>();
       app.use("*", (c, next) => {
@@ -79,6 +87,7 @@ describe("Auth Middleware", () => {
       expect(res.status).toBe(401);
     });
 
+    // ユーザーがデータベースに存在しない場合は401エラーを返すことを確認する
     it("should return 401 if user doesn't exist in db", async () => {
       const app = new Hono<AppEnv>();
       app.use("*", (c, next) => {
@@ -93,6 +102,7 @@ describe("Auth Middleware", () => {
       expect(res.status).toBe(401);
     });
 
+    // ユーザーが削除状態である場合は401エラーを返すことを確認する
     it("should return 401 if user is deleted", async () => {
       const app = new Hono<AppEnv>();
       app.use("*", (c, next) => {

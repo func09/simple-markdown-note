@@ -4,10 +4,11 @@ import type {
   NoteSchema,
 } from "@simple-markdown-note/schemas";
 import { NOTE_SCOPE } from "@simple-markdown-note/schemas";
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 import type { z } from "zod";
 import { app } from "../index";
 
+// ノートのCRUD処理APIテストスイート
 describe("Notes CRUD API (/notes)", () => {
   let token: string;
   let testNoteId: string;
@@ -26,6 +27,7 @@ describe("Notes CRUD API (/notes)", () => {
     token = body.token;
   });
 
+  // 新しいノートを作成できることを確認する
   it("should create a new note", async () => {
     const res = await app.request("/api/notes", {
       method: "POST",
@@ -52,6 +54,7 @@ describe("Notes CRUD API (/notes)", () => {
     testNoteId = body.id;
   });
 
+  // すべてのノートを一覧取得できることを確認する
   it("should list all notes", async () => {
     const res = await app.request("/api/notes", {
       method: "GET",
@@ -67,6 +70,7 @@ describe("Notes CRUD API (/notes)", () => {
     expect(body.some((n) => n.id === testNoteId)).toBe(true);
   });
 
+  // 指定したIDのノートを1件取得できることを確認する
   it("should get a single note by id", async () => {
     const res = await app.request(`/api/notes/${testNoteId}`, {
       method: "GET",
@@ -81,6 +85,7 @@ describe("Notes CRUD API (/notes)", () => {
     expect(body.content).toBe("CRUD Create Test");
   });
 
+  // ノートの内容を更新できることを確認する
   it("should update a note", async () => {
     const res = await app.request(`/api/notes/${testNoteId}`, {
       method: "PATCH",
@@ -101,6 +106,7 @@ describe("Notes CRUD API (/notes)", () => {
     expect(body.tags[0].name).toBe("Updated");
   });
 
+  // ノートを削除できることを確認する
   it("should delete a note", async () => {
     const res = await app.request(`/api/notes/${testNoteId}`, {
       method: "DELETE",
@@ -121,6 +127,7 @@ describe("Notes CRUD API (/notes)", () => {
     expect(checkRes.status).toBe(404);
   });
 
+  // 他のユーザーのノートにはアクセスできないことを確認する
   it("should not allow access to other user's notes", async () => {
     const signupRes2 = await app.request("/api/auth/signup", {
       method: "POST",
@@ -162,6 +169,7 @@ describe("Notes CRUD API (/notes)", () => {
     expect(patchRes.status).toBe(404);
   });
 
+  // ノートのフィルタリングAPIテストスイート
   describe("Notes Filtering API (GET /../notes)", () => {
     let token: string;
 
@@ -218,6 +226,7 @@ describe("Notes CRUD API (/notes)", () => {
       });
     });
 
+    // デフォルトではゴミ箱以外のノートのみを返すことを確認する
     it("should return only non-trash notes by default", async () => {
       const res = await app.request("/api/notes", {
         method: "GET",
@@ -228,6 +237,7 @@ describe("Notes CRUD API (/notes)", () => {
       expect(body.every((n) => n.deletedAt === null)).toBe(true);
     });
 
+    // scope=trash が指定された場合はゴミ箱のノートのみを返すことを確認する
     it("should return only trashed notes when scope=trash", async () => {
       const res = await app.request(`/api/notes?scope=${NOTE_SCOPE.TRASH}`, {
         method: "GET",
@@ -239,6 +249,7 @@ describe("Notes CRUD API (/notes)", () => {
       expect(body[0].deletedAt).not.toBeNull();
     });
 
+    // scope=untagged が指定された場合はタグのないノートのみを返すことを確認する
     it("should return untagged notes when scope=untagged", async () => {
       const res = await app.request(`/api/notes?scope=${NOTE_SCOPE.UNTAGGED}`, {
         method: "GET",
@@ -250,6 +261,7 @@ describe("Notes CRUD API (/notes)", () => {
       expect(body[0].content).toBe("Regular Note");
     });
 
+    // tagパラメータが指定された場合は特定のタグを持つノートで絞り込まれることを確認する
     it("should filter by tag", async () => {
       const res = await app.request("/api/notes?tag=work", {
         method: "GET",
@@ -260,6 +272,7 @@ describe("Notes CRUD API (/notes)", () => {
       expect(body[0].content).toBe("Work Note");
     });
 
+    // ゴミ箱からノートを復元した際、内容が保持されていることを確認する
     it("should restore a note from trash and preserve content", async () => {
       // 1. ゴミ箱のノートを特定
       const trashedNotesRes = await app.request(
@@ -300,6 +313,31 @@ describe("Notes CRUD API (/notes)", () => {
       });
       const allNotes = (await allNotesRes.json()) as NoteListResponse;
       expect(allNotes.some((n) => n.id === noteToRestore.id)).toBe(true);
+    });
+  });
+
+  // エラー時の動作確認テストスイート
+  describe("Error cases", () => {
+    //内部でcreateNoteの処理が失敗してnullが返った場合に500エラーを投げることを確認する
+    it("should throw 500 if createNote fails internally", async () => {
+      // Mock createNote from services to return null
+      const services = await import("../services/notes");
+      const spy = vi
+        .spyOn(services, "createNote")
+        .mockResolvedValue(null as unknown as never);
+
+      const res = await app.request("/api/notes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ content: "test", isPermanent: false, tags: [] }),
+      });
+      // createNote throws if null
+      expect(res.status).toBe(500);
+
+      spy.mockRestore();
     });
   });
 });

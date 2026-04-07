@@ -15,6 +15,7 @@ vi.mock("@simple-markdown-note/database", () => ({
   createEmailVerificationRepository: vi.fn(),
 }));
 
+// IDによる特定のユーザー取得処理のテストスイート
 describe("getUserById", () => {
   const db = {} as DrizzleDB;
   const mockUserRepo = {
@@ -31,6 +32,7 @@ describe("getUserById", () => {
     );
   });
 
+  // 指定したIDに対応するユーザー情報が返されることを確認する
   it("should return user by id", async () => {
     mockUserRepo.findById.mockResolvedValue({
       id: "1",

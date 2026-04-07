@@ -42,6 +42,7 @@ const mockedBcrypt = bcryptjs as unknown as {
   compare: ReturnType<typeof vi.fn>;
 };
 
+// ユーザー登録処理のテストスイート
 describe("signup", () => {
   const db = {} as DrizzleDB;
   const mockUserRepo = {
@@ -79,6 +80,7 @@ describe("signup", () => {
     );
   });
 
+  // 元のパスワードからハッシュ化された状態で新規ユーザーが作成されることを確認する
   it("should create a new user with hashed password", async () => {
     mockUserRepo.findByEmail.mockResolvedValue(null);
     mockedBcrypt.hash.mockResolvedValue("hashed_password");
@@ -105,6 +107,7 @@ describe("signup", () => {
     expect(result).toEqual({ id: "1", email: "test@example.com" });
   });
 
+  // 既にユーザーが存在する場合はHTTPExceptionが投げられることを確認する
   it("should throw HTTPException if user already exists", async () => {
     mockUserRepo.findByEmail.mockResolvedValue({ id: "1" });
 
@@ -117,6 +120,7 @@ describe("signup", () => {
     ).rejects.toThrow(HTTPException);
   });
 
+  // アカウントが論理削除状態のユーザーの場合は状態を復元して再登録処理を行うことを確認する
   it("should resurrect user if status is deleted", async () => {
     mockUserRepo.findByEmail.mockResolvedValue({
       id: "1",
@@ -153,6 +157,7 @@ describe("signup", () => {
     });
   });
 
+  // 新規作成が失敗してnullが返った場合にHTTPExceptionが投げられることを確認する
   it("should throw HTTPException if user creation fails and returns null", async () => {
     mockUserRepo.findByEmail.mockResolvedValue(null);
     mockedBcrypt.hash.mockResolvedValue("hashed_password");
@@ -167,6 +172,7 @@ describe("signup", () => {
     ).rejects.toThrow(HTTPException);
   });
 
+  // RESEND_API_KEYが提供されている場合は確認メールが送信されることを確認する
   it("should send verification email if RESEND_API_KEY is provided", async () => {
     mockUserRepo.findByEmail.mockResolvedValue(null);
     mockedBcrypt.hash.mockResolvedValue("hashed_password");
@@ -185,6 +191,7 @@ describe("signup", () => {
     // the branch coverage will be hit.
   });
 
+  // メール送信サービス側のエラーを適切にハンドルすることを確認する
   it("should handle Resend API error", async () => {
     mockUserRepo.findByEmail.mockResolvedValue(null);
     mockedBcrypt.hash.mockResolvedValue("hashed_password");
