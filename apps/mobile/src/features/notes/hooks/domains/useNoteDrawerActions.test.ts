@@ -15,6 +15,7 @@ jest.mock("../../../auth/store", () => ({
   useAuthStore: jest.fn(),
 }));
 
+// サイドドロワーにおける認証などのアクションを切り出したフックのテスト
 describe("useNoteDrawerActions", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -28,6 +29,7 @@ describe("useNoteDrawerActions", () => {
     );
   });
 
+  // ログアウト処理が呼び出された際に、内部的に logoutMutation.mutate が実行されることを検証する
   it("handleLogout calls logoutMutation.mutate", () => {
     const mockMutate = jest.fn();
     (useLogout as jest.Mock).mockReturnValue({ mutate: mockMutate });
@@ -41,6 +43,7 @@ describe("useNoteDrawerActions", () => {
     expect(mockMutate).toHaveBeenCalled();
   });
 
+  // ログアウト成功時 (onSuccess 発火時) にサイドドロワーが閉じられ、同時に認証情報がクリアされることを検証する
   it("handleLogout callback onSuccess triggers onClose and clearAuth", () => {
     let onSuccessCallback: () => void = () => {};
     (useLogout as jest.Mock).mockImplementation(({ onSuccess }) => {
