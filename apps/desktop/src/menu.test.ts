@@ -1,6 +1,6 @@
-import { app, BrowserWindow, Menu } from "electron";
+import { BrowserWindow, Menu } from "electron";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { setupMenu } from "./menu.js";
+import { setupMenu } from "./menu";
 
 vi.mock("electron", () => ({
   app: { getVersion: vi.fn().mockReturnValue("1.0.0") },
