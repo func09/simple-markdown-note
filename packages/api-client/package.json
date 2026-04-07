@@ -24,7 +24,7 @@
     "test": "vitest run",
     "check:types": "tsc --noEmit",
     "test:cov:open": "test -f coverage/index.html && open coverage/index.html || true",
-    "test:cov": "vitest run --coverage --reporter=dot --silent"
+    "test:cov": "CI=true vitest run --coverage --reporter=dot --silent"
   },
   "keywords": [],
   "author": "",
