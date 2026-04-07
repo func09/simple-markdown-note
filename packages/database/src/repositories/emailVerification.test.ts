@@ -12,9 +12,12 @@ beforeEach(async () => {
   await db.delete(users);
 });
 
+// メールアドレス確認用トークンの生成、検索、削除処理を検証する
 describe("createEmailVerificationRepository", () => {
+  // 一時的な確認トークンの発行と検証時の検索機能
   describe("create & findByToken", () => {
-    it("トークンを作成して取得できる", async () => {
+    // トークンを作成して取得できることを確認する
+    it("should create and find a token", async () => {
       const user = await userRepo.create({
         email: "ev@example.com",
         passwordHash: "hash",
@@ -36,14 +39,17 @@ describe("createEmailVerificationRepository", () => {
       expect(found?.userId).toBe(user.id);
     });
 
-    it("存在しないトークンはundefinedを返す", async () => {
+    // 存在しないトークンはundefinedを返すことを確認する
+    it("should return undefined for a non-existent token", async () => {
       const found = await repo.findByToken("nonexistent-token");
       expect(found).toBeUndefined();
     });
   });
 
+  // 確認完了時や再発行時に、古いトークンを一括で無効化（削除）する機能
   describe("deleteByUserId", () => {
-    it("指定されたユーザーのトークンを全て削除する", async () => {
+    // 指定されたユーザーのトークンを全て削除することを確認する
+    it("should delete all tokens for a specified user", async () => {
       const user1 = await userRepo.create({
         email: "ev1@example.com",
         passwordHash: "hash",

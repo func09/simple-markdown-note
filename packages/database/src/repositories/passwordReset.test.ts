@@ -15,9 +15,12 @@ beforeEach(async () => {
   await db.delete(users);
 });
 
+// パスワードリセット要求時のトークン管理と検証をテストする
 describe("createPasswordResetRepository", () => {
+  // リセットトークンの発行から使用後の破棄までの一連のライフサイクル機能
   describe("CRUD operations", () => {
-    it("パスワードリセットトークンの生成、検索、削除が正しく行える", async () => {
+    // パスワードリセットトークンの生成、検索、削除が正しく行えることを確認する
+    it("should successfully generate, find, and delete a password reset token", async () => {
       // 事前準備: ユーザー作成
       const user = await userRepo.create({
         email: "reset-test@example.com",
