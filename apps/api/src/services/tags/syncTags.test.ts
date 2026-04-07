@@ -10,6 +10,7 @@ vi.mock("@simple-markdown-note/database", () => ({
   createTagRepository: vi.fn(),
 }));
 
+// タグ同期処理のテストスイート
 describe("syncTags", () => {
   const db = {} as DrizzleDB;
   const mockTagRepo = {
@@ -31,6 +32,7 @@ describe("syncTags", () => {
   const userId = "user1";
   const noteId = "note1";
 
+  // 存在しない新規タグが作成され、ノートと関連付けられることを確認する
   it("should create new tags and link them", async () => {
     const newTagNames = ["tag1", "tag2"];
 
@@ -52,6 +54,7 @@ describe("syncTags", () => {
     ]);
   });
 
+  // 空のタグリストが渡された場合もエラーなく処理されることを確認する
   it("should handle empty tag list", async () => {
     const newTagNames: string[] = [];
 
@@ -61,6 +64,7 @@ describe("syncTags", () => {
     expect(mockTagRepo.linkToNote).not.toHaveBeenCalled();
   });
 
+  // タグ名がスペース等を除去する形で正規化されることを確認する
   it("should normalize tag names (trim only)", async () => {
     const newTagNames = ["  tag1  ", "tag1"];
 

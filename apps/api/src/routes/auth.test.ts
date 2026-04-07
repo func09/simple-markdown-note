@@ -1,9 +1,14 @@
 import { db, users } from "@simple-markdown-note/database";
-import type { AuthResponseSchema } from "@simple-markdown-note/schemas";
-import { beforeAll, describe, expect, it } from "vitest";
+import type {
+  AuthResponseSchema,
+  MeResponseSchema,
+} from "@simple-markdown-note/schemas";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 import type { z } from "zod";
 import { app } from "../index";
+import type { AppEnv } from "../types";
 
+// 認証APIのテストスイート
 describe("Auth API", () => {
   beforeAll(async () => {
     // setupFiles (vitest.setup.ts) にてマイグレーション済み
@@ -12,6 +17,7 @@ describe("Auth API", () => {
   });
 
   // ユーザー登録のテスト
+  // 新規ユーザー登録ができることを確認する
   it("should signup a new user", async () => {
     const res = await app.request("/api/auth/signup", {
       method: "POST",
@@ -30,6 +36,7 @@ describe("Auth API", () => {
     expect(body.token).toBeDefined();
   });
 
+  // 既存のユーザーでサインインできることを確認する
   it("should signin an existing user", async () => {
     const res = await app.request("/api/auth/signin", {
       method: "POST",
@@ -48,6 +55,7 @@ describe("Auth API", () => {
     expect(body.token).toBeDefined();
   });
 
+  // 無効な認証情報の場合はエラーを返すことを確認する
   it("should return error for invalid credentials", async () => {
     const res = await app.request("/api/auth/signin", {
       method: "POST",
@@ -65,6 +73,7 @@ describe("Auth API", () => {
     expect(body.error).toBe("Invalid credentials");
   });
 
+  // ユーザーがログアウトできることを確認する
   it("should logout a user", async () => {
     const res = await app.request("/api/auth/logout", {
       method: "DELETE",
@@ -74,6 +83,7 @@ describe("Auth API", () => {
     expect(res.body).toBe(null);
   });
 
+  // ユーザーの退会処理ができることを確認する
   it("should drop a user", async () => {
     // まずユーザーを登録してサインイン状態にする
     const signupRes = await app.request("/api/auth/signup", {
@@ -122,9 +132,11 @@ describe("Auth API", () => {
     expect(meRes.status).toBe(401);
   });
 
+  // 入力値バリデーションのテストスイート
   describe("Validation", () => {
+    // メールアドレスの形式が不正な場合は400エラーを返すことを確認する
     it("should return 400 for invalid email format", async () => {
-      const res = await app.request("/api/auth/signup", {
+      const res = await app.request("https://localhost/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -135,6 +147,7 @@ describe("Auth API", () => {
       expect(res.status).toBe(400);
     });
 
+    // パスワードが短すぎる場合は400エラーを返すことを確認する
     it("should return 400 for short password", async () => {
       const res = await app.request("/api/auth/signup", {
         method: "POST",
@@ -147,6 +160,7 @@ describe("Auth API", () => {
       expect(res.status).toBe(400);
     });
 
+    // パスワードに大文字が含まれていない場合は400エラーを返すことを確認する
     it("should return 400 for password missing uppercase", async () => {
       const res = await app.request("/api/auth/signup", {
         method: "POST",
@@ -159,6 +173,7 @@ describe("Auth API", () => {
       expect(res.status).toBe(400);
     });
 
+    // パスワードに小文字が含まれていない場合は400エラーを返すことを確認する
     it("should return 400 for password missing lowercase", async () => {
       const res = await app.request("/api/auth/signup", {
         method: "POST",
@@ -171,6 +186,7 @@ describe("Auth API", () => {
       expect(res.status).toBe(400);
     });
 
+    // パスワードに数字が含まれていない場合は400エラーを返すことを確認する
     it("should return 400 for password missing digits", async () => {
       const res = await app.request("/api/auth/signup", {
         method: "POST",
@@ -183,6 +199,7 @@ describe("Auth API", () => {
       expect(res.status).toBe(400);
     });
 
+    // パスワードが長すぎる場合は400エラーを返すことを確認する
     it("should return 400 for too long password", async () => {
       const res = await app.request("/api/auth/signup", {
         method: "POST",
@@ -193,6 +210,277 @@ describe("Auth API", () => {
         }),
       });
       expect(res.status).toBe(400);
+    });
+  });
+
+  // アカウント管理とリカバリー関連のAPIテストスイート
+  describe("Account Management & Recovery API", () => {
+    // ログイン中の自身の情報を取得できることを確認する
+    it("should get me", async () => {
+      // signup first
+      const res = await app.request("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: "me@example.com",
+          password: "Password123",
+        }),
+      });
+      const cookie = res.headers.get("Set-Cookie")?.split(";")[0];
+      const meRes = await app.request("/api/auth/me", {
+        headers: cookie ? { Cookie: cookie } : {},
+      });
+      expect(meRes.status).toBe(200);
+      const user = (await meRes.json()) as z.infer<typeof MeResponseSchema>;
+      expect(user.email).toBe("me@example.com");
+    });
+
+    // API実行中にユーザーが突然削除されていた場合は404エラーを返すことを確認する
+    it("should return 404 if user is suddenly not found in route", async () => {
+      const res = await app.request("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: "me-404@example.com",
+          password: "Password123",
+        }),
+      });
+      const cookie = res.headers.get("Set-Cookie")?.split(";")[0];
+
+      const authService = await import("../services/auth/getUserById");
+      const spy = vi.spyOn(authService, "getUserById");
+
+      // authContextExtractor middleware must pass
+      spy.mockResolvedValueOnce({
+        id: "mock",
+        email: "me-404@example.com",
+        status: "active",
+        passwordHash: "x",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      // specific route returns undefined to trigger 404 branch
+      spy.mockResolvedValueOnce(undefined);
+
+      const meRes = await app.request("/api/auth/me", {
+        headers: cookie ? { Cookie: cookie } : {},
+      });
+      expect(meRes.status).toBe(404);
+      spy.mockRestore();
+    });
+
+    // パスワードリセットリクエストを送信できることを確認する
+    it("should request password reset", async () => {
+      const res = await app.request("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: "me@example.com" }),
+      });
+      expect(res.status).toBe(204);
+    });
+
+    // パスワードの再設定を試行できることを確認する（不正なトークン等）
+    it("should attempt to reset password", async () => {
+      const res = await app.request("/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token: "invalid-token",
+          password: "NewPassword123",
+          confirmPassword: "NewPassword123",
+        }),
+      });
+      // Will be 400 because token is invalid
+      expect(res.status).toBe(400);
+    });
+
+    // メールの検証を試行できることを確認する（不正なトークン等）
+    it("should attempt to verify email", async () => {
+      // signup to get token
+      const signupRes = await app.request("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: "verify@example.com",
+          password: "Password123",
+        }),
+      });
+      const cookie = signupRes.headers.get("Set-Cookie")?.split(";")[0];
+      const res = await app.request(
+        "/api/auth/verify-email?token=invalid-token",
+        {
+          method: "GET",
+          headers: cookie ? { Cookie: cookie } : {},
+        }
+      );
+      // Will be 400 because token is invalid
+      expect(res.status).toBe(400);
+    });
+
+    // 確認メールの再送信ができることを確認する
+    it("should resend verification email", async () => {
+      // signup to get token
+      const signupRes = await app.request("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: "resend@example.com",
+          password: "Password123",
+        }),
+      });
+      const cookie = signupRes.headers.get("Set-Cookie")?.split(";")[0];
+      const res = await app.request("/api/auth/resend-verification", {
+        method: "POST",
+        headers: cookie
+          ? { "Content-Type": "application/json", Cookie: cookie }
+          : { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: "resend@example.com" }),
+      });
+      expect(res.status).toBe(204);
+    });
+
+    // 正しいトークンを使用してメール検証が成功することを確認する
+    it("should succeed in verifying email by generating a real token", async () => {
+      // signup to get user
+      const signupRes = await app.request("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: "real-verify@example.com",
+          password: "Password123",
+        }),
+      });
+      const cookie = signupRes.headers.get("Set-Cookie")?.split(";")[0];
+      const userRes = await app.request("/api/auth/me", {
+        headers: cookie ? { Cookie: cookie } : {},
+      });
+      const user = (await userRes.json()) as z.infer<typeof MeResponseSchema>;
+
+      const { createEmailVerificationRepository } = await import(
+        "@simple-markdown-note/database"
+      );
+      const repo = createEmailVerificationRepository(db);
+      await repo.create({
+        userId: user.id,
+        token: "real-token-for-verify",
+        expiresAt: new Date(Date.now() + 100000),
+      });
+
+      const res = await app.request(
+        "/api/auth/verify-email?token=real-token-for-verify",
+        {
+          method: "GET",
+          headers: cookie ? { Cookie: cookie } : {},
+        }
+      );
+      expect(res.status).toBe(204);
+    });
+
+    // 正しいトークンを使用してパスワードリセットが成功することを確認する
+    it("should succeed in resetting password by generating a real token", async () => {
+      // signup to get user
+      const signupRes = await app.request("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: "real-reset@example.com",
+          password: "Password123",
+        }),
+      });
+      const cookie = signupRes.headers.get("Set-Cookie")?.split(";")[0];
+      const userRes = await app.request("/api/auth/me", {
+        headers: cookie ? { Cookie: cookie } : {},
+      });
+      const user = (await userRes.json()) as z.infer<typeof MeResponseSchema>;
+
+      const { createPasswordResetRepository } = await import(
+        "@simple-markdown-note/database"
+      );
+      const { hashToken } = await import("../services/auth/hashToken");
+      const repo = createPasswordResetRepository(db);
+      const tokenHash = await hashToken("real-token-for-reset");
+      await repo.create({
+        userId: user.id,
+        tokenHash,
+        expiresAt: new Date(Date.now() + 100000),
+      });
+
+      const res = await app.request("/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token: "real-token-for-reset",
+          password: "NewPassword123",
+          confirmPassword: "NewPassword123",
+        }),
+      });
+      const text = await res.text();
+      console.log(text);
+      expect(res.status).toBe(204);
+    });
+  });
+
+  // 本番環境（HTTPSまたはNODE_ENV=production）でのCookie処理のテストスイート
+  describe("Production Environment Cookie Handling", () => {
+    // NODE_ENVがproductionの時、認証エンドポイントでsecure Cookieがセットされることを確認する
+    it("should set secure cookies for auth endpoints when NODE_ENV is production", async () => {
+      const prodEnv = {
+        NODE_ENV: "production",
+        JWT_SECRET: "prod-secret",
+      } as AppEnv["Bindings"];
+
+      // signup
+      const signupRes = await app.request(
+        "/api/auth/signup",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: "prod-cookies@example.com",
+            password: "Password123",
+          }),
+        },
+        prodEnv
+      );
+      expect(signupRes.headers.get("Set-Cookie")).toMatch(/Secure/);
+      expect(signupRes.headers.get("Set-Cookie")).toMatch(/SameSite=None/);
+      const cookie = signupRes.headers.get("Set-Cookie")?.split(";")[0];
+
+      // signin
+      const signinRes = await app.request(
+        "/api/auth/signin",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: "prod-cookies@example.com",
+            password: "Password123",
+          }),
+        },
+        prodEnv
+      );
+      expect(signinRes.headers.get("Set-Cookie")).toMatch(/Secure/);
+
+      // logout
+      const logoutRes = await app.request(
+        "/api/auth/logout",
+        {
+          method: "DELETE",
+        },
+        prodEnv
+      );
+      expect(logoutRes.headers.get("Set-Cookie")).toMatch(/Secure/);
+
+      // drop
+      const dropRes = await app.request(
+        "/api/auth/drop",
+        {
+          method: "POST",
+          headers: cookie ? { Cookie: cookie } : {},
+        },
+        prodEnv
+      );
+      expect(dropRes.headers.get("Set-Cookie")).toMatch(/Secure/);
     });
   });
 });

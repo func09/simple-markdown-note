@@ -7,7 +7,10 @@ import { ApiClientError } from "../../client";
  */
 export const drop = async (api: ApiClient): Promise<void> => {
   try {
+    const url = api.auth.drop.$url();
+    console.log(`[API] [drop] POST ${url}`);
     const res = await api.auth.drop.$post();
+    console.log(`[API] [drop] Response: ${res.status} ${res.url}`);
     if (!res.ok) {
       throw new ApiClientError("Drop failed", res.status);
     }

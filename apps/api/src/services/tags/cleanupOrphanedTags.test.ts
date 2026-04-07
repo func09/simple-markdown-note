@@ -9,6 +9,7 @@ vi.mock("@simple-markdown-note/database", () => ({
   createTagRepository: vi.fn(),
 }));
 
+// 不要タグのクリーンアップ処理のテストスイート
 describe("cleanupOrphanedTags", () => {
   const db = {} as DrizzleDB;
   const mockTagRepo = {
@@ -22,6 +23,7 @@ describe("cleanupOrphanedTags", () => {
     );
   });
 
+  // タグリポジトリのdeleteOrphanedメソッドが呼び出されることを確認する
   it("should call deleteOrphaned on repository", async () => {
     await cleanupOrphanedTags("user1", db);
 

@@ -16,9 +16,8 @@
     "clean:cache": "find . -name \"*.tsbuildinfo\" -delete",
     "check:all": "pnpm clean:cache && turbo check check:types test --force",
     "check:types": "turbo check:types",
-    "test": "turbo test",
-    "test:cov": "turbo test -- --coverage --coverage.reporter=text-summary --coverage.reporter=html; tsx scripts/patch-cov.ts",
-    "test:cov:open": "pnpm run test:cov ; pnpm -r --if-present run test:cov:open",
+    "test": "CI=true turbo test",
+    "test:cov": "CI=true turbo test -- --coverage --reporter=dot --silent",
     "prepare": "husky"
   },
   "keywords": [],

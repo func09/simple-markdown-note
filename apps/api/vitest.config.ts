@@ -17,6 +17,7 @@ export default defineConfig({
       DATABASE_URL: ":memory:",
     },
     coverage: {
+      reporter: ["text", "json-summary", "json"],
       include: ["src/services/**", "src/routes/**", "src/middlewares/**"],
       exclude: [...coverageConfigDefaults.exclude, "**/index.ts"],
     },

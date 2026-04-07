@@ -10,6 +10,7 @@ vi.mock("@simple-markdown-note/database", () => ({
   createTagRepository: vi.fn(),
 }));
 
+// タグ作成処理のテストスイート
 describe("createTag", () => {
   const db = {} as DrizzleDB;
   const mockTagRepo = {
@@ -23,6 +24,7 @@ describe("createTag", () => {
     );
   });
 
+  // タグリポジトリのupsert（登録・更新）メソッドが呼び出されることを確認する
   it("should call upsert on repository", async () => {
     mockTagRepo.upsert.mockResolvedValue({ id: "t1", name: "tag1" } as Tag);
 

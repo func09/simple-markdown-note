@@ -17,9 +17,12 @@ beforeEach(async () => {
   await db.delete(users);
 });
 
+// ノートデータの作成・検索・更新・削除およびフィルタリング検索の処理を検証する
 describe("createNoteRepository", () => {
+  // 新規ノートの保存機能
   describe("create", () => {
-    it("ノートを作成してフィールドが正しい", async () => {
+    // ノートを作成してフィールドが正しいことを確認する
+    it("should create a note with correct fields", async () => {
       const user = await userRepo.create({
         email: "u@example.com",
         passwordHash: "h",
@@ -39,8 +42,10 @@ describe("createNoteRepository", () => {
     });
   });
 
+  // ノートのIDによる単一取得機能
   describe("findById", () => {
-    it("存在するidで取得できる", async () => {
+    // 存在するidで取得できることを確認する
+    it("should return a note by an existing id", async () => {
       const user = await userRepo.create({
         email: "u@example.com",
         passwordHash: "h",
@@ -51,14 +56,17 @@ describe("createNoteRepository", () => {
       expect(found?.id).toBe(note.id);
     });
 
-    it("存在しないidはundefinedを返す", async () => {
+    // 存在しないidはundefinedを返すことを確認する
+    it("should return undefined for a non-existent id", async () => {
       const found = await noteRepo.findById("nonexistent");
       expect(found).toBeUndefined();
     });
   });
 
+  // 権限確認を含む、特定ユーザーのノート取得機能
   describe("findByIdAndUserId", () => {
-    it("所有者で取得できる", async () => {
+    // 所有者で取得できることを確認する
+    it("should return a note by its id and owner's userId", async () => {
       const user = await userRepo.create({
         email: "u@example.com",
         passwordHash: "h",
@@ -69,7 +77,8 @@ describe("createNoteRepository", () => {
       expect(found?.id).toBe(note.id);
     });
 
-    it("別ユーザーのidはundefinedを返す", async () => {
+    // 別ユーザーのidはundefinedを返すことを確認する
+    it("should return undefined when requesting another user's note", async () => {
       const user1 = await userRepo.create({
         email: "u1@example.com",
         passwordHash: "h",
@@ -88,8 +97,10 @@ describe("createNoteRepository", () => {
     });
   });
 
+  // 特定のユーザーのノート一覧の取得・表示順（更新順）の機能
   describe("findAllByUserId", () => {
-    it("複数ノートをupdatedAt降順で返す", async () => {
+    // 複数ノートをupdatedAt降順で返すことを確認する
+    it("should return multiple notes ordered by updatedAt descending", async () => {
       const user = await userRepo.create({
         email: "u@example.com",
         passwordHash: "h",
@@ -107,7 +118,8 @@ describe("createNoteRepository", () => {
       expect(results[0].updatedAt >= results[1].updatedAt).toBe(true);
     });
 
-    it("他ユーザーのノートは含まれない", async () => {
+    // 他ユーザーのノートは含まれないことを確認する
+    it("should not include notes from other users", async () => {
       const user1 = await userRepo.create({
         email: "u1@example.com",
         passwordHash: "h",
@@ -125,8 +137,10 @@ describe("createNoteRepository", () => {
     });
   });
 
+  // ゴミ箱、タグ無し、特定タグでの絞り込み等、複雑な検索条件を用いたノート一覧取得機能
   describe("findAllByUserIdWithFilters", () => {
-    it("デフォルトはdeletedAt=nullのみ返す", async () => {
+    // デフォルトはdeletedAt=nullのみ返すことを確認する
+    it("should return only notes with deletedAt=null by default", async () => {
       const user = await userRepo.create({
         email: "u@example.com",
         passwordHash: "h",
@@ -147,7 +161,8 @@ describe("createNoteRepository", () => {
       expect(results.some((n) => n.id === trashed.id)).toBe(false);
     });
 
-    it("scope=trashはdeletedAtが非nullのみ返す", async () => {
+    // scope=trashはdeletedAtが非nullのみ返すことを確認する
+    it("should return only notes with non-null deletedAt when scope is TRASH", async () => {
       const user = await userRepo.create({
         email: "u@example.com",
         passwordHash: "h",
@@ -166,7 +181,8 @@ describe("createNoteRepository", () => {
       expect(results[0].id).toBe(trashed.id);
     });
 
-    it("scope=untaggedはタグなしノートのみ返す", async () => {
+    // scope=untaggedはタグなしノートのみ返すことを確認する
+    it("should return only notes without tags when scope is UNTAGGED", async () => {
       const user = await userRepo.create({
         email: "u@example.com",
         passwordHash: "h",
@@ -189,7 +205,8 @@ describe("createNoteRepository", () => {
       expect(results[0].id).toBe(untagged.id);
     });
 
-    it("tag指定は一致するタグを持つノートのみ返す", async () => {
+    // tag指定は一致するタグを持つノートのみ返すことを確認する
+    it("should return only notes containing the specified tag", async () => {
       const user = await userRepo.create({
         email: "u@example.com",
         passwordHash: "h",
@@ -209,8 +226,10 @@ describe("createNoteRepository", () => {
     });
   });
 
+  // ノート内容の編集と更新日時の自動更新機能
   describe("update", () => {
-    it("contentを更新するとupdatedAtも変わる", async () => {
+    // contentを更新するとupdatedAtも変わることを確認する
+    it("should update content and also change updatedAt", async () => {
       const user = await userRepo.create({
         email: "u@example.com",
         passwordHash: "h",
@@ -230,7 +249,8 @@ describe("createNoteRepository", () => {
       expect(updated?.updatedAt.getTime()).toBeGreaterThan(before.getTime());
     });
 
-    it("別ユーザーのupdateはno-op", async () => {
+    // 別ユーザーのupdateはno-opになることを確認する
+    it("should be a no-op when attempting to update another user's note", async () => {
       const user1 = await userRepo.create({
         email: "u1@example.com",
         passwordHash: "h",
@@ -251,8 +271,10 @@ describe("createNoteRepository", () => {
     });
   });
 
+  // 所有者の権限に基づくノートの完全な物理削除機能
   describe("delete", () => {
-    it("所有者のノートを削除できる", async () => {
+    // 所有者のノートを削除できることを確認する
+    it("should delete the owner's note", async () => {
       const user = await userRepo.create({
         email: "u@example.com",
         passwordHash: "h",
@@ -265,7 +287,8 @@ describe("createNoteRepository", () => {
       expect(found).toBeUndefined();
     });
 
-    it("別ユーザーのdeleteは何も消さない", async () => {
+    // 別ユーザーのdeleteは何も消さないことを確認する
+    it("should not delete anything when attempting to delete another user's note", async () => {
       const user1 = await userRepo.create({
         email: "u1@example.com",
         passwordHash: "h",
@@ -283,8 +306,10 @@ describe("createNoteRepository", () => {
     });
   });
 
+  // オフライン同期等で使用する、ID指定付きのノート登録・更新機能
   describe("upsert", () => {
-    it("新規idで挿入できる", async () => {
+    // 新規idで挿入できることを確認する
+    it("should insert a note with a new id", async () => {
       const user = await userRepo.create({
         email: "u@example.com",
         passwordHash: "h",
@@ -299,7 +324,8 @@ describe("createNoteRepository", () => {
       expect(note.content).toBe("new");
     });
 
-    it("同じidで再呼び出しするとcontentが更新される", async () => {
+    // 同じidで再呼び出しするとcontentが更新されることを確認する
+    it("should update content when called again with the same id", async () => {
       const user = await userRepo.create({
         email: "u@example.com",
         passwordHash: "h",
@@ -315,8 +341,10 @@ describe("createNoteRepository", () => {
     });
   });
 
+  // 関連するタグ情報を含めたノートの完全データ取得機能
   describe("findByIdWithTags", () => {
-    it("タグが付いたノートはtags配列を含んで返す", async () => {
+    // タグが付いたノートはtags配列を含んで返すことを確認する
+    it("should return a tagged note containing the tags array", async () => {
       const user = await userRepo.create({
         email: "u@example.com",
         passwordHash: "h",
@@ -334,7 +362,8 @@ describe("createNoteRepository", () => {
       expect(found?.notesToTags[0].tag.name).toBe("dev");
     });
 
-    it("別ユーザーのidはundefinedを返す", async () => {
+    // 別ユーザーのidはundefinedを返すことを確認する
+    it("should return undefined for another user's note id", async () => {
       const user1 = await userRepo.create({
         email: "u1@example.com",
         passwordHash: "h",

@@ -9,6 +9,7 @@ vi.mock("@simple-markdown-note/database", () => ({
   createNoteRepository: vi.fn(),
 }));
 
+// ノート一覧取得処理のテストスイート
 describe("getNotes", () => {
   const db = {} as DrizzleDB;
   const mockNoteRepo = {
@@ -22,6 +23,7 @@ describe("getNotes", () => {
     );
   });
 
+  // 指定したユーザーのノート一覧が返されることを確認する
   it("should return notes for a user", async () => {
     mockNoteRepo.findAllByUserIdWithFilters.mockResolvedValue([
       { id: "n1", content: "note1", notesToTags: [] },

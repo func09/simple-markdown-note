@@ -11,7 +11,8 @@
     "web": "expo start --web",
     "check": "biome check .",
     "check:types": "tsc --noEmit",
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest --passWithNoTests"
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --passWithNoTests",
+    "test:cov": "NODE_OPTIONS=--experimental-vm-modules jest --passWithNoTests --coverage --silent"
   },
   "dependencies": {
     "@expo/metro-runtime": "~6.1.2",

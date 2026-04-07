@@ -13,6 +13,7 @@ export default defineConfig({
     environment: "jsdom",
     passWithNoTests: true,
     coverage: {
+      reporter: ["text", "json-summary", "json"],
       include: ["src/features/**", "src/hooks/**", "src/lib/**"],
       exclude: [...coverageConfigDefaults.exclude, "**/*.tsx", "**/index.ts"],
     },
