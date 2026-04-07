@@ -93,9 +93,20 @@ async function main() {
     await seed(db as unknown as Parameters<typeof seed>[0], schema, {
       count: 3,
     }).refine((f) => ({
-      users: {
-        count: 0, // すでに手動で作成したため追加しない
+      users: { count: 0 },
+      passwordResets: {
+        count: 0,
+        columns: {
+          userId: f.valuesFromArray({ values: [testUser.id] }),
+        },
       },
+      emailVerifications: {
+        count: 0,
+        columns: {
+          userId: f.valuesFromArray({ values: [testUser.id] }),
+        },
+      },
+      notesToTags: { count: 0 },
       notes: {
         count: 10,
         columns: {
@@ -114,9 +125,6 @@ async function main() {
           createdAt: f.default({ defaultValue: nowTimestamp }),
           updatedAt: f.default({ defaultValue: nowTimestamp }),
         },
-      },
-      notesToTags: {
-        count: 0, // Drizzle seed の自動生成は避け、後で手動で意味のある紐付けを行う
       },
     }));
 
