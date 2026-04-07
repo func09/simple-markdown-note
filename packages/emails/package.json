@@ -7,10 +7,10 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "dev": "email dev -p 3001 --dir src/templates",
     "build": "email export --dir src/templates",
     "check": "biome check .",
     "check:types": "tsc --noEmit",
+    "dev": "email dev -p 3001 --dir src/templates",
     "test": "vitest run",
     "test:cov": "CI=true vitest run --coverage --reporter=dot --silent"
   },

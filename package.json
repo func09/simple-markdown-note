@@ -9,16 +9,16 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "tsx scripts/dev.ts",
     "build": "turbo build",
     "check": "turbo check",
-    "check:docs": "eslint \"**/*.{ts,tsx}\"",
-    "clean:cache": "find . -name \"*.tsbuildinfo\" -delete",
     "check:all": "pnpm clean:cache && turbo check check:types test --force",
+    "check:docs": "eslint \"**/*.{ts,tsx}\"",
     "check:types": "turbo check:types",
+    "clean:cache": "find . -name \"*.tsbuildinfo\" -delete",
+    "dev": "tsx scripts/dev.ts",
+    "prepare": "husky",
     "test": "CI=true turbo test",
-    "test:cov": "CI=true turbo test -- --coverage --reporter=dot --silent",
-    "prepare": "husky"
+    "test:cov": "CI=true turbo test -- --coverage --reporter=dot --silent"
   },
   "keywords": [],
   "author": "Mitsuru Haga",
