@@ -2,7 +2,7 @@ import { app, BrowserWindow } from "electron";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // menu setupをモック
-vi.mock("./menu.js", () => ({
+vi.mock("./menu", () => ({
   setupMenu: vi.fn(),
 }));
 
@@ -72,7 +72,7 @@ describe("main process", () => {
       configurable: true,
     });
 
-    await import("./main.js");
+    await import("./main");
 
     // app.whenReady() のプロミスを解決し、createWindowを実行させる
     readyPromiseResolver();
@@ -86,8 +86,8 @@ describe("main process", () => {
     expect(mockWindowInst.loadFile).not.toHaveBeenCalled();
 
     // windowのcloseイベントハンドラが登録されることを確認する
-    expect(mockWindowListeners["closed"]).toBeDefined();
-    mockWindowListeners["closed"]?.(); // null代入カバレッジを満たす
+    expect(mockWindowListeners.closed).toBeDefined();
+    mockWindowListeners.closed?.(); // null代入カバレッジを満たす
   });
 
   /**
@@ -99,7 +99,7 @@ describe("main process", () => {
       configurable: true,
     });
 
-    await import("./main.js");
+    await import("./main");
 
     readyPromiseResolver();
     await readyPromise;
@@ -116,7 +116,7 @@ describe("main process", () => {
    * アプリがアクティブになった際、ウィンドウが存在しなければ新しくウィンドウを作成することを確認する
    */
   it("should create window when activated and none exist", async () => {
-    await import("./main.js");
+    await import("./main");
 
     readyPromiseResolver();
     await readyPromise;
@@ -125,7 +125,7 @@ describe("main process", () => {
 
     // ウィンドウがない状態でactivateイベントを発火
     vi.mocked(BrowserWindow.getAllWindows).mockReturnValue([]);
-    mockAppListeners["activate"]?.();
+    mockAppListeners.activate?.();
 
     // 新しくウィンドウが作成されるため呼び出し回数が増える
     expect(BrowserWindow).toHaveBeenCalledTimes(2);
@@ -135,7 +135,7 @@ describe("main process", () => {
    * アプリがアクティブになった際、すでにウィンドウがあれば新しく作成しないことを確認する
    */
   it("should not create window when activated and windows exist", async () => {
-    await import("./main.js");
+    await import("./main");
 
     readyPromiseResolver();
     await readyPromise;
@@ -146,7 +146,7 @@ describe("main process", () => {
     vi.mocked(BrowserWindow.getAllWindows).mockReturnValue([
       {} as unknown as BrowserWindow,
     ]);
-    mockAppListeners["activate"]?.();
+    mockAppListeners.activate?.();
 
     // ウィンドウ作成は呼ばれないため呼び出し回数はそのまま
     expect(BrowserWindow).toHaveBeenCalledTimes(1);
@@ -160,7 +160,7 @@ describe("main process", () => {
       value: "win32",
       configurable: true,
     });
-    await import("./main.js");
+    await import("./main");
 
     mockAppListeners["window-all-closed"]?.();
 
@@ -175,7 +175,7 @@ describe("main process", () => {
       value: "darwin",
       configurable: true,
     });
-    await import("./main.js");
+    await import("./main");
 
     mockAppListeners["window-all-closed"]?.();
 

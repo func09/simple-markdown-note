@@ -24,7 +24,7 @@ describe("preload script", () => {
    */
   it("should correctly expose API via contextBridge", async () => {
     // プリロードスクリプトをインポートし、グローバル領域の処理を実行させる
-    await import("./preload.js");
+    await import("./preload");
 
     expect(contextBridge.exposeInMainWorld).toHaveBeenCalledWith(
       "electron",
