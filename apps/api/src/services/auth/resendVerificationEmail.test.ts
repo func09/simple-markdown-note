@@ -100,7 +100,10 @@ describe("resendVerificationEmail", () => {
       subject: "Verify your email address",
       html: "<p>verify</p>",
       text: "verify",
-      tags: [{ name: "category", value: "verify_email" }],
+      tags: [
+        { name: "category", value: "verify_email" },
+        { name: "env", value: "development" },
+      ],
     });
     const headers = new Headers(requestInit?.headers);
     expect(headers.get("Authorization")).toBe("Bearer re_test");

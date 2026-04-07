@@ -109,7 +109,10 @@ describe("requestPasswordReset", () => {
       subject: "Reset your password",
       html: "<p>test</p>",
       text: "test",
-      tags: [{ name: "category", value: "reset_password" }],
+      tags: [
+        { name: "category", value: "reset_password" },
+        { name: "env", value: "development" },
+      ],
     });
     const headers = new Headers(requestInit?.headers);
     expect(headers.get("Authorization")).toBe("Bearer re_test");

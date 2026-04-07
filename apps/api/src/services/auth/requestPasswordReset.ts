@@ -66,7 +66,10 @@ export async function requestPasswordReset(
     subject: "Reset your password",
     html,
     text,
-    tags: [{ name: "category", value: "reset_password" }],
+    tags: [
+      { name: "category", value: "reset_password" },
+      { name: "env", value: env.NODE_ENV || "development" },
+    ],
   });
 
   if (response?.error) {
