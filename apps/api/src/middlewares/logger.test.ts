@@ -2,7 +2,9 @@ import { Hono } from "hono";
 import { describe, expect, it, vi } from "vitest";
 import { requestLogger } from "./logger";
 
+// ロガーミドルウェアのテストスイート
 describe("Logger Middleware", () => {
+  // 2xx、3xx、4xx系の各HTTPステータスを返すリクエストが記録されることを確認する
   it("should log requests returning 3xx, 4xx, and 2xx statuses", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     const app = new Hono();

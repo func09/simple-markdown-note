@@ -8,6 +8,7 @@ import type { z } from "zod";
 import { app } from "../index";
 import type { AppEnv } from "../types";
 
+// 認証APIのテストスイート
 describe("Auth API", () => {
   beforeAll(async () => {
     // setupFiles (vitest.setup.ts) にてマイグレーション済み
@@ -16,6 +17,7 @@ describe("Auth API", () => {
   });
 
   // ユーザー登録のテスト
+  // 新規ユーザー登録ができることを確認する
   it("should signup a new user", async () => {
     const res = await app.request("/api/auth/signup", {
       method: "POST",
@@ -34,6 +36,7 @@ describe("Auth API", () => {
     expect(body.token).toBeDefined();
   });
 
+  // 既存のユーザーでサインインできることを確認する
   it("should signin an existing user", async () => {
     const res = await app.request("/api/auth/signin", {
       method: "POST",
@@ -52,6 +55,7 @@ describe("Auth API", () => {
     expect(body.token).toBeDefined();
   });
 
+  // 無効な認証情報の場合はエラーを返すことを確認する
   it("should return error for invalid credentials", async () => {
     const res = await app.request("/api/auth/signin", {
       method: "POST",
@@ -69,6 +73,7 @@ describe("Auth API", () => {
     expect(body.error).toBe("Invalid credentials");
   });
 
+  // ユーザーがログアウトできることを確認する
   it("should logout a user", async () => {
     const res = await app.request("/api/auth/logout", {
       method: "DELETE",
@@ -78,6 +83,7 @@ describe("Auth API", () => {
     expect(res.body).toBe(null);
   });
 
+  // ユーザーの退会処理ができることを確認する
   it("should drop a user", async () => {
     // まずユーザーを登録してサインイン状態にする
     const signupRes = await app.request("/api/auth/signup", {
@@ -126,7 +132,9 @@ describe("Auth API", () => {
     expect(meRes.status).toBe(401);
   });
 
+  // 入力値バリデーションのテストスイート
   describe("Validation", () => {
+    // メールアドレスの形式が不正な場合は400エラーを返すことを確認する
     it("should return 400 for invalid email format", async () => {
       const res = await app.request("https://localhost/api/auth/signup", {
         method: "POST",
@@ -139,6 +147,7 @@ describe("Auth API", () => {
       expect(res.status).toBe(400);
     });
 
+    // パスワードが短すぎる場合は400エラーを返すことを確認する
     it("should return 400 for short password", async () => {
       const res = await app.request("/api/auth/signup", {
         method: "POST",
@@ -151,6 +160,7 @@ describe("Auth API", () => {
       expect(res.status).toBe(400);
     });
 
+    // パスワードに大文字が含まれていない場合は400エラーを返すことを確認する
     it("should return 400 for password missing uppercase", async () => {
       const res = await app.request("/api/auth/signup", {
         method: "POST",
@@ -163,6 +173,7 @@ describe("Auth API", () => {
       expect(res.status).toBe(400);
     });
 
+    // パスワードに小文字が含まれていない場合は400エラーを返すことを確認する
     it("should return 400 for password missing lowercase", async () => {
       const res = await app.request("/api/auth/signup", {
         method: "POST",
@@ -175,6 +186,7 @@ describe("Auth API", () => {
       expect(res.status).toBe(400);
     });
 
+    // パスワードに数字が含まれていない場合は400エラーを返すことを確認する
     it("should return 400 for password missing digits", async () => {
       const res = await app.request("/api/auth/signup", {
         method: "POST",
@@ -187,6 +199,7 @@ describe("Auth API", () => {
       expect(res.status).toBe(400);
     });
 
+    // パスワードが長すぎる場合は400エラーを返すことを確認する
     it("should return 400 for too long password", async () => {
       const res = await app.request("/api/auth/signup", {
         method: "POST",
@@ -200,7 +213,9 @@ describe("Auth API", () => {
     });
   });
 
+  // アカウント管理とリカバリー関連のAPIテストスイート
   describe("Account Management & Recovery API", () => {
+    // ログイン中の自身の情報を取得できることを確認する
     it("should get me", async () => {
       // signup first
       const res = await app.request("/api/auth/signup", {
@@ -220,6 +235,7 @@ describe("Auth API", () => {
       expect(user.email).toBe("me@example.com");
     });
 
+    // API実行中にユーザーが突然削除されていた場合は404エラーを返すことを確認する
     it("should return 404 if user is suddenly not found in route", async () => {
       const res = await app.request("/api/auth/signup", {
         method: "POST",
@@ -253,6 +269,7 @@ describe("Auth API", () => {
       spy.mockRestore();
     });
 
+    // パスワードリセットリクエストを送信できることを確認する
     it("should request password reset", async () => {
       const res = await app.request("/api/auth/forgot-password", {
         method: "POST",
@@ -262,6 +279,7 @@ describe("Auth API", () => {
       expect(res.status).toBe(204);
     });
 
+    // パスワードの再設定を試行できることを確認する（不正なトークン等）
     it("should attempt to reset password", async () => {
       const res = await app.request("/api/auth/reset-password", {
         method: "POST",
@@ -276,6 +294,7 @@ describe("Auth API", () => {
       expect(res.status).toBe(400);
     });
 
+    // メールの検証を試行できることを確認する（不正なトークン等）
     it("should attempt to verify email", async () => {
       // signup to get token
       const signupRes = await app.request("/api/auth/signup", {
@@ -298,6 +317,7 @@ describe("Auth API", () => {
       expect(res.status).toBe(400);
     });
 
+    // 確認メールの再送信ができることを確認する
     it("should resend verification email", async () => {
       // signup to get token
       const signupRes = await app.request("/api/auth/signup", {
@@ -319,6 +339,7 @@ describe("Auth API", () => {
       expect(res.status).toBe(204);
     });
 
+    // 正しいトークンを使用してメール検証が成功することを確認する
     it("should succeed in verifying email by generating a real token", async () => {
       // signup to get user
       const signupRes = await app.request("/api/auth/signup", {
@@ -355,6 +376,7 @@ describe("Auth API", () => {
       expect(res.status).toBe(204);
     });
 
+    // 正しいトークンを使用してパスワードリセットが成功することを確認する
     it("should succeed in resetting password by generating a real token", async () => {
       // signup to get user
       const signupRes = await app.request("/api/auth/signup", {
@@ -398,7 +420,9 @@ describe("Auth API", () => {
     });
   });
 
+  // 本番環境（HTTPSまたはNODE_ENV=production）でのCookie処理のテストスイート
   describe("Production Environment Cookie Handling", () => {
+    // NODE_ENVがproductionの時、認証エンドポイントでsecure Cookieがセットされることを確認する
     it("should set secure cookies for auth endpoints when NODE_ENV is production", async () => {
       const prodEnv = {
         NODE_ENV: "production",

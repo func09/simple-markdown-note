@@ -2,11 +2,13 @@ import { db, users } from "@simple-markdown-note/database";
 import type {
   AuthResponseSchema,
   TagListResponseSchema,
+  TagResponseSchema,
 } from "@simple-markdown-note/schemas";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { z } from "zod";
 import { app } from "../index";
 
+// タグ関連APIのテストスイート
 describe("Tags API", () => {
   let token: string;
 
@@ -31,6 +33,7 @@ describe("Tags API", () => {
     // 必要に応じて後処理を追加
   });
 
+  // ノート作成などでタグを利用したあとに、タグと付随するノート数が正しく返されることを確認する
   it("should list tags with note count after creating notes with tags via CRUD", async () => {
     // ノート1を作成 (タグ: Work, Important)
     await app.request("/api/notes", {
@@ -81,7 +84,9 @@ describe("Tags API", () => {
     expect(personalTag?.count).toBe(1);
   });
 
+  // 認可チェックのテストスイート
   describe("Authorization", () => {
+    // 一覧取得時に他のユーザーのタグが含まれないことを確認する
     it("should not include other user's tags in list", async () => {
       // 別のユーザーを作成
       const signupRes = await app.request("/api/auth/signup", {
@@ -121,6 +126,25 @@ describe("Tags API", () => {
       const body = (await res.json()) as z.infer<typeof TagListResponseSchema>;
       // PrivateTag が含まれていないことを確認
       expect(body.some((t) => t.name === "PrivateTag")).toBe(false);
+    });
+  });
+
+  // 新規タグ作成のテストスイート
+  describe("Create Tag", () => {
+    // 新しいタグを単独で作成できることを確認する
+    it("should create a new tag", async () => {
+      const res = await app.request("/api/tags", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ name: "ManualTag" }),
+      });
+
+      expect(res.status).toBe(200);
+      const tag = (await res.json()) as z.infer<typeof TagResponseSchema>;
+      expect(tag.name).toBe("ManualTag");
     });
   });
 });

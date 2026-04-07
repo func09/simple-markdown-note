@@ -14,6 +14,7 @@ vi.mock("@simple-markdown-note/database", () => ({
   createUserRepository: vi.fn(),
 }));
 
+// ユーザー退会処理のテストスイート
 describe("dropUser", () => {
   const db = {} as DrizzleDB;
   const mockUserRepo = {
@@ -28,6 +29,7 @@ describe("dropUser", () => {
     );
   });
 
+  // ユーザーステータスを削除済みに更新することで退会処理が行われることを確認する
   it("should drop user by updating status to deleted", async () => {
     mockUserRepo.findById.mockResolvedValue({
       id: "1",
@@ -40,6 +42,7 @@ describe("dropUser", () => {
     expect(mockUserRepo.updateStatus).toHaveBeenCalledWith("1", "deleted");
   });
 
+  // 対象ユーザーが見つからない場合はHTTPExceptionが投げられることを確認する
   it("should throw HTTPException if user is not found", async () => {
     mockUserRepo.findById.mockResolvedValue(undefined);
 

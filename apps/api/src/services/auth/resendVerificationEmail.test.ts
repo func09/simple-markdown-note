@@ -33,6 +33,7 @@ vi.mock("@simple-markdown-note/emails", () => ({
   }),
 }));
 
+// 検証メール再送処理のテストスイート
 describe("resendVerificationEmail", () => {
   const db = {} as DrizzleDB;
   const mockUserRepo = {
@@ -68,6 +69,7 @@ describe("resendVerificationEmail", () => {
     vi.restoreAllMocks();
   });
 
+  // アカウント保留中のユーザーに対しては正常に確認メールが再送されることを確認する
   it("should process resend for pending user", async () => {
     const mockEnv = {
       RESEND_API_KEY: "re_test",
@@ -103,6 +105,7 @@ describe("resendVerificationEmail", () => {
     );
   });
 
+  // すでに有効化済みのユーザーに対しては何もしないことを確認する
   it("should do nothing if user is already active", async () => {
     const mockEnv = {
       RESEND_API_KEY: "re_test",
@@ -121,6 +124,7 @@ describe("resendVerificationEmail", () => {
     expect(mockVerifyRepo.create).not.toHaveBeenCalled();
   });
 
+  // ユーザーが存在しない場合でもエラーを投げず、安全に終了することを確認する
   it("should fail gracefully if user doesn't exist", async () => {
     const mockEnv = {
       RESEND_API_KEY: "re_test",
@@ -135,6 +139,7 @@ describe("resendVerificationEmail", () => {
     expect(mockVerifyRepo.create).not.toHaveBeenCalled();
   });
 
+  // RESEND_API_KEYが未設定の場合は警告ログが出力されることを確認する
   it("should warn if RESEND_API_KEY is not set", async () => {
     const mockEnv = {
       DB: {},
@@ -158,6 +163,7 @@ describe("resendVerificationEmail", () => {
     consoleWarnSpy.mockRestore();
   });
 
+  // メール送信サービス側のエラーを適切にハンドルすることを確認する
   it("should handle Resend API error", async () => {
     const mockEnv = {
       RESEND_API_KEY: "re_test",

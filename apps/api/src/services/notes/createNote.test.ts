@@ -14,6 +14,7 @@ vi.mock("../tags", () => ({
   syncTags: vi.fn(),
 }));
 
+// 新規ノート作成処理のテストスイート
 describe("createNote", () => {
   const db = {} as DrizzleDB;
   const mockNoteRepo = {
@@ -27,6 +28,7 @@ describe("createNote", () => {
     );
   });
 
+  // ノートが作成され、紐付くタグが適切に同期保存されることを確認する
   it("should create a note and sync tags", async () => {
     const mockNote = { id: "n1", content: "new note" };
     mockNoteRepo.create.mockResolvedValue(mockNote);

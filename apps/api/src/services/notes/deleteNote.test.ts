@@ -9,6 +9,7 @@ vi.mock("@simple-markdown-note/database", () => ({
   createNoteRepository: vi.fn(),
 }));
 
+// ノート削除処理のテストスイート
 describe("deleteNote", () => {
   const db = {} as DrizzleDB;
   const mockNoteRepo = {
@@ -22,6 +23,7 @@ describe("deleteNote", () => {
     );
   });
 
+  // ノートが削除（論理削除）されることを確認する
   it("should delete a note", async () => {
     await deleteNote("user1", "n1", db);
 
