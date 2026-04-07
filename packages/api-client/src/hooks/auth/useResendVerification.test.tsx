@@ -28,4 +28,17 @@ describe("useResendVerification", () => {
     );
     expect(onSuccess).toHaveBeenCalled();
   });
+
+  it("should handle without options", async () => {
+    vi.mocked(authRequests.resendVerification).mockResolvedValue(undefined);
+
+    const { result } = renderHook(() => useResendVerification(), {
+      wrapper: createWrapper(),
+    });
+
+    result.current.mutate({ email: "t@e.com" });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(authRequests.resendVerification).toHaveBeenCalled();
+  });
 });

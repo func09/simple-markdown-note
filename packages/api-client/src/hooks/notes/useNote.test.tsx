@@ -35,4 +35,24 @@ describe("useNote", () => {
     expect(result.current.fetchStatus).toBe("idle");
     expect(notesRequests.getNote).not.toHaveBeenCalled();
   });
+
+  it("should handle explicitly enabled true but id is null", async () => {
+    const { result } = renderHook(() => useNote(null, { enabled: true }), {
+      wrapper: createWrapper(),
+    });
+
+    expect(result.current.fetchStatus).toBe("idle");
+    expect(notesRequests.getNote).not.toHaveBeenCalled();
+  });
+
+  it("should reject query when refetched without ID", async () => {
+    const { result } = renderHook(() => useNote(null), {
+      wrapper: createWrapper(),
+    });
+
+    const refetchResult = await result.current
+      .refetch({ throwOnError: true })
+      .catch((err) => err);
+    expect(refetchResult).toBe("No ID provided");
+  });
 });

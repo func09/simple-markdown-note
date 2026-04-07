@@ -29,4 +29,20 @@ describe("useLogin", () => {
     expect(authRequests.signin).toHaveBeenCalled();
     expect(onSuccess).toHaveBeenCalledWith(mockData);
   });
+
+  it("should handle without options", async () => {
+    const mockData = { user: { id: "1" }, token: "tk" };
+    vi.mocked(authRequests.signin).mockResolvedValue(
+      mockData as unknown as AuthResponse
+    );
+
+    const { result } = renderHook(() => useLogin(), {
+      wrapper: createWrapper(),
+    });
+
+    result.current.mutate({ email: "t@e.com", password: "p" });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(authRequests.signin).toHaveBeenCalled();
+  });
 });

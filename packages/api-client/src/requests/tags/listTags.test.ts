@@ -36,4 +36,17 @@ describe("listTags", () => {
       "Server error"
     );
   });
+
+  it("should throw default error on failure when error message is missing", async () => {
+    const mockResponse = {
+      ok: false,
+      url: "http://localhost/api/tags",
+      json: async () => ({}),
+    };
+    apiMock.tags.$get.mockResolvedValue(mockResponse);
+
+    await expect(listTags(apiMock as unknown as ApiClient)).rejects.toThrow(
+      "Failed to fetch tags"
+    );
+  });
 });

@@ -25,4 +25,38 @@ describe("createNote", () => {
 
     expect(result.id).toBe("new");
   });
+
+  it("should throw error on failure", async () => {
+    const mockResponse = {
+      ok: false,
+      status: 400,
+      url: "http://localhost/api/notes",
+      json: async () => ({ error: "Bad request" }),
+    };
+    apiMock.notes.$post.mockResolvedValue(mockResponse);
+
+    await expect(
+      createNote(apiMock as unknown as ApiClient, {
+        content: "hello",
+        isPermanent: false,
+      })
+    ).rejects.toThrow("Bad request");
+  });
+
+  it("should throw default error on failure when error message is missing", async () => {
+    const mockResponse = {
+      ok: false,
+      status: 400,
+      url: "http://localhost/api/notes",
+      json: async () => ({}),
+    };
+    apiMock.notes.$post.mockResolvedValue(mockResponse);
+
+    await expect(
+      createNote(apiMock as unknown as ApiClient, {
+        content: "hello",
+        isPermanent: false,
+      })
+    ).rejects.toThrow("Failed to create note");
+  });
 });

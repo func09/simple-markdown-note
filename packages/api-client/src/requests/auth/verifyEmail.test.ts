@@ -36,4 +36,18 @@ describe("verifyEmail", () => {
       verifyEmail(apiMock as unknown as ApiClient, "token")
     ).rejects.toThrow("Token invalid");
   });
+
+  it("should throw default error on failure when error message is missing", async () => {
+    const mockResponse = {
+      ok: false,
+      status: 400,
+      url: "http://localhost/api/auth/verify-email",
+      json: async () => ({}),
+    };
+    apiMock.auth["verify-email"].$get.mockResolvedValue(mockResponse);
+
+    await expect(
+      verifyEmail(apiMock as unknown as ApiClient, "token")
+    ).rejects.toThrow("Email verification failed");
+  });
 });

@@ -44,4 +44,22 @@ describe("resetPassword", () => {
       })
     ).rejects.toThrow("Token invalid");
   });
+
+  it("should throw default error on failure when error message is missing", async () => {
+    const mockResponse = {
+      ok: false,
+      status: 400,
+      url: "http://localhost/api/auth/reset-password",
+      json: async () => ({}),
+    };
+    apiMock.auth["reset-password"].$post.mockResolvedValue(mockResponse);
+
+    await expect(
+      resetPassword(apiMock as unknown as ApiClient, {
+        token: "token",
+        password: "newpassword",
+        confirmPassword: "newpassword",
+      })
+    ).rejects.toThrow("Password reset failed");
+  });
 });

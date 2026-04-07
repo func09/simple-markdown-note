@@ -49,4 +49,21 @@ describe("signin", () => {
       })
     ).rejects.toThrow("Invalid credentials");
   });
+
+  it("should throw default error on failure when error message is missing", async () => {
+    const mockResponse = {
+      ok: false,
+      status: 401,
+      url: "http://localhost/api/auth/signin",
+      json: async () => ({}),
+    };
+    apiMock.auth.signin.$post.mockResolvedValue(mockResponse);
+
+    await expect(
+      signin(apiMock as unknown as ApiClient, {
+        email: "test@example.com",
+        password: "wrong",
+      })
+    ).rejects.toThrow("Login failed");
+  });
 });
