@@ -5,6 +5,9 @@ import { renderResetPasswordEmail, renderVerifyEmail } from "./index";
  * メール出力ルーター (render関数) のテスト
  */
 describe("Email Renderers", () => {
+  /**
+   * パスワードリセット用メール出力テスト
+   */
   describe("renderResetPasswordEmail", () => {
     /**
      * htmlとプレーンテキストの両方が正常に生成され、各々指定されたリンクが含まれることを確認する
@@ -22,6 +25,9 @@ describe("Email Renderers", () => {
     });
   });
 
+  /**
+   * アカウント認証用メール出力テスト
+   */
   describe("renderVerifyEmail", () => {
     /**
      * htmlとプレーンテキストの両方が正常に生成され、各々指定されたリンクが含まれることを確認する
