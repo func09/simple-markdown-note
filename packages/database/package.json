@@ -11,12 +11,11 @@
     "check": "biome check .",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "generate": "drizzle-kit generate",
+    "db:generate:migration": "drizzle-kit generate",
     "db:check": "drizzle-kit check",
     "db:seed": "tsx src/seed.ts",
     "test": "vitest run",
     "check:types": "tsc --noEmit",
-    "test:cov:open": "test -f coverage/index.html && open coverage/index.html || true",
     "test:cov": "vitest run --coverage --reporter=dot --silent"
   },
   "keywords": [],
