@@ -69,6 +69,7 @@ describe("resendVerificationEmail", () => {
       RESEND_API_KEY: "re_test",
       DB: {},
       JWT_SECRET: "secret",
+      NODE_ENV: "test",
     } as unknown as AppEnv["Bindings"];
     mockUserRepo.findByEmail.mockResolvedValue({
       id: "user_1",
@@ -102,7 +103,7 @@ describe("resendVerificationEmail", () => {
       text: "verify",
       tags: [
         { name: "category", value: "verify_email" },
-        { name: "env", value: "development" },
+        { name: "env", value: "test" },
       ],
     });
     const headers = new Headers(requestInit?.headers);

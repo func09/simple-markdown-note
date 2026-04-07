@@ -181,6 +181,7 @@ describe("signup", () => {
       RESEND_API_KEY: "test-key",
       CLIENT_URL: "http://test",
       EMAIL_FROM: "test@domain.com",
+      NODE_ENV: "test",
     } as unknown as AppEnv["Bindings"]);
 
     const [url, requestInit] = fetchMock.mock.calls[0];
@@ -195,7 +196,7 @@ describe("signup", () => {
       text: "verify",
       tags: [
         { name: "category", value: "verify_email" },
-        { name: "env", value: "development" },
+        { name: "env", value: "test" },
       ],
     });
     const headers = new Headers(requestInit?.headers);
