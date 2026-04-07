@@ -1,14 +1,14 @@
 <svg width="144.7" height="20" viewBox="0 0 1447 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mobile Coverage: 100%">
   <title>Mobile Coverage: 100%</title>
-  <linearGradient id="HcGHb" x2="0" y2="100%">
+  <linearGradient id="AmygE" x2="0" y2="100%">
     <stop offset="0" stop-opacity=".1" stop-color="#EEE"/>
     <stop offset="1" stop-opacity=".1"/>
   </linearGradient>
-  <mask id="HCFXA"><rect width="1447" height="200" rx="30" fill="#FFF"/></mask>
-  <g mask="url(#HCFXA)">
+  <mask id="ytwOX"><rect width="1447" height="200" rx="30" fill="#FFF"/></mask>
+  <g mask="url(#ytwOX)">
     <rect width="1017" height="200" fill="#555"/>
     <rect width="430" height="200" fill="#3C1" x="1017"/>
-    <rect width="1447" height="200" fill="url(#HcGHb)"/>
+    <rect width="1447" height="200" fill="url(#AmygE)"/>
   </g>
   <g aria-hidden="true" fill="#fff" text-anchor="start" font-family="Verdana,DejaVu Sans,sans-serif" font-size="110">
     <text x="60" y="148" textLength="917" fill="#000" opacity="0.25">Mobile Coverage</text>
