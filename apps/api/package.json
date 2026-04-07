@@ -13,13 +13,14 @@
     "deploy": "wrangler deploy",
     "check": "biome check .",
     "check:types": "tsc --noEmit",
-    "test:cov:open": "test -f coverage/index.html && open coverage/index.html || true"
+    "test:cov:open": "test -f coverage/index.html && open coverage/index.html || true",
+    "test:cov": "vitest run --coverage --reporter=dot --silent"
   },
   "dependencies": {
     "@hono/zod-openapi": "^0.18.4",
-    "@simple-markdown-note/schemas": "workspace:*",
     "@simple-markdown-note/database": "workspace:*",
     "@simple-markdown-note/emails": "workspace:*",
+    "@simple-markdown-note/schemas": "workspace:*",
     "hono": "^4.12.9",
     "resend": "^6.10.0",
     "zod": "^4.3.6"
@@ -29,6 +30,7 @@
     "@hono/node-server": "^1.19.12",
     "@hono/swagger-ui": "^0.6.1",
     "vitest": "3.2.4",
+    "vitest-fetch-mock": "^0.4.5",
     "wrangler": "^4.79.0"
   }
 }

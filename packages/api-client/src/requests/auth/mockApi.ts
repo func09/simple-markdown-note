@@ -34,5 +34,9 @@ export const createApiMock = () => ({
       $post: vi.fn(),
       $url: () => new URL("http://localhost/api/auth/resend-verification"),
     },
+    drop: {
+      $post: vi.fn(),
+      $url: () => new URL("http://localhost/api/auth/drop"),
+    },
   },
 });

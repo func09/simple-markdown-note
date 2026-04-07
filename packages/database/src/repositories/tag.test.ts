@@ -16,9 +16,12 @@ beforeEach(async () => {
   await db.delete(users);
 });
 
+// タグデータに対する作成・検索・紐付けなどの各種データベース操作を検証する
 describe("createTagRepository", () => {
+  // タグの新規作成機能
   describe("create", () => {
-    it("タグを作成してフィールドが正しい", async () => {
+    // タグを作成してフィールドが正しいことを確認する
+    it("should create a tag with correct fields", async () => {
       const user = await userRepo.create({
         email: "u@example.com",
         passwordHash: "h",
@@ -32,8 +35,10 @@ describe("createTagRepository", () => {
     });
   });
 
+  // タグ名とユーザーIDを用いた特定のタグの検索機能
   describe("findByName", () => {
-    it("存在するname+userIdで取得できる", async () => {
+    // 存在するname+userIdで取得できることを確認する
+    it("should find a tag by name and userId", async () => {
       const user = await userRepo.create({
         email: "u@example.com",
         passwordHash: "h",
@@ -44,7 +49,8 @@ describe("createTagRepository", () => {
       expect(found?.id).toBe(tag.id);
     });
 
-    it("存在しない組み合わせはundefinedを返す", async () => {
+    // 存在しない組み合わせはundefinedを返すことを確認する
+    it("should return undefined for a non-existent name and userId combination", async () => {
       const user = await userRepo.create({
         email: "u@example.com",
         passwordHash: "h",
@@ -54,8 +60,10 @@ describe("createTagRepository", () => {
     });
   });
 
+  // 特定のユーザーが所有するすべてのタグの一覧取得機能
   describe("findAllByUserId", () => {
-    it("自分のタグのみ返す（他ユーザーのタグは含まれない）", async () => {
+    // 自分のタグのみ返す（他ユーザーのタグは含まれない）ことを確認する
+    it("should return only tags belonging to the specified user", async () => {
       const user1 = await userRepo.create({
         email: "u1@example.com",
         passwordHash: "h",
@@ -73,8 +81,10 @@ describe("createTagRepository", () => {
     });
   });
 
+  // ノートとの紐付け情報を含めたタグデータの一括取得機能
   describe("findAllWithNotesByUserId", () => {
-    it("notesToTagsを含んで返す", async () => {
+    // notesToTagsを含んで返すことを確認する
+    it("should return tags with their associated note links", async () => {
       const user = await userRepo.create({
         email: "u@example.com",
         passwordHash: "h",
@@ -89,8 +99,10 @@ describe("createTagRepository", () => {
     });
   });
 
+  // タグの作成または更新（既存の場合は更新日時を更新）機能
   describe("upsert", () => {
-    it("新規タグを作成できる", async () => {
+    // 新規タグを作成できることを確認する
+    it("should create a new tag", async () => {
       const user = await userRepo.create({
         email: "u@example.com",
         passwordHash: "h",
@@ -101,7 +113,8 @@ describe("createTagRepository", () => {
       expect(tag.name).toBe("new");
     });
 
-    it("同じname+userIdで再呼び出しするとidが同じでupdatedAtが更新される", async () => {
+    // 同じname+userIdで再呼び出しするとidが同じでupdatedAtが更新されることを確認する
+    it("should update updatedAt while keeping the same id when called with existing name and userId", async () => {
       const user = await userRepo.create({
         email: "u@example.com",
         passwordHash: "h",
@@ -118,8 +131,10 @@ describe("createTagRepository", () => {
     });
   });
 
+  // タグの削除機能
   describe("delete", () => {
-    it("所有者のタグを削除できる", async () => {
+    // 所有者のタグを削除できることを確認する
+    it("should delete a tag belonging to the specified user", async () => {
       const user = await userRepo.create({
         email: "u@example.com",
         passwordHash: "h",
@@ -133,8 +148,10 @@ describe("createTagRepository", () => {
     });
   });
 
+  // 特定のノートに紐づくすべてのタグの関連付け解除機能
   describe("unlinkAllFromNote", () => {
-    it("ノートに紐づく全タグリンクを削除する", async () => {
+    // ノートに紐づく全タグリンクを削除することを確認する
+    it("should delete all tag links for a specified note", async () => {
       const user = await userRepo.create({
         email: "u@example.com",
         passwordHash: "h",
@@ -150,7 +167,8 @@ describe("createTagRepository", () => {
       expect(found?.notesToTags).toHaveLength(0);
     });
 
-    it("他ノートのリンクは影響しない", async () => {
+    // 他ノートのリンクは影響しないことを確認する
+    it("should not affect tag links of other notes", async () => {
       const user = await userRepo.create({
         email: "u@example.com",
         passwordHash: "h",
@@ -168,8 +186,10 @@ describe("createTagRepository", () => {
     });
   });
 
+  // 複数のタグを特定のノートに関連付ける機能
   describe("linkToNote", () => {
-    it("複数タグをノートに紐付けできる", async () => {
+    // 複数タグをノートに紐付けできることを確認する
+    it("should link multiple tags to a note", async () => {
       const user = await userRepo.create({
         email: "u@example.com",
         passwordHash: "h",
@@ -184,7 +204,8 @@ describe("createTagRepository", () => {
       expect(found?.notesToTags).toHaveLength(2);
     });
 
-    it("空配列はno-op（エラーなし）", async () => {
+    // 空配列はno-op（エラーなし）になることを確認する
+    it("should be a no-op when linking an empty array of tags", async () => {
       const user = await userRepo.create({
         email: "u@example.com",
         passwordHash: "h",
@@ -195,8 +216,10 @@ describe("createTagRepository", () => {
     });
   });
 
+  // どのノートにも関連付けられていない未使用タグの定期削除機能
   describe("deleteOrphaned", () => {
-    it("どのノートにも紐付かないタグを削除する", async () => {
+    // どのノートにも紐付かないタグを削除することを確認する
+    it("should delete tags that are not linked to any notes", async () => {
       const user = await userRepo.create({
         email: "u@example.com",
         passwordHash: "h",
@@ -209,7 +232,8 @@ describe("createTagRepository", () => {
       expect(remaining).toHaveLength(0);
     });
 
-    it("ノートに紐付いたタグは削除されない", async () => {
+    // ノートに紐付いたタグは削除されないことを確認する
+    it("should not delete tags that are linked to notes", async () => {
       const user = await userRepo.create({
         email: "u@example.com",
         passwordHash: "h",

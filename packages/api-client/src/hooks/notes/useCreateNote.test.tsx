@@ -8,11 +8,17 @@ import { useCreateNote } from "./useCreateNote";
 
 vi.mock("../../requests/notes/createNote");
 
+/**
+ * ノート新規作成フック (useCreateNote) のテスト
+ */
 describe("useCreateNote", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
+  /**
+   * mutate実行時に新規作成APIが叩かれ、成功後にキャッシュの無効化処理が走ることを確認する
+   */
   it("should call createNote and invalidate queries", async () => {
     const mockData = { id: "new", content: "hello" };
     vi.mocked(notesRequests.createNote).mockResolvedValue(

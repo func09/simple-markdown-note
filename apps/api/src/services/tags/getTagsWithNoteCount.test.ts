@@ -9,6 +9,7 @@ vi.mock("@simple-markdown-note/database", () => ({
   createTagRepository: vi.fn(),
 }));
 
+// 使用ノート数付きのタグ取得処理のテストスイート
 describe("getTagsWithNoteCount", () => {
   const db = {} as DrizzleDB;
   const mockTagRepo = {
@@ -22,6 +23,7 @@ describe("getTagsWithNoteCount", () => {
     );
   });
 
+  // 格納されている生タグ情報を正しくフォーマットして返すことを確認する
   it("should format raw tags from repository", async () => {
     const mockRawTags = [
       {

@@ -14,6 +14,7 @@ vi.mock("../tags", () => ({
   syncTags: vi.fn(),
 }));
 
+// ノート更新処理のテストスイート
 describe("updateNote", () => {
   const db = {} as DrizzleDB;
   const mockNoteRepo = {
@@ -28,6 +29,7 @@ describe("updateNote", () => {
     );
   });
 
+  // ノート情報が更新され、関連するタグも同期更新されることを確認する
   it("should update a note and sync tags", async () => {
     const updatedNote = {
       id: "n1",

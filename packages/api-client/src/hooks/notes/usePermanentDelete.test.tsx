@@ -7,11 +7,17 @@ import { usePermanentDelete } from "./usePermanentDelete";
 
 vi.mock("../../requests/notes/deleteNote");
 
+/**
+ * ノート完全削除フック (usePermanentDelete) のテスト
+ */
 describe("usePermanentDelete", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
+  /**
+   * mutate実行時に本当の削除(deleteNote) APIが呼ばれて対象データが削除されることを確認する
+   */
   it("should call deleteNote", async () => {
     vi.mocked(notesRequests.deleteNote).mockResolvedValue(undefined);
 

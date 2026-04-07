@@ -14,8 +14,8 @@ export function useNoteAutoSave({
   noteId?: string;
   noteContent?: string;
   isDeleting: boolean;
-  contentRef: React.MutableRefObject<string>;
-  lastNoteIdRef: React.MutableRefObject<string | null>;
+  contentRef: React.RefObject<string>;
+  lastNoteIdRef: React.RefObject<string | null>;
 }) {
   const updateNoteMutation = useUpdateNote();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);

@@ -31,6 +31,7 @@ const mockedBcrypt = bcryptjs as unknown as {
   compare: ReturnType<typeof vi.fn>;
 };
 
+// パスワード再設定処理のテストスイート
 describe("resetPassword", () => {
   const db = {} as DrizzleDB;
   const mockUserRepo = {
@@ -67,6 +68,7 @@ describe("resetPassword", () => {
     vi.restoreAllMocks();
   });
 
+  // 正当なトークンによりパスワードが再設定されることを確認する
   it("should reset password with valid token", async () => {
     const futureDate = new Date();
     futureDate.setMinutes(futureDate.getMinutes() + 10);
@@ -89,6 +91,7 @@ describe("resetPassword", () => {
     expect(mockPasswordResetRepo.deleteByUserId).toHaveBeenCalledWith("user_1");
   });
 
+  // トークンの有効期限が切れている場合はエラーが投げられることを確認する
   it("should throw error if token expires", async () => {
     const pastDate = new Date();
     pastDate.setMinutes(pastDate.getMinutes() - 10);
@@ -102,6 +105,7 @@ describe("resetPassword", () => {
     );
   });
 
+  // 無効なトークンが渡された場合はエラーが投げられることを確認する
   it("should throw error if token is invalid", async () => {
     mockPasswordResetRepo.findByTokenHash.mockResolvedValue(null);
 
