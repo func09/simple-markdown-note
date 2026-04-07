@@ -18,6 +18,7 @@ export default defineConfig({
     passWithNoTests: true,
     setupFiles: ["./vitest.setup.ts"],
     coverage: {
+      reporter: ["text", "json-summary", "json"],
       include: ["src/**/*.ts"],
       exclude: [
         ...coverageConfigDefaults.exclude,

@@ -13,6 +13,9 @@ jobs:
     env:
       NODE_ENV: test
       TURBO_CACHE_DIR: .turbo
+    permissions:
+      contents: read
+      pull-requests: write
 
     steps:
       - name: Checkout repository
@@ -53,14 +56,78 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run CI tasks (db:check, check, check:types, test)
+      - name: Run CI tasks (db:check, check, check:types, test:cov)
         run: |
           if [ "${{ github.event_name }}" == "pull_request" ]; then
-            pnpm turbo run db:check check check:types test --filter=[${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}]
+            pnpm turbo run db:check check check:types test:cov --filter=[${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}]
           else
-            pnpm turbo run db:check check check:types test
+            pnpm turbo run db:check check check:types test:cov
           fi
 
       - name: Run JSDoc validations (check:docs)
         run: pnpm check:docs
+
+      - name: Report Web Coverage
+        uses: davelosert/vitest-coverage-report-action@v2
+        if: always() && hashFiles('apps/web/coverage/coverage-summary.json') != ''
+        with:
+          name: 'Web'
+          json-summary-path: 'apps/web/coverage/coverage-summary.json'
+          json-final-path: 'apps/web/coverage/coverage-final.json'
+
+      - name: Report API Coverage
+        uses: davelosert/vitest-coverage-report-action@v2
+        if: always() && hashFiles('apps/api/coverage/coverage-summary.json') != ''
+        with:
+          name: 'API'
+          json-summary-path: 'apps/api/coverage/coverage-summary.json'
+          json-final-path: 'apps/api/coverage/coverage-final.json'
+
+      - name: Report Desktop Coverage
+        uses: davelosert/vitest-coverage-report-action@v2
+        if: always() && hashFiles('apps/desktop/coverage/coverage-summary.json') != ''
+        with:
+          name: 'Desktop'
+          json-summary-path: 'apps/desktop/coverage/coverage-summary.json'
+          json-final-path: 'apps/desktop/coverage/coverage-final.json'
+
+      - name: Report Mobile Coverage
+        uses: davelosert/vitest-coverage-report-action@v2
+        if: always() && hashFiles('apps/mobile/coverage/coverage-summary.json') != ''
+        with:
+          name: 'Mobile'
+          json-summary-path: 'apps/mobile/coverage/coverage-summary.json'
+          json-final-path: 'apps/mobile/coverage/coverage-final.json'
+
+      - name: Report Schemas Coverage
+        uses: davelosert/vitest-coverage-report-action@v2
+        if: always() && hashFiles('packages/schemas/coverage/coverage-summary.json') != ''
+        with:
+          name: 'Schemas'
+          json-summary-path: 'packages/schemas/coverage/coverage-summary.json'
+          json-final-path: 'packages/schemas/coverage/coverage-final.json'
+
+      - name: Report Database Coverage
+        uses: davelosert/vitest-coverage-report-action@v2
+        if: always() && hashFiles('packages/database/coverage/coverage-summary.json') != ''
+        with:
+          name: 'Database'
+          json-summary-path: 'packages/database/coverage/coverage-summary.json'
+          json-final-path: 'packages/database/coverage/coverage-final.json'
+
+      - name: Report API Client Coverage
+        uses: davelosert/vitest-coverage-report-action@v2
+        if: always() && hashFiles('packages/api-client/coverage/coverage-summary.json') != ''
+        with:
+          name: 'API Client'
+          json-summary-path: 'packages/api-client/coverage/coverage-summary.json'
+          json-final-path: 'packages/api-client/coverage/coverage-final.json'
+
+      - name: Report Emails Coverage
+        uses: davelosert/vitest-coverage-report-action@v2
+        if: always() && hashFiles('packages/emails/coverage/coverage-summary.json') != ''
+        with:
+          name: 'Emails'
+          json-summary-path: 'packages/emails/coverage/coverage-summary.json'
+          json-final-path: 'packages/emails/coverage/coverage-final.json'
 

@@ -14,6 +14,7 @@ export default defineConfig({
     globals: true,
     passWithNoTests: true,
     coverage: {
+      reporter: ["text", "json-summary", "json"],
       include: ["src/**"],
       exclude: [...coverageConfigDefaults.exclude, "**/index.ts"],
     },
