@@ -1,14 +1,14 @@
 # simple-markdown-note
 
-[![Web Coverage](https://func09.github.io/simple-markdown-note/badges/web-coverage.svg)](https://github.com/func09/simple-markdown-note/actions)
-[![API Coverage](https://func09.github.io/simple-markdown-note/badges/api-coverage.svg)](https://github.com/func09/simple-markdown-note/actions)
-[![Desktop Coverage](https://func09.github.io/simple-markdown-note/badges/desktop-coverage.svg)](https://github.com/func09/simple-markdown-note/actions)
-[![Mobile Coverage](https://func09.github.io/simple-markdown-note/badges/mobile-coverage.svg)](https://github.com/func09/simple-markdown-note/actions)
+[![Web Coverage](https://func09.github.io/simple-markdown-note/web-coverage.svg)](https://github.com/func09/simple-markdown-note/actions)
+[![API Coverage](https://func09.github.io/simple-markdown-note/api-coverage.svg)](https://github.com/func09/simple-markdown-note/actions)
+[![Desktop Coverage](https://func09.github.io/simple-markdown-note/desktop-coverage.svg)](https://github.com/func09/simple-markdown-note/actions)
+[![Mobile Coverage](https://func09.github.io/simple-markdown-note/mobile-coverage.svg)](https://github.com/func09/simple-markdown-note/actions)
 <br />
-[![Schemas Coverage](https://func09.github.io/simple-markdown-note/badges/schemas-coverage.svg)](https://github.com/func09/simple-markdown-note/actions)
-[![Database Coverage](https://func09.github.io/simple-markdown-note/badges/database-coverage.svg)](https://github.com/func09/simple-markdown-note/actions)
-[![Api-client Coverage](https://func09.github.io/simple-markdown-note/badges/api-client-coverage.svg)](https://github.com/func09/simple-markdown-note/actions)
-[![Emails Coverage](https://func09.github.io/simple-markdown-note/badges/emails-coverage.svg)](https://github.com/func09/simple-markdown-note/actions)
+[![Schemas Coverage](https://func09.github.io/simple-markdown-note/schemas-coverage.svg)](https://github.com/func09/simple-markdown-note/actions)
+[![Database Coverage](https://func09.github.io/simple-markdown-note/database-coverage.svg)](https://github.com/func09/simple-markdown-note/actions)
+[![Api-client Coverage](https://func09.github.io/simple-markdown-note/api-client-coverage.svg)](https://github.com/func09/simple-markdown-note/actions)
+[![Emails Coverage](https://func09.github.io/simple-markdown-note/emails-coverage.svg)](https://github.com/func09/simple-markdown-note/actions)
 
 ## 開発環境の起動
 
