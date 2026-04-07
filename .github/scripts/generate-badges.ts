@@ -14,7 +14,7 @@ const PACKAGES = [
 ];
 
 const main = () => {
-  const publicDir = path.join(process.cwd(), "public", "badges");
+  const publicDir = path.join(process.cwd(), ".badges");
   fs.mkdirSync(publicDir, { recursive: true });
 
   for (const pkg of PACKAGES) {

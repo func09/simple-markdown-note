@@ -69,79 +69,27 @@ jobs:
       - name: Run JSDoc validations (check:docs)
         run: pnpm check:docs
 
-      - name: Report Web Coverage
-        uses: davelosert/vitest-coverage-report-action@v2
-        if: always() && hashFiles('apps/web/coverage/coverage-summary.json') != ''
-        with:
-          name: 'Web'
-          json-summary-path: 'apps/web/coverage/coverage-summary.json'
-          json-final-path: 'apps/web/coverage/coverage-final.json'
+      - name: Merge PR Coverage Reports
+        if: always()
+        run: npx tsx .github/scripts/merge-pr-coverage.ts
 
-      - name: Report API Coverage
+      - name: Report Monorepo Coverage
         uses: davelosert/vitest-coverage-report-action@v2
-        if: always() && hashFiles('apps/api/coverage/coverage-summary.json') != ''
+        if: always() && hashFiles('coverage/coverage-summary.json') != ''
         with:
-          name: 'API'
-          json-summary-path: 'apps/api/coverage/coverage-summary.json'
-          json-final-path: 'apps/api/coverage/coverage-final.json'
-
-      - name: Report Desktop Coverage
-        uses: davelosert/vitest-coverage-report-action@v2
-        if: always() && hashFiles('apps/desktop/coverage/coverage-summary.json') != ''
-        with:
-          name: 'Desktop'
-          json-summary-path: 'apps/desktop/coverage/coverage-summary.json'
-          json-final-path: 'apps/desktop/coverage/coverage-final.json'
-
-      - name: Report Mobile Coverage
-        uses: davelosert/vitest-coverage-report-action@v2
-        if: always() && hashFiles('apps/mobile/coverage/coverage-summary.json') != ''
-        with:
-          name: 'Mobile'
-          json-summary-path: 'apps/mobile/coverage/coverage-summary.json'
-          json-final-path: 'apps/mobile/coverage/coverage-final.json'
-
-      - name: Report Schemas Coverage
-        uses: davelosert/vitest-coverage-report-action@v2
-        if: always() && hashFiles('packages/schemas/coverage/coverage-summary.json') != ''
-        with:
-          name: 'Schemas'
-          json-summary-path: 'packages/schemas/coverage/coverage-summary.json'
-          json-final-path: 'packages/schemas/coverage/coverage-final.json'
-
-      - name: Report Database Coverage
-        uses: davelosert/vitest-coverage-report-action@v2
-        if: always() && hashFiles('packages/database/coverage/coverage-summary.json') != ''
-        with:
-          name: 'Database'
-          json-summary-path: 'packages/database/coverage/coverage-summary.json'
-          json-final-path: 'packages/database/coverage/coverage-final.json'
-
-      - name: Report API Client Coverage
-        uses: davelosert/vitest-coverage-report-action@v2
-        if: always() && hashFiles('packages/api-client/coverage/coverage-summary.json') != ''
-        with:
-          name: 'API Client'
-          json-summary-path: 'packages/api-client/coverage/coverage-summary.json'
-          json-final-path: 'packages/api-client/coverage/coverage-final.json'
-
-      - name: Report Emails Coverage
-        uses: davelosert/vitest-coverage-report-action@v2
-        if: always() && hashFiles('packages/emails/coverage/coverage-summary.json') != ''
-        with:
-          name: 'Emails'
-          json-summary-path: 'packages/emails/coverage/coverage-summary.json'
-          json-final-path: 'packages/emails/coverage/coverage-final.json'
+          name: 'Monorepo'
+          json-summary-path: 'coverage/coverage-summary.json'
+          json-final-path: 'coverage/coverage-final.json'
 
       - name: Generate Coverage Badges
         if: github.ref == 'refs/heads/main'
         run: |
           npm install -g badgen-cli
-          npx tsx scripts/generate-badges.ts
+          npx tsx .github/scripts/generate-badges.ts
 
       - name: Deploy Badges to gh-pages
         if: github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
+          publish_dir: ./.badges
