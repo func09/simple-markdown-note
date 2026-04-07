@@ -1,0 +1,20 @@
+<svg width="161.2" height="20" viewBox="0 0 1612 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Api-client Coverage: 100%">
+  <title>Api-client Coverage: 100%</title>
+  <linearGradient id="hkHWb" x2="0" y2="100%">
+    <stop offset="0" stop-opacity=".1" stop-color="#EEE"/>
+    <stop offset="1" stop-opacity=".1"/>
+  </linearGradient>
+  <mask id="vExet"><rect width="1612" height="200" rx="30" fill="#FFF"/></mask>
+  <g mask="url(#vExet)">
+    <rect width="1182" height="200" fill="#555"/>
+    <rect width="430" height="200" fill="#3C1" x="1182"/>
+    <rect width="1612" height="200" fill="url(#hkHWb)"/>
+  </g>
+  <g aria-hidden="true" fill="#fff" text-anchor="start" font-family="Verdana,DejaVu Sans,sans-serif" font-size="110">
+    <text x="60" y="148" textLength="1082" fill="#000" opacity="0.25">Api-client Coverage</text>
+    <text x="50" y="138" textLength="1082">Api-client Coverage</text>
+    <text x="1237" y="148" textLength="330" fill="#000" opacity="0.25">100%</text>
+    <text x="1227" y="138" textLength="330">100%</text>
+  </g>
+  
+</svg>
