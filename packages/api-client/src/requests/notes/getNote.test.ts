@@ -22,4 +22,32 @@ describe("getNote", () => {
 
     expect(result.id).toBe("123");
   });
+
+  it("should throw error on failure", async () => {
+    const mockResponse = {
+      ok: false,
+      status: 404,
+      url: "http://localhost/api/notes/123",
+      json: async () => ({ error: "Not found" }),
+    };
+    apiMock.notes[":id"].$get.mockResolvedValue(mockResponse);
+
+    await expect(
+      getNote(apiMock as unknown as ApiClient, "123")
+    ).rejects.toThrow("Not found");
+  });
+
+  it("should throw default error on failure when error message is missing", async () => {
+    const mockResponse = {
+      ok: false,
+      status: 404,
+      url: "http://localhost/api/notes/123",
+      json: async () => ({}),
+    };
+    apiMock.notes[":id"].$get.mockResolvedValue(mockResponse);
+
+    await expect(
+      getNote(apiMock as unknown as ApiClient, "123")
+    ).rejects.toThrow("Failed to fetch note");
+  });
 });

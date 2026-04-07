@@ -25,4 +25,32 @@ describe("listNotes", () => {
     expect(result).toHaveLength(1);
     expect(result[0].content).toBe("Note 1");
   });
+
+  it("should throw error on failure", async () => {
+    const mockResponse = {
+      ok: false,
+      status: 500,
+      url: "http://localhost/api/notes",
+      json: async () => ({ error: "Server error" }),
+    };
+    apiMock.notes.$get.mockResolvedValue(mockResponse);
+
+    await expect(
+      listNotes(apiMock as unknown as ApiClient, { scope: "all" })
+    ).rejects.toThrow("Server error");
+  });
+
+  it("should throw default error on failure when error message is missing", async () => {
+    const mockResponse = {
+      ok: false,
+      status: 500,
+      url: "http://localhost/api/notes",
+      json: async () => ({}),
+    };
+    apiMock.notes.$get.mockResolvedValue(mockResponse);
+
+    await expect(
+      listNotes(apiMock as unknown as ApiClient, { scope: "all" })
+    ).rejects.toThrow("Failed to fetch notes");
+  });
 });

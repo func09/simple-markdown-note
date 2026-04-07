@@ -36,4 +36,17 @@ describe("getMe", () => {
 
     expect(result).toBeNull();
   });
+
+  it("should throw error on API failure", async () => {
+    const mockResponse = {
+      ok: false,
+      status: 500,
+      url: "http://localhost/api/auth/me",
+    };
+    apiMock.auth.me.$get.mockResolvedValue(mockResponse);
+
+    await expect(getMe(apiMock as unknown as ApiClient)).rejects.toThrow(
+      "Failed to fetch user info"
+    );
+  });
 });

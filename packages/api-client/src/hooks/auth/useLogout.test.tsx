@@ -25,4 +25,17 @@ describe("useLogout", () => {
     expect(authRequests.logout).toHaveBeenCalled();
     expect(onSuccess).toHaveBeenCalled();
   });
+
+  it("should handle without options", async () => {
+    vi.mocked(authRequests.logout).mockResolvedValue(undefined);
+
+    const { result } = renderHook(() => useLogout(), {
+      wrapper: createWrapper(),
+    });
+
+    result.current.mutate();
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(authRequests.logout).toHaveBeenCalled();
+  });
 });

@@ -40,4 +40,20 @@ describe("resendVerification", () => {
       })
     ).rejects.toThrow("Too many requests");
   });
+
+  it("should throw default error on failure when error message is missing", async () => {
+    const mockResponse = {
+      ok: false,
+      status: 400,
+      url: "http://localhost/api/auth/resend-verification",
+      json: async () => ({}),
+    };
+    apiMock.auth["resend-verification"].$post.mockResolvedValue(mockResponse);
+
+    await expect(
+      resendVerification(apiMock as unknown as ApiClient, {
+        email: "test@example.com",
+      })
+    ).rejects.toThrow("Resend verification failed");
+  });
 });

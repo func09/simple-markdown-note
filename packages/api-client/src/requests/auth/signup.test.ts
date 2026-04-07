@@ -29,4 +29,38 @@ describe("signup", () => {
 
     expect(result.token).toBe("token123");
   });
+
+  it("should throw error on failure", async () => {
+    const mockResponse = {
+      ok: false,
+      status: 400,
+      url: "http://localhost/api/auth/signup",
+      json: async () => ({ error: "Email already taken" }),
+    };
+    apiMock.auth.signup.$post.mockResolvedValue(mockResponse);
+
+    await expect(
+      signup(apiMock as unknown as ApiClient, {
+        email: "test@example.com",
+        password: "password",
+      })
+    ).rejects.toThrow("Email already taken");
+  });
+
+  it("should throw default error on failure when error message is missing", async () => {
+    const mockResponse = {
+      ok: false,
+      status: 400,
+      url: "http://localhost/api/auth/signup",
+      json: async () => ({}),
+    };
+    apiMock.auth.signup.$post.mockResolvedValue(mockResponse);
+
+    await expect(
+      signup(apiMock as unknown as ApiClient, {
+        email: "test@example.com",
+        password: "password",
+      })
+    ).rejects.toThrow("Signup failed");
+  });
 });

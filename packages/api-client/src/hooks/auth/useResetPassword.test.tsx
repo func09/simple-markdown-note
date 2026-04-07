@@ -29,4 +29,17 @@ describe("useResetPassword", () => {
     expect(authRequests.resetPassword).toHaveBeenCalled();
     expect(onSuccess).toHaveBeenCalled();
   });
+
+  it("should handle without options", async () => {
+    vi.mocked(authRequests.resetPassword).mockResolvedValue(undefined);
+
+    const { result } = renderHook(() => useResetPassword(), {
+      wrapper: createWrapper(),
+    });
+
+    result.current.mutate({ token: "t", password: "p", confirmPassword: "p" });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(authRequests.resetPassword).toHaveBeenCalled();
+  });
 });

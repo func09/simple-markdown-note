@@ -25,4 +25,17 @@ describe("useDeleteUser", () => {
     expect(authRequests.drop).toHaveBeenCalled();
     expect(onSuccess).toHaveBeenCalled();
   });
+
+  it("should handle without options", async () => {
+    vi.mocked(authRequests.drop).mockResolvedValue(undefined);
+
+    const { result } = renderHook(() => useDeleteUser(), {
+      wrapper: createWrapper(),
+    });
+
+    result.current.mutate();
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(authRequests.drop).toHaveBeenCalled();
+  });
 });
