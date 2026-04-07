@@ -3,6 +3,9 @@ import type { ApiClient } from "../../client";
 import { getNote } from "./getNote";
 import { createApiMock } from "./mockApi";
 
+/**
+ * ノート1件取得 APIリクエストのテスト
+ */
 describe("getNote", () => {
   let apiMock: ReturnType<typeof createApiMock>;
 
@@ -10,6 +13,9 @@ describe("getNote", () => {
     apiMock = createApiMock();
   });
 
+  /**
+   * 指定したIDのノートが正常に取得できた場合、ノートのデータオブジェクトが返されることを確認する
+   */
   it("should return Note on success", async () => {
     const mockResponse = {
       ok: true,
@@ -23,6 +29,9 @@ describe("getNote", () => {
     expect(result.id).toBe("123");
   });
 
+  /**
+   * ノートが存在しない (404) などでAPIエラーが発生した場合、レスポンスのエラーメッセージがスローされることを確認する
+   */
   it("should throw error on failure", async () => {
     const mockResponse = {
       ok: false,
@@ -37,6 +46,9 @@ describe("getNote", () => {
     ).rejects.toThrow("Not found");
   });
 
+  /**
+   * 万が一APIが空のエラーレスポンスを返した場合でも、デフォルトのメッセージがスローされることを確認する
+   */
   it("should throw default error on failure when error message is missing", async () => {
     const mockResponse = {
       ok: false,

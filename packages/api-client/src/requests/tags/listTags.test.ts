@@ -3,6 +3,9 @@ import type { ApiClient } from "../../client";
 import { listTags } from "./listTags";
 import { createApiMock } from "./mockApi";
 
+/**
+ * タグ一覧取得 APIリクエストのテスト
+ */
 describe("listTags", () => {
   let apiMock: ReturnType<typeof createApiMock>;
 
@@ -10,6 +13,9 @@ describe("listTags", () => {
     apiMock = createApiMock();
   });
 
+  /**
+   * 正常にAPIアクセスできた場合、紐づくすべてのタグ一覧が配列で返されることを確認する
+   */
   it("should return TagListResponse on success", async () => {
     const mockResponse = {
       ok: true,
@@ -24,6 +30,9 @@ describe("listTags", () => {
     expect(apiMock.tags.$get).toHaveBeenCalled();
   });
 
+  /**
+   * 取得に失敗した場合に、API側のエラーメッセージが例外としてスローされることを確認する
+   */
   it("should throw error on failure", async () => {
     const mockResponse = {
       ok: false,
@@ -37,6 +46,9 @@ describe("listTags", () => {
     );
   });
 
+  /**
+   * 発生したAPIエラーにメッセージが設定されていない場合、デフォルトメッセージがスローされることを確認する
+   */
   it("should throw default error on failure when error message is missing", async () => {
     const mockResponse = {
       ok: false,

@@ -8,11 +8,17 @@ import { useDeleteNote } from "./useDeleteNote";
 
 vi.mock("../../requests/notes/updateNote");
 
+/**
+ * ノート論理削除（ゴミ箱へ移動）フック (useDeleteNote) のテスト
+ */
 describe("useDeleteNote", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
+  /**
+   * mutate実行時に deleteNote ではなく updateNote(deletedAt指定) が呼ばれ、論理削除されることを確認する
+   */
   it("should call updateNote with deletedAt", async () => {
     const mockData = { id: "1", deletedAt: "2026-01-01T00:00:00.000Z" };
     vi.mocked(notesRequests.updateNote).mockResolvedValue(

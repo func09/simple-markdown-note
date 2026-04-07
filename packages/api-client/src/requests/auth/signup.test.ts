@@ -3,6 +3,9 @@ import type { ApiClient } from "../../client";
 import { createApiMock } from "./mockApi";
 import { signup } from "./signup";
 
+/**
+ * サインアップ（新規登録）APIリクエストのテスト
+ */
 describe("signup", () => {
   let apiMock: ReturnType<typeof createApiMock>;
 
@@ -10,6 +13,9 @@ describe("signup", () => {
     apiMock = createApiMock();
   });
 
+  /**
+   * 正常に新規登録できた場合、各種ユーザー情報とトークンを含む AuthResponse が返されることを確認する
+   */
   it("should return AuthResponse on success", async () => {
     const mockResponse = {
       ok: true,
@@ -30,6 +36,9 @@ describe("signup", () => {
     expect(result.token).toBe("token123");
   });
 
+  /**
+   * メールアドレスの重複などでAPIエラーが発生した場合、レスポンスのエラーメッセージがスローされることを確認する
+   */
   it("should throw error on failure", async () => {
     const mockResponse = {
       ok: false,
@@ -47,6 +56,9 @@ describe("signup", () => {
     ).rejects.toThrow("Email already taken");
   });
 
+  /**
+   * APIエラー時にレスポンスにメッセージが存在しない場合、デフォルトの「Signup failed」がスローされることを確認する
+   */
   it("should throw default error on failure when error message is missing", async () => {
     const mockResponse = {
       ok: false,

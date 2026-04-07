@@ -7,11 +7,17 @@ import { useSignup } from "./useSignup";
 
 vi.mock("../../requests/auth/signup");
 
+/**
+ * サインアップ用カスタムフック (useSignup) のテスト
+ */
 describe("useSignup", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
+  /**
+   * mutateメソッド実行時にsignup APIが呼ばれ、成功時にonSuccessコールバックが引数付きで実行されることを確認する
+   */
   it("should call signup and onSuccess", async () => {
     const onSuccess = vi.fn();
     const mockData = { user: { id: "1" }, token: "tk" };
@@ -30,6 +36,9 @@ describe("useSignup", () => {
     expect(onSuccess).toHaveBeenCalledWith(mockData);
   });
 
+  /**
+   * options (onSuccess等) が未指定の場合でも、正常にAPI実行とステータス更新が行われることを確認する
+   */
   it("should handle without options", async () => {
     const mockData = { user: { id: "1" }, token: "tk" };
     vi.mocked(authRequests.signup).mockResolvedValue(

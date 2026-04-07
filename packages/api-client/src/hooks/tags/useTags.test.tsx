@@ -8,11 +8,17 @@ import { useTags } from "./useTags";
 
 vi.mock("../../requests/tags/listTags");
 
+/**
+ * タグ一覧取得フック (useTags) のテスト
+ */
 describe("useTags", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
+  /**
+   * 正常にフェッチが完了した場合、タグのリストが正しく返却されることを確認する
+   */
   it("should return tags list", async () => {
     const mockData = ["tag1", "tag2"];
     vi.mocked(tagsRequests.listTags).mockResolvedValue(
