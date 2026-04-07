@@ -1,5 +1,15 @@
 # simple-markdown-note
 
+[![Web Coverage](https://func09.github.io/simple-markdown-note/badges/web-coverage.svg)](https://github.com/func09/simple-markdown-note/actions)
+[![API Coverage](https://func09.github.io/simple-markdown-note/badges/api-coverage.svg)](https://github.com/func09/simple-markdown-note/actions)
+[![Desktop Coverage](https://func09.github.io/simple-markdown-note/badges/desktop-coverage.svg)](https://github.com/func09/simple-markdown-note/actions)
+[![Mobile Coverage](https://func09.github.io/simple-markdown-note/badges/mobile-coverage.svg)](https://github.com/func09/simple-markdown-note/actions)
+<br />
+[![Schemas Coverage](https://func09.github.io/simple-markdown-note/badges/schemas-coverage.svg)](https://github.com/func09/simple-markdown-note/actions)
+[![Database Coverage](https://func09.github.io/simple-markdown-note/badges/database-coverage.svg)](https://github.com/func09/simple-markdown-note/actions)
+[![Api-client Coverage](https://func09.github.io/simple-markdown-note/badges/api-client-coverage.svg)](https://github.com/func09/simple-markdown-note/actions)
+[![Emails Coverage](https://func09.github.io/simple-markdown-note/badges/emails-coverage.svg)](https://github.com/func09/simple-markdown-note/actions)
+
 ## 開発環境の起動
 
 本プロジェクトは pnpm ワークスペースを利用しており、ローカル環境で直接アプリを起動できます。

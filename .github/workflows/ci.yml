@@ -1,6 +1,8 @@
 name: CI pipeline
 
 on:
+  push:
+    branches: [main]
   pull_request:
 
 concurrency:
@@ -14,7 +16,7 @@ jobs:
       NODE_ENV: test
       TURBO_CACHE_DIR: .turbo
     permissions:
-      contents: read
+      contents: write
       pull-requests: write
 
     steps:
@@ -131,3 +133,15 @@ jobs:
           json-summary-path: 'packages/emails/coverage/coverage-summary.json'
           json-final-path: 'packages/emails/coverage/coverage-final.json'
 
+      - name: Generate Coverage Badges
+        if: github.ref == 'refs/heads/main'
+        run: |
+          npm install -g badgen-cli
+          npx tsx scripts/generate-badges.ts
+
+      - name: Deploy Badges to gh-pages
+        if: github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
