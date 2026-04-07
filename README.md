@@ -6,6 +6,11 @@ by @func09
 
 A fast, lightweight, and cross-platform markdown note-taking application designed for simplicity and seamless synchronization.
 
+| macOS | iOS |
+| :---: | :---: |
+| ![Screenshot App](https://func09.github.io/simple-markdown-note/screenshot-app.png) | ![Screenshot Mobile](https://func09.github.io/simple-markdown-note/screenshot-ios.png) |
+
+
 **Supported platforms:**
 
 - Web
