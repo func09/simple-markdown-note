@@ -16,9 +16,12 @@ by @func09
 
 This project uses pnpm workspaces. You can run the applications directly in your local environment.
 
-### 1. Install Dependencies
+### 1. Initial Setup (Dependencies, Env, Database)
 
 Run the following command at the project root:
+
+> [!NOTE]
+> Please review and update the generated `.env` files as necessary to match your specific local environment.
 
 ```bash
 pnpm install
