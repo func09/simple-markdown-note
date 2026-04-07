@@ -20,12 +20,6 @@ vi.mock("@simple-markdown-note/database", () => ({
   createEmailVerificationRepository: vi.fn(),
 }));
 
-vi.mock("resend", () => ({
-  Resend: vi.fn().mockImplementation(() => ({
-    emails: { send: vi.fn().mockResolvedValue({ data: { id: "test-id" } }) },
-  })),
-}));
-
 vi.mock("@simple-markdown-note/emails", () => ({
   renderResetPasswordEmail: vi.fn().mockResolvedValue({
     html: "<p>test</p>",
@@ -181,14 +175,28 @@ describe("signup", () => {
       email: "resend@example.com",
     });
 
+    fetchMock.mockResponseOnce(JSON.stringify({ id: "test-id" }));
+
     await signup(db, { email: "resend@example.com", password: "password123" }, {
       RESEND_API_KEY: "test-key",
       CLIENT_URL: "http://test",
       EMAIL_FROM: "test@domain.com",
     } as unknown as AppEnv["Bindings"]);
 
-    // email is sent inside the mock, we can check if it passed without throwing.
-    // the branch coverage will be hit.
+    const [url, requestInit] = fetchMock.mock.calls[0];
+    expect(url).toBe("https://api.resend.com/emails");
+    const body = JSON.parse(requestInit?.body as string);
+    // https://resend.com/docs/api-reference/emails/send-email に沿ったペイロードかの厳密な検証
+    expect(body).toMatchObject({
+      from: "Simple Markdown Note <test@domain.com>",
+      to: "resend@example.com",
+      subject: "Verify your email address",
+      html: "<p>verify</p>",
+      text: "verify",
+      tags: [{ name: "category", value: "verify_email" }],
+    });
+    const headers = new Headers(requestInit?.headers);
+    expect(headers.get("Authorization")).toBe("Bearer test-key");
   });
 
   // メール送信サービス側のエラーを適切にハンドルすることを確認する
@@ -200,18 +208,9 @@ describe("signup", () => {
       email: "resend-error@example.com",
     });
 
-    // Mock Resend to return an error for this test
-    const { Resend } = await import("resend");
-    vi.mocked(Resend).mockImplementationOnce(
-      () =>
-        ({
-          emails: {
-            send: vi
-              .fn()
-              .mockResolvedValue({ error: new Error("Resend failed") }),
-          },
-        }) as unknown as InstanceType<typeof Resend>
-    );
+    fetchMock.mockResponseOnce(JSON.stringify({ message: "Resend failed" }), {
+      status: 400,
+    });
 
     await signup(
       db,

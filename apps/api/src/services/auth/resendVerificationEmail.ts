@@ -69,6 +69,7 @@ export async function resendVerificationEmail(
     subject: "Verify your email address",
     html,
     text,
+    tags: [{ name: "category", value: "verify_email" }],
   });
 
   if (response?.error) {

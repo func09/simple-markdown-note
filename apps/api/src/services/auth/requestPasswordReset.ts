@@ -1,6 +1,3 @@
-// @/types ではなくパッケージ名でインポートする。
-// このファイルは他パッケージ（api-client 等）の typecheck 時にも辿られるため、
-// @/ エイリアスを使うと当該パッケージの tsconfig で解決できずエラーになる。
 import type { AppEnv } from "@simple-markdown-note/api/types";
 import {
   createPasswordResetRepository,
@@ -69,6 +66,7 @@ export async function requestPasswordReset(
     subject: "Reset your password",
     html,
     text,
+    tags: [{ name: "category", value: "reset_password" }],
   });
 
   if (response?.error) {
