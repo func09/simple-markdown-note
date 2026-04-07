@@ -1,4 +1,6 @@
-# simple-markdown-note
+# Simple Markdown Note
+
+by @func09
 
 [![Web Coverage](https://func09.github.io/simple-markdown-note/web-coverage.svg)](https://github.com/func09/simple-markdown-note/actions)
 [![API Coverage](https://func09.github.io/simple-markdown-note/api-coverage.svg)](https://github.com/func09/simple-markdown-note/actions)
@@ -10,27 +12,27 @@
 [![Api-client Coverage](https://func09.github.io/simple-markdown-note/api-client-coverage.svg)](https://github.com/func09/simple-markdown-note/actions)
 [![Emails Coverage](https://func09.github.io/simple-markdown-note/emails-coverage.svg)](https://github.com/func09/simple-markdown-note/actions)
 
-## 開発環境の起動
+## Starting the Development Environment
 
-本プロジェクトは pnpm ワークスペースを利用しており、ローカル環境で直接アプリを起動できます。
+This project uses pnpm workspaces. You can run the applications directly in your local environment.
 
-### 1. 依存関係のインストール
+### 1. Install Dependencies
 
-プロジェクトルートで以下のコマンドを実行します。
+Run the following command at the project root:
 
 ```bash
 pnpm install
 ```
 
-### 2. アプリの起動（Turborepo）
+### 2. Start the Applications (Turborepo)
 
-Turborepo を使用して、API と Web フロントエンドを並列で起動します。
+Use Turborepo to run the API and Web frontend in parallel.
 
 ```bash
 pnpm dev
 ```
 
-デスクトップ版（Electron）も同時に起動する場合は、`--native` フラグを付与します。
+If you also want to start the desktop app (Electron) simultaneously, add the `--native` flag:
 
 ```bash
 pnpm dev --native
@@ -38,62 +40,78 @@ pnpm dev --native
 
 - **Web UI**: [http://localhost:3000](http://localhost:3000)
 - **API**: [http://localhost:8787](http://localhost:8787)
-- **Drizzle Studio**: [pnpm -F database db:studio](pnpm -F database db:studio) (DB の中身をブラウザで見れます)
+- **Drizzle Studio**: `pnpm -F database db:studio` (View the database contents in your browser)
 
-### 3. テストの実行
+### 3. Run Tests
 
-各パッケージのテストを実行できます。
+You can run tests for each package.
 
-**プロジェクト全体のテスト**
+**Run all project tests**
 
 ```bash
 pnpm test
 ```
 
-**特定のアプリのみテスト**
+**Run tests with coverage**
+
+```bash
+pnpm test:cov
+```
+
+**Test a specific app only**
 
 ```bash
 pnpm -F web test
-# または
+# or
 pnpm -F api test
 ```
 
-### 4. データベースの初期化・同期
+### 4. Database Initialization & Synchronization
 
-初回起動時やスキーマ変更時には、以下のコマンドでデータベースを同期してください。
+For the first startup or when the schema changes, synchronize the database using the following command:
 
 ```bash
 pnpm -F database db:push
 ```
 
-### 5. シードデータの投入
+### 5. Insert Seed Data
 
-開発用の初期データ（テストユーザーやノート）を投入します。
+Insert initial development data (test users and notes).
 
 ```bash
-# データベースのワークスペースに移動して実行
+# Navigate to the database workspace and run
 cd packages/database
 pnpm generate
 pnpm db:seed
 ```
 
-### 6. コードフォーマット・チェック (Biome)
+### 6. Code Formatting & Linting
 
-プロジェクト全体をチェックします。
+Run code formatting, linting, and type checking across the entire project.
 
 ```bash
-pnpm lint
-pnpm format
+# Run formatting and linting all at once (Biome)
+pnpm check
+
+# TypeScript type check
+pnpm check:types
+
+# JSDoc syntax check (ESLint)
+pnpm check:docs
+
+# Run all checks and tests after clearing the cache
+pnpm check:all
 ```
 
-### 7. ビルドとキャッシュ
+### 7. Build and Cache
 
-Turborepo により、プロジェクト全体のビルド、リンター、テストが高速化（キャッシュ）されます。
+Turborepo speeds up builds and tests across the entire project through caching.
+Once a task is executed, the result is returned instantly from the cache as long as the files have not changed.
 
 ```bash
 pnpm build
-pnpm check
-pnpm test
 ```
 
-一度実行したタスクは、ファイルに変更がない限りキャッシュから瞬時に結果が返されます。
+## License
+
+This project is licensed under the [MIT License](LICENSE.md).
