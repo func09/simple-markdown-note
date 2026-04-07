@@ -13,6 +13,7 @@ export default defineConfig({
     environment: "node",
     passWithNoTests: true,
     coverage: {
+      reporter: ["text", "json-summary", "json"],
       include: ["src/**"],
       exclude: [...coverageConfigDefaults.exclude, "**/index.ts"],
     },

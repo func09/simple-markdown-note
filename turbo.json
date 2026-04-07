@@ -21,6 +21,10 @@
     "test": {
       "dependsOn": ["^test"]
     },
+    "test:cov": {
+      "dependsOn": ["^test:cov"],
+      "outputs": ["coverage/**"]
+    },
     "dev": {
       "cache": false,
       "persistent": true
