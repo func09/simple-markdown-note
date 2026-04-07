@@ -40,4 +40,28 @@ describe("useNoteDrawerActions", () => {
 
     expect(mockMutate).toHaveBeenCalled();
   });
+
+  it("handleLogout callback onSuccess triggers onClose and clearAuth", () => {
+    let onSuccessCallback: () => void = () => {};
+    (useLogout as jest.Mock).mockImplementation(({ onSuccess }) => {
+      if (onSuccess) onSuccessCallback = onSuccess;
+      return { mutate: jest.fn() };
+    });
+
+    const mockClearAuth = jest.fn();
+    (useAuthStore as unknown as jest.Mock).mockImplementation(
+      (selector: (s: { clearAuth: () => void }) => unknown) =>
+        selector({ clearAuth: mockClearAuth })
+    );
+
+    const onClose = jest.fn();
+    renderHook(() => useNoteDrawerActions(onClose));
+
+    act(() => {
+      onSuccessCallback();
+    });
+
+    expect(onClose).toHaveBeenCalled();
+    expect(mockClearAuth).toHaveBeenCalled();
+  });
 });

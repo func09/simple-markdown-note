@@ -72,6 +72,37 @@ describe("useKeyboardObserver", () => {
     expect(setIsPreview).toHaveBeenCalledWith(false);
   });
 
+  it("does not call setIsPreview when showing keyboard not in preview", () => {
+    const setIsPreview = jest.fn();
+    const { result } = renderHook(() =>
+      useKeyboardObserver(false, setIsPreview)
+    );
+    act(() => {
+      result.current.handleKeyboardToggle();
+    });
+    expect(setIsPreview).not.toHaveBeenCalled();
+  });
+
+  it("focuses inputRef after delay when showing keyboard", () => {
+    jest.useFakeTimers();
+    const { result } = renderHook(() => useKeyboardObserver(false, jest.fn()));
+
+    Object.defineProperty(result.current.inputRef, "current", {
+      value: { focus: jest.fn() },
+      writable: true,
+    });
+
+    act(() => {
+      result.current.handleKeyboardToggle();
+    });
+
+    jest.runAllTimers();
+
+    expect(result.current.inputRef.current?.focus).toHaveBeenCalled();
+
+    jest.useRealTimers();
+  });
+
   it("removes keyboard listeners on unmount", () => {
     const { unmount } = renderHook(() => useKeyboardObserver(false, jest.fn()));
     // Should not throw on unmount

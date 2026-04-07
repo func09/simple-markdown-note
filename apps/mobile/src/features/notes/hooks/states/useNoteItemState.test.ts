@@ -44,4 +44,18 @@ describe("useNoteItemState", () => {
     expect(typeof result.current.formattedDate).toBe("string");
     expect(result.current.formattedDate.length).toBeGreaterThan(0);
   });
+
+  it("returns content if untrimmed content has length > title length", () => {
+    const { result } = renderHook(() =>
+      useNoteItemState(makeNote({ content: " \n \n Body" }))
+    );
+    expect(result.current.summary).toBe("Body");
+  });
+
+  it("handles whitespace only remaining lines", () => {
+    const { result } = renderHook(() =>
+      useNoteItemState(makeNote({ content: "Title\n\n\n" }))
+    );
+    expect(result.current.summary).toBe("");
+  });
 });

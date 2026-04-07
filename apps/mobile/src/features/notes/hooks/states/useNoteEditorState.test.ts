@@ -22,6 +22,11 @@ describe("useNoteEditorState", () => {
     expect(result.current.tags).toEqual([]);
   });
 
+  it("initializes currentNoteId to null when not new and note is undefined", () => {
+    const { result } = renderHook(() => useNoteEditorState(undefined, false));
+    expect(result.current.currentNoteId.current).toBeNull();
+  });
+
   it("initializes with note data when note is provided", () => {
     const note = makeNote({
       id: "note-1",
@@ -69,5 +74,33 @@ describe("useNoteEditorState", () => {
     // Rerender with the same note — should not reset content
     rerender({ n: note });
     expect(result.current.content).toBe("user edited");
+  });
+
+  it("resets content if it transitions to a new note", () => {
+    const note = makeNote({ id: "note-1", content: "existing content" });
+    const { result, rerender } = renderHook(
+      ({ n, isNew }: { n?: Note; isNew: boolean }) =>
+        useNoteEditorState(n, isNew),
+      { initialProps: { n: note, isNew: false } }
+    );
+    expect(result.current.content).toBe("existing content");
+
+    rerender({ n: undefined, isNew: true });
+    expect(result.current.content).toBe("");
+  });
+
+  it("does not reset content when note instance changes but isNew remains true", () => {
+    const { result, rerender } = renderHook(
+      ({ isNew, n }: { isNew: boolean; n?: Note }) =>
+        useNoteEditorState(n, isNew),
+      { initialProps: { isNew: true, n: undefined } }
+    );
+    act(() => {
+      result.current.setContent("some new text");
+    });
+
+    // Change `n` to trigger useEffect, but isNew is still true
+    rerender({ isNew: true, n: {} as Note });
+    expect(result.current.content).toBe("some new text");
   });
 });

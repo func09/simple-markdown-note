@@ -1,5 +1,12 @@
 import type { Note } from "@simple-markdown-note/schemas";
-import { calcNoteMetrics, filterNotes, toggleCheckboxInContent } from "./utils";
+import type { ASTNode } from "react-native-markdown-display";
+import {
+  calcNoteMetrics,
+  filterNotes,
+  formatDate,
+  getNodeText,
+  toggleCheckboxInContent,
+} from "./utils";
 
 const mockNote = {
   id: "note-1",
@@ -11,6 +18,46 @@ const mockNote = {
   deletedAt: null,
   isPermanent: false,
 };
+
+// ---------------------------------------------------------------------------
+// getNodeText
+// ---------------------------------------------------------------------------
+
+describe("getNodeText", () => {
+  it("returns content if present", () => {
+    expect(
+      getNodeText({ content: "hello text", type: "text" } as unknown as ASTNode)
+    ).toBe("hello text");
+  });
+
+  it("returns concatenated children text if no content", () => {
+    const node = {
+      type: "paragraph",
+      children: [
+        { content: "hello ", type: "text" },
+        { content: "world", type: "text" },
+      ],
+    };
+    expect(getNodeText(node as unknown as ASTNode)).toBe("hello world");
+  });
+
+  it("returns empty string if neither content nor children", () => {
+    expect(getNodeText({ type: "unknown" } as unknown as ASTNode)).toBe("");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// formatDate
+// ---------------------------------------------------------------------------
+
+describe("formatDate", () => {
+  it("formats date correctly", () => {
+    const dateStr = "2024-05-02T14:05:00.000Z";
+    const date = new Date(dateStr);
+    const expected = `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, "0")}/${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+    expect(formatDate(dateStr)).toBe(expected);
+  });
+});
 
 // ---------------------------------------------------------------------------
 // calcNoteMetrics
