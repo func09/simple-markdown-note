@@ -17,21 +17,21 @@
     "test:cov": "vitest run --coverage --reporter=dot --silent"
   },
   "dependencies": {
-    "@hono/zod-openapi": "^1.2.4",
+    "@hono/zod-openapi": "catalog:",
     "@simple-markdown-note/database": "workspace:*",
     "@simple-markdown-note/emails": "workspace:*",
     "@simple-markdown-note/schemas": "workspace:*",
-    "hono": "4.12.12",
+    "hono": "catalog:",
     "resend": "^6.10.0",
-    "zod": "4.3.6"
+    "zod": "catalog:"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260408.1",
+    "@cloudflare/workers-types": "catalog:",
     "@hono/node-server": "^1.19.13",
     "@hono/swagger-ui": "^0.6.1",
-    "vitest": "4.1.3",
+    "vitest": "catalog:",
     "vitest-fetch-mock": "^0.4.5",
-    "wrangler": "^4.81.0"
+    "wrangler": "catalog:"
   },
   "license": "MIT"
 }

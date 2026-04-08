@@ -23,11 +23,11 @@
   "license": "MIT",
   "description": "",
   "devDependencies": {
-    "@types/bcryptjs": "^3.0.0",
+    "@types/bcryptjs": "catalog:",
     "drizzle-kit": "^0.31.10",
     "drizzle-seed": "^0.3.1",
-    "tsx": "^4.21.0",
-    "vitest": "4.1.3"
+    "tsx": "catalog:",
+    "vitest": "catalog:"
   },
   "dependencies": {
     "@libsql/client": "^0.17.2",
