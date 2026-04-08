@@ -21,8 +21,9 @@ vi.mock("electron", () => {
     }),
   };
 
-  // biome-ignore lint/complexity/useArrowFunction: Vitest mock constructable class requirement
-  const BrowserWindowMock = vi.fn().mockImplementation(function () {
+  const BrowserWindowMock = vi.fn().mockImplementation(function (
+    this: unknown
+  ) {
     return windowInstance;
   });
   Object.assign(BrowserWindowMock, {
