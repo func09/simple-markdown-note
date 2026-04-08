@@ -1,4 +1,4 @@
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -46,8 +46,17 @@ const main = () => {
 
       // Execute badgen-cli
       // We assume badgen-cli is installed globally or via npx
-      const cmd = `npx badgen-cli -j "${title} Coverage" -s "${pct}%" -c ${color} > ${badgePath}`;
-      execSync(cmd, { stdio: "inherit" });
+      const args = [
+        "badgen-cli",
+        "-j",
+        `${title} Coverage`,
+        "-s",
+        `${pct}%`,
+        "-c",
+        color,
+      ];
+      const svgOutput = execFileSync("npx", args, { encoding: "utf8" });
+      fs.writeFileSync(badgePath, svgOutput);
 
       console.log(`Generated badge for ${pkg}: ${pct}% -> ${badgePath}`);
     } catch (e) {
