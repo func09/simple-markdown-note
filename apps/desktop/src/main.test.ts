@@ -21,7 +21,11 @@ vi.mock("electron", () => {
     }),
   };
 
-  const BrowserWindowMock = vi.fn().mockImplementation(() => windowInstance);
+  const BrowserWindowMock = vi.fn().mockImplementation(function (
+    this: unknown
+  ) {
+    return windowInstance;
+  });
   Object.assign(BrowserWindowMock, {
     getAllWindows: vi.fn().mockReturnValue([]),
   });

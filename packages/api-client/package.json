@@ -37,20 +37,20 @@
   "dependencies": {
     "@simple-markdown-note/api": "workspace:*",
     "@simple-markdown-note/schemas": "workspace:*",
-    "hono": "^4.12.9"
+    "hono": "catalog:"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260329.1",
-    "@tanstack/react-query": "^5.0.0",
-    "@tanstack/react-query-devtools": "^5.0.0",
+    "@cloudflare/workers-types": "catalog:",
+    "@tanstack/react-query": "catalog:",
+    "@tanstack/react-query-devtools": "catalog:",
     "@testing-library/dom": "^10.4.1",
-    "@testing-library/react": "^16.3.2",
-    "@types/node": "^25.5.0",
-    "@types/react": "^19.0.0",
-    "@vitejs/plugin-react": "6.0.1",
-    "jsdom": "^25.0.1",
-    "react": "^19.0.0",
-    "tsx": "^4.21.0",
-    "vitest": "3.2.4"
+    "@testing-library/react": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "jsdom": "catalog:",
+    "react": "catalog:",
+    "tsx": "catalog:",
+    "vitest": "catalog:"
   }
 }

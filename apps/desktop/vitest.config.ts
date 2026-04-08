@@ -15,7 +15,8 @@ export default defineConfig({
     coverage: {
       reporter: ["text", "json-summary", "json"],
       include: ["src/**/*.ts"],
-      exclude: [...coverageConfigDefaults.exclude, "**/*.tsx"],
+      exclude: [...coverageConfigDefaults.exclude, "**/*.tsx", "dist/**"],
     },
+    exclude: ["node_modules", "dist", ".git", ".cache"],
   },
 });
