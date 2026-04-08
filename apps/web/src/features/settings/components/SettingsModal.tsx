@@ -3,7 +3,7 @@ import {
   useLogout,
 } from "@simple-markdown-note/api-client/hooks";
 import { LogOut, Trash2 } from "lucide-react";
-import { useCallback } from "react";
+import { memo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -24,9 +24,13 @@ interface SettingsModalProps {
  * ユーザー設定一覧と操作メニューを提供するモーダルダイアログ。
  * 現在ログイン中のアカウント情報の確認と、ログアウトを実行するUIを備えます。
  */
-export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
-  const { clearAuth } = useAuthStore();
-  const { resetFilters, setSelectedNoteId } = useNotesStore();
+export const SettingsModal = memo(function SettingsModal({
+  open,
+  onOpenChange,
+}: SettingsModalProps) {
+  const clearAuth = useAuthStore((state) => state.clearAuth);
+  const resetFilters = useNotesStore((state) => state.resetFilters);
+  const setSelectedNoteId = useNotesStore((state) => state.setSelectedNoteId);
   const user = useAuthStore((state) => state.user);
 
   const logoutMutation = useLogout({
@@ -122,4 +126,4 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
       </DialogContent>
     </Dialog>
   );
-}
+});
