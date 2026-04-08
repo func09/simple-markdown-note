@@ -8,7 +8,7 @@ A fast, lightweight, and cross-platform markdown note-taking application designe
 
 | macOS | iOS |
 | :---: | :---: |
-| ![Screenshot App](https://func09.github.io/simple-markdown-note/screenshot-app.png) | ![Screenshot Mobile](https://func09.github.io/simple-markdown-note/screenshot-ios.png) |
+| <img width="1136" height="880" alt="Image" src="https://github.com/user-attachments/assets/ccfe19f2-a352-474f-be39-5af41f9eca71" /> | <img width="563" height="1218" alt="Image" src="https://github.com/user-attachments/assets/b8e3a12d-1ed4-4400-923f-179dd08c4a4d" /> |
 
 
 **Supported platforms:**
