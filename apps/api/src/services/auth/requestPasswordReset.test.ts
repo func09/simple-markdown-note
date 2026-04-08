@@ -60,12 +60,10 @@ describe("requestPasswordReset", () => {
   });
 
   beforeAll(() => {
-    vi.spyOn(globalThis.crypto, "getRandomValues").mockImplementation(
-      (arr: unknown) => {
-        (arr as Uint8Array).fill(1);
-        return arr as Uint8Array;
-      }
-    );
+    vi.spyOn(globalThis.crypto, "getRandomValues").mockImplementation((arr) => {
+      (arr as Uint8Array).fill(1);
+      return arr;
+    });
     vi.spyOn(globalThis.crypto.subtle, "digest").mockResolvedValue(
       new Uint8Array([2, 2, 2]).buffer as unknown as ArrayBuffer
     );

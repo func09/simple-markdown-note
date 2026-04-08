@@ -19,6 +19,7 @@ export function useDevMenu() {
     const debugStorage = async () => {
       try {
         const keys = await AsyncStorage.getAllKeys();
+        // @ts-expect-error - AsyncStorage types might be out of sync
         const items = await AsyncStorage.multiGet(keys);
         console.log("--- AsyncStorage Debug ---");
         items.forEach(([key, value]: [string, string | null]) => {
