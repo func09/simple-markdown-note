@@ -21,7 +21,7 @@
     "@simple-markdown-note/database": "workspace:*",
     "@simple-markdown-note/emails": "workspace:*",
     "@simple-markdown-note/schemas": "workspace:*",
-    "hono": "^4.12.9",
+    "hono": "^4.12.12",
     "resend": "^6.10.0",
     "zod": "^4.3.6"
   },

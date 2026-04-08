@@ -37,7 +37,7 @@
   "dependencies": {
     "@simple-markdown-note/api": "workspace:*",
     "@simple-markdown-note/schemas": "workspace:*",
-    "hono": "^4.12.9"
+    "hono": "^4.12.12"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260329.1",
