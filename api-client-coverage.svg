@@ -1,14 +1,14 @@
 <svg width="161.2" height="20" viewBox="0 0 1612 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Api-client Coverage: 100%">
   <title>Api-client Coverage: 100%</title>
-  <linearGradient id="BMqiX" x2="0" y2="100%">
+  <linearGradient id="WrOND" x2="0" y2="100%">
     <stop offset="0" stop-opacity=".1" stop-color="#EEE"/>
     <stop offset="1" stop-opacity=".1"/>
   </linearGradient>
-  <mask id="UWlou"><rect width="1612" height="200" rx="30" fill="#FFF"/></mask>
-  <g mask="url(#UWlou)">
+  <mask id="hrXoD"><rect width="1612" height="200" rx="30" fill="#FFF"/></mask>
+  <g mask="url(#hrXoD)">
     <rect width="1182" height="200" fill="#555"/>
     <rect width="430" height="200" fill="#3C1" x="1182"/>
-    <rect width="1612" height="200" fill="url(#BMqiX)"/>
+    <rect width="1612" height="200" fill="url(#WrOND)"/>
   </g>
   <g aria-hidden="true" fill="#fff" text-anchor="start" font-family="Verdana,DejaVu Sans,sans-serif" font-size="110">
     <text x="60" y="148" textLength="1082" fill="#000" opacity="0.25">Api-client Coverage</text>
