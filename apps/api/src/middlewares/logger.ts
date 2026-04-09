@@ -15,8 +15,10 @@ export const requestLogger = (): MiddlewareHandler => {
 
     const durationMs = Date.now() - start;
     const status = c.res.status;
+    const message = `${method} ${path} ${status} ${durationMs}ms ${userAgent}`;
 
     const log = {
+      message,
       timestamp: new Date().toISOString(),
       method,
       path,
