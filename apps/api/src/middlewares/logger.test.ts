@@ -29,6 +29,7 @@ describe("Logger Middleware", () => {
     const logs = consoleSpy.mock.calls.map(
       (call) =>
         JSON.parse(String(call[0])) as {
+          message: string;
           timestamp: string;
           method: string;
           path: string;
@@ -48,6 +49,8 @@ describe("Logger Middleware", () => {
       expect(log.status).toEqual(expect.any(Number));
       expect(log.durationMs).toEqual(expect.any(Number));
       expect(log.userAgent).toEqual(expect.any(String));
+      expect(log.message).toEqual(expect.any(String));
+      expect(log.message).toContain(`${log.method} ${log.path} ${log.status}`);
     }
 
     expect(logs[0]).toMatchObject({
