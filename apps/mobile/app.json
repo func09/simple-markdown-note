@@ -1,5 +1,8 @@
 {
   "expo": {
+    "experiments": {
+      "reactCompiler": true
+    },
     "name": "Simple Markdown Note",
     "slug": "simple-markdown-note",
     "version": "1.0.0",

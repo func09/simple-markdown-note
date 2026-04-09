@@ -1,8 +1,23 @@
 import { renderHook } from "@testing-library/react";
 import { useEditor } from "@tiptap/react";
-import type { RefObject } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useNoteEditor } from "./useNoteEditor";
+
+function createDraftSync(
+  contentRef: { current: string },
+  lastNoteIdRef: { current: string | null }
+) {
+  return {
+    getContent: () => contentRef.current,
+    setContent: (value: string) => {
+      contentRef.current = value;
+    },
+    getLastNoteId: () => lastNoteIdRef.current,
+    setLastNoteId: (id: string | null) => {
+      lastNoteIdRef.current = id;
+    },
+  };
+}
 
 const mockEditor = {
   setEditable: vi.fn(),
@@ -59,8 +74,7 @@ describe("useNoteEditor", () => {
         isPreview: false,
         setIsPreview: vi.fn(),
         onUpdate: vi.fn(),
-        contentRef: contentRef as unknown as RefObject<string>,
-        lastNoteIdRef: lastNoteIdRef as unknown as RefObject<string | null>,
+        draftSync: createDraftSync(contentRef, lastNoteIdRef),
       })
     );
 
@@ -89,8 +103,7 @@ describe("useNoteEditor", () => {
         isPreview: false,
         setIsPreview: vi.fn(),
         onUpdate: mockOnUpdate,
-        contentRef: contentRef as unknown as RefObject<string>,
-        lastNoteIdRef: lastNoteIdRef as unknown as RefObject<string | null>,
+        draftSync: createDraftSync(contentRef, lastNoteIdRef),
       })
     );
 
@@ -113,6 +126,7 @@ describe("useNoteEditor", () => {
 
     const contentRef = { current: "old" };
     const lastNoteIdRef = { current: "1" };
+    const draftSync = createDraftSync(contentRef, lastNoteIdRef);
 
     const { rerender } = renderHook(
       ({ note }) =>
@@ -121,8 +135,7 @@ describe("useNoteEditor", () => {
           isPreview: false,
           setIsPreview: vi.fn(),
           onUpdate: vi.fn(),
-          contentRef: contentRef as unknown as RefObject<string>,
-          lastNoteIdRef: lastNoteIdRef as unknown as RefObject<string | null>,
+          draftSync,
         }),
       {
         initialProps: { note: { id: "1", content: "old" } },
@@ -146,8 +159,7 @@ describe("useNoteEditor", () => {
         isPreview: true,
         setIsPreview: vi.fn(),
         onUpdate: vi.fn(),
-        contentRef: { current: "" } as unknown as RefObject<string>,
-        lastNoteIdRef: { current: null } as unknown as RefObject<string | null>,
+        draftSync: createDraftSync({ current: "" }, { current: null }),
       })
     );
 

@@ -46,12 +46,14 @@
     "zustand": "catalog:"
   },
   "devDependencies": {
+    "@rolldown/plugin-babel": "^0.2.2",
     "@tailwindcss/postcss": "^4.2.2",
     "@testing-library/react": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
+    "babel-plugin-react-compiler": "^1.0.0",
     "jsdom": "catalog:",
     "react-router-dom": "^7.14.0",
     "tailwindcss": "^4.2.2",
