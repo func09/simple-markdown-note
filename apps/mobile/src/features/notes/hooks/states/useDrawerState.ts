@@ -6,6 +6,7 @@ import { DRAWER_ANIM_DURATION, DRAWER_WIDTH } from "../../constants";
  * Animated APIを利用したドロワーの開閉スライドアニメーションを制御します。
  */
 export function useDrawerState() {
+  "use memo";
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const slideAnim = useRef(new Animated.Value(-DRAWER_WIDTH)).current;
 

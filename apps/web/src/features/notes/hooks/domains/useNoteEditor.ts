@@ -28,6 +28,7 @@ export function useNoteEditor({
     setLastNoteId: (id: string | null) => void;
   };
 }) {
+  "use memo";
   const isTrashed = !!note?.deletedAt;
 
   const editor = useEditor({

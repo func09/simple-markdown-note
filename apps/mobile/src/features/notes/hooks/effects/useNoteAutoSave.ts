@@ -36,6 +36,7 @@ export function useNoteAutoSave({
   currentNoteId: { current: string | null };
   markAsInitialized: (id: string) => void;
 }) {
+  "use memo";
   useEffect(() => {
     if (isLoading || isDeleting) return;
     if (!content.trim() && isNew) return;

@@ -24,6 +24,7 @@ function NavItem({
   count,
   onClick,
 }: NavItemProps) {
+  "use memo";
   return (
     <Link
       to={href}
@@ -63,6 +64,7 @@ interface SidebarProps {
  * 「すべてのノート」「ゴミ箱」のリンクや、登録されているタグによるフィルタリング機能を提供します。
  */
 export function Sidebar({ onClose }: SidebarProps) {
+  "use memo";
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const { filterScope, filterTag, setFilterScope, setFilterTag } =
     useNotesStore();

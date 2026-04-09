@@ -10,6 +10,7 @@ export function useKeyboardObserver(
   isPreview: boolean,
   setIsPreview: (val: boolean) => void
 ) {
+  "use memo";
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const inputRef = useRef<TextInput>(null);
   const infoSheetRef = useRef<BottomSheetModal>(null);

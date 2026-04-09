@@ -16,6 +16,7 @@ import { useNoteEditorState } from "../states/useNoteEditorState";
  * データ取得、状態管理、自動保存などノート編集におけるドメインロジックを統合するフック。
  */
 export function useNoteEditor(id: string, isNew: boolean) {
+  "use memo";
   const router = useRouter();
   const { data: note, isLoading } = useNote(isNew ? null : id);
   const createNoteMutation = useCreateNote();

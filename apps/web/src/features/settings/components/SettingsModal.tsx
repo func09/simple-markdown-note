@@ -28,6 +28,7 @@ export const SettingsModal = memo(function SettingsModal({
   open,
   onOpenChange,
 }: SettingsModalProps) {
+  "use memo";
   const clearAuth = useAuthStore((state) => state.clearAuth);
   const resetFilters = useNotesStore((state) => state.resetFilters);
   const setSelectedNoteId = useNotesStore((state) => state.setSelectedNoteId);

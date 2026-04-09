@@ -21,6 +21,7 @@ interface SettingsSheetProps {
  * アカウント情報の表示や、ログアウトのアクションを提供します。
  */
 export function SettingsSheet({ sheetRef }: SettingsSheetProps) {
+  "use memo";
   const { user, clearAuth } = useAuthStore();
   const logoutMutation = useLogout({
     onSuccess: () => {

@@ -5,6 +5,7 @@ import { Alert, Platform } from "react-native";
  * iOS/Androidごとのタグ追加用プロンプト・ダイアログの表示を制御します。
  */
 export function useTagPrompt() {
+  "use memo";
   const promptForTag = useCallback(
     (currentTags: string[], onAdd: (tag: string) => void) => {
       if (Platform.OS === "ios") {

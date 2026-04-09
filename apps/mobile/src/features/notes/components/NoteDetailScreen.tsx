@@ -13,6 +13,7 @@ import { NoteToolbar } from "./NoteToolbar";
  * ルーティングのパラメータからノートIDを取得し、ノートのプレビューや編集、削除などの操作を統括します。
  */
 export function NoteDetailScreen() {
+  "use memo";
   const { id } = useLocalSearchParams<{ id: string }>();
   const isNew = id === "new";
   const router = useRouter();

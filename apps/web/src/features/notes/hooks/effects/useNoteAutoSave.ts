@@ -19,6 +19,7 @@ export function useNoteAutoSave({
     getLastNoteId: () => string | null;
   };
 }) {
+  "use memo";
   const updateNoteMutation = useUpdateNote();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 

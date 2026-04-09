@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
  * サイドバーの開閉状態とデスクトップ表示時の自動クローズを管理するHook
  */
 export function useSidebarState(isDesktop: boolean) {
+  "use memo";
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const closeSidebar = useCallback(() => setIsSidebarOpen(false), []);

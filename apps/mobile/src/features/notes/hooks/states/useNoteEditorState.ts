@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
  * UIやAPIに依存せず、state/refの定義と初期化の関心をControllerから分離します。
  */
 export function useNoteEditorState(note: Note | undefined, isNew: boolean) {
+  "use memo";
   const [content, setContent] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [isPreview, setIsPreview] = useState(false);

@@ -41,6 +41,7 @@ export function NoteDrawer({
   tags,
   onOpenSettings,
 }: NoteDrawerProps) {
+  "use memo";
   const insets = useSafeAreaInsets();
 
   if (!isOpen) return null;

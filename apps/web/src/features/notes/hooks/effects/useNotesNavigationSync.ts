@@ -7,6 +7,7 @@ import { useNotesStore } from "@/features/notes/store";
  * URLパラメータとPropsの状態をNotesストアに同期するHook
  */
 export function useNotesNavigationSync(propSelectedNoteId?: string) {
+  "use memo";
   const [searchParams] = useSearchParams();
   const setSelectedNoteId = useNotesStore((s) => s.setSelectedNoteId);
   const setFilterScope = useNotesStore((s) => s.setFilterScope);

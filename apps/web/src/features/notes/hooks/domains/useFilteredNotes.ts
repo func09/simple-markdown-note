@@ -7,6 +7,7 @@ import { useNotesFilter } from "../states";
  * 検索・フィルタリングされたノート一覧と、それらに関連する状態を管理するHook
  */
 export function useFilteredNotes() {
+  "use memo";
   const searchQuery = useNotesStore((s) => s.searchQuery);
   const setSearchQuery = useNotesStore((s) => s.setSearchQuery);
   const scope = useNotesStore((s) => s.filterScope);

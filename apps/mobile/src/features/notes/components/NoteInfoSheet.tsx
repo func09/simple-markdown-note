@@ -30,6 +30,7 @@ export function NoteInfoSheet({
   onTrashAction,
   onPermanentDelete,
 }: NoteInfoSheetProps) {
+  "use memo";
   const renderBackdrop = useCallback(
     (props: BottomSheetBackdropProps) => (
       <BottomSheetBackdrop

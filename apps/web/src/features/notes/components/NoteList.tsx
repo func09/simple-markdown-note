@@ -17,6 +17,7 @@ interface NoteListProps {
  * ノートの新規作成、検索、リスト表示を行います。
  */
 export function NoteList({ selectedNoteId }: NoteListProps) {
+  "use memo";
   const {
     filteredNotes,
     shouldShowSkeleton,

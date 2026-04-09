@@ -26,6 +26,7 @@ import { SettingsSheet } from "./SettingsSheet";
  * 左からのドロワーメニュー、ノート一覧表示、検索ボックス、および新規作成・閲覧へのナビゲーションを提供します。
  */
 export function NotesIndexScreen() {
+  "use memo";
   // 1. URLパラメータから現在のスコープ（一覧、ゴミ箱等）と選択中のタグを取得
   const { scope = NOTE_SCOPE.ALL, tag } = useLocalSearchParams<{
     scope?: string;

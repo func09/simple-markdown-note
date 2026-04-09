@@ -44,6 +44,7 @@ interface EditorProps {
  * データ取得、自動保存、各種アクション（削除・復元・タグ更新）を統合・管理します。
  */
 export function Editor({ noteId, isMobile }: EditorProps) {
+  "use memo";
   const [isPreview, setIsPreview] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
