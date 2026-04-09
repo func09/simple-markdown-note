@@ -1,6 +1,12 @@
 # EAS iOS tag build setup
 
-GitHub tag (`YYYY.MM.DD.N`) push on this repository triggers iOS build on EAS via GitHub Actions.
+Pushing a Git tag matching `YYYY.MM.DD.N` on the linked repository triggers the **EAS Workflow** defined in [`.eas/workflows/mobile-ios-release.yml`](.eas/workflows/mobile-ios-release.yml). The workflow runs on EAS (not via a GitHub Actions workflow in this repo).
+
+The pipeline:
+
+1. Derives app version and iOS build number from the tag.
+2. Runs an iOS **production** EAS Build.
+3. Submits that build to **App Store Connect** with EAS Submit (`submit_ios` job).
 
 ## 1. One-time Expo/EAS project link
 
@@ -16,11 +22,13 @@ If not linked, run:
 pnpm exec eas init
 ```
 
+Connect the Git provider in the Expo dashboard so EAS Workflows can run on tag pushes.
+
 After linking, keep `EXPO_PUBLIC_EAS_PROJECT_ID` aligned with the linked project ID.
 
 ## 2. EAS Environment Variables (project side)
 
-Register these variables in Expo dashboard for the mobile project:
+Register these variables in Expo dashboard for the mobile project (e.g. `production` environment):
 
 - `EXPO_PUBLIC_EAS_PROJECT_ID`
 - `IOS_BUNDLE_IDENTIFIER`
@@ -28,16 +36,15 @@ Register these variables in Expo dashboard for the mobile project:
 
 These are required by `app.config.ts`.
 
-## 3. GitHub repository settings
+## 3. App Store Connect submission (CI)
 
-### Secrets
+The `submit_ios` job uses the same credentials as `eas submit`. Configure Apple / App Store Connect API access for EAS as described in Expo’s guide:
 
-- `EXPO_TOKEN`: Expo personal access token used by GitHub Actions.
+- [Submitting your app using CI/CD services (iOS)](https://docs.expo.dev/submit/ios#submitting-your-app-using-cicd-services)
 
-No GitHub Variables are required for mobile build config values.
-The workflow pulls `production` variables from EAS (`eas env:pull`) and uses those values directly.
+Submit profile: `production` (see [`eas.json`](eas.json) `submit.production`).
 
-## 4. Trigger build by tag
+## 4. Trigger build and submit by tag
 
 Tag format: `YYYY.MM.DD.N` (example: `2026.04.09.1`)
 
@@ -46,4 +53,6 @@ git tag 2026.04.09.1
 git push origin 2026.04.09.1
 ```
 
-Then open GitHub Actions and confirm `Mobile EAS iOS Build` is running.
+In the Expo dashboard, open **Workflows** for this project and confirm **Mobile iOS Release** ran: build, then submit to App Store Connect.
+
+**Note:** EAS Submit uploads the binary to App Store Connect (e.g. TestFlight processing). Sending the app to **App Review** may still be done in App Store Connect depending on your release process.
