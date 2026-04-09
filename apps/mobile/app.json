@@ -11,7 +11,10 @@
     "scheme": "simple-markdown-note",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -19,8 +22,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false,
-      "package": "org.func09.simplemarkdownnote.dev"
+      "predictiveBackGestureEnabled": false
     },
     "web": {
       "favicon": "./src/assets/favicon.png"
@@ -35,6 +37,9 @@
           "imageWidth": 200
         }
       ]
-    ]
+    ],
+    "extra": {
+      "router": {}
+    }
   }
 }

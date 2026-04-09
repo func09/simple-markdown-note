@@ -8,7 +8,6 @@
     "check:types": "tsc --noEmit",
     "dev": "expo start",
     "ios": "expo run:ios",
-    "ios:release": "NODE_ENV=production expo run:ios --device --configuration Release",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --passWithNoTests",
     "test:cov": "NODE_OPTIONS=--experimental-vm-modules jest --passWithNoTests --coverage --silent",
     "web": "expo start --web"
