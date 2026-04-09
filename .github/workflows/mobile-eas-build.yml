@@ -1,5 +1,8 @@
 name: Mobile EAS iOS Build
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 on:
   push:
     tags:
@@ -66,12 +69,19 @@ jobs:
         shell: bash
         run: eas env:pull production --non-interactive --path .env.eas
 
-      - name: Export required vars from EAS env file
+      - name: Export EAS env file to GITHUB_ENV
         shell: bash
         run: |
-          set -a
-          source .env.eas
-          set +a
+          while IFS= read -r line; do
+            if [ -z "$line" ] || [[ "$line" =~ ^[[:space:]]*# ]]; then
+              continue
+            fi
+            echo "$line" >> "$GITHUB_ENV"
+          done < .env.eas
+
+      - name: Validate required environment variables
+        shell: bash
+        run: |
           for key in EXPO_PUBLIC_EAS_PROJECT_ID IOS_BUNDLE_IDENTIFIER APPLE_TEAM_ID; do
             if [ -z "${!key}" ]; then
               echo "::error::Missing required value in EAS env: $key"
@@ -90,30 +100,15 @@ jobs:
           {
             echo "EXPO_APP_VERSION=$expo_app_version"
             echo "IOS_BUILD_NUMBER=$ios_build_number"
-          } >> .env.eas
-
-          echo "EXPO_APP_VERSION=$expo_app_version"
-          echo "IOS_BUILD_NUMBER=$ios_build_number"
-          #region agent log
-          node -e "fetch('http://127.0.0.1:7572/ingest/d6c62c8a-c47b-47ff-9265-9f79e5250e8e',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'abb24f'},body:JSON.stringify({sessionId:'abb24f',runId:(process.env.GITHUB_RUN_ID||'local')+'-'+(process.env.GITHUB_RUN_ATTEMPT||'0'),hypothesisId:'H2',location:'mobile-eas-build.yml:derive-version',message:'derived tag values',data:{refName:process.env.GITHUB_REF_NAME||'',expoAppVersion:process.env.EXPO_APP_VERSION||expo_app_version,iosBuildNumber:process.env.IOS_BUILD_NUMBER||ios_build_number},timestamp:Date.now()})}).catch(()=>{});"
-          #endregion
+          } >> "$GITHUB_ENV"
 
       - name: Start iOS production build on EAS
         shell: bash
         run: |
-          set -a
-          source .env.eas
-          set +a
-          #region agent log
-          node -e "fetch('http://127.0.0.1:7572/ingest/d6c62c8a-c47b-47ff-9265-9f79e5250e8e',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'abb24f'},body:JSON.stringify({sessionId:'abb24f',runId:(process.env.GITHUB_RUN_ID||'local')+'-'+(process.env.GITHUB_RUN_ATTEMPT||'0'),hypothesisId:'H1',location:'mobile-eas-build.yml:start-build',message:'starting eas build with env presence',data:{hasExpoToken:Boolean(process.env.EXPO_TOKEN),hasProjectId:Boolean(process.env.EXPO_PUBLIC_EAS_PROJECT_ID),hasBundleId:Boolean(process.env.IOS_BUNDLE_IDENTIFIER),hasAppleTeamId:Boolean(process.env.APPLE_TEAM_ID),hasExpoAppVersion:Boolean(process.env.EXPO_APP_VERSION),hasIosBuildNumber:Boolean(process.env.IOS_BUILD_NUMBER)},timestamp:Date.now()})}).catch(()=>{});"
-          #endregion
           set +e
           build_json="$(eas build --platform ios --profile production --non-interactive --no-wait --json 2>&1)"
           build_exit_code=$?
           set -e
-          #region agent log
-          node -e "fetch('http://127.0.0.1:7572/ingest/d6c62c8a-c47b-47ff-9265-9f79e5250e8e',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'abb24f'},body:JSON.stringify({sessionId:'abb24f',runId:(process.env.GITHUB_RUN_ID||'local')+'-'+(process.env.GITHUB_RUN_ATTEMPT||'0'),hypothesisId:'H1',location:'mobile-eas-build.yml:eas-result',message:'eas build command result',data:{exitCode:Number(process.argv[1]||'1'),hasCredentialError:/Credentials are not set up|Failed to set up credentials|Distribution Certificate is not validated/i.test(process.argv[2]||''),outputSnippet:String(process.argv[2]||'').slice(-1200)},timestamp:Date.now()})}).catch(()=>{});" "$build_exit_code" "$build_json"
-          #endregion
           if [ "$build_exit_code" -ne 0 ]; then
             echo "$build_json"
             exit "$build_exit_code"
@@ -123,7 +118,4 @@ jobs:
           if [ -n "$build_url" ]; then
             echo "EAS build URL: $build_url"
             echo "build_url=$build_url" >> "$GITHUB_OUTPUT"
-            #region agent log
-            node -e "fetch('http://127.0.0.1:7572/ingest/d6c62c8a-c47b-47ff-9265-9f79e5250e8e',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'abb24f'},body:JSON.stringify({sessionId:'abb24f',runId:(process.env.GITHUB_RUN_ID||'local')+'-'+(process.env.GITHUB_RUN_ATTEMPT||'0'),hypothesisId:'H4',location:'mobile-eas-build.yml:build-url',message:'build created successfully',data:{hasBuildUrl:Boolean(process.argv[1])},timestamp:Date.now()})}).catch(()=>{});" "$build_url"
-            #endregion
           fi
