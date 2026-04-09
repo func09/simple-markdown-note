@@ -1,0 +1,35 @@
+name: Mobile iOS Release
+
+on:
+  push:
+    tags:
+      - '20[0-9][0-9].[0-1][0-9].[0-3][0-9].[0-9]*'
+
+jobs:
+  derive_versions:
+    name: Derive version and build number
+    steps:
+      - name: Derive values from tag
+        id: derive
+        run: |
+          TAG="${{ github.ref_name }}"
+          IFS='.' read -r year month day seq <<< "$TAG"
+          APP_VERSION="${year}.${month}.${day}"
+          BUILD_NUMBER="${year}${month}${day}$(printf '%02d' "$seq")"
+          set-output app_version "$APP_VERSION"
+          set-output build_number "$BUILD_NUMBER"
+    outputs:
+      app_version: ${{ steps.derive.outputs.app_version }}
+      build_number: ${{ steps.derive.outputs.build_number }}
+
+  build_ios:
+    name: Build iOS production
+    needs: [derive_versions]
+    type: build
+    environment: production
+    env:
+      EXPO_APP_VERSION: ${{ needs.derive_versions.outputs.app_version }}
+      IOS_BUILD_NUMBER: ${{ needs.derive_versions.outputs.build_number }}
+    params:
+      platform: ios
+      profile: production
