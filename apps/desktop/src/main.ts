@@ -9,12 +9,21 @@ let mainWindow: BrowserWindow | null;
 
 const isDev = !app.isPackaged;
 
+function resolveWindowIconPath(): string {
+  if (isDev) {
+    return path.resolve(__dirname, "../assets/icon.png");
+  }
+
+  return path.resolve(__dirname, "../renderer/icons/icon.png");
+}
+
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1024,
     height: 768,
     minWidth: 800,
     minHeight: 600,
+    icon: resolveWindowIconPath(),
     titleBarStyle: "hiddenInset", // macOS transparent titlebar + traffic lights
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),

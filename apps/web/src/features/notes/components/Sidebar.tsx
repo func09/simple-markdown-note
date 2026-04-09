@@ -85,9 +85,11 @@ export function Sidebar({ onClose }: SidebarProps) {
       {/* App Logo / Title */}
       <div className="p-6">
         <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-          <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center text-white">
-            S
-          </div>
+          <img
+            src="/icons/icon.svg"
+            alt="Simple Markdown Note"
+            className="w-8 h-8 rounded-lg"
+          />
           <div className="flex flex-col">
             <span>Simple Markdown Note</span>
             {import.meta.env.VITE_APP_VERSION && (

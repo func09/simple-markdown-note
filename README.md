@@ -51,10 +51,10 @@ Use Turborepo to run the API and Web frontend in parallel.
 pnpm dev
 ```
 
-If you also want to start the desktop app (Electron) simultaneously, add the `--native` flag:
+If you also want to start all apps including desktop (Electron), run `dev:all`:
 
 ```bash
-pnpm dev --native
+pnpm dev:all
 ```
 
 - **Web**: [http://localhost:3000](http://localhost:3000)
