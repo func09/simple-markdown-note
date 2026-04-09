@@ -32,6 +32,9 @@ jobs:
       - name: Install pnpm
         run: npm install -g pnpm@10
 
+      - name: Install EAS CLI
+        run: npm install -g eas-cli
+
       - name: Get pnpm store directory
         id: pnpm-cache
         shell: bash
@@ -61,7 +64,7 @@ jobs:
 
       - name: Pull EAS environment variables (production)
         shell: bash
-        run: pnpm exec eas env:pull production --non-interactive --path .env.eas
+        run: eas env:pull production --non-interactive --path .env.eas
 
       - name: Export required vars from EAS env file
         shell: bash
@@ -105,7 +108,7 @@ jobs:
           node -e "fetch('http://127.0.0.1:7572/ingest/d6c62c8a-c47b-47ff-9265-9f79e5250e8e',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'abb24f'},body:JSON.stringify({sessionId:'abb24f',runId:(process.env.GITHUB_RUN_ID||'local')+'-'+(process.env.GITHUB_RUN_ATTEMPT||'0'),hypothesisId:'H1',location:'mobile-eas-build.yml:start-build',message:'starting eas build with env presence',data:{hasExpoToken:Boolean(process.env.EXPO_TOKEN),hasProjectId:Boolean(process.env.EXPO_PUBLIC_EAS_PROJECT_ID),hasBundleId:Boolean(process.env.IOS_BUNDLE_IDENTIFIER),hasAppleTeamId:Boolean(process.env.APPLE_TEAM_ID),hasExpoAppVersion:Boolean(process.env.EXPO_APP_VERSION),hasIosBuildNumber:Boolean(process.env.IOS_BUILD_NUMBER)},timestamp:Date.now()})}).catch(()=>{});"
           #endregion
           set +e
-          build_json="$(pnpm exec eas build --platform ios --profile production --non-interactive --no-wait --json 2>&1)"
+          build_json="$(eas build --platform ios --profile production --non-interactive --no-wait --json 2>&1)"
           build_exit_code=$?
           set -e
           #region agent log
