@@ -9,21 +9,23 @@ export const requestLogger = (): MiddlewareHandler => {
     const start = Date.now();
     const { method, path } = c.req;
     const query = c.req.query();
-    const queryStr = Object.keys(query).length
-      ? `?${new URLSearchParams(query)}`
-      : "";
+    const userAgent = c.req.header("user-agent") ?? "";
 
     await next();
 
-    const ms = Date.now() - start;
+    const durationMs = Date.now() - start;
     const status = c.res.status;
 
-    const color =
-      status >= 400 ? "\x1b[31m" : status >= 300 ? "\x1b[33m" : "\x1b[32m";
-    const reset = "\x1b[0m";
+    const log = {
+      timestamp: new Date().toISOString(),
+      method,
+      path,
+      query,
+      status,
+      durationMs,
+      userAgent,
+    };
 
-    console.log(
-      `${color}${method}${reset} ${path}${queryStr} ${color}${status}${reset} - ${ms}ms`
-    );
+    console.log(JSON.stringify(log));
   };
 };
