@@ -17,10 +17,64 @@ describe("Logger Middleware", () => {
 
     await app.request("/200");
     await app.request("/300");
-    await app.request("/400");
-    await app.request("/query?foo=bar");
+    await app.request("/400", {
+      headers: { "User-Agent": "desktop-test-agent" },
+    });
+    await app.request("/query?foo=bar", {
+      headers: { "User-Agent": "mobile-test-agent" },
+    });
 
     expect(consoleSpy).toHaveBeenCalledTimes(4);
+
+    const logs = consoleSpy.mock.calls.map(
+      (call) =>
+        JSON.parse(String(call[0])) as {
+          timestamp: string;
+          method: string;
+          path: string;
+          query: Record<string, string>;
+          status: number;
+          durationMs: number;
+          userAgent: string;
+        }
+    );
+
+    for (const log of logs) {
+      expect(log.timestamp).toEqual(expect.any(String));
+      expect(Number.isNaN(Date.parse(log.timestamp))).toBe(false);
+      expect(log.method).toBe("GET");
+      expect(log.path).toEqual(expect.any(String));
+      expect(log.query).toEqual(expect.any(Object));
+      expect(log.status).toEqual(expect.any(Number));
+      expect(log.durationMs).toEqual(expect.any(Number));
+      expect(log.userAgent).toEqual(expect.any(String));
+    }
+
+    expect(logs[0]).toMatchObject({
+      path: "/200",
+      status: 200,
+      query: {},
+      userAgent: "",
+    });
+    expect(logs[1]).toMatchObject({
+      path: "/300",
+      status: 301,
+      query: {},
+      userAgent: "",
+    });
+    expect(logs[2]).toMatchObject({
+      path: "/400",
+      status: 400,
+      query: {},
+      userAgent: "desktop-test-agent",
+    });
+    expect(logs[3]).toMatchObject({
+      path: "/query",
+      status: 200,
+      query: { foo: "bar" },
+      userAgent: "mobile-test-agent",
+    });
+
     consoleSpy.mockRestore();
   });
 });

@@ -16,6 +16,9 @@ vi.mock("electron", () => {
   const windowInstance = {
     loadURL: vi.fn(),
     loadFile: vi.fn(),
+    webContents: {
+      setUserAgent: vi.fn(),
+    },
     on: vi.fn((event: string, callback: () => void) => {
       mockWindowListeners[event] = callback;
     }),
@@ -42,6 +45,7 @@ vi.mock("electron", () => {
       on: vi.fn((event: string, callback: () => void) => {
         mockAppListeners[event] = callback;
       }),
+      getVersion: vi.fn().mockReturnValue("1.0.0"),
       quit: vi.fn(),
     },
     BrowserWindow: BrowserWindowMock,
@@ -86,6 +90,11 @@ describe("main process", () => {
     const mockWindowInst = vi.mocked(BrowserWindow).mock.results[0]?.value;
     expect(mockWindowInst.loadURL).toHaveBeenCalledWith(
       "http://localhost:3000"
+    );
+    expect(mockWindowInst.webContents.setUserAgent).toHaveBeenCalledWith(
+      expect.stringMatching(
+        /^SimpleMarkdownNote\/1\.0\.0 \(desktop; [a-z0-9]+ [^;]+; (development|production)\)$/
+      )
     );
     expect(mockWindowInst.loadFile).not.toHaveBeenCalled();
 

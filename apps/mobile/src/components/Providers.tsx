@@ -4,6 +4,7 @@ import Constants from "expo-constants";
 import type { ReactNode } from "react";
 import { Platform } from "react-native";
 import { useAuthStore } from "../features/auth/store";
+import { APP_NAME } from "../types";
 
 // 開発環境ではマシンのIPアドレス、それ以外は環境変数から取得
 const getBaseUrl = () => {
@@ -28,10 +29,20 @@ const getBaseUrl = () => {
   return "https://api.example.com/api";
 };
 
+const getMobileUserAgent = () => {
+  const version = Constants.expoConfig?.version ?? "dev";
+  const platform = Platform.OS;
+  const osVersion = String(Platform.Version);
+  const releaseChannel = __DEV__ ? "development" : "production";
+  return `${APP_NAME}/${version} (${platform}; ${osVersion}; ${releaseChannel})`;
+};
+
 const apiClient = createApiClient(getBaseUrl(), {
   headers: () => {
     const token = useAuthStore.getState().token;
-    const headers: Record<string, string> = {};
+    const headers: Record<string, string> = {
+      "User-Agent": getMobileUserAgent(),
+    };
     if (token) {
       headers.Authorization = `Bearer ${token}`;
     }

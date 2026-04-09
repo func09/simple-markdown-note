@@ -21,6 +21,25 @@ const getRequiredEnv = (key: string): string => {
 };
 
 /**
+ * タグビルド時に注入されたアプリバージョンを取得します。
+ * 未指定時は既存設定値を利用します。
+ * @param {ExpoConfig} config Expoの既存設定
+ * @returns {string} アプリの表示バージョン
+ */
+const getAppVersion = (config: Partial<ExpoConfig>): string => {
+  return process.env.EXPO_APP_VERSION || config.version || "1.0.0";
+};
+
+/**
+ * タグビルド時に注入されたiOSのビルド番号を取得します。
+ * @param {ExpoConfig} config Expoの既存設定
+ * @returns {string | undefined} iOSビルド番号
+ */
+const getIosBuildNumber = (config: Partial<ExpoConfig>): string | undefined => {
+  return process.env.IOS_BUILD_NUMBER || config.ios?.buildNumber;
+};
+
+/**
  * Expoのアプリケーション設定を定義するファクトリ関数
  * @param {ConfigContext} context Expoの設定コンテキスト
  * @returns {ExpoConfig} Expoのアプリケーション設定
@@ -29,8 +48,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: config.name || "Simple Markdown Note",
   slug: config.slug || "simple-markdown-note",
+  version: getAppVersion(config),
   ios: {
     ...config.ios,
+    buildNumber: getIosBuildNumber(config),
     bundleIdentifier: getRequiredEnv("IOS_BUNDLE_IDENTIFIER"),
     appleTeamId: getRequiredEnv("APPLE_TEAM_ID"),
     infoPlist: {
