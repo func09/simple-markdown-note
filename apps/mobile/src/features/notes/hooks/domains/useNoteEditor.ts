@@ -7,7 +7,6 @@ import {
   useUpdateNote,
 } from "@simple-markdown-note/api-client/hooks";
 import { useRouter } from "expo-router";
-import { useMemo } from "react";
 import { calcNoteMetrics } from "../../utils";
 import { useNoteAutoSave } from "../effects/useNoteAutoSave";
 import { useNoteEditorState } from "../states/useNoteEditorState";
@@ -25,27 +24,15 @@ export function useNoteEditor(id: string, isNew: boolean) {
   const restoreNoteMutation = useRestoreNote();
   const permanentDeleteMutation = usePermanentDelete();
 
-  const mutations = useMemo(
-    () => ({
-      createNote: createNoteMutation.mutateAsync,
-      updateNote: updateNoteMutation.mutate,
-      deleteNote: deleteNoteMutation.mutateAsync,
-      restoreNote: restoreNoteMutation.mutateAsync,
-      permanentDelete: permanentDeleteMutation.mutateAsync,
-    }),
-    [
-      createNoteMutation.mutateAsync,
-      updateNoteMutation.mutate,
-      deleteNoteMutation.mutateAsync,
-      restoreNoteMutation.mutateAsync,
-      permanentDeleteMutation.mutateAsync,
-    ]
-  );
+  const mutations = {
+    createNote: createNoteMutation.mutateAsync,
+    updateNote: updateNoteMutation.mutate,
+    deleteNote: deleteNoteMutation.mutateAsync,
+    restoreNote: restoreNoteMutation.mutateAsync,
+    permanentDelete: permanentDeleteMutation.mutateAsync,
+  };
   const state = useNoteEditorState(note, isNew);
-  const metrics = useMemo(
-    () => calcNoteMetrics(state.content),
-    [state.content]
-  );
+  const metrics = calcNoteMetrics(state.content);
 
   useNoteAutoSave({
     ...state,

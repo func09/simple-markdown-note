@@ -1,5 +1,5 @@
 import type { Note } from "@simple-markdown-note/schemas";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 /**
  * ノート編集画面のローカルstate管理と、サーバーデータとの初期化同期を担うフック。
@@ -34,10 +34,10 @@ export function useNoteEditorState(note: Note | undefined, isNew: boolean) {
   }, [isNew, note]);
 
   // 新規作成時にサーバーからIDが確定した後、auto-saveから呼ぶことでrefを安全に同期する
-  const markAsInitialized = useCallback((id: string) => {
+  const markAsInitialized = (id: string) => {
     initializedId.current = id;
     currentNoteId.current = id;
-  }, []);
+  };
 
   return {
     content,

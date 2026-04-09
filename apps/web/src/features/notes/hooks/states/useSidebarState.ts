@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 /**
  * サイドバーの開閉状態とデスクトップ表示時の自動クローズを管理するHook
@@ -7,8 +7,8 @@ export function useSidebarState(isDesktop: boolean) {
   "use memo";
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const closeSidebar = useCallback(() => setIsSidebarOpen(false), []);
-  const openSidebar = useCallback(() => setIsSidebarOpen(true), []);
+  const closeSidebar = () => setIsSidebarOpen(false);
+  const openSidebar = () => setIsSidebarOpen(true);
 
   // デスクトップ表示に切り替わったらサイドバーを閉じる
   useEffect(() => {

@@ -1,5 +1,4 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useCallback } from "react";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { NAVIGATION_DELAY } from "../constants";
@@ -37,32 +36,26 @@ export function NoteDetailScreen() {
   const uiLayout = useKeyboardObserver(isPreview, setIsPreview);
   const { promptForTag } = useTagPrompt();
 
-  const handleGoBack = useCallback(() => router.back(), [router]);
+  const handleGoBack = () => router.back();
 
   // イベントハンドラー
   // マークダウン内のチェックボックス切り替え
-  const handleCheckboxToggle = useCallback(
-    (index: number) => {
-      setContent((prev) => toggleCheckboxInContent(prev, index));
-    },
-    [setContent]
-  );
+  const handleCheckboxToggle = (index: number) => {
+    setContent((prev) => toggleCheckboxInContent(prev, index));
+  };
 
   // タグの追加プロンプトを表示
-  const handleAddTag = useCallback(() => {
+  const handleAddTag = () => {
     promptForTag(tags, (newTag) => setTags((prev) => [...prev, newTag]));
-  }, [promptForTag, tags, setTags]);
+  };
 
   // タグの削除
-  const handleRemoveTag = useCallback(
-    (tagToRemove: string) => {
-      setTags((prev) => prev.filter((t) => t !== tagToRemove));
-    },
-    [setTags]
-  );
+  const handleRemoveTag = (tagToRemove: string) => {
+    setTags((prev) => prev.filter((t) => t !== tagToRemove));
+  };
 
   // ゴミ箱への移動、または復元
-  const handleTrashAction = useCallback(async () => {
+  const handleTrashAction = async () => {
     const activeId = currentNoteId.current;
     if (!activeId) return;
     const action = note?.deletedAt
@@ -81,17 +74,10 @@ export function NoteDetailScreen() {
         error
       );
     }
-  }, [
-    currentNoteId,
-    note,
-    mutations,
-    setIsDeleting,
-    uiLayout.infoSheetRef,
-    handleGoBack,
-  ]);
+  };
 
   // 完全に削除
-  const handlePermanentDelete = useCallback(async () => {
+  const handlePermanentDelete = async () => {
     const activeId = currentNoteId.current;
     if (!activeId) return;
 
@@ -104,13 +90,7 @@ export function NoteDetailScreen() {
       setIsDeleting(false);
       console.error("Failed to permanently delete note:", error);
     }
-  }, [
-    currentNoteId,
-    mutations,
-    setIsDeleting,
-    uiLayout.infoSheetRef,
-    handleGoBack,
-  ]);
+  };
 
   const insets = useSafeAreaInsets();
 

@@ -9,7 +9,7 @@ import {
   useLogout,
 } from "@simple-markdown-note/api-client/hooks";
 import { LogOut, User } from "lucide-react-native";
-import { type RefObject, useCallback } from "react";
+import type { RefObject } from "react";
 import { Alert, Text, TouchableOpacity, View } from "react-native";
 import { useAuthStore } from "../../auth/store";
 
@@ -36,11 +36,11 @@ export function SettingsSheet({ sheetRef }: SettingsSheetProps) {
     },
   });
 
-  const handleLogout = useCallback(() => {
+  const handleLogout = () => {
     logoutMutation.mutate();
-  }, [logoutMutation]);
+  };
 
-  const handleDeleteUser = useCallback(() => {
+  const handleDeleteUser = () => {
     Alert.alert(
       "Delete Account",
       "Are you sure you want to delete your account? This action cannot be undone.",
@@ -53,18 +53,15 @@ export function SettingsSheet({ sheetRef }: SettingsSheetProps) {
         },
       ]
     );
-  }, [deleteUserMutation]);
+  };
 
-  const renderBackdrop = useCallback(
-    (props: BottomSheetBackdropProps) => (
-      <BottomSheetBackdrop
-        {...props}
-        disappearsOnIndex={-1}
-        appearsOnIndex={0}
-        opacity={0.4}
-      />
-    ),
-    []
+  const renderBackdrop = (props: BottomSheetBackdropProps) => (
+    <BottomSheetBackdrop
+      {...props}
+      disappearsOnIndex={-1}
+      appearsOnIndex={0}
+      opacity={0.4}
+    />
   );
 
   return (

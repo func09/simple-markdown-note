@@ -1,5 +1,4 @@
 import { useNotes } from "@simple-markdown-note/api-client/hooks";
-import { useMemo } from "react";
 import { useNotesStore } from "@/features/notes/store";
 import { useNotesFilter } from "../states";
 
@@ -19,12 +18,8 @@ export function useFilteredNotes() {
     tag: tag || undefined,
   });
 
-  const filteredNotes = useMemo(
-    () =>
-      notes.filter((note) =>
-        note.content.toLowerCase().includes(searchQuery.toLowerCase())
-      ),
-    [notes, searchQuery]
+  const filteredNotes = notes.filter((note) =>
+    note.content.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const shouldShowSkeleton = isLoading && notes.length === 0;
