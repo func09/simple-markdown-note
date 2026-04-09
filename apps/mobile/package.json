@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@expo/metro-runtime": "~6.1.2",
-    "@gorhom/bottom-sheet": "^5.2.8",
+    "@gorhom/bottom-sheet": "^5.2.9",
     "@hookform/resolvers": "catalog:",
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@simple-markdown-note/api-client": "workspace:*",
