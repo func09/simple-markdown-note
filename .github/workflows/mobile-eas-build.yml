@@ -76,6 +76,22 @@ jobs:
             fi
           done
 
+      - name: Derive app version and iOS build number from tag
+        shell: bash
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          IFS='.' read -r year month day seq <<< "$tag"
+          expo_app_version="${year}.${month}.${day}"
+          ios_build_number="${year}${month}${day}$(printf '%02d' "$seq")"
+
+          {
+            echo "EXPO_APP_VERSION=$expo_app_version"
+            echo "IOS_BUILD_NUMBER=$ios_build_number"
+          } >> .env.eas
+
+          echo "EXPO_APP_VERSION=$expo_app_version"
+          echo "IOS_BUILD_NUMBER=$ios_build_number"
+
       - name: Start iOS production build on EAS
         shell: bash
         run: |
