@@ -3,7 +3,7 @@ import {
   useLogout,
 } from "@simple-markdown-note/api-client/hooks";
 import { LogOut, Trash2 } from "lucide-react";
-import { memo, useCallback } from "react";
+import { memo } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -28,6 +28,7 @@ export const SettingsModal = memo(function SettingsModal({
   open,
   onOpenChange,
 }: SettingsModalProps) {
+  "use memo";
   const clearAuth = useAuthStore((state) => state.clearAuth);
   const resetFilters = useNotesStore((state) => state.resetFilters);
   const setSelectedNoteId = useNotesStore((state) => state.setSelectedNoteId);
@@ -51,11 +52,11 @@ export const SettingsModal = memo(function SettingsModal({
     },
   });
 
-  const handleLogout = useCallback(() => {
+  const handleLogout = () => {
     logoutMutation.mutate();
-  }, [logoutMutation]);
+  };
 
-  const handleDeleteUser = useCallback(() => {
+  const handleDeleteUser = () => {
     if (
       window.confirm(
         "Are you sure you want to delete your account? This action cannot be undone."
@@ -63,7 +64,7 @@ export const SettingsModal = memo(function SettingsModal({
     ) {
       deleteUserMutation.mutate();
     }
-  }, [deleteUserMutation]);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

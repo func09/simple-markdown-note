@@ -8,15 +8,18 @@ export function useNoteAutoSave({
   noteId,
   noteContent,
   isDeleting,
-  contentRef,
-  lastNoteIdRef,
+  draftSync,
 }: {
   noteId?: string;
   noteContent?: string;
   isDeleting: boolean;
-  contentRef: React.RefObject<string>;
-  lastNoteIdRef: React.RefObject<string | null>;
+  draftSync: {
+    getContent: () => string;
+    setContent: (value: string) => void;
+    getLastNoteId: () => string | null;
+  };
 }) {
+  "use memo";
   const updateNoteMutation = useUpdateNote();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -29,9 +32,9 @@ export function useNoteAutoSave({
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
         timeoutRef.current = null;
-        const content = contentRef.current;
+        const content = draftSync.getContent();
         const currentNoteContent =
-          lastNoteIdRef.current === noteId ? noteContent : undefined;
+          draftSync.getLastNoteId() === noteId ? noteContent : undefined;
 
         if (
           isDeleting ||
@@ -44,11 +47,11 @@ export function useNoteAutoSave({
         mutationRef.current.mutate({ id: noteId, data: { content } });
       }
     };
-  }, [noteId, noteContent, isDeleting, contentRef, lastNoteIdRef]);
+  }, [noteId, noteContent, isDeleting, draftSync]);
 
   const handleAutoSave = useCallback(
     (content: string) => {
-      contentRef.current = content;
+      draftSync.setContent(content);
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
       if (isDeleting || !noteId || content === noteContent) return;
@@ -58,7 +61,7 @@ export function useNoteAutoSave({
         mutationRef.current.mutate({ id: noteId, data: { content } });
       }, 10000);
     },
-    [noteId, noteContent, isDeleting, contentRef]
+    [noteId, noteContent, isDeleting, draftSync]
   );
 
   return { handleAutoSave };

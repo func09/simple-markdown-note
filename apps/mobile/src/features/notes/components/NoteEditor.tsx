@@ -134,6 +134,7 @@ export function NoteEditor({
   onAddTag,
   onRemoveTag,
 }: NoteEditorProps) {
+  "use memo";
   let checkboxCount = 0;
   const markdownRules: RenderRules = {
     list_item: (

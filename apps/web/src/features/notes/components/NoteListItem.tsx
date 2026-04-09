@@ -29,6 +29,7 @@ export function NoteListItem({
   href,
   onClick,
 }: NoteListItemProps) {
+  "use memo";
   const { title, preview } = formatNotePreview(note.content);
 
   return (

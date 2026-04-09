@@ -1,7 +1,7 @@
 import { useTags } from "@simple-markdown-note/api-client/hooks";
 import { FileText, Hash, Settings, Trash2 } from "lucide-react";
 import type { ElementType } from "react";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { SettingsModal } from "@/features/settings/components/SettingsModal";
 import { cn } from "@/lib/utils";
@@ -24,6 +24,7 @@ function NavItem({
   count,
   onClick,
 }: NavItemProps) {
+  "use memo";
   return (
     <Link
       to={href}
@@ -63,20 +64,21 @@ interface SidebarProps {
  * 「すべてのノート」「ゴミ箱」のリンクや、登録されているタグによるフィルタリング機能を提供します。
  */
 export function Sidebar({ onClose }: SidebarProps) {
+  "use memo";
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const { filterScope, filterTag, setFilterScope, setFilterTag } =
     useNotesStore();
   const { data: tags = [], isLoading } = useTags();
 
-  const handleAllNotes = useCallback(() => {
+  const handleAllNotes = () => {
     setFilterScope("all");
     onClose?.();
-  }, [setFilterScope, onClose]);
+  };
 
-  const handleTrash = useCallback(() => {
+  const handleTrash = () => {
     setFilterScope("trash");
     onClose?.();
-  }, [setFilterScope, onClose]);
+  };
 
   return (
     <div className="flex flex-col h-full bg-slate-50 border-r border-slate-200 w-full overflow-y-auto custom-scrollbar">

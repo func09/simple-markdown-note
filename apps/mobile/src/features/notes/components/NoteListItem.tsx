@@ -11,6 +11,7 @@ type NoteListItemProps = {
  * タイトル、要約文、および整形されたフォーマットの更新日時を描画します。
  */
 export function NoteListItem({ item, onPress }: NoteListItemProps) {
+  "use memo";
   const { title, summary, formattedDate } = useNoteItemState(item);
 
   return (

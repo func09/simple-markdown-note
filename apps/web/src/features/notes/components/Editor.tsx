@@ -7,7 +7,7 @@ import {
 } from "@simple-markdown-note/api-client/hooks";
 import { EditorContent } from "@tiptap/react";
 import { Edit3 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import type { Components } from "react-markdown";
 import ReactMarkdown from "react-markdown";
 import { useNavigate } from "react-router-dom";
@@ -44,6 +44,7 @@ interface EditorProps {
  * データ取得、自動保存、各種アクション（削除・復元・タグ更新）を統合・管理します。
  */
 export function Editor({ noteId, isMobile }: EditorProps) {
+  "use memo";
   const [isPreview, setIsPreview] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -110,16 +111,28 @@ export function Editor({ noteId, isMobile }: EditorProps) {
   const { isOptionsOpen, setIsOptionsOpen, optionsRef } =
     useOptionsPopoverState();
 
-  // 3. オートセーブとエディタの管理 (Refを共有)
+  // 3. オートセーブとエディタの管理（ref は親で保持し、フックにはコールバック経由で同期）
   const contentRef = useRef("");
   const lastNoteIdRef = useRef<string | null>(null);
+  const draftSync = useMemo(
+    () => ({
+      getContent: () => contentRef.current,
+      setContent: (value: string) => {
+        contentRef.current = value;
+      },
+      getLastNoteId: () => lastNoteIdRef.current,
+      setLastNoteId: (id: string | null) => {
+        lastNoteIdRef.current = id;
+      },
+    }),
+    []
+  );
 
   const { handleAutoSave } = useNoteAutoSave({
     noteId,
     noteContent: note?.content,
     isDeleting,
-    contentRef,
-    lastNoteIdRef,
+    draftSync,
   });
 
   const { editor } = useNoteEditor({
@@ -127,8 +140,7 @@ export function Editor({ noteId, isMobile }: EditorProps) {
     isPreview,
     setIsPreview,
     onUpdate: handleAutoSave,
-    contentRef,
-    lastNoteIdRef,
+    draftSync,
   });
 
   if (!noteId) {

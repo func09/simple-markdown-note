@@ -28,6 +28,7 @@ export function NoteToolbar({
   onOpenInfo,
   onToggleKeyboard,
 }: NoteToolbarProps) {
+  "use memo";
   return (
     <View className="flex-row items-center justify-between px-4 py-2 border-b border-slate-100 bg-white z-10">
       <TouchableOpacity

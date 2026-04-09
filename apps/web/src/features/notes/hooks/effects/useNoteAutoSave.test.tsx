@@ -1,9 +1,21 @@
 import * as apiClientHooks from "@simple-markdown-note/api-client/hooks";
 import { act, renderHook } from "@testing-library/react";
-import type { RefObject } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { useNotesStore } from "@/features/notes/store";
 import { useNoteAutoSave } from "./useNoteAutoSave";
+
+function createDraftSync(
+  contentRef: { current: string },
+  lastNoteIdRef: { current: string | null }
+) {
+  return {
+    getContent: () => contentRef.current,
+    setContent: (value: string) => {
+      contentRef.current = value;
+    },
+    getLastNoteId: () => lastNoteIdRef.current,
+  };
+}
 
 vi.mock("@simple-markdown-note/api-client/hooks", () => ({
   useUpdateNote: vi.fn(),
@@ -33,14 +45,14 @@ describe("useNoteAutoSave", () => {
 
     const contentRef = { current: "original" };
     const lastNoteIdRef = { current: "1" };
+    const draftSync = createDraftSync(contentRef, lastNoteIdRef);
 
     const { result } = renderHook(() =>
       useNoteAutoSave({
         noteId: "1",
         noteContent: "original",
         isDeleting: false,
-        contentRef: contentRef as unknown as RefObject<string>,
-        lastNoteIdRef: lastNoteIdRef as unknown as RefObject<string | null>,
+        draftSync,
       })
     );
 
@@ -69,14 +81,14 @@ describe("useNoteAutoSave", () => {
 
     const contentRef = { current: "original" };
     const lastNoteIdRef = { current: "1" };
+    const draftSync = createDraftSync(contentRef, lastNoteIdRef);
 
     const { result, unmount } = renderHook(() =>
       useNoteAutoSave({
         noteId: "1",
         noteContent: "original",
         isDeleting: false,
-        contentRef: contentRef as unknown as RefObject<string>,
-        lastNoteIdRef: lastNoteIdRef as unknown as RefObject<string | null>,
+        draftSync,
       })
     );
 
@@ -99,7 +111,10 @@ describe("useNoteAutoSave", () => {
       mutate,
     } as unknown as ReturnType<typeof apiClientHooks.useUpdateNote>);
 
-    // noteId is empty
+    const contentRef = { current: "original" };
+    const lastNoteIdRef = { current: "" };
+    const draftSync = createDraftSync(contentRef, lastNoteIdRef);
+
     const { result, rerender, unmount } = renderHook(
       (props) => useNoteAutoSave(props),
       {
@@ -107,10 +122,7 @@ describe("useNoteAutoSave", () => {
           noteId: "",
           noteContent: "original",
           isDeleting: false,
-          contentRef: {
-            current: "original",
-          } as unknown as RefObject<string>,
-          lastNoteIdRef: { current: "" } as unknown as RefObject<string | null>,
+          draftSync,
         },
       }
     );
@@ -123,15 +135,13 @@ describe("useNoteAutoSave", () => {
     });
     expect(mutate).not.toHaveBeenCalled();
 
-    // isDeleting is true
+    contentRef.current = "new content";
+    lastNoteIdRef.current = "1";
     rerender({
       noteId: "1",
       noteContent: "original",
       isDeleting: true,
-      contentRef: {
-        current: "new content",
-      } as unknown as RefObject<string>,
-      lastNoteIdRef: { current: "1" } as unknown as RefObject<string | null>,
+      draftSync,
     });
     act(() => {
       result.current.handleAutoSave("newer content");
@@ -141,15 +151,12 @@ describe("useNoteAutoSave", () => {
     });
     expect(mutate).not.toHaveBeenCalled();
 
-    // content is unchanged
+    contentRef.current = "original";
     rerender({
       noteId: "1",
       noteContent: "original",
       isDeleting: false,
-      contentRef: {
-        current: "original",
-      } as unknown as RefObject<string>,
-      lastNoteIdRef: { current: "1" } as unknown as RefObject<string | null>,
+      draftSync,
     });
     act(() => {
       result.current.handleAutoSave("original");
@@ -159,13 +166,12 @@ describe("useNoteAutoSave", () => {
     });
     expect(mutate).not.toHaveBeenCalled();
 
-    // On unmount skips empty content
+    contentRef.current = "   ";
     rerender({
       noteId: "1",
       noteContent: "original",
       isDeleting: false,
-      contentRef: { current: "   " } as unknown as RefObject<string>,
-      lastNoteIdRef: { current: "1" } as unknown as RefObject<string | null>,
+      draftSync,
     });
     unmount();
     expect(mutate).not.toHaveBeenCalled();
@@ -178,18 +184,16 @@ describe("useNoteAutoSave", () => {
       mutate,
     } as unknown as ReturnType<typeof apiClientHooks.useUpdateNote>);
 
-    // noteContent equals current but lastNoteIdRef differs
+    const contentRef2 = { current: "original" };
+    const lastNoteIdRef2 = { current: "something-else" };
+    const draftSync2 = createDraftSync(contentRef2, lastNoteIdRef2);
+
     const { result, unmount } = renderHook((props) => useNoteAutoSave(props), {
       initialProps: {
         noteId: "1",
         noteContent: "original",
         isDeleting: false,
-        contentRef: {
-          current: "original",
-        } as unknown as RefObject<string>,
-        lastNoteIdRef: {
-          current: "something-else",
-        } as unknown as RefObject<string | null>,
+        draftSync: draftSync2,
       },
     });
 
@@ -207,15 +211,16 @@ describe("useNoteAutoSave", () => {
 
     mutate.mockClear();
 
+    const contentRef3 = { current: "original" };
+    const lastNoteIdRef3 = { current: "1" };
+    const draftSync3 = createDraftSync(contentRef3, lastNoteIdRef3);
+
     const { result: res2 } = renderHook((props) => useNoteAutoSave(props), {
       initialProps: {
         noteId: "1",
         noteContent: "original",
         isDeleting: false,
-        contentRef: {
-          current: "original",
-        } as unknown as RefObject<string>,
-        lastNoteIdRef: { current: "1" } as unknown as RefObject<string | null>,
+        draftSync: draftSync3,
       },
     });
     act(() => {

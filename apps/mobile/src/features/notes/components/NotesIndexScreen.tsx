@@ -4,7 +4,7 @@ import type { Note } from "@simple-markdown-note/schemas";
 import { NOTE_SCOPE, type NoteScope } from "@simple-markdown-note/schemas";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Menu, NotebookPen, Search } from "lucide-react-native";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
   FlatList,
   RefreshControl,
@@ -26,6 +26,7 @@ import { SettingsSheet } from "./SettingsSheet";
  * 左からのドロワーメニュー、ノート一覧表示、検索ボックス、および新規作成・閲覧へのナビゲーションを提供します。
  */
 export function NotesIndexScreen() {
+  "use memo";
   // 1. URLパラメータから現在のスコープ（一覧、ゴミ箱等）と選択中のタグを取得
   const { scope = NOTE_SCOPE.ALL, tag } = useLocalSearchParams<{
     scope?: string;
@@ -50,10 +51,7 @@ export function NotesIndexScreen() {
   const tags = apiTags.map((t) => t.name);
 
   // 5. 検索クエリに基づき、クライアントサイドでノートを全文検索してフィルタリング
-  const filteredNotes = useMemo(
-    () => filterNotes(notes as unknown as Note[], searchQuery),
-    [notes, searchQuery]
-  );
+  const filteredNotes = filterNotes(notes as unknown as Note[], searchQuery);
 
   // 6. ドロワーメニューのアニメーションと開閉状態を管理するカスタムフック
   const { isDrawerOpen, slideAnim, toggleDrawer } = useDrawerState();
@@ -76,40 +74,28 @@ export function NotesIndexScreen() {
   /**
    * スコープ（すべてのノート/ゴミ箱など）を選択したときのハンドラ。
    */
-  const handleSelectScope = useCallback(
-    (newScope: string) => {
-      toggleDrawer(false);
-      router.setParams({ scope: newScope, tag: undefined });
-    },
-    [toggleDrawer, router]
-  );
+  const handleSelectScope = (newScope: string) => {
+    toggleDrawer(false);
+    router.setParams({ scope: newScope, tag: undefined });
+  };
 
   /**
    * タグを選択したときのハンドラ。
    */
-  const handleSelectTag = useCallback(
-    (newTag: string) => {
-      toggleDrawer(false);
-      router.setParams({ tag: newTag, scope: undefined });
-    },
-    [toggleDrawer, router]
-  );
+  const handleSelectTag = (newTag: string) => {
+    toggleDrawer(false);
+    router.setParams({ tag: newTag, scope: undefined });
+  };
 
   /**
    * 新規ノート作成画面への遷移。
    */
-  const handleNewNote = useCallback(
-    () => router.push("/(main)/notes/new"),
-    [router]
-  );
+  const handleNewNote = () => router.push("/(main)/notes/new");
 
   /**
    * 指定したノートの編集/プレビュー画面への遷移。
    */
-  const handleSelectNote = useCallback(
-    (id: string) => router.push(`/(main)/notes/${id}`),
-    [router]
-  );
+  const handleSelectNote = (id: string) => router.push(`/(main)/notes/${id}`);
 
   return (
     <View

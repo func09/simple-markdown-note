@@ -4,7 +4,7 @@ import type {
   useUpdateNote,
 } from "@simple-markdown-note/api-client/hooks";
 import type { useRouter } from "expo-router";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { AUTO_SAVE_DELAY } from "../../constants";
 
 /**
@@ -36,16 +36,22 @@ export function useNoteAutoSave({
   currentNoteId: { current: string | null };
   markAsInitialized: (id: string) => void;
 }) {
+  "use memo";
+  // mutations オブジェクトを ref で保持し、依存配列に含めずに最新の mutate を呼び出す
+  const mutationsRef = useRef(mutations);
+  mutationsRef.current = mutations;
+
   useEffect(() => {
     if (isLoading || isDeleting) return;
     if (!content.trim() && isNew) return;
 
     const timer = setTimeout(async () => {
       const activeId = currentNoteId.current;
+      const m = mutationsRef.current;
 
       if (isNew && !activeId) {
         try {
-          const result = await mutations.createNote({
+          const result = await m.createNote({
             content,
             tags,
             isPermanent: false,
@@ -62,7 +68,7 @@ export function useNoteAutoSave({
             JSON.stringify(tags) !==
               JSON.stringify(note.tags.map((t) => t.name)))
         ) {
-          mutations.updateNote({ id: activeId, data: { content, tags } });
+          m.updateNote({ id: activeId, data: { content, tags } });
         }
       }
     }, AUTO_SAVE_DELAY);
@@ -75,7 +81,6 @@ export function useNoteAutoSave({
     note,
     isLoading,
     isDeleting,
-    mutations,
     router,
     currentNoteId,
     markAsInitialized,

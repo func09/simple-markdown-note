@@ -52,7 +52,6 @@ describe("dateSchema", () => {
 
   // Dateオブジェクトを受け取り、変換してISO文字列として返すこと
   it("should accept Date object and output ISO string", () => {
-    // eslint-disable-next-line jsdoc/require-jsdoc
     const date = new Date("2026-03-25T12:00:00.000Z");
     const result = dateSchema.safeParse(date);
     expect(result.success).toBe(true);

@@ -53,6 +53,7 @@ export function EditorHeader({
   handleRestore,
   handlePermanentDelete,
 }: EditorHeaderProps) {
+  "use memo";
   const navigate = useNavigate();
 
   return (

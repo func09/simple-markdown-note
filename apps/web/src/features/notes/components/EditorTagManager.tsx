@@ -15,6 +15,7 @@ export function EditorTagManager({
   isTrashed,
   handleUpdateTags,
 }: EditorTagManagerProps) {
+  "use memo";
   return (
     <div className="px-8 py-4 border-t border-slate-100 bg-white">
       <div className="flex flex-wrap items-center gap-2">

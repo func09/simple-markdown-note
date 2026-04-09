@@ -15,16 +15,20 @@ export function useNoteEditor({
   isPreview,
   setIsPreview,
   onUpdate,
-  contentRef,
-  lastNoteIdRef,
+  draftSync,
 }: {
   note?: { id: string; content: string; deletedAt?: string | null };
   isPreview: boolean;
   setIsPreview: (show: boolean) => void;
   onUpdate: (content: string) => void;
-  contentRef: React.RefObject<string>;
-  lastNoteIdRef: React.RefObject<string | null>;
+  draftSync: {
+    getContent: () => string;
+    setContent: (value: string) => void;
+    getLastNoteId: () => string | null;
+    setLastNoteId: (id: string | null) => void;
+  };
 }) {
+  "use memo";
   const isTrashed = !!note?.deletedAt;
 
   const editor = useEditor({
@@ -76,25 +80,25 @@ export function useNoteEditor({
 
   useEffect(() => {
     if (editor && note) {
-      if (note.id !== lastNoteIdRef.current) {
+      if (note.id !== draftSync.getLastNoteId()) {
         const html = note.content
           .split("\n")
           .map((line) => `<p>${escapeHtml(line)}</p>`)
           .join("");
         editor.commands.setContent(html, { emitUpdate: false });
-        contentRef.current = note.content;
-        lastNoteIdRef.current = note.id;
+        draftSync.setContent(note.content);
+        draftSync.setLastNoteId(note.id);
         setIsPreview(false);
-      } else if (!editor.isFocused && note.content !== contentRef.current) {
+      } else if (!editor.isFocused && note.content !== draftSync.getContent()) {
         const html = note.content
           .split("\n")
           .map((line) => `<p>${escapeHtml(line)}</p>`)
           .join("");
         editor.commands.setContent(html, { emitUpdate: false });
-        contentRef.current = note.content;
+        draftSync.setContent(note.content);
       }
     }
-  }, [note, editor, setIsPreview, contentRef, lastNoteIdRef]);
+  }, [note, editor, setIsPreview, draftSync]);
 
   return { editor };
 }

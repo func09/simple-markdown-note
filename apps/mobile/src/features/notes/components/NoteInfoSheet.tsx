@@ -5,7 +5,7 @@ import {
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
 import { Trash2, X } from "lucide-react-native";
-import { type RefObject, useCallback } from "react";
+import type { RefObject } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import { formatDate } from "../utils";
 
@@ -30,16 +30,14 @@ export function NoteInfoSheet({
   onTrashAction,
   onPermanentDelete,
 }: NoteInfoSheetProps) {
-  const renderBackdrop = useCallback(
-    (props: BottomSheetBackdropProps) => (
-      <BottomSheetBackdrop
-        {...props}
-        disappearsOnIndex={-1}
-        appearsOnIndex={0}
-        opacity={0.2}
-      />
-    ),
-    []
+  "use memo";
+  const renderBackdrop = (props: BottomSheetBackdropProps) => (
+    <BottomSheetBackdrop
+      {...props}
+      disappearsOnIndex={-1}
+      appearsOnIndex={0}
+      opacity={0.2}
+    />
   );
 
   return (

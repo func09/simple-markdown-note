@@ -16,6 +16,7 @@ interface NotesIndexScreenProps {
 export function NotesIndexScreen({
   selectedNoteId: propSelectedNoteId,
 }: NotesIndexScreenProps) {
+  "use memo";
   const isDesktop = useMediaQuery("(min-width: 1024px)");
   const isTablet = useMediaQuery("(min-width: 768px)");
 
