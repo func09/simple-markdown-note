@@ -16,7 +16,8 @@
     "check:react-compiler": "react-compiler-healthcheck apps/web/src apps/mobile/src",
     "check:types": "turbo check:types",
     "clean:cache": "find . -name \"*.tsbuildinfo\" -delete",
-    "dev": "tsx scripts/dev.ts",
+    "dev": "turbo run dev --filter=@simple-markdown-note/api --filter=@simple-markdown-note/web",
+    "dev:all": "rm -rf apps/web/node_modules/.vite && turbo run dev",
     "prepare": "husky",
     "test": "CI=true turbo test",
     "test:cov": "CI=true turbo test -- --coverage --reporter=dot --silent"
