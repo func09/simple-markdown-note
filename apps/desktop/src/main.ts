@@ -1,6 +1,8 @@
+import * as os from "node:os";
 import * as path from "node:path";
 import { app, BrowserWindow } from "electron";
 import { setupMenu } from "./menu";
+import { APP_NAME } from "./types";
 
 // Disable hardware acceleration to avoid some GPU-related glitches (optional, but good for simple apps)
 // app.disableHardwareAcceleration();
@@ -32,6 +34,9 @@ function createWindow() {
       devTools: true, // Allow devTools in production for convenience
     },
   });
+  const releaseChannel = isDev ? "development" : "production";
+  const desktopUserAgent = `${APP_NAME}/${app.getVersion()} (desktop; ${process.platform} ${os.release()}; ${releaseChannel})`;
+  mainWindow.webContents.setUserAgent(desktopUserAgent);
 
   if (isDev) {
     // In development, load the Vite dev server
