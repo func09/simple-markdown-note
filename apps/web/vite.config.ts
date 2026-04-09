@@ -10,7 +10,12 @@ export default defineConfig(({ mode: _mode }) => {
   return {
     clearScreen: false,
     base: isElectron ? "./" : "/",
-    plugins: [react(), babel({ presets: [reactCompilerPreset()] })],
+    plugins: [
+      react(),
+      babel({
+        presets: [reactCompilerPreset({ compilationMode: "annotation" })],
+      }),
+    ],
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),
