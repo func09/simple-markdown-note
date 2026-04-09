@@ -1,6 +1,10 @@
 # EAS iOS tag build setup
 
-Pushing a Git tag matching `YYYY.MM.DD.N` on the linked repository triggers the **EAS Workflow** defined in [`.eas/workflows/mobile-ios-release.yml`](.eas/workflows/mobile-ios-release.yml). The workflow runs on EAS (not via a GitHub Actions workflow in this repo).
+Pushing a Git tag matching `YYYY.MM.DD.N` on the linked repository triggers the **EAS Workflow** defined at the **repository root**: [`.eas/workflows/mobile-ios-release.yml`](../../.eas/workflows/mobile-ios-release.yml).
+
+The workflow file lives next to the git root so **GitHub → EAS** automation can discover it. (`eas.json` remains under `apps/mobile`; that is still the app directory for EAS Build, see [EAS Build with a monorepo](https://docs.expo.dev/build-reference/build-with-monorepos/).)
+
+The workflow runs on EAS (not via a GitHub Actions workflow in this repo).
 
 The pipeline:
 
@@ -54,5 +58,13 @@ git push origin 2026.04.09.1
 ```
 
 In the Expo dashboard, open **Workflows** for this project and confirm **Mobile iOS Release** ran: build, then submit to App Store Connect.
+
+### Manual run (from `apps/mobile`)
+
+```bash
+pnpm exec eas workflow:run ../../.eas/workflows/mobile-ios-release.yml --non-interactive
+```
+
+Or: `pnpm eas:workflow:ios-release -- --non-interactive`
 
 **Note:** EAS Submit uploads the binary to App Store Connect (e.g. TestFlight processing). Sending the app to **App Review** may still be done in App Store Connect depending on your release process.

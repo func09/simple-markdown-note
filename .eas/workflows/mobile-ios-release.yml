@@ -1,3 +1,5 @@
+# GitHub 連携のタグトリガーはリポジトリルートの .eas/workflows を参照することが多い。
+# eas.json は apps/mobile にあるため、手動実行は apps/mobile から package.json のスクリプトを使う。
 name: Mobile iOS Release
 
 on:
