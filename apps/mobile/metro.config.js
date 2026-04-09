@@ -8,8 +8,17 @@ const workspaceRoot = path.resolve(projectRoot, "../..");
 
 const config = getDefaultConfig(projectRoot);
 
-// 1. 全てのワークスペースファイルを監視対象に含める
-config.watchFolders = [workspaceRoot];
+// 1. Expo の既定の監視対象を維持したまま、モノレポルートを追加する（expo-doctor 互換）
+const defaultWatchFolders = config.watchFolders ?? [];
+const watchFolderSet = new Set();
+config.watchFolders = [];
+for (const folder of [...defaultWatchFolders, workspaceRoot]) {
+  const resolved = path.resolve(folder);
+  if (!watchFolderSet.has(resolved)) {
+    watchFolderSet.add(resolved);
+    config.watchFolders.push(resolved);
+  }
+}
 
 // モバイル以外のアプリディレクトリの変更でリロードされないよう除外
 const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
