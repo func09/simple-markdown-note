@@ -7,7 +7,6 @@
     "check": "biome check .",
     "check:types": "tsc --noEmit",
     "dev": "expo start",
-    "eas:workflow:ios-release": "eas workflow:run .eas/workflows/mobile-ios-release.yml",
     "ios": "expo run:ios",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --passWithNoTests",
     "test:cov": "NODE_OPTIONS=--experimental-vm-modules jest --passWithNoTests --coverage --silent",
