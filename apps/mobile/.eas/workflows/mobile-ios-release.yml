@@ -2,13 +2,14 @@
 # submit は type: submit ではなくカスタム steps にしている。eas-cli が eas.json の ascAppId を env 展開しないため、
 # 実行時に ASC_APP_ID（Expo ダッシュボード production）を書き込んでから eas submit する。
 # リリースタグは SemVer（v プレフィックス）。IOS_BUILD_NUMBER は App Store 向けに単調増加となる Unix 秒。
+# EAS Workflows のタグ glob は「*」ワイルドカードのみ（文字クラス [0-9] 等は使えない）。GitHub Actions とは記法が異なる。
 name: Mobile iOS Release
 
 on:
   push:
     tags:
-      - 'v[0-9]*.[0-9]*.[0-9]*'
-      - 'v[0-9]*.[0-9]*.[0-9]*-*'
+      - 'v*.*.*'
+      - 'v*.*.*-*'
 
 jobs:
   derive_versions:
