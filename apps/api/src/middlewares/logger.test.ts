@@ -30,52 +30,74 @@ describe("Logger Middleware", () => {
       (call) =>
         JSON.parse(String(call[0])) as {
           message: string;
-          timestamp: string;
-          method: string;
-          path: string;
-          query: Record<string, string>;
-          status: number;
-          durationMs: number;
-          userAgent: string;
+          request: {
+            timestamp: string;
+            method: string;
+            path: string;
+            queryParams: Record<string, string>;
+            userAgent: string;
+            status: number;
+            durationMs: number;
+          };
+          client: {
+            appVersion: string;
+            platform: string;
+            osVersion: string;
+            environment: string;
+          };
         }
     );
 
     for (const log of logs) {
-      expect(log.timestamp).toEqual(expect.any(String));
-      expect(Number.isNaN(Date.parse(log.timestamp))).toBe(false);
-      expect(log.method).toBe("GET");
-      expect(log.path).toEqual(expect.any(String));
-      expect(log.query).toEqual(expect.any(Object));
-      expect(log.status).toEqual(expect.any(Number));
-      expect(log.durationMs).toEqual(expect.any(Number));
-      expect(log.userAgent).toEqual(expect.any(String));
+      expect(log.request.timestamp).toEqual(expect.any(String));
+      expect(Number.isNaN(Date.parse(log.request.timestamp))).toBe(false);
+      expect(log.request.method).toBe("GET");
+      expect(log.request.path).toEqual(expect.any(String));
+      expect(log.request.queryParams).toEqual(expect.any(Object));
+      expect(log.request.status).toEqual(expect.any(Number));
+      expect(log.request.durationMs).toEqual(expect.any(Number));
+      expect(log.request.userAgent).toEqual(expect.any(String));
+      expect(log.client.appVersion).toEqual(expect.any(String));
+      expect(log.client.platform).toEqual(expect.any(String));
+      expect(log.client.osVersion).toEqual(expect.any(String));
+      expect(log.client.environment).toEqual(expect.any(String));
       expect(log.message).toEqual(expect.any(String));
-      expect(log.message).toContain(`${log.method} ${log.path} ${log.status}`);
+      expect(log.message).toContain(
+        `${log.request.method} ${log.request.path} ${log.request.status}`
+      );
     }
 
     expect(logs[0]).toMatchObject({
-      path: "/200",
-      status: 200,
-      query: {},
-      userAgent: "",
+      request: {
+        path: "/200",
+        status: 200,
+        queryParams: {},
+        userAgent: "",
+      },
     });
     expect(logs[1]).toMatchObject({
-      path: "/300",
-      status: 301,
-      query: {},
-      userAgent: "",
+      request: {
+        path: "/300",
+        status: 301,
+        queryParams: {},
+        userAgent: "",
+      },
     });
     expect(logs[2]).toMatchObject({
-      path: "/400",
-      status: 400,
-      query: {},
-      userAgent: "desktop-test-agent",
+      request: {
+        path: "/400",
+        status: 400,
+        queryParams: {},
+        userAgent: "desktop-test-agent",
+      },
     });
     expect(logs[3]).toMatchObject({
-      path: "/query",
-      status: 200,
-      query: { foo: "bar" },
-      userAgent: "mobile-test-agent",
+      request: {
+        path: "/query",
+        status: 200,
+        queryParams: { foo: "bar" },
+        userAgent: "mobile-test-agent",
+      },
     });
 
     consoleSpy.mockRestore();

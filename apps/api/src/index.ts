@@ -60,7 +60,14 @@ app
       },
       credentials: true,
       allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-      allowHeaders: ["Content-Type", "Authorization"],
+      allowHeaders: [
+        "Content-Type",
+        "Authorization",
+        "X-Client-Platform",
+        "X-Client-Version",
+        "X-Client-Os-Version",
+        "X-Client-Environment",
+      ],
     })
   )
   // JWT 認証ミドルウェア (秘密鍵は環境変数から取得)
