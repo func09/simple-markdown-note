@@ -20,6 +20,7 @@
     "@simple-markdown-note/api-client": "workspace:*",
     "@simple-markdown-note/schemas": "workspace:*",
     "@tanstack/react-query": "catalog:",
+    "app-icon-badge": "^0.1.2",
     "babel-plugin-react-compiler": "^1.0.0",
     "dotenv": "^17.4.1",
     "expo": "~54.0.33",

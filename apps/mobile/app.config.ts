@@ -6,6 +6,7 @@ import type { ConfigContext, ExpoConfig } from "expo/config";
 const envFile =
   process.env.NODE_ENV === "production" ? ".env.production" : ".env";
 dotenv.config({ path: path.resolve(__dirname, envFile) });
+const appEnv = process.env.EAS_BUILD_PROFILE ?? "development";
 
 /**
  * 必須環境変数を取得する
@@ -59,6 +60,18 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       ITSAppUsesNonExemptEncryption: false,
     },
   },
+  plugins: [
+    ...(config.plugins ?? []),
+    [
+      "app-icon-badge",
+      {
+        enabled: appEnv !== "production",
+        badges: [
+          { text: appEnv, type: "banner", color: "white", position: "bottom" },
+        ],
+      },
+    ],
+  ],
   extra: {
     ...config.extra,
     eas: {
