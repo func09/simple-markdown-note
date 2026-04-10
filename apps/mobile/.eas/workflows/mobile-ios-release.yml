@@ -96,5 +96,6 @@ jobs:
           j.submit.production.ios.ascAppId = String(id).trim();
           fs.writeFileSync(p, JSON.stringify(j, null, 2));
           NODE
+      # カスタム steps には eas CLI が PATH に無いことがある。npx で実行する。
       - name: Submit with EAS Submit
-        run: eas submit --platform ios --id ${{ needs.build_ios.outputs.build_id }} --profile production --non-interactive
+        run: npx --yes eas-cli submit --platform ios --id ${{ needs.build_ios.outputs.build_id }} --profile production --non-interactive
