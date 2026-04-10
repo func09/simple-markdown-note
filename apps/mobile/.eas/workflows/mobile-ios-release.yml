@@ -51,11 +51,13 @@ jobs:
     needs: [build_ios]
     # ASC_APP_ID は Expo の EAS Environment variables（production）から注入される。ここに env: で列挙不要。
     environment: production
-    # カスタム steps の cwd はリポジトリルートになることがある。Base directory（apps/mobile）で eas submit する。
+    # カスタムジョブは eas/checkout しないと workingdir にソースが無い（eas.json が存在しない）。
+    # Base directory（apps/mobile）配下で run する。
     defaults:
       run:
         working_directory: .
     steps:
+      - uses: eas/checkout
       - name: Inject ascAppId into eas.json
         run: |
           node <<'NODE'

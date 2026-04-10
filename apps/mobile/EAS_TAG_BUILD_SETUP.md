@@ -15,7 +15,7 @@ The pipeline:
 3. Runs an iOS **production** EAS Build.
 4. Submits that build to **App Store Connect** with EAS Submit (`submit_ios` job).
 
-`submit_ios` is implemented as a **custom job** (shell steps), not `type: submit`. Non-interactive submit requires `ascAppId` in `eas.json`, but the current eas-cli does not expand environment variables inside that field. The workflow therefore writes `ASC_APP_ID` from the Expo dashboard into `eas.json` at runtime, then runs `eas submit`. The job sets `defaults.run.working_directory` to the Expo base directory and resolves `eas.json` from there or from `apps/mobile/` when the step cwd is the repo root.
+`submit_ios` is implemented as a **custom job** (shell steps), not `type: submit`. Non-interactive submit requires `ascAppId` in `eas.json`, but the current eas-cli does not expand environment variables inside that field. The workflow therefore writes `ASC_APP_ID` from the Expo dashboard into `eas.json` at runtime, then runs `eas submit`. The job runs `uses: eas/checkout` first (required for custom jobs so the repo exists under the working directory), then sets `defaults.run.working_directory` to the Expo base directory and resolves `eas.json` from `./eas.json` or `./apps/mobile/eas.json` if needed.
 
 ## 1. One-time Expo/EAS project link
 
