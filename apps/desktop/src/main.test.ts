@@ -93,7 +93,7 @@ describe("main process", () => {
     );
     expect(mockWindowInst.webContents.setUserAgent).toHaveBeenCalledWith(
       expect.stringMatching(
-        /^SimpleMarkdownNote\/1\.0\.0 \(desktop; [a-z0-9]+ [^;]+; (development|production)\)$/
+        /^SimpleMarkdownNote\/1\.0\.0 \(macos; [^;]+; (development|production)\)$/
       )
     );
     expect(mockWindowInst.loadFile).not.toHaveBeenCalled();
