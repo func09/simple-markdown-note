@@ -68,12 +68,28 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: pnpm db:migrate --remote
 
+      - name: Resolve client version from latest tag
+        id: client_version
+        shell: bash
+        run: |
+          TAG="$(git tag --sort=-v:refname | head -n 1)"
+          if [ -z "$TAG" ]; then
+            VERSION="unknown"
+          elif [[ "$TAG" == v* ]]; then
+            VERSION="${TAG#v}"
+          else
+            VERSION="$TAG"
+          fi
+          echo "value=$VERSION" >> "$GITHUB_OUTPUT"
+
       - name: Deploy Web App
         working-directory: apps/web
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           VITE_API_URL: ${{ vars.VITE_API_URL }}
+          VITE_CLIENT_VERSION: ${{ steps.client_version.outputs.value }}
+          VITE_CLIENT_ENVIRONMENT: production
         run: |
           pnpm build
           pnpm wrangler pages deploy dist --project-name simple-markdown-note-web
