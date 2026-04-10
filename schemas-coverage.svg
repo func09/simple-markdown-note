@@ -1,14 +1,14 @@
 <svg width="159.3" height="20" viewBox="0 0 1593 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Schemas Coverage: 100%">
   <title>Schemas Coverage: 100%</title>
-  <linearGradient id="yWhml" x2="0" y2="100%">
+  <linearGradient id="njNyS" x2="0" y2="100%">
     <stop offset="0" stop-opacity=".1" stop-color="#EEE"/>
     <stop offset="1" stop-opacity=".1"/>
   </linearGradient>
-  <mask id="IDZwD"><rect width="1593" height="200" rx="30" fill="#FFF"/></mask>
-  <g mask="url(#IDZwD)">
+  <mask id="urvWF"><rect width="1593" height="200" rx="30" fill="#FFF"/></mask>
+  <g mask="url(#urvWF)">
     <rect width="1163" height="200" fill="#555"/>
     <rect width="430" height="200" fill="#3C1" x="1163"/>
-    <rect width="1593" height="200" fill="url(#yWhml)"/>
+    <rect width="1593" height="200" fill="url(#njNyS)"/>
   </g>
   <g aria-hidden="true" fill="#fff" text-anchor="start" font-family="Verdana,DejaVu Sans,sans-serif" font-size="110">
     <text x="60" y="148" textLength="1063" fill="#000" opacity="0.25">Schemas Coverage</text>
