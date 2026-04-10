@@ -1,8 +1,8 @@
 # EAS iOS tag build setup
 
-Pushing a Git tag matching `YYYY.MM.DD.N` on the linked repository triggers the **EAS Workflow** defined at the **repository root**: [`.eas/workflows/mobile-ios-release.yml`](../../.eas/workflows/mobile-ios-release.yml).
+Pushing a Git tag matching `YYYY.MM.DD.N` on the linked repository triggers the **EAS Workflow** defined at [`.eas/workflows/mobile-ios-release.yml`](.eas/workflows/mobile-ios-release.yml).
 
-The workflow file lives next to the git root so **GitHub → EAS** automation can discover it. (`eas.json` remains under `apps/mobile`; that is still the app directory for EAS Build, see [EAS Build with a monorepo](https://docs.expo.dev/build-reference/build-with-monorepos/).)
+The workflow file is located under `apps/mobile/.eas/workflows/` because the Expo dashboard **Base directory** is set to `/apps/mobile`. EAS discovers workflows relative to this base directory.
 
 The workflow runs on EAS (not via a GitHub Actions workflow in this repo).
 
@@ -62,7 +62,7 @@ In the Expo dashboard, open **Workflows** for this project and confirm **Mobile 
 ### Manual run (from `apps/mobile`)
 
 ```bash
-pnpm exec eas workflow:run ../../.eas/workflows/mobile-ios-release.yml --non-interactive
+pnpm exec eas workflow:run .eas/workflows/mobile-ios-release.yml --non-interactive
 ```
 
 Or: `pnpm eas:workflow:ios-release -- --non-interactive`
