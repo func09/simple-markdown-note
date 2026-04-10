@@ -2,6 +2,8 @@
 
 Pushing a Git tag matching **SemVer** (`v` prefix) on the linked repository triggers the **EAS Workflow** defined at [`.eas/workflows/mobile-ios-release.yml`](.eas/workflows/mobile-ios-release.yml).
 
+EAS tag filters only support `*` wildcards (not bracket character classes like GitHub Actions). The workflow uses `v*.*.*` and `v*.*.*-*` for stable and pre-release tags.
+
 The workflow file is located under `apps/mobile/.eas/workflows/` because the Expo dashboard **Base directory** is set to `/apps/mobile`. EAS discovers workflows relative to this base directory.
 
 The workflow runs on EAS (not via a GitHub Actions workflow in this repo).
