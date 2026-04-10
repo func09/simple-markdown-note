@@ -12,6 +12,8 @@ The pipeline:
 2. Runs an iOS **production** EAS Build.
 3. Submits that build to **App Store Connect** with EAS Submit (`submit_ios` job).
 
+`submit_ios` is implemented as a **custom job** (shell steps), not `type: submit`. Non-interactive submit requires `ascAppId` in `eas.json`, but the current eas-cli does not expand environment variables inside that field. The workflow therefore writes `ASC_APP_ID` from the Expo dashboard into `eas.json` at runtime, then runs `eas submit`.
+
 ## 1. One-time Expo/EAS project link
 
 Run in `apps/mobile`:
@@ -37,8 +39,9 @@ Register these variables in Expo dashboard for the mobile project (e.g. `product
 - `EXPO_PUBLIC_EAS_PROJECT_ID`
 - `IOS_BUNDLE_IDENTIFIER`
 - `APPLE_TEAM_ID`
+- `ASC_APP_ID` — App Store Connect **numeric** Apple ID for this app (not your login email). Find it under **App Store Connect → your app → App Information → General Information → Apple ID**. See [expo.fyi/asc-app-id](https://expo.fyi/asc-app-id). Used only at workflow runtime to inject `submit.production.ios.ascAppId` before `eas submit` (the value is not committed to git).
 
-These are required by `app.config.ts`.
+These are required by `app.config.ts`, except `ASC_APP_ID` which is only used by the release workflow submit step.
 
 ## 3. App Store Connect submission (CI)
 
@@ -46,7 +49,9 @@ The `submit_ios` job uses the same credentials as `eas submit`. Configure Apple 
 
 - [Submitting your app using CI/CD services (iOS)](https://docs.expo.dev/submit/ios#submitting-your-app-using-cicd-services)
 
-Submit profile: `production` (see [`eas.json`](eas.json) `submit.production`).
+Submit profile: `production` (see [`eas.json`](eas.json) `submit.production`). The committed `eas.json` keeps `submit.production` minimal; `ascAppId` is injected from `ASC_APP_ID` in the workflow before the CLI runs.
+
+If submission fails with unclear errors, you can temporarily add `EXPO_DEBUG: "1"` to the `submit_ios` job `env` in [`.eas/workflows/mobile-ios-release.yml`](.eas/workflows/mobile-ios-release.yml) for more verbose logs, then remove it afterward.
 
 ## 4. Trigger build and submit by tag
 
