@@ -51,26 +51,37 @@ jobs:
     needs: [build_ios]
     # ASC_APP_ID は Expo の EAS Environment variables（production）から注入される。ここに env: で列挙不要。
     environment: production
-    # カスタム steps の cwd はリポジトリルートになることがある。Base directory（apps/mobile）で eas submit する。
+    # カスタムジョブは eas/checkout しないと workingdir にソースが無い（eas.json が存在しない）。
+    # Base directory（apps/mobile）配下で run する。
     defaults:
       run:
         working_directory: .
     steps:
+      - uses: eas/checkout
       - name: Inject ascAppId into eas.json
         run: |
           node <<'NODE'
           const fs = require('fs');
           const path = require('path');
           const cwd = process.cwd();
-          const candidates = [
-            path.join(cwd, 'eas.json'),
-            path.join(cwd, 'apps', 'mobile', 'eas.json'),
-          ];
-          const p = candidates.find((f) => fs.existsSync(f));
+          /** cwd が repo ルートでも apps/mobile でも正しく解決する（後者で apps/mobile を二重に付けない） */
+          function findEasJson(startDir) {
+            let dir = path.resolve(startDir);
+            const root = path.parse(dir).root;
+            for (let i = 0; i < 10; i++) {
+              const local = path.join(dir, 'eas.json');
+              const mobileNested = path.join(dir, 'apps', 'mobile', 'eas.json');
+              if (fs.existsSync(local)) return local;
+              if (fs.existsSync(mobileNested)) return mobileNested;
+              const parent = path.dirname(dir);
+              if (parent === dir || dir === root) break;
+              dir = parent;
+            }
+            return null;
+          }
+          const p = findEasJson(cwd);
           if (!p) {
-            throw new Error(
-              `eas.json not found. cwd=${cwd} tried: ${candidates.join(', ')}`
-            );
+            throw new Error(`eas.json not found. cwd=${cwd} (walked up from cwd)`);
           }
           const j = JSON.parse(fs.readFileSync(p, 'utf8'));
           const id = process.env.ASC_APP_ID;
