@@ -1,11 +1,10 @@
-# GitHub 連携のタグトリガーはリポジトリルートの .eas/workflows を参照することが多い。
-# eas.json は apps/mobile にあるため、手動実行は apps/mobile から package.json のスクリプトを使う。
+# Expo ダッシュボードの Base directory が /apps/mobile のため、EAS は apps/mobile/.eas/workflows/ を参照する。
 name: Mobile iOS Release
 
 on:
   push:
     tags:
-      - '20[0-9][0-9].[0-1][0-9].[0-3][0-9].[0-9]*'
+      - '20??.*.*.*'
 
 jobs:
   derive_versions:
