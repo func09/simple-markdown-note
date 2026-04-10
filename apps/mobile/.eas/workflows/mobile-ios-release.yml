@@ -1,12 +1,14 @@
 # Expo ダッシュボードの Base directory が /apps/mobile のため、EAS は apps/mobile/.eas/workflows/ を参照する。
 # submit は type: submit ではなくカスタム steps にしている。eas-cli が eas.json の ascAppId を env 展開しないため、
 # 実行時に ASC_APP_ID（Expo ダッシュボード production）を書き込んでから eas submit する。
+# リリースタグは SemVer（v プレフィックス）。IOS_BUILD_NUMBER は App Store 向けに単調増加となる Unix 秒。
 name: Mobile iOS Release
 
 on:
   push:
     tags:
-      - '20*'
+      - 'v[0-9]*.[0-9]*.[0-9]*'
+      - 'v[0-9]*.[0-9]*.[0-9]*-*'
 
 jobs:
   derive_versions:
@@ -16,9 +18,15 @@ jobs:
         id: derive
         run: |
           TAG="${{ github.ref_name }}"
-          IFS='.' read -r year month day seq <<< "$TAG"
-          APP_VERSION="${year}.${month}.${day}"
-          BUILD_NUMBER="${year}${month}${day}$(printf '%02d' "$seq")"
+          case "$TAG" in
+            v*) APP_VERSION="${TAG#v}" ;;
+            *)
+              echo "Tag must start with v (e.g. v1.2.3 or v1.0.0-beta.1)" >&2
+              exit 1
+              ;;
+          esac
+          # CFBundleVersion: monotonic integer (Unix epoch seconds)
+          BUILD_NUMBER=$(date +%s)
           set-output app_version "$APP_VERSION"
           set-output build_number "$BUILD_NUMBER"
     outputs:
