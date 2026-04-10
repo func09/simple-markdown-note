@@ -13,9 +13,8 @@ The pipeline:
 1. Derives **app version** (`EXPO_APP_VERSION`) from the tag by stripping the leading `v` (e.g. `v1.2.3` → `1.2.3`, `v1.0.0-beta.1` → `1.0.0-beta.1`).
 2. Sets **iOS build number** (`IOS_BUILD_NUMBER`) to the current **Unix epoch seconds** at workflow run time so each upload to App Store Connect is strictly monotonic (independent of SemVer pre-release labels).
 3. Runs an iOS **production** EAS Build.
-4. Submits that build to **App Store Connect** with EAS Submit (`submit_ios` job).
 
-`submit_ios` is implemented as a **custom job** (shell steps), not `type: submit`. Non-interactive submit requires `ascAppId` in `eas.json`, but the current eas-cli does not expand environment variables inside that field. The workflow therefore writes `ASC_APP_ID` from the Expo dashboard into `eas.json` at runtime, then runs `npx eas-cli submit` (the global `eas` binary is not guaranteed on custom job runners). The job runs `uses: eas/checkout`, then `uses: eas/install_node_modules` (so `eas submit` can run `npx expo config` and resolve `app.config.ts` imports such as `dotenv` and `expo`). It sets `defaults.run.working_directory` to the Expo base directory. The inject step finds `eas.json` by walking up from `cwd`: at each directory it checks `./eas.json` and `./apps/mobile/eas.json` (so repo root and `apps/mobile` as cwd both work without duplicating `apps/mobile` in the path). The mobile app lists `dotenv` in `package.json` because `app.config.ts` imports it (not only the repo root devDependency).
+This workflow does **not** submit to App Store Connect. After the build finishes, submit via the Expo dashboard, `eas submit`, or another automation you control.
 
 ## 1. One-time Expo/EAS project link
 
@@ -42,21 +41,17 @@ Register these variables in Expo dashboard for the mobile project (e.g. `product
 - `EXPO_PUBLIC_EAS_PROJECT_ID`
 - `IOS_BUNDLE_IDENTIFIER`
 - `APPLE_TEAM_ID`
-- `ASC_APP_ID` — App Store Connect **numeric** Apple ID for this app (not your login email). Find it under **App Store Connect → your app → App Information → General Information → Apple ID**. See [expo.fyi/asc-app-id](https://expo.fyi/asc-app-id). Used only at workflow runtime to inject `submit.production.ios.ascAppId` before `eas submit` (the value is not committed to git).
+- `ASC_APP_ID` — App Store Connect **numeric** Apple ID for this app (not your login email). Find it under **App Store Connect → your app → App Information → General Information → Apple ID**. See [expo.fyi/asc-app-id](https://expo.fyi/asc-app-id). Used when running **`eas submit`** (e.g. local or CI outside this workflow); not consumed by the tag workflow itself.
 
-These are required by `app.config.ts`, except `ASC_APP_ID` which is only used by the release workflow submit step.
+## 3. App Store Connect submission (after the tag build)
 
-## 3. App Store Connect submission (CI)
-
-The `submit_ios` job uses the same credentials as `eas submit`. Configure Apple / App Store Connect API access for EAS as described in Expo’s guide:
+The tag workflow does **not** run EAS Submit. To upload a finished build to App Store Connect, use Expo’s guide and configure Apple / App Store Connect API access for EAS:
 
 - [Submitting your app using CI/CD services (iOS)](https://docs.expo.dev/submit/ios#submitting-your-app-using-cicd-services)
 
-Submit profile: `production` (see [`eas.json`](eas.json) `submit.production`). The committed `eas.json` keeps `submit.production` minimal; `ascAppId` is injected from `ASC_APP_ID` in the workflow before the CLI runs.
+Submit profile: `production` (see [`eas.json`](eas.json) `submit.production`). Set `ascAppId` in `eas.json` or via dashboard as required by `eas submit`.
 
-If submission fails with unclear errors, you can temporarily add `EXPO_DEBUG: "1"` to the `submit_ios` job `env` in [`.eas/workflows/mobile-ios-release.yml`](.eas/workflows/mobile-ios-release.yml) for more verbose logs, then remove it afterward.
-
-## 4. Trigger build and submit by tag
+## 4. Trigger build by tag
 
 Tag format: **SemVer with a `v` prefix** (matches `vX.Y.Z` or pre-releases like `vX.Y.Z-label.N`).
 
@@ -73,7 +68,7 @@ git push origin v0.1.0
 
 Use the **same tag convention** as the desktop app ([`.github/workflows/desktop-release.yml`](../../.github/workflows/desktop-release.yml)) so both clients ship the same marketing version.
 
-In the Expo dashboard, open **Workflows** for this project and confirm **Mobile iOS Release** ran: build, then submit to App Store Connect.
+In the Expo dashboard, open **Workflows** for this project and confirm **Mobile iOS Release** ran (build only).
 
 ### Manual run (from `apps/mobile`)
 
@@ -83,4 +78,4 @@ pnpm exec eas workflow:run .eas/workflows/mobile-ios-release.yml --non-interacti
 
 Or: `pnpm eas:workflow:ios-release -- --non-interactive`
 
-**Note:** EAS Submit uploads the binary to App Store Connect (e.g. TestFlight processing). Sending the app to **App Review** may still be done in App Store Connect depending on your release process.
+**Note:** `eas submit` uploads the binary to App Store Connect (e.g. TestFlight processing). Sending the app to **App Review** may still be done in App Store Connect depending on your release process.
