@@ -1,6 +1,4 @@
 # Expo ダッシュボードの Base directory が /apps/mobile のため、EAS は apps/mobile/.eas/workflows/ を参照する。
-# submit は type: submit ではなくカスタム steps にしている。eas-cli が eas.json の ascAppId を env 展開しないため、
-# 実行時に ASC_APP_ID（Expo ダッシュボード production）を書き込んでから eas submit する。
 # リリースタグは SemVer（v プレフィックス）。IOS_BUILD_NUMBER は App Store 向けに単調増加となる Unix 秒。
 # EAS Workflows のタグ glob は「*」ワイルドカードのみ（文字クラス [0-9] 等は使えない）。GitHub Actions とは記法が異なる。
 name: Mobile iOS Release
@@ -45,59 +43,3 @@ jobs:
     params:
       platform: ios
       profile: production
-
-  submit_ios:
-    name: Submit to App Store Connect
-    needs: [build_ios]
-    # ASC_APP_ID は Expo の EAS Environment variables（production）から注入される。ここに env: で列挙不要。
-    environment: production
-    # カスタムジョブは eas/checkout しないと workingdir にソースが無い（eas.json が存在しない）。
-    # Base directory（apps/mobile）配下で run する。
-    defaults:
-      run:
-        working_directory: .
-    steps:
-      - uses: eas/checkout
-      # eas submit は npx expo config で app.config.ts を評価する。dotenv / expo 等は node_modules が必須。
-      - uses: eas/install_node_modules
-      - name: Inject ascAppId into eas.json
-        run: |
-          node <<'NODE'
-          const fs = require('fs');
-          const path = require('path');
-          const cwd = process.cwd();
-          /** cwd が repo ルートでも apps/mobile でも正しく解決する（後者で apps/mobile を二重に付けない） */
-          function findEasJson(startDir) {
-            let dir = path.resolve(startDir);
-            const root = path.parse(dir).root;
-            for (let i = 0; i < 10; i++) {
-              const local = path.join(dir, 'eas.json');
-              const mobileNested = path.join(dir, 'apps', 'mobile', 'eas.json');
-              if (fs.existsSync(local)) return local;
-              if (fs.existsSync(mobileNested)) return mobileNested;
-              const parent = path.dirname(dir);
-              if (parent === dir || dir === root) break;
-              dir = parent;
-            }
-            return null;
-          }
-          const p = findEasJson(cwd);
-          if (!p) {
-            throw new Error(`eas.json not found. cwd=${cwd} (walked up from cwd)`);
-          }
-          const j = JSON.parse(fs.readFileSync(p, 'utf8'));
-          const id = process.env.ASC_APP_ID;
-          if (!id || !/^\d+$/.test(String(id).trim())) {
-            throw new Error(
-              'ASC_APP_ID must be set (Expo project env, production) to the App Store Connect numeric Apple ID.'
-            );
-          }
-          j.submit = j.submit || {};
-          j.submit.production = j.submit.production || {};
-          j.submit.production.ios = j.submit.production.ios || {};
-          j.submit.production.ios.ascAppId = String(id).trim();
-          fs.writeFileSync(p, JSON.stringify(j, null, 2));
-          NODE
-      # カスタム steps には eas CLI が PATH に無いことがある。npx で実行する。
-      - name: Submit with EAS Submit
-        run: npx --yes eas-cli submit --platform ios --id ${{ needs.build_ios.outputs.build_id }} --profile production --non-interactive
