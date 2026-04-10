@@ -15,7 +15,7 @@ import NotesPage from "./pages/notes/NotesPage";
 const rootElement = document.getElementById("root");
 if (!rootElement) throw new Error("Failed to find the root element");
 
-const isElectron = navigator.userAgent.toLowerCase().includes("electron");
+const isElectron = typeof window !== "undefined" && Boolean(window.electron);
 const Router = isElectron ? HashRouter : BrowserRouter;
 
 ReactDOM.createRoot(rootElement).render(

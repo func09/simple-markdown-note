@@ -35,7 +35,7 @@ function createWindow() {
     },
   });
   const releaseChannel = isDev ? "development" : "production";
-  const desktopUserAgent = `${APP_NAME}/${app.getVersion()} (desktop; ${process.platform} ${os.release()}; ${releaseChannel})`;
+  const desktopUserAgent = `${APP_NAME}/${app.getVersion()} (macos; ${os.release()}; ${releaseChannel})`;
   mainWindow.webContents.setUserAgent(desktopUserAgent);
 
   if (isDev) {

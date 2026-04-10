@@ -31,7 +31,7 @@ const getBaseUrl = () => {
 
 const getMobileUserAgent = () => {
   const version = Constants.expoConfig?.version ?? "dev";
-  const platform = Platform.OS;
+  const platform = "ios";
   const osVersion = String(Platform.Version);
   const releaseChannel = __DEV__ ? "development" : "production";
   return `${APP_NAME}/${version} (${platform}; ${osVersion}; ${releaseChannel})`;
@@ -40,8 +40,15 @@ const getMobileUserAgent = () => {
 const apiClient = createApiClient(getBaseUrl(), {
   headers: () => {
     const token = useAuthStore.getState().token;
+    const version = Constants.expoConfig?.version ?? "dev";
+    const osVersion = String(Platform.Version);
+    const environment = __DEV__ ? "development" : "production";
     const headers: Record<string, string> = {
       "User-Agent": getMobileUserAgent(),
+      "X-Client-Platform": "ios",
+      "X-Client-Version": version,
+      "X-Client-Os-Version": osVersion,
+      "X-Client-Environment": environment,
     };
     if (token) {
       headers.Authorization = `Bearer ${token}`;
