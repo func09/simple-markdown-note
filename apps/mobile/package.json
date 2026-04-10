@@ -21,6 +21,7 @@
     "@simple-markdown-note/schemas": "workspace:*",
     "@tanstack/react-query": "catalog:",
     "babel-plugin-react-compiler": "^1.0.0",
+    "dotenv": "^17.4.1",
     "expo": "~54.0.33",
     "expo-constants": "^18.0.13",
     "expo-dev-client": "~6.0.20",
